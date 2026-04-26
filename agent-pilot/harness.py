@@ -312,6 +312,7 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
             "tools": TOOLS,
             "tool_choice": "auto",
             "temperature": 0.0,
+            "seed": 42,
             "max_tokens": max_tokens_safe,
             "stream": False,
         }).encode()
@@ -463,6 +464,9 @@ def main():
     ap.add_argument("--model", default="qwen3-coder-next-awq")
     ap.add_argument("--port", type=int, default=8001)
     ap.add_argument("--system", default=None, help="Path to system prompt file (optional).")
+    ap.add_argument("--input-mount", default=None,
+                    help="Host path mounted read-only at /input/repo inside the sandbox. "
+                         "Useful for tasks that consume a prior agent's output (e.g. presentation built from memo repo).")
     args = ap.parse_args()
 
     # Per-run sandbox name so multiple harness invocations don't collide on the same container.
@@ -478,14 +482,24 @@ def main():
 
     # Stop any prior sandbox, start a fresh one with the workspace mounted
     subprocess.run(["docker", "rm", "-f", SANDBOX], capture_output=True)
-    subprocess.run([
+    docker_run = [
         "docker", "run", "-d", "--name", SANDBOX,
         "-v", f"{workspace_host}:/workspace",
-        "--network", "bridge",
-        IMAGE
-    ], check=True, capture_output=True)
-    # Init git inside the sandbox
-    docker_exec("git init -q && git commit --allow-empty -m 'initial empty repo' -q || true", timeout=20)
+    ]
+    if args.input_mount:
+        input_mount = Path(args.input_mount).resolve()
+        if not input_mount.exists():
+            raise SystemExit(f"--input-mount path does not exist: {input_mount}")
+        docker_run += ["-v", f"{input_mount}:/input/repo:ro"]
+        print(f"input mount: {input_mount} → /input/repo (read-only)")
+    docker_run += ["--network", "bridge", IMAGE]
+    subprocess.run(docker_run, check=True, capture_output=True)
+    # Init git inside the sandbox; pre-allow safe.directory so agent doesn't have to
+    docker_exec(
+        "git config --global --add safe.directory '*' && "
+        "git init -q && git commit --allow-empty -m 'initial empty repo' -q || true",
+        timeout=20,
+    )
 
     task = Path(args.task_file).read_text()
     system_prompt = Path(args.system).read_text() if args.system else None
