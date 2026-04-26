@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 import urllib.request, urllib.error
 
-SANDBOX = "bench-sandbox-run"
+SANDBOX = "bench-sandbox-run"  # default; overridden per-run in main() so parallel runs can coexist
 IMAGE = "bench-sandbox:latest"
 
 
@@ -453,6 +453,10 @@ def main():
     ap.add_argument("--port", type=int, default=8001)
     ap.add_argument("--system", default=None, help="Path to system prompt file (optional).")
     args = ap.parse_args()
+
+    # Per-run sandbox name so multiple harness invocations don't collide on the same container.
+    global SANDBOX
+    SANDBOX = f"bench-sandbox-{args.run_name}"
 
     log_dir = Path("/home/michael/bench/agent-pilot/logs") / args.run_name
     log_dir.mkdir(parents=True, exist_ok=True)
