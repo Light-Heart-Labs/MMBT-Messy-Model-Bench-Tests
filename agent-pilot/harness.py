@@ -308,7 +308,7 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
         req = urllib.request.Request(api_url, data=body, headers={"Content-Type": "application/json"})
         t0 = time.time()
         try:
-            with urllib.request.urlopen(req, timeout=900) as r:
+            with urllib.request.urlopen(req, timeout=3600) as r:
                 resp = json.loads(r.read())
         except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as e:
             err_body = ""
