@@ -1,0 +1,18 @@
+# Active sandboxes — these are scratch space for in-flight runs, get
+# recreated on each launch. The archived workspace_final.tar.gz inside
+# logs/<run>/ is the canonical preserved copy.
+agent-pilot/workspace/
+
+# Python cruft
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor cruft
+.idea/
+.vscode/
+*.swp
+
+# Don't track host /tmp scratch
+*.tmp
