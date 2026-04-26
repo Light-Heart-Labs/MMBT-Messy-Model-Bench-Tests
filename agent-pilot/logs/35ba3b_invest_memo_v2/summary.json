@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-26T18:18:37.902644+00:00",
+  "ended_at": "2026-04-26T18:18:47.549274+00:00",
+  "elapsed_s": 9.6,
+  "iterations": 14,
+  "total_completion_tokens": 1430,
+  "total_prompt_tokens": 39128,
+  "model": "qwen3.6-35ba3b-awq",
+  "finish_reason": "model_stopped",
+  "done_summary": "(model stopped without explicit done())"
+}

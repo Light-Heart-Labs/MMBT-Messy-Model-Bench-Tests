@@ -300,7 +300,7 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
         estimated_prompt = max(last_prompt_tokens + 12000, 8000)
         safety = 2048
         max_tokens_safe = max(2048, max_model_len - estimated_prompt - safety)
-        max_tokens_safe = min(max_tokens_safe, 64000)
+        max_tokens_safe = min(max_tokens_safe, 180000)
         body = json.dumps({
             "model": model,
             "messages": messages,
