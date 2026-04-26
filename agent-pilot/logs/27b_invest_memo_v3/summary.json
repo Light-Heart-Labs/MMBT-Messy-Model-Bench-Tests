@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-26T18:40:44.297218+00:00",
+  "ended_at": "2026-04-26T18:52:17.389905+00:00",
+  "elapsed_s": 693.1,
+  "iterations": 40,
+  "total_completion_tokens": 26349,
+  "total_prompt_tokens": 945049,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "model_stopped",
+  "done_summary": "\n\n<parameter name=\"bash\">\n<parameter=command>\ncat > /workspace/analysis/parse_press_releases.py << 'PYEOF'\n\"\"\"\nParse press release exhibits to extract key financial data and management quotes\n\"\"\"\nfrom bs4 import BeautifulSoup, XMLParsedAsHTMLWarning\nimport warnings\nwarnings.filterwarnings(\"ignore\", category=XMLParsedAsHTMLWarning)\n\nimport os\n\npr_files = [\n    ('Q4/FY2026', '/workspace/raw/transcripts/sentineloneq426exhibit991.htm'),\n    ('Q3 FY2026', '/workspace/raw/transcripts/sentineloneq326exhibit991.htm'),\n    ('Q2 FY2026', '/workspace/raw/transcripts/sentineloneq226exhibit991.htm'),\n    ('Q1 FY2026', '/workspace/raw/transcripts/sentineloneq126exhibit991.htm'),\n]\n\nfor name, fpath in pr_files:\n    if not os.path.exists(fpath):\n        print(f\"  {name}: File not found\")\n        continue\n    \n    with open(fpath, 'r', encoding='utf-8', errors='replace') as f:\n        content = f.read()\n    \n    soup = BeautifulSoup(content, 'lxml')\n    text = soup.get_text(separator='\\n', strip=True)\n"
+}
