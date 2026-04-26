@@ -140,11 +140,16 @@ def workspace_state_hash():
 
 
 def docker_exec(cmd, workdir="/workspace", timeout=300):
-    """Run a command in the sandbox. Returns dict with stdout/stderr/rc/duration."""
+    """Run a command in the sandbox. Returns dict with stdout/stderr/rc/duration.
+
+    Pipes the command via stdin (`bash -s`) instead of `bash -c "..."` so we
+    don't hit Linux's ~128KB argv limit on long heredocs. Hit this when a
+    model emitted a 680-token python heredoc as a single bash call.
+    """
     t0 = time.time()
-    full = ["docker", "exec", "-w", workdir, SANDBOX, "bash", "-c", cmd]
+    full = ["docker", "exec", "-i", "-w", workdir, SANDBOX, "bash", "-s"]
     try:
-        p = subprocess.run(full, capture_output=True, text=True, timeout=timeout)
+        p = subprocess.run(full, input=cmd, capture_output=True, text=True, timeout=timeout)
         return {
             "rc": p.returncode,
             "stdout": p.stdout[-20000:],
