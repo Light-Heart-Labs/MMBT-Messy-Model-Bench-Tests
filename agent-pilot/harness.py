@@ -109,7 +109,7 @@ def record_environment(run_name, model, api_url, task_file, log_dir):
     # Inference request defaults (the constants used in the loop body)
     receipt["inference_request_defaults"] = {
         "temperature": 0.0,
-        "max_tokens_strategy": "min(64000, max_model_len - last_prompt_tokens - 14000)",
+        "max_tokens_strategy": "min(180000, max_model_len - last_prompt_tokens - 14000), floor 2048",
         "max_model_len": 262144,
         "stream": False,
         "tool_choice": "auto",
@@ -149,13 +149,18 @@ def docker_exec(cmd, workdir="/workspace", timeout=300):
     t0 = time.time()
     full = ["docker", "exec", "-i", "-w", workdir, SANDBOX, "bash", "-s"]
     try:
-        p = subprocess.run(full, input=cmd, capture_output=True, text=True, timeout=timeout)
+        # Capture as bytes; decode with errors='replace' so binary outputs (e.g. curl-piping
+        # gzipped content) don't raise UnicodeDecodeError. Hit this on a Coder-Next run where
+        # a bash command piped \x1f\x8b… into stdout.
+        p = subprocess.run(full, input=cmd.encode("utf-8"), capture_output=True, timeout=timeout)
+        out = p.stdout.decode("utf-8", errors="replace")
+        err = p.stderr.decode("utf-8", errors="replace")
         return {
             "rc": p.returncode,
-            "stdout": p.stdout[-20000:],
-            "stderr": p.stderr[-5000:],
+            "stdout": out[-20000:],
+            "stderr": err[-5000:],
             "duration_s": round(time.time() - t0, 2),
-            "truncated_stdout": len(p.stdout) > 20000,
+            "truncated_stdout": len(out) > 20000,
         }
     except subprocess.TimeoutExpired:
         return {"rc": -1, "stdout": "", "stderr": f"timeout after {timeout}s", "duration_s": timeout}
