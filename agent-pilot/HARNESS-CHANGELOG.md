@@ -1,0 +1,38 @@
+# Harness changelog
+
+A short log of harness changes and the bugs that prompted them. Live mainly to explain *why* the harness has its current shape, since runs that exposed each bug have been pruned from the results namespace (they were harness-faulted, not capability data).
+
+Each fix is in the git history if you want to inspect the diff.
+
+## 2026-04-26
+
+### Receipts + canonical launch commands
+
+`a1d59fb` — `record_environment()` writes `logs/<run>/receipt.json` before the agent loop starts. Captures: vLLM container `Args` (the exact launch flags), image digest + container ID + start time, sandbox image id, harness git SHA + dirty flag + file sha256, task file sha256 + size, host kernel/OS, full nvidia-smi snapshot at run start, and the inference request defaults the loop will use. Pairs with `agent-pilot/launch-commands.md` which documents the canonical `docker run` form for each model.
+
+Goal: any past run is reproducible from its receipt alone — checkout the harness SHA, rebuild the sandbox image from that SHA, launch vLLM with the captured args, point the harness at it.
+
+### urlopen timeout: 900 s → 3600 s
+
+`3557ee7` — A 27B-AWQ run on the investment-memo task was cut short by `urllib.request.urlopen(req, timeout=900)`. The model was actively making progress (last 5 tool calls were fresh python scripts attempting different data sources, stuck-detector at 1/30) but a single inference call exceeded 900 s — almost certainly because thinking-mode models can spend many seconds reasoning between tool calls.
+
+900 s was wrong for thinking models on hard tasks. Bumped to 3600 s. The stuck detector (workspace state hash, kills after 30 iters of no change) remains the primary terminator for genuine model stalls; the urlopen timeout is now just a backstop for hung connections, which was its original intent.
+
+### Dynamic `max_tokens`
+
+Same era — replaced the fixed `max_tokens: 200000` per request with `min(64000, max_model_len - last_prompt_tokens - 14000)`. The original 200K was eating all the context budget so as conversation history grew vLLM would 400 with "input is too long". Dynamic computation leaves prompt headroom that scales with iteration count.
+
+### `docker_exec`: argv → stdin
+
+`c60acfe` — A Coder-Next run died with `OSError: [Errno 7] Argument list too long` at iter 38 when the model emitted a ~680-token bash heredoc as a single tool call. Linux's argv+envp limit is ~128 KB and `docker exec ... bash -c "<long>"` puts the entire command on argv.
+
+Switched to `docker exec -i ... bash -s` with the command piped on stdin. No argv constraint, same workdir/timeout semantics. Sanity-checked with a 200 KB synthetic command (rc=0).
+
+This bug had been silently affecting Coder-Next runs all along — Coder-Next is biased toward emitting big bash heredoc tool calls vs the more modular tool calls a thinking-mode model tends to make. Score on the same model+task swung ~4× once fixed (score was a harness ceiling, not a model ceiling). **Worth checking any harness-mediated agent before scoring it.**
+
+## Methodology lessons baked in
+
+1. **Receipts are mandatory.** Every run writes one before the loop starts. Reproducible-from-receipt is the bar.
+2. **Argv-length is a real harness constraint.** Long tool calls must go via stdin.
+3. **Determinism is approximate.** Same model, same prompt, `temperature=0` — different runs can pick different companies and reach different states. vLLM's bf16 paths aren't bitwise-deterministic across runs (cuBLAS workspace + batch reordering effects). Plan for N≥3 per (model × task) when moving from pilot to formal eval.
+4. **Stuck detector is the primary terminator.** Workspace-state hash; if no file/commit changes for 30 consecutive iters, kill. Held up cleanly across all observed runs — never falsely fired during real progress, always fired on actual stalls.
