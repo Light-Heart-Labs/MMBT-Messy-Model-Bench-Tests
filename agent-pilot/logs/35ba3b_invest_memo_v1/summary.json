@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-26T18:01:15.281062+00:00",
+  "ended_at": "2026-04-26T18:07:40.963397+00:00",
+  "elapsed_s": 385.7,
+  "iterations": 51,
+  "total_completion_tokens": 40029,
+  "total_prompt_tokens": 1883375,
+  "model": "qwen3.6-35ba3b-awq",
+  "finish_reason": "stuck_no_workspace_change_for_30_iters",
+  "done_summary": null
+}

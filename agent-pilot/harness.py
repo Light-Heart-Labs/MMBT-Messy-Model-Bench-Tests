@@ -380,7 +380,7 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
                 with open(log_path, "a") as f:
                     f.write(json.dumps({
                         "t": now_iso(), "iter": iter_count, "type": "tool",
-                        "name": tc_name, "args": tc_args if len(json.dumps(tc_args)) < 2000 else {"_truncated": True},
+                        "name": tc_name, "args": tc_args if len(json.dumps(tc_args)) < 50000 else {"_truncated_at_bytes": len(json.dumps(tc_args))},
                         "wall_s": round(tool_wall, 2),
                         "result_len": len(result),
                     }) + "\n")
