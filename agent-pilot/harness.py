@@ -351,14 +351,20 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
 
         # If the model hit max_tokens mid-output, its tool_calls JSON arguments may be truncated.
         # Forwarding a malformed assistant message will get rejected by vLLM on the next call.
-        # Break cleanly with a clear finish_reason instead.
-        if resp["choices"][0].get("finish_reason") == "length":
+        # Detect by both finish_reason="length" AND completion_tokens at/near the cap — vLLM
+        # sometimes returns finish_reason="tool_calls" when the model emits a tool call AND
+        # hits the cap on the same turn (the cap-hit isn't reflected in finish_reason).
+        ctok = usage.get("completion_tokens", 0)
+        hit_cap = ctok >= max_tokens_safe - 100
+        if resp["choices"][0].get("finish_reason") == "length" or hit_cap:
             with open(log_path, "a") as f:
                 f.write(json.dumps({
                     "t": now_iso(), "iter": iter_count, "type": "abort",
                     "reason": "model hit max_tokens cap mid-emission; assistant message likely contains truncated tool-call JSON",
-                    "completion_tokens": usage.get("completion_tokens", 0),
+                    "completion_tokens": ctok,
                     "max_tokens_safe": max_tokens_safe,
+                    "finish_reason": resp["choices"][0].get("finish_reason"),
+                    "detected_via": "length" if resp["choices"][0].get("finish_reason") == "length" else "ctok_at_cap",
                 }) + "\n")
             finish_reason = f"model_exceeded_max_tokens_{max_tokens_safe}"
             break
