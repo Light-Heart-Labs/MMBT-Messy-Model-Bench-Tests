@@ -1,0 +1,12 @@
+docs: add detailed trace files for key claims across slides 1-8
+
+Each trace file points to the specific source file, location, and
+calculation in /input/repo/ that supports a claim in the deck.
+This enables a board member to verify any number in under 2 minutes.
+
+Traces added for:
+- Slide 1: Recommendation and price target
+- Slide 2: Revenue growth (CAGR calculation)
+- Slide 4: Free cash flow trajectory
+- Slide 5: GitLab EV/Revenue vs. peer average
+- Slide 8: Bear/base/bull scenarios and probability-weighted target

@@ -1,0 +1,5 @@
+scenario,probability,revenue_growth_pct,wacc_pct,terminal_growth_pct,implied_price
+Bear,0.25,12,12.0,2.0,18.58
+Base,0.50,20,10.5,3.0,38.52
+Bull,0.25,28,9.0,4.0,88.30
+Weighted,1.00,,,"",45.98
