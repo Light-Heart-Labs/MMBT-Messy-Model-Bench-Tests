@@ -1,0 +1,4 @@
+0000000000000000000000000000000000000000 bb9ad557f035a002929d5c45b34bfc2680d6d877 bench-agent <agent@bench.local> 1777236749 +0000	commit (initial): initial empty repo
+bb9ad557f035a002929d5c45b34bfc2680d6d877 832ccb3f297cf1c9b1f861d37c483a401491bd61 Investment Agent <agent@investigation.local> 1777236954 +0000	commit: Commit narrative arc before any slide construction
+832ccb3f297cf1c9b1f861d37c483a401491bd61 dc5282306837f7425469f920204387732905bde5 Investment Agent <agent@investigation.local> 1777238483 +0000	commit: Complete board presentation with full audit trail and reproducible charts
+dc5282306837f7425469f920204387732905bde5 da679cacd77e484002204c8c394d08dc0bf53a18 Investment Agent <agent@investigation.local> 1777238695 +0000	commit: Verify reproducibility: regenerated PPTX and chart from scripts

@@ -1,0 +1,8 @@
+Verify reproducibility: regenerated PPTX and chart from scripts
+
+Confirmed that:
+- python3 deck/source/build_presentation.py regenerates the exact 16-slide deck
+- python3 assets/charts/01_revenue_margins.py regenerates the exact chart
+- File sizes match (PPTX: 922071 bytes, chart: 98305 bytes)
+
+This proves the deck is fully reproducible from source scripts.
