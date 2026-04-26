@@ -16,6 +16,117 @@ def now_iso():
     return datetime.now(timezone.utc).isoformat()
 
 
+def file_sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def docker_inspect(name, fmt=None):
+    cmd = ["docker", "inspect", name]
+    if fmt:
+        cmd = ["docker", "inspect", "--format", fmt, name]
+    p = subprocess.run(cmd, capture_output=True, text=True)
+    return p.stdout.strip() if p.returncode == 0 else None
+
+
+def record_environment(run_name, model, api_url, task_file, log_dir):
+    """Capture everything needed to reproduce the run. Written before the loop starts."""
+    receipt = {
+        "schema_version": 1,
+        "run_name": run_name,
+        "captured_at": now_iso(),
+        "host": {
+            "hostname": subprocess.run(["hostname"], capture_output=True, text=True).stdout.strip(),
+            "kernel": subprocess.run(["uname", "-r"], capture_output=True, text=True).stdout.strip(),
+            "os": subprocess.run(["lsb_release", "-d"], capture_output=True, text=True).stdout.strip() or "unknown",
+        },
+        "harness": {
+            "path": str(Path(__file__).resolve()),
+            "git_sha": subprocess.run(
+                ["git", "-C", str(Path(__file__).resolve().parent.parent), "rev-parse", "HEAD"],
+                capture_output=True, text=True,
+            ).stdout.strip() or None,
+            "git_dirty": bool(subprocess.run(
+                ["git", "-C", str(Path(__file__).resolve().parent.parent), "status", "--porcelain"],
+                capture_output=True, text=True,
+            ).stdout.strip()),
+            "file_sha256": file_sha256(__file__),
+        },
+        "task": {
+            "path": str(Path(task_file).resolve()),
+            "sha256": file_sha256(task_file),
+            "byte_size": os.path.getsize(task_file),
+        },
+        "vllm": {
+            "served_model_name": model,
+            "api_url": api_url,
+        },
+        "sandbox": {
+            "image": IMAGE,
+        },
+    }
+
+    # Try to identify the vLLM container serving this model by hitting the URL's port
+    # Best-effort: list vllm-* containers and capture inspect for each
+    p = subprocess.run(
+        ["docker", "ps", "--filter", "name=vllm-", "--format", "{{.Names}}"],
+        capture_output=True, text=True,
+    )
+    receipt["vllm"]["containers"] = []
+    for cname in p.stdout.split():
+        info = docker_inspect(cname, fmt='{{.Image}}|{{.Id}}|{{.State.StartedAt}}|{{json .Args}}|{{json .Config.Cmd}}|{{json .HostConfig.PortBindings}}')
+        if not info: continue
+        parts = info.split("|", 5)
+        image_ref, cid, started_at, args_json, cmd_json, ports_json = (parts + [None]*6)[:6]
+        # Resolve image digest
+        image_digest = docker_inspect(image_ref, fmt='{{index .RepoDigests 0}}') or "unknown"
+        receipt["vllm"]["containers"].append({
+            "name": cname,
+            "image_ref": image_ref,
+            "image_digest": image_digest,
+            "container_id": cid,
+            "started_at": started_at,
+            "args": json.loads(args_json) if args_json else [],
+            "cmd": json.loads(cmd_json) if cmd_json else [],
+            "port_bindings": json.loads(ports_json) if ports_json else {},
+        })
+
+    # Sandbox image digest
+    sandbox_img_id = docker_inspect(IMAGE, fmt='{{.Id}}')
+    receipt["sandbox"]["image_id"] = sandbox_img_id
+
+    # nvidia-smi snapshot
+    nvs = subprocess.run(
+        ["nvidia-smi", "--query-gpu=index,name,driver_version,power.limit,power.draw,temperature.gpu,memory.used,memory.total,clocks.current.graphics",
+         "--format=csv,noheader"],
+        capture_output=True, text=True,
+    )
+    receipt["hardware"] = {"nvidia_smi": nvs.stdout.strip().splitlines()}
+
+    # Inference request defaults (the constants used in the loop body)
+    receipt["inference_request_defaults"] = {
+        "temperature": 0.0,
+        "max_tokens_strategy": "min(64000, max_model_len - last_prompt_tokens - 14000)",
+        "max_model_len": 262144,
+        "stream": False,
+        "tool_choice": "auto",
+        "tools": [t["function"]["name"] for t in TOOLS],
+    }
+
+    receipt["harness_loop_config"] = {
+        "stuck_threshold_iters": 30,
+        "max_iters_default": 10000,
+        "max_completion_total_default": 10**12,
+    }
+
+    out = Path(log_dir) / "receipt.json"
+    out.write_text(json.dumps(receipt, indent=2))
+    return receipt
+
+
 def workspace_state_hash():
     """Hash of workspace file contents (skipping .git/objects for speed).
     Detects: file writes, file mods, file deletes, new commits (refs change)."""
@@ -349,6 +460,9 @@ def main():
     print(f"=== Run {args.run_name} | model={args.model} | url={api_url} ===")
     print(f"workspace: {workspace_host}")
     print(f"logs: {log_dir}")
+
+    receipt = record_environment(args.run_name, args.model, api_url, args.task_file, log_dir)
+    print(f"receipt -> {log_dir / 'receipt.json'}  (vllm containers logged: {len(receipt['vllm']['containers'])})")
 
     summary = agent_loop(api_url, args.model, system_prompt, task, log_dir, max_iters=args.max_iters)
     print("\n=== SUMMARY ===")
