@@ -1,0 +1,20 @@
+metric,value,display_value,as_of,source_file,source_id,notes
+market_cap,2998982096.0,3.00B,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,STOCKANALYSIS-YETI-STATISTICS,Extracted StockAnalysis metric id marketcap.
+enterprise_value,3064837934.0,3.06B,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,STOCKANALYSIS-YETI-STATISTICS,Extracted StockAnalysis metric id enterpriseValue.
+shares_outstanding,75693642.0,75.69M,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,STOCKANALYSIS-YETI-STATISTICS,Extracted StockAnalysis metric id sharesout.
+forward_pe,14.127,14.13,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,STOCKANALYSIS-YETI-STATISTICS,Extracted StockAnalysis metric id peForward.
+price_to_fcf,14.263,14.26,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,STOCKANALYSIS-YETI-STATISTICS,Extracted StockAnalysis metric id pfcf.
+ev_ebitda,11.57,11.57,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,STOCKANALYSIS-YETI-STATISTICS,Extracted StockAnalysis metric id evEbitda.
+beta_5y,1.798,1.80,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,STOCKANALYSIS-YETI-STATISTICS,Extracted StockAnalysis metric id beta.
+total_debt_stockanalysis,228462000.0,228.46M,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,STOCKANALYSIS-YETI-STATISTICS,Extracted StockAnalysis metric id debt.
+free_cash_flow_ltm_stockanalysis,212070000.0,212.07M,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,STOCKANALYSIS-YETI-STATISTICS,Extracted StockAnalysis metric id fcf.
+share_price,39.62,39.62,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-market-cap.html,STOCKANALYSIS-YETI-MARKET-CAP,Intraday quote captured in StockAnalysis market-cap page.
+consensus_target_low,37.0,37,2026-04-07,raw/other/stockanalysis-yeti-forecast.html,STOCKANALYSIS-YETI-FORECAST,Consensus price target field embedded in StockAnalysis forecast page.
+consensus_target_high,57.0,57,2026-04-07,raw/other/stockanalysis-yeti-forecast.html,STOCKANALYSIS-YETI-FORECAST,Consensus price target field embedded in StockAnalysis forecast page.
+consensus_target_count,12.0,12,2026-04-07,raw/other/stockanalysis-yeti-forecast.html,STOCKANALYSIS-YETI-FORECAST,Consensus price target field embedded in StockAnalysis forecast page.
+consensus_target_median,53.0,53,2026-04-07,raw/other/stockanalysis-yeti-forecast.html,STOCKANALYSIS-YETI-FORECAST,Consensus price target field embedded in StockAnalysis forecast page.
+consensus_target_average,47.75,47.75,2026-04-07,raw/other/stockanalysis-yeti-forecast.html,STOCKANALYSIS-YETI-FORECAST,Consensus price target field embedded in StockAnalysis forecast page.
+consensus_2026_revenue,2038000000.0,2038000000,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-forecast.html,STOCKANALYSIS-YETI-FORECAST,Consensus growth 9.071797929241413%.
+consensus_2026_eps,2.8742376000000003,2.8742376000000003,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-forecast.html,STOCKANALYSIS-YETI-FORECAST,Consensus growth 41.58805911330052%.
+risk_free_rate_10y_treasury,0.0431,4.31%,04/24/2026,raw/other/us-treasury-daily-yield-curve-2026.html,US-TREASURY-DAILY-RATES,Latest 2026 daily Treasury par yield curve 10-year rate in fetched table.
+equity_risk_premium_kroll,0.05,5.0%,2026-03-23T00:00:00Z,raw/other/kroll-us-equity-risk-premium.html,KROLL-ERP-2026,Kroll recommended U.S. equity risk premium reference.

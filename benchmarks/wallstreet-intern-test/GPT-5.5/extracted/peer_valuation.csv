@@ -1,0 +1,38 @@
+ticker,metric,value,display_value,as_of,source_file,notes
+YETI,market_cap,2998982096.0,3.00B,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,Extracted StockAnalysis metric id marketcap.
+YETI,enterprise_value,3064837934.0,3.06B,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,Extracted StockAnalysis metric id enterpriseValue.
+YETI,ev_ebitda,11.57,11.57,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,Extracted StockAnalysis metric id evEbitda.
+YETI,forward_pe,14.127,14.13,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,Extracted StockAnalysis metric id peForward.
+YETI,price_to_fcf,14.263,14.26,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,Extracted StockAnalysis metric id pfcf.
+YETI,gross_margin,57.41,57.41%,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,Extracted StockAnalysis metric id grossMargin.
+YETI,operating_margin,11.43,11.43%,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,Extracted StockAnalysis metric id operatingMargin.
+YETI,fcf_margin,11.35,11.35%,"Apr 27, 2026, 1:19 PM EDT",raw/other/stockanalysis-yeti-statistics.html,Extracted StockAnalysis metric id fcfMargin.
+GOLF,market_cap,5723396589.0,5.72B,"Apr 27, 2026, 1:03 PM EDT",raw/other/stockanalysis-golf-statistics.html,Extracted StockAnalysis metric id marketcap.
+GOLF,enterprise_value,6744179166.0,6.74B,"Apr 27, 2026, 1:03 PM EDT",raw/other/stockanalysis-golf-statistics.html,Extracted StockAnalysis metric id enterpriseValue.
+GOLF,ev_ebitda,18.92,18.92,"Apr 27, 2026, 1:03 PM EDT",raw/other/stockanalysis-golf-statistics.html,Extracted StockAnalysis metric id evEbitda.
+GOLF,forward_pe,26.3,26.30,"Apr 27, 2026, 1:03 PM EDT",raw/other/stockanalysis-golf-statistics.html,Extracted StockAnalysis metric id peForward.
+GOLF,price_to_fcf,47.652,47.65,"Apr 27, 2026, 1:03 PM EDT",raw/other/stockanalysis-golf-statistics.html,Extracted StockAnalysis metric id pfcf.
+GOLF,gross_margin,47.73,47.73%,"Apr 27, 2026, 1:03 PM EDT",raw/other/stockanalysis-golf-statistics.html,Extracted StockAnalysis metric id grossMargin.
+GOLF,operating_margin,12.03,12.03%,"Apr 27, 2026, 1:03 PM EDT",raw/other/stockanalysis-golf-statistics.html,Extracted StockAnalysis metric id operatingMargin.
+GOLF,fcf_margin,4.69,4.69%,"Apr 27, 2026, 1:03 PM EDT",raw/other/stockanalysis-golf-statistics.html,Extracted StockAnalysis metric id fcfMargin.
+MAT,market_cap,4320611021.0,4.32B,"Apr 27, 2026, 1:14 PM EDT",raw/other/stockanalysis-mat-statistics.html,Extracted StockAnalysis metric id marketcap.
+MAT,enterprise_value,5723179363.0,5.72B,"Apr 27, 2026, 1:14 PM EDT",raw/other/stockanalysis-mat-statistics.html,Extracted StockAnalysis metric id enterpriseValue.
+MAT,ev_ebitda,7.58,7.58,"Apr 27, 2026, 1:14 PM EDT",raw/other/stockanalysis-mat-statistics.html,Extracted StockAnalysis metric id evEbitda.
+MAT,forward_pe,12.101,12.10,"Apr 27, 2026, 1:14 PM EDT",raw/other/stockanalysis-mat-statistics.html,Extracted StockAnalysis metric id peForward.
+MAT,price_to_fcf,10.414,10.41,"Apr 27, 2026, 1:14 PM EDT",raw/other/stockanalysis-mat-statistics.html,Extracted StockAnalysis metric id pfcf.
+MAT,gross_margin,48.87,48.87%,"Apr 27, 2026, 1:14 PM EDT",raw/other/stockanalysis-mat-statistics.html,Extracted StockAnalysis metric id grossMargin.
+MAT,operating_margin,10.97,10.97%,"Apr 27, 2026, 1:14 PM EDT",raw/other/stockanalysis-mat-statistics.html,Extracted StockAnalysis metric id operatingMargin.
+MAT,fcf_margin,7.69,7.69%,"Apr 27, 2026, 1:14 PM EDT",raw/other/stockanalysis-mat-statistics.html,Extracted StockAnalysis metric id fcfMargin.
+NWL,market_cap,1803818392.0,1.80B,"Apr 27, 2026, 1:13 PM EDT",raw/other/stockanalysis-nwl-statistics.html,Extracted StockAnalysis metric id marketcap.
+NWL,enterprise_value,7007319837.0,7.01B,"Apr 27, 2026, 1:13 PM EDT",raw/other/stockanalysis-nwl-statistics.html,Extracted StockAnalysis metric id enterpriseValue.
+NWL,ev_ebitda,8.77,8.77,"Apr 27, 2026, 1:13 PM EDT",raw/other/stockanalysis-nwl-statistics.html,Extracted StockAnalysis metric id evEbitda.
+NWL,forward_pe,7.575,7.58,"Apr 27, 2026, 1:13 PM EDT",raw/other/stockanalysis-nwl-statistics.html,Extracted StockAnalysis metric id peForward.
+NWL,price_to_fcf,105.607,105.61,"Apr 27, 2026, 1:13 PM EDT",raw/other/stockanalysis-nwl-statistics.html,Extracted StockAnalysis metric id pfcf.
+NWL,gross_margin,33.81,33.81%,"Apr 27, 2026, 1:13 PM EDT",raw/other/stockanalysis-nwl-statistics.html,Extracted StockAnalysis metric id grossMargin.
+NWL,operating_margin,6.77,6.77%,"Apr 27, 2026, 1:13 PM EDT",raw/other/stockanalysis-nwl-statistics.html,Extracted StockAnalysis metric id operatingMargin.
+NWL,fcf_margin,0.24,0.24%,"Apr 27, 2026, 1:13 PM EDT",raw/other/stockanalysis-nwl-statistics.html,Extracted StockAnalysis metric id fcfMargin.
+DTC,market_cap,12282322.0,12.28M,"At close: Apr 24, 2026",raw/other/stockanalysis-dtc-statistics.html,Extracted StockAnalysis metric id marketcap.
+DTC,enterprise_value,259913321.0,259.91M,"At close: Apr 24, 2026",raw/other/stockanalysis-dtc-statistics.html,Extracted StockAnalysis metric id enterpriseValue.
+DTC,ev_ebitda,17.13,17.13,"At close: Apr 24, 2026",raw/other/stockanalysis-dtc-statistics.html,Extracted StockAnalysis metric id evEbitda.
+DTC,gross_margin,59.41,59.41%,"At close: Apr 24, 2026",raw/other/stockanalysis-dtc-statistics.html,Extracted StockAnalysis metric id grossMargin.
+DTC,operating_margin,-6.56,-6.56%,"At close: Apr 24, 2026",raw/other/stockanalysis-dtc-statistics.html,Extracted StockAnalysis metric id operatingMargin.
