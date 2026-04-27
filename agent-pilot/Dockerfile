@@ -4,8 +4,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-2.0-0 \
     fonts-liberation fonts-dejavu graphviz \
-    docker.io \
  && rm -rf /var/lib/apt/lists/*
+
+# Docker CLI as a static binary (debian's docker.io package doesn't ship /usr/bin/docker
+# on bookworm-slim — only dockerd. We just need the client to talk to a mounted host socket).
+RUN curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-27.3.1.tgz \
+      -o /tmp/docker.tgz \
+ && tar xzf /tmp/docker.tgz -C /tmp \
+ && mv /tmp/docker/docker /usr/local/bin/docker \
+ && rm -rf /tmp/docker /tmp/docker.tgz \
+ && docker --version
 
 # GitHub CLI from the official apt repo (added for the DreamServer PR-audit task,
 # which auths to api.github.com and would blow the 60 req/hr unauth ceiling otherwise).
