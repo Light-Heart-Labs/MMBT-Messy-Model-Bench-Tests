@@ -4,6 +4,20 @@ A short log of harness changes and the bugs that prompted them. Live mainly to e
 
 Each fix is in the git history if you want to inspect the diff.
 
+## 2026-04-27
+
+### Sandbox capability flags: `--gh-token`, `--docker-socket`, `--gpus`
+
+Added in preparation for the DreamServer PR-audit task (`task_dreamserver_pr_audit.md`), which requires the agent to (a) auth against api.github.com to read 75 PRs without hitting the 60 req/hr unauth ceiling, (b) run the DreamServer installer inside clean sibling containers, and (c) optionally exercise GPU code paths on real hardware.
+
+- `--gh-token` accepts a literal token, `@env` (read $GH_TOKEN/$GITHUB_TOKEN from the caller), or `@gh` (call `gh auth token` on the host). Resolved value is exported as both `GH_TOKEN` and `GITHUB_TOKEN` in the sandbox. **The token value is never written to receipt.json** — only `gh_token_set: bool`.
+- `--docker-socket` bind-mounts `/var/run/docker.sock`. The sandbox image now ships with `docker.io` so the agent has a CLI on the path. Caveat: this gives the sandbox root-equivalent access to the host docker daemon — fine for local benchmarking, not fine for adversarial tasks.
+- `--gpus` is a pass-through to `docker run --gpus`. Note that on Tower2 the sandbox shares GPUs with the vLLM container hosting the model under test, so heavy in-sandbox CUDA work will contend with inference latency.
+
+Sandbox image gained two new packages: `docker.io` (debian default) and `gh` (official cli.github.com apt repo). Build the image once with `docker build -t bench-sandbox:latest agent-pilot/` after pulling these changes.
+
+Receipts now include `sandbox.runtime: {gh_token_set, docker_socket, gpus, input_mount}` so reproducibility from receipt alone still holds for runs that used these flags.
+
 ## 2026-04-26
 
 ### Receipts + canonical launch commands

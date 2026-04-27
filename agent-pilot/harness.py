@@ -32,8 +32,12 @@ def docker_inspect(name, fmt=None):
     return p.stdout.strip() if p.returncode == 0 else None
 
 
-def record_environment(run_name, model, api_url, task_file, log_dir):
-    """Capture everything needed to reproduce the run. Written before the loop starts."""
+def record_environment(run_name, model, api_url, task_file, log_dir, *, sandbox_runtime=None):
+    """Capture everything needed to reproduce the run. Written before the loop starts.
+
+    sandbox_runtime: dict of per-run sandbox flags (gh_token_set, docker_socket,
+    gpus, input_mount). The token value itself is never recorded — only whether
+    one was set."""
     receipt = {
         "schema_version": 1,
         "run_name": run_name,
@@ -97,6 +101,8 @@ def record_environment(run_name, model, api_url, task_file, log_dir):
     # Sandbox image digest
     sandbox_img_id = docker_inspect(IMAGE, fmt='{{.Id}}')
     receipt["sandbox"]["image_id"] = sandbox_img_id
+    if sandbox_runtime is not None:
+        receipt["sandbox"]["runtime"] = sandbox_runtime
 
     # nvidia-smi snapshot
     nvs = subprocess.run(
@@ -467,7 +473,32 @@ def main():
     ap.add_argument("--input-mount", default=None,
                     help="Host path mounted read-only at /input/repo inside the sandbox. "
                          "Useful for tasks that consume a prior agent's output (e.g. presentation built from memo repo).")
+    ap.add_argument("--gh-token", default=None,
+                    help="GitHub token to expose as GH_TOKEN+GITHUB_TOKEN inside the sandbox. "
+                         "Pass a literal token, '@env' to read $GH_TOKEN/$GITHUB_TOKEN, "
+                         "or '@gh' to call `gh auth token` on the host. "
+                         "The token value is never written to receipt.json.")
+    ap.add_argument("--docker-socket", action="store_true",
+                    help="Bind-mount /var/run/docker.sock into the sandbox so the agent can "
+                         "run sibling containers (e.g. for installer-in-a-clean-container tests). "
+                         "Note: this gives the sandbox root-equivalent access to the host docker daemon.")
+    ap.add_argument("--gpus", default=None,
+                    help="Pass-through to `docker run --gpus`. Example: 'all', 'device=0', "
+                         "'\"device=0,1\"'. Required for PRs the agent needs to test on real GPUs. "
+                         "Beware: the sandbox shares GPUs with the vLLM container hosting the model.")
     args = ap.parse_args()
+
+    # Resolve --gh-token. Done early so we fail fast if @env/@gh produce nothing.
+    gh_token = args.gh_token
+    if gh_token == "@env":
+        gh_token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+        if not gh_token:
+            raise SystemExit("--gh-token @env: neither GH_TOKEN nor GITHUB_TOKEN set in caller env")
+    elif gh_token == "@gh":
+        p = subprocess.run(["gh", "auth", "token"], capture_output=True, text=True)
+        if p.returncode != 0 or not p.stdout.strip():
+            raise SystemExit(f"--gh-token @gh: `gh auth token` failed ({p.stderr.strip() or 'no output'}); run `gh auth login` first")
+        gh_token = p.stdout.strip()
 
     # Per-run sandbox name so multiple harness invocations don't collide on the same container.
     global SANDBOX
@@ -486,6 +517,12 @@ def main():
         "docker", "run", "-d", "--name", SANDBOX,
         "-v", f"{workspace_host}:/workspace",
     ]
+    if gh_token:
+        docker_run += ["-e", f"GH_TOKEN={gh_token}", "-e", f"GITHUB_TOKEN={gh_token}"]
+    if args.docker_socket:
+        docker_run += ["-v", "/var/run/docker.sock:/var/run/docker.sock"]
+    if args.gpus:
+        docker_run += ["--gpus", args.gpus]
     if args.input_mount:
         input_src = Path(args.input_mount).resolve()
         if not input_src.exists():
@@ -528,7 +565,15 @@ def main():
     print(f"workspace: {workspace_host}")
     print(f"logs: {log_dir}")
 
-    receipt = record_environment(args.run_name, args.model, api_url, args.task_file, log_dir)
+    receipt = record_environment(
+        args.run_name, args.model, api_url, args.task_file, log_dir,
+        sandbox_runtime={
+            "gh_token_set": bool(gh_token),
+            "docker_socket": bool(args.docker_socket),
+            "gpus": args.gpus,
+            "input_mount": args.input_mount,
+        },
+    )
     print(f"receipt -> {log_dir / 'receipt.json'}  (vllm containers logged: {len(receipt['vllm']['containers'])})")
 
     summary = agent_loop(api_url, args.model, system_prompt, task, log_dir, max_iters=args.max_iters)
