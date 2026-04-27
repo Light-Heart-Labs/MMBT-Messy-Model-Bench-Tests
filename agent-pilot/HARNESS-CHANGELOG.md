@@ -6,6 +6,21 @@ Each fix is in the git history if you want to inspect the diff.
 
 ## 2026-04-27
 
+### `--require-files` and `--require-git-tag` (strict-done validation)
+
+Added in response to the MMBT feedback round on the Qwen3.6-27B-AWQ N=1 entries: across three runs at temp=0.3, the model produced excellent analytical content but never shipped `verdict.md`, never tagged a release, never called `done()`. Open question: is that a *model* failure (27B can't follow the spec under pressure) or a *scaffold* failure (the harness's `done` tool is too lenient — the model thinks it's done because nothing tells it otherwise)?
+
+`--require-files <name1,name2,...>` and `--require-git-tag` are the harness-equivalence test. When set, the `done` tool runs validation before accepting:
+
+- Each required filename is matched via `find /workspace -maxdepth 3 -name <name> -type f` so the agent's choice of audit-repo location (e.g. `/workspace/audit-pr-1057/` vs `/workspace/audit-repo/` vs `/workspace/`) doesn't matter.
+- `--require-git-tag` looks for any `.git` directory under `/workspace` at depth ≤ 2 with at least one annotated tag.
+
+If any requirement is missing when `done()` is called, the call is rejected with a tool-error: `DONE_REJECTED: Required artifacts missing — task spec demands these before completion: <list>. Continue working — produce these (or update existing files to match the requirements) before calling done() again.` The loop continues; the model can produce the missing files and retry.
+
+Receipt's `sandbox.runtime` now records `require_files` and `require_git_tag` so strict runs are distinguishable from baseline.
+
+This is an opt-in flag — default behavior unchanged for existing runs.
+
 ### `--stuck-threshold` flag (was hardcoded 30)
 
 The temp-fix smoke (`coder_pr_audit_smoke_v2`) cleared the deterministic loop trap and let Coder-Next do real work — it fetched 66 PR branches, init'd the audit-repo, made a real first commit, recorded the baseline SHA — then died at iter 54 because of **30 consecutive `ls -la` operations** exploring DreamServer's directory tree. None of those changed the workspace, so the stuck-detector fired even though the agent was doing legitimate codebase recon.

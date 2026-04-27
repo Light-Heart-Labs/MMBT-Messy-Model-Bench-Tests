@@ -243,7 +243,44 @@ TOOLS = [
 ]
 
 
-def execute_tool(name, args, log_dir):
+def validate_done(require_files, require_git_tag):
+    """Check workspace state against done() preconditions. Returns None if all
+    requirements met, or a human-readable string listing what's missing.
+
+    File requirements are matched as bare filenames against `find /workspace
+    -maxdepth 2 -name <name>` so the agent's choice of audit-repo location
+    (e.g. /workspace/ vs /workspace/audit-repo/ vs /workspace/audit-pr-1057/)
+    doesn't matter. Same for the git-tag check."""
+    missing = []
+    for fname in (require_files or []):
+        # Strip leading slashes so we always match by basename pattern; the
+        # agent's audit-repo could be at any depth-1 subdir.
+        bare = fname.lstrip("/")
+        r = docker_exec(f"find /workspace -maxdepth 3 -name {bare!r} -type f -print -quit", timeout=15)
+        if not r['stdout'].strip():
+            missing.append(fname)
+    if require_git_tag:
+        # Find any git repo under /workspace with at least one annotated tag.
+        # /workspace itself, /workspace/*/, and /workspace/*/*/ — covers nested
+        # audit repos like /workspace/dreamserver-audit/.
+        cmd = (
+            "for d in /workspace /workspace/*/ /workspace/*/*/; do "
+            "  [ -d \"${d}.git\" ] && (cd \"$d\" && git tag -l 2>/dev/null | grep -q . && echo TAG_FOUND && break); "
+            "done"
+        )
+        r = docker_exec(cmd, timeout=15)
+        if "TAG_FOUND" not in r['stdout']:
+            missing.append("(no annotated git tag in any workspace repo)")
+    if missing:
+        return (
+            "DONE_REJECTED: Required artifacts missing — task spec demands these before completion: "
+            + ", ".join(missing)
+            + ". Continue working — produce these (or update existing files to match the requirements) before calling done() again."
+        )
+    return None
+
+
+def execute_tool(name, args, log_dir, require_files=None, require_git_tag=False):
     if name == "bash":
         cmd = args.get("command", "")
         workdir = args.get("workdir") or "/workspace"
@@ -281,6 +318,13 @@ def execute_tool(name, args, log_dir):
             return f"ERROR: {r['stderr']}"
         return r["stdout"]
     elif name == "done":
+        # If strict-done flags are set, validate workspace state before
+        # accepting. Validation failure returns a tool-error the model sees;
+        # the run continues so the model can complete the missing artifacts.
+        if require_files or require_git_tag:
+            err = validate_done(require_files, require_git_tag)
+            if err is not None:
+                return err
         return "DONE_SIGNAL:" + (args.get("summary") or "")
     else:
         return f"unknown tool {name!r}"
@@ -290,7 +334,8 @@ def execute_tool(name, args, log_dir):
 
 def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
                max_completion_total=10**12, max_model_len=262144,
-               stuck_threshold=30, temperature=0.0):
+               stuck_threshold=30, temperature=0.0,
+               require_files=None, require_git_tag=False):
     """Run the agent until done() or limits hit. Returns final state dict."""
     log_path = Path(log_dir) / "transcript.jsonl"
     summary_path = Path(log_dir) / "summary.json"
@@ -413,7 +458,9 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
                 result = f"ERROR parsing tool args: {e}\nraw: {tc['function']['arguments'][:500]}"
             else:
                 t1 = time.time()
-                result = execute_tool(tc_name, tc_args, log_dir)
+                result = execute_tool(tc_name, tc_args, log_dir,
+                                       require_files=require_files,
+                                       require_git_tag=require_git_tag)
                 tool_wall = time.time() - t1
                 with open(log_path, "a") as f:
                     f.write(json.dumps({
@@ -488,6 +535,19 @@ def main():
                          "hash — bump to 80-150 to give those runs room before the detector fires. "
                          "Genuine loops still die within (threshold × ~1.5s) of starting, so a higher "
                          "threshold is cheap insurance.")
+    ap.add_argument("--require-files", default=None,
+                    help="Comma-separated bare filenames the agent must produce before done() is accepted. "
+                         "E.g. 'verdict.md,summary.md,review.md'. Each name is matched via "
+                         "`find /workspace -maxdepth 3 -name <name> -type f` so the agent's choice of "
+                         "audit-repo location doesn't matter. If any required file is missing when the model "
+                         "calls done(), the call is rejected with a tool-error message naming the gap, and "
+                         "the loop continues (the model can produce the missing file and retry). Used for "
+                         "harness-equivalence ablations to test whether 'no-ship' failures are model issues "
+                         "or scaffold issues.")
+    ap.add_argument("--require-git-tag", action="store_true",
+                    help="If set, done() is rejected unless at least one annotated git tag exists in some "
+                         "git repo under /workspace (depth ≤ 2). Pairs with --require-files for full "
+                         "spec-compliance enforcement.")
     ap.add_argument("--system", default=None, help="Path to system prompt file (optional).")
     ap.add_argument("--input-mount", default=None,
                     help="Host path mounted read-only at /input/repo inside the sandbox. "
@@ -584,6 +644,8 @@ def main():
     print(f"workspace: {workspace_host}")
     print(f"logs: {log_dir}")
 
+    require_files = [s.strip() for s in args.require_files.split(",")] if args.require_files else None
+
     receipt = record_environment(
         args.run_name, args.model, api_url, args.task_file, log_dir,
         sandbox_runtime={
@@ -591,6 +653,8 @@ def main():
             "docker_socket": bool(args.docker_socket),
             "gpus": args.gpus,
             "input_mount": args.input_mount,
+            "require_files": require_files,
+            "require_git_tag": bool(args.require_git_tag),
         },
         temperature=args.temperature,
         stuck_threshold=args.stuck_threshold,
@@ -600,7 +664,9 @@ def main():
 
     summary = agent_loop(api_url, args.model, system_prompt, task, log_dir,
                          max_iters=args.max_iters, temperature=args.temperature,
-                         stuck_threshold=args.stuck_threshold)
+                         stuck_threshold=args.stuck_threshold,
+                         require_files=require_files,
+                         require_git_tag=bool(args.require_git_tag))
     print("\n=== SUMMARY ===")
     print(json.dumps(summary, indent=2))
 
