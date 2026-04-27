@@ -113,6 +113,53 @@ LABELS = {
         "28 iters of legitimate investigation (cloned repo, ran pytest on both branches, grep'd for AMD), then a 25-second thinking turn (4,368 reasoning tokens) emitted no tool calls and stopped. Zero artifacts written, zero commits.",
     ),
 
+    # Wallstreet investment-memo task — successful runs (cherry-picked best-of-three)
+    "27b_invest_memo_v2": (
+        "success-shipped",
+        ["cherry-picked"],
+        "GitLab Inc. (GTLB) BUY recommendation. 27 min, 56 iters, done_signal. 17 KB three-statement model, full audit trail, tagged release. Cherry-picked best-of-three: v3 was parser-fault-truncated, v4 hit a 1-hour single-call timeout. Score 85 in the consolidated 2x3x3 grid (best of any model on the memo task).",
+    ),
+    "coder_invest_memo_v5": (
+        "success-shipped",
+        ["cherry-picked"],
+        "DocuSign (DOCU) BUY recommendation. 11 min, 95 iters, done_signal. 10.6 KB three-statement model, full audit trail, tagged release. Cherry-picked best-of-three: v6 and v7 stalled in scaffold-and-stop pattern within 1-2 minutes. Score 80 in the consolidated 2x3x3 grid. Verdict-reliability caveat from the PR-audit benchmark (single-shot Coder-Next can be confidently wrong) extends to this BUY call.",
+    ),
+    "27b_invest_memo_v3": (
+        "partial-no-spec-output",
+        [],
+        "27B memo v3: model_stopped at iter 40 due to a parser fault mid-emission (XML parser hit malformed tool-call argument). 11 min wall. Substantive work in progress when the parser failed.",
+    ),
+    "27b_invest_memo_v4": (
+        "timeout",
+        [],
+        "27B memo v4: api_error: timed out. The model spent 60+ minutes on a single thinking-mode inference call before the harness's 3600s urlopen timeout fired. 68 min total wall before the harness exited.",
+    ),
+    "coder_invest_memo_v6": (
+        "scaffold-and-stop",
+        [],
+        "Coder-Next memo v6: 2 min, 37 iters, stuck-detector fired. Did initial scaffolding (mkdir, README, etc.) then locked into the documented Coder-Next failure pattern. Failed to transition to actual research/extraction work.",
+    ),
+    "coder_invest_memo_v7": (
+        "scaffold-and-stop",
+        [],
+        "Coder-Next memo v7: 1 min, 63 iters, stuck-detector fired. Same pattern as v6 but faster — the model emitted scaffolding tool calls quickly without making progress on the actual memo work.",
+    ),
+    "35ba3b_invest_memo_v1": (
+        "stuck-in-research",
+        [],
+        "35B-A3B memo v1: 6 min, 51 iters, stuck-detector fired. Did legitimate research (cloned ticker data, fetched filings) but never transitioned to memo composition.",
+    ),
+    "35ba3b_invest_memo_v2": (
+        "floor-failure",
+        [],
+        "35B-A3B memo v2: 14 seconds, 14 iters, model_stopped. Floor failure at the smallest scale — emitted a few tool calls and stopped without producing anything substantive.",
+    ),
+    "35ba3b_invest_memo_v3": (
+        "api-error",
+        [],
+        "35B-A3B memo v3: 7 min, 38 iters, model_exceeded_max_tokens cap. Model hit a per-response token ceiling mid-emission while attempting a memo. Only tool-log.md and a git scaffold made it into the workspace. Best of the three 35B-A3B memo runs but still not usable.",
+    ),
+
     # N=1 task — 27B strict-done ablation (Fix 1 from the MMBT feedback round)
     "n1_27b_strict_v1": (
         "partial-no-spec-output",

@@ -1,0 +1,7 @@
+{
+  "primary": "api-error",
+  "sub_labels": [],
+  "notes": "35B-A3B memo v3: 7 min, 38 iters, model_exceeded_max_tokens cap. Model hit a per-response token ceiling mid-emission while attempting a memo. Only tool-log.md and a git scaffold made it into the workspace. Best of the three 35B-A3B memo runs but still not usable.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

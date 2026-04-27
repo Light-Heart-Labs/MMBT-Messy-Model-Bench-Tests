@@ -1,0 +1,7 @@
+{
+  "primary": "timeout",
+  "sub_labels": [],
+  "notes": "27B memo v4: api_error: timed out. The model spent 60+ minutes on a single thinking-mode inference call before the harness's 3600s urlopen timeout fired. 68 min total wall before the harness exited.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

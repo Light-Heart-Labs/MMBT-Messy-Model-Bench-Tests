@@ -1,0 +1,7 @@
+{
+  "primary": "scaffold-and-stop",
+  "sub_labels": [],
+  "notes": "Coder-Next memo v7: 1 min, 63 iters, stuck-detector fired. Same pattern as v6 but faster \u2014 the model emitted scaffolding tool calls quickly without making progress on the actual memo work.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}
