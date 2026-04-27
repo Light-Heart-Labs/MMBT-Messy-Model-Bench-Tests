@@ -1,0 +1,7 @@
+{
+  "primary": "scaffold-and-stop",
+  "sub_labels": [],
+  "notes": "75/75 verdict.md files, but only 3 are real reviews (PR-1057, PR-988, PR-750). Other 72 average 15 lines, single-sentence reasons pulled from PR titles. Tagged v1.0. Zero tests run, zero bug reproductions despite spec requiring both. Best of the three 27B canonical runs \u2014 published as the MMBT entry.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}
