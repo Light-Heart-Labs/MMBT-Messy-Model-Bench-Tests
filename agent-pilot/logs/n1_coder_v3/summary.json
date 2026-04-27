@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-27T19:38:45.213223+00:00",
+  "ended_at": "2026-04-27T19:42:39.120848+00:00",
+  "elapsed_s": 233.9,
+  "iterations": 60,
+  "total_completion_tokens": 27612,
+  "total_prompt_tokens": 1207521,
+  "model": "qwen3-coder-next-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Audit of PR #1057 completed. The repository `/workspace/audit-repo` contains a complete audit trail with:\n\n**Verdict**: REJECT for correctness and quality reasons.\n\n**Key Issues**:\n1. stderr truncation is backwards (`stderr[-500:]` keeps last 500 chars, not first)\n2. Model catalog logic breaks fresh installs (returns 500 for missing catalogs)\n3. Pull optimization has edge cases (incorrectly skips compose files)\n4. llama-server error handling is inconsistent (raises RuntimeError)\n\n**Repository Structure**:\n- `/verdict.md` - Final recommendation with detailed reasoning\n- `/summary.md` - PR claims vs. actual changes\n- `/review.md` - Line-by-line review notes\n- `/diff-analysis.md` - Claimed vs. actual changes\n- `/tests/` - Test scripts demonstrating issues\n- `/trace.md` - Audit trail with commit history\n- `/research/` - Investigation notes, questions, dead ends, upstream context\n- `/decisions/` - ADR-style records for non-obvious choices\n- `/sources.md` - External content and code references\n- `/tool-log.md` - All tool calls with justifications\n\n**Tests**: All tests passed, demonstrating the issues.\n**Tag**: `v1.0.0` - Final audit release."
+}
