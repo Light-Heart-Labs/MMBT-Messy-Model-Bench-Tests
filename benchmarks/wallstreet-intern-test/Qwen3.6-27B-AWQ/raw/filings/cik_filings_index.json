@@ -1,0 +1,103 @@
+{
+  "cik": "0001687226",
+  "entityType": "other",
+  "sic": "",
+  "sicDescription": "",
+  "ownerOrg": null,
+  "insiderTransactionForOwnerExists": 1,
+  "insiderTransactionForIssuerExists": 0,
+  "name": "Harper James P",
+  "tickers": [],
+  "exchanges": [],
+  "ein": null,
+  "lei": null,
+  "description": "",
+  "website": "",
+  "investorWebsite": "",
+  "category": "",
+  "fiscalYearEnd": null,
+  "stateOfIncorporation": "",
+  "stateOfIncorporationDescription": "",
+  "addresses": {
+    "mailing": {
+      "street1": "175 JACKSON AVE N",
+      "street2": "SUITE 102",
+      "city": "MINNEAPOLIS",
+      "stateOrCountry": "MN",
+      "zipCode": "55343",
+      "stateOrCountryDescription": "MN",
+      "isForeignLocation": null,
+      "foreignStateTerritory": null,
+      "country": null,
+      "countryCode": null
+    },
+    "business": {
+      "street1": null,
+      "street2": null,
+      "city": null,
+      "stateOrCountry": "",
+      "zipCode": null,
+      "stateOrCountryDescription": "",
+      "isForeignLocation": null,
+      "foreignStateTerritory": null,
+      "country": null,
+      "countryCode": null
+    }
+  },
+  "phone": null,
+  "flags": "",
+  "formerNames": [],
+  "filings": {
+    "recent": {
+      "accessionNumber": [
+        "0001687226-16-000001"
+      ],
+      "filingDate": [
+        "2016-10-19"
+      ],
+      "reportDate": [
+        "2016-10-12"
+      ],
+      "acceptanceDateTime": [
+        "2016-10-19T18:04:49.000Z"
+      ],
+      "act": [
+        "34"
+      ],
+      "form": [
+        "3"
+      ],
+      "fileNumber": [
+        "000-19621"
+      ],
+      "filmNumber": [
+        "161943235"
+      ],
+      "items": [
+        ""
+      ],
+      "core_type": [
+        "3"
+      ],
+      "size": [
+        3527
+      ],
+      "isXBRL": [
+        0
+      ],
+      "isInlineXBRL": [
+        0
+      ],
+      "isXBRLNumeric": [
+        null
+      ],
+      "primaryDocument": [
+        "xslF345X02/primary_doc.xml"
+      ],
+      "primaryDocDescription": [
+        "PRIMARY DOCUMENT"
+      ]
+    },
+    "files": []
+  }
+}
