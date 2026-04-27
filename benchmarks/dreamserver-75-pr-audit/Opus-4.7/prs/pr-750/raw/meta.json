@@ -1,0 +1,24 @@
+{
+  "additions": 3092,
+  "author": {
+    "id": "U_kgDOCOnW0A",
+    "is_bot": false,
+    "login": "y-coffee-dev",
+    "name": "Y"
+  },
+  "baseRefName": "main",
+  "body": "# feat: AMD Multi-GPU Support\r\n\r\nEnd-to-end multi-GPU support for AMD GPUs, matching the existing NVIDIA multi-GPU feature set.\r\n\r\nPreviously, AMD support was limited to single-GPU. This branch implements end to end support with hardware discovery, topology analysis, GPU assignment, Docker Compose isolation, CLI management, and monitoring, to handle multiple AMD GPUs.\r\n\r\n## What was added\r\n\r\n### Hardware Detection\r\n- Multi-GPU AMD detection via sysfs (counts all `vendor=0x1002` cards)\r\n- Handles XCP virtual cards on MI300X (filters by non-empty vendor file)\r\n- Total VRAM aggregation across all detected AMD GPUs\r\n- Mixed APU + discrete GPU classification\r\n\r\n### Topology Detection\r\n- Full AMD topology library with three detection backends: amd-smi JSON, rocm-smi text, sysfs NUMA/IOMMU fallback\r\n- Inter-GPU link classification: XGMI, PCIe-SameSwitch, PCIe-HostBridge, PCIe-CrossNUMA\r\n- Link ranking system (0\u2013100) for topology-aware GPU assignment\r\n- Per-GPU metadata: render node, GFX version, PCI BDF, VRAM, memory type (unified/discrete)\r\n- GPU identification with three fallback methods: amd-smi UUID, sysfs unique_id, composite PCI BDF\r\n\r\n### Installer Integration\r\n- AMD topology detection phase (runs when GPU_COUNT > 1 and backend is AMD)\r\n- Vendor-aware GPU assignment extraction\r\n- AMD multi-GPU env vars written to `.env` only when applicable\r\n- Render node verification in AMD tuning phase\r\n\r\n### Docker Compose Overlays\r\n- AMD multi-GPU overlay for llama-server with Lemonade passthrough\r\n- `--split-mode` passed via `--llamacpp-args` (Lemonade's official mechanism)\r\n- ROCm backend selected via `LEMONADE_LLAMACPP` env var (compatible with both Python and C++ Lemonade builds)\r\n- Per-service GPU isolation via `ROCR_VISIBLE_DEVICES`\r\n- Renamed existing NVIDIA overlays from generic `multigpu` to `multigpu-nvidia`\r\n\r\n### CLI (`dream gpu` commands)\r\n- All five GPU commands (`status`, `topology`, `assign`, `reassign`, `monitor`) are AMD-aware\r\n- AMD GPU status table with VRAM, utilization, temperature, power via amd-smi\r\n- AMD topology display with GFX versions, memory types, and render nodes\r\n- AMD GPU reassignment writes `LLAMA_SERVER_GPU_INDICES` and per-service `*_GPU_INDEX`\r\n\r\n### Dashboard API\r\n- AMD GPU monitoring via amd-smi and sysfs hwmon\r\n- Per-GPU metrics: utilization, VRAM, temperature, power, fan speed\r\n- GPU assignment decoding from `GPU_ASSIGNMENT_JSON_B64`\r\n\r\n### Environment & Schema\r\n- `LLAMA_SERVER_GPU_INDICES` \u2014 comma-separated GPU indices for `ROCR_VISIBLE_DEVICES`\r\n- `COMFYUI_GPU_INDEX`, `WHISPER_GPU_INDEX`, `EMBEDDINGS_GPU_INDEX` \u2014 per-service GPU index\r\n- `LLAMA_ARG_SPLIT_MODE`, `LLAMA_ARG_TENSOR_SPLIT` \u2014 llama.cpp multi-GPU parameters\r\n- All new env vars added to `.env.schema.json` and `.env.example`\r\n\r\n### Tests\r\n- 25 BATS unit tests for amd-topo.sh (render node, GFX version, GPU name, GPU ID, topology parsing)\r\n- 23 shell integration tests with fixture files (4-GPU XGMI, 2-GPU PCIe, field-based select, cross-tool agreement)\r\n- 16 pytest tests for dashboard-api AMD GPU monitoring\r\n- Fixture files extracted from real hardware for amd-smi JSON and rocm-smi text output\r\n- Real hardware tests on 4x AMD Instinct MI300X\r\n\r\n## Files Changed\r\n\r\n| Area | Files |\r\n|------|-------|\r\n| Topology detection | `installers/lib/amd-topo.sh` (new) |\r\n| Hardware detection | `installers/lib/detection.sh`, `installers/phases/02-detection.sh` |\r\n| Installer | `installers/phases/03-features.sh`, `installers/phases/06-directories.sh`, `installers/phases/10-amd-tuning.sh` |\r\n| Compose overlays | `docker-compose.multigpu-amd.yml` (new), `docker-compose.multigpu-nvidia.yml` (renamed) |\r\n| Service overlays | `extensions/services/{comfyui,whisper,embeddings}/compose.multigpu-amd.yaml` (new), NVIDIA renamed |\r\n| CLI | `dream-cli` |\r\n| Assignment | `scripts/assign_gpus.py`, `scripts/resolve-compose-stack.sh` |\r\n| Dashboard API | `extensions/services/dashboard-api/gpu.py` |\r\n| Config | `config/gpu-database.json`, `.env.schema.json`, `.env.example` |\r\n| Tests | `tests/bats-tests/amd-topo.bats`, `tests/test-amd-topo.sh`, `tests/fixtures/amd/*`, `extensions/services/dashboard-api/tests/test_gpu_amd.py` |\r\n",
+  "changedFiles": 33,
+  "createdAt": "2026-04-03T01:30:38Z",
+  "deletions": 145,
+  "headRefName": "feat/amd-multi-gpu",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 750,
+  "reviewDecision": "CHANGES_REQUESTED",
+  "title": "feat: AMD Multi-GPU Support",
+  "updatedAt": "2026-04-22T08:59:15Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/750"
+}

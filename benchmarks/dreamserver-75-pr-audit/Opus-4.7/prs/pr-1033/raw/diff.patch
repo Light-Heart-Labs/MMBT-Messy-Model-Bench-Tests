@@ -1,0 +1,26 @@
+diff --git a/resources/dev/extensions-library/services/jupyter/compose.yaml b/resources/dev/extensions-library/services/jupyter/compose.yaml
+index a0d654da..82781447 100644
+--- a/resources/dev/extensions-library/services/jupyter/compose.yaml
++++ b/resources/dev/extensions-library/services/jupyter/compose.yaml
+@@ -11,7 +11,7 @@ services:
+       - LLM_API_URL=${LLM_API_URL:-http://localhost:8000}
+       - JUPYTER_TOKEN=${JUPYTER_TOKEN:?JUPYTER_TOKEN must be set}
+       - NB_PREFIX=/
+-    command: start.sh jupyter lab --NotebookApp.token=${JUPYTER_TOKEN:?JUPYTER_TOKEN must be set} --NotebookApp.password='' --NotebookApp.port=8888 --NotebookApp.ip=0.0.0.0 --NotebookApp.open_browser=False
++    command: start.sh jupyter lab --NotebookApp.token=${JUPYTER_TOKEN} --NotebookApp.password='' --NotebookApp.port=8888 --NotebookApp.ip=0.0.0.0 --NotebookApp.open_browser=False
+     restart: unless-stopped
+     security_opt:
+       - no-new-privileges:true
+diff --git a/resources/dev/extensions-library/services/librechat/compose.yaml b/resources/dev/extensions-library/services/librechat/compose.yaml
+index e034e072..5cdd4a23 100644
+--- a/resources/dev/extensions-library/services/librechat/compose.yaml
++++ b/resources/dev/extensions-library/services/librechat/compose.yaml
+@@ -8,7 +8,7 @@ services:
+     environment:
+       - HOST=0.0.0.0
+       - PORT=3080
+-      - MONGO_URI=mongodb://librechat:${LIBRECHAT_MONGO_PASSWORD}@librechat-mongodb:27017/LibreChat?authSource=admin
++      - MONGO_URI=mongodb://librechat:${LIBRECHAT_MONGO_PASSWORD:?LIBRECHAT_MONGO_PASSWORD must be set}@librechat-mongodb:27017/LibreChat?authSource=admin
+       - MEILI_HOST=http://librechat-meilisearch:7700
+       - MEILI_HTTP_ADDR=librechat-meilisearch:7700
+       - OPENAI_API_KEY=${OPENAI_API_KEY:-}

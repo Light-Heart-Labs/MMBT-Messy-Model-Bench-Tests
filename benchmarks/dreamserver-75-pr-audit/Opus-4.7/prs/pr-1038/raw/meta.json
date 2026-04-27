@@ -1,0 +1,24 @@
+{
+  "additions": 240,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "> **DRAFT: must merge AFTER #1031.** This branch is based on `fix/progress-state-machine` (#1031) and depends on `_write_error_progress` introduced there. Promote to ready-for-review after #1031 merges.\n\n## Summary\n`enable_extension` silently discarded the return value of `_call_agent_hook(\"pre_start\")` and only logged `post_start` failures at WARN. Extensions with failing hooks could appear healthy while actually misconfigured.\n\n## How\n- **`pre_start` failure** now skips `_call_agent(\"start\", ...)`, sets `agent_ok=False`, and writes an error progress entry via `_write_error_progress` so the UI card shows an error badge with `pre_start hook failed \u2014 extension not started.` instead of a stuck \"installing\" state.\n- **`post_start` failure** appends `f\"{svc_id}: post_start hook failed \u2014 manual configuration may be needed\"` to a new `warnings: list[str]` in the response. `agent_ok` is NOT flipped \u2014 the service is running; consumers can surface the warning as a non-fatal notice.\n- `warnings` is always present in the response (possibly empty) so frontend iteration is trivial.\n\n## Platform Impact\n- **macOS / Linux / Windows-WSL2**: identical. Python inside the dashboard-api container.\n\n## Testing\n- `pytest tests/test_extensions.py tests/test_extensions_deps.py tests/test_templates.py` \u2192 168 passed.\n- ruff clean on the two touched files.\n- 3 new tests (`TestEnableExtensionHookReturnHandling`): pre_start-fail blocks start, post_start-fail returns warning, both-succeed baseline.\n\nManual (all platforms, dashboard-api container):\n1. Extension with failing `pre_start` \u2192 UI shows extension NOT enabled; error progress card displayed with \"pre_start hook failed \u2014 extension not started.\"\n2. Extension with failing `post_start` (pre_start succeeds) \u2192 extension enabled; response `warnings` has one entry containing the svc_id.\n3. Both hooks succeed \u2192 `warnings: []`, restart_required=false.\n\n## Notes\n- UI wiring for `warnings` is deferred (dashboard consumers ignore unknown fields). Backward-compatible shape change.\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)",
+  "changedFiles": 3,
+  "createdAt": "2026-04-24T19:54:21Z",
+  "deletions": 8,
+  "headRefName": "fix/extensions-hook-return-handling",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1038,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dashboard-api): honor pre_start return, surface post_start failure",
+  "updatedAt": "2026-04-25T12:02:15Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1038"
+}

@@ -1,0 +1,3790 @@
+diff --git a/.github/workflows/validate-compose.yml b/.github/workflows/validate-compose.yml
+index c9e1525d..11dfd076 100644
+--- a/.github/workflows/validate-compose.yml
++++ b/.github/workflows/validate-compose.yml
+@@ -6,11 +6,15 @@ on:
+     paths:
+       - "dream-server/docker-compose*.yml"
+       - "dream-server/compose/**"
++      - "dream-server/scripts/resolve-compose-stack.sh"
++      - ".github/workflows/validate-compose.yml"
+   pull_request:
+     branches: [main]
+     paths:
+       - "dream-server/docker-compose*.yml"
+       - "dream-server/compose/**"
++      - "dream-server/scripts/resolve-compose-stack.sh"
++      - ".github/workflows/validate-compose.yml"
+ 
+ permissions:
+   contents: read
+@@ -29,6 +33,81 @@ jobs:
+           echo "Validating dream-server/docker-compose.base.yml"
+           docker compose -f dream-server/docker-compose.base.yml config --quiet
+ 
++      - name: Validate GPU overlay stacks (base + backend)
++        env:
++          WEBUI_SECRET: ci-placeholder
++          SEARXNG_SECRET: ci-placeholder
++          N8N_USER: ci@example.com
++          N8N_PASS: ci-placeholder
++          LITELLM_KEY: ci-placeholder
++          OPENCLAW_TOKEN: ci-placeholder
++        working-directory: dream-server
++        run: |
++          set -e
++          failed=0
++          for overlay in docker-compose.nvidia.yml docker-compose.amd.yml docker-compose.apple.yml docker-compose.cpu.yml; do
++            if [ ! -f "$overlay" ]; then
++              echo "SKIP: $overlay not present"
++              continue
++            fi
++            echo "Validating base + $overlay"
++            if ! docker compose -f docker-compose.base.yml -f "$overlay" config --quiet; then
++              echo "  FAILED: base + $overlay"
++              failed=1
++            fi
++          done
++          exit "$failed"
++
++      - name: Validate multi-GPU overlay stacks
++        env:
++          WEBUI_SECRET: ci-placeholder
++          SEARXNG_SECRET: ci-placeholder
++          N8N_USER: ci@example.com
++          N8N_PASS: ci-placeholder
++          LITELLM_KEY: ci-placeholder
++          OPENCLAW_TOKEN: ci-placeholder
++          GPU_COUNT: "2"
++          LLAMA_SERVER_GPU_INDICES: "0,1"
++          LLAMA_SERVER_GPU_UUIDS: "GPU-ci-a,GPU-ci-b"
++          LLAMA_ARG_SPLIT_MODE: "layer"
++          LLAMA_ARG_TENSOR_SPLIT: ""
++        working-directory: dream-server
++        run: |
++          set -e
++          failed=0
++          # NVIDIA multi-GPU
++          if [ -f docker-compose.multigpu-nvidia.yml ]; then
++            echo "Validating base + nvidia + multigpu-nvidia"
++            docker compose -f docker-compose.base.yml \
++                           -f docker-compose.nvidia.yml \
++                           -f docker-compose.multigpu-nvidia.yml \
++                           config --quiet || failed=1
++          fi
++          # AMD multi-GPU
++          if [ -f docker-compose.multigpu-amd.yml ]; then
++            echo "Validating base + amd + multigpu-amd"
++            docker compose -f docker-compose.base.yml \
++                           -f docker-compose.amd.yml \
++                           -f docker-compose.multigpu-amd.yml \
++                           config --quiet || failed=1
++          fi
++          exit "$failed"
++
++      - name: Validate resolver output for AMD multi-GPU
++        working-directory: dream-server
++        run: |
++          set -e
++          flags=$(bash scripts/resolve-compose-stack.sh \
++            --script-dir "$PWD" \
++            --tier "3" \
++            --gpu-backend amd \
++            --gpu-count 2)
++          echo "Resolver produced: $flags"
++          case "$flags" in
++            *docker-compose.multigpu-amd.yml*) echo "OK: multigpu-amd overlay resolved" ;;
++            *) echo "FAIL: resolver did not include docker-compose.multigpu-amd.yml"; exit 1 ;;
++          esac
++
+       - name: Validate compose files in dream-server/compose/
+         env:
+           WEBUI_SECRET: ci-placeholder
+diff --git a/dream-server/.env.example b/dream-server/.env.example
+index 038b6840..7c054d19 100644
+--- a/dream-server/.env.example
++++ b/dream-server/.env.example
+@@ -169,16 +169,21 @@ LANGFUSE_INIT_USER_EMAIL=admin@dreamserver.local
+ LANGFUSE_INIT_USER_PASSWORD=   # auto-generated during install
+ 
+ # ═══════════════════════════════════════════════════════════════════
+-# Multi-GPU Settings (auto-populated by installer for NVIDIA multi-GPU)
++# Multi-GPU Settings (auto-populated by installer for multi-GPU)
+ # ═══════════════════════════════════════════════════════════════════
+ 
+ # GPU_ASSIGNMENT_JSON_B64=           # Base64-encoded GPU assignment JSON
+-# LLAMA_SERVER_GPU_UUIDS=            # GPU UUIDs for llama-server (comma-separated)
++# LLAMA_SERVER_GPU_UUIDS=            # GPU UUIDs for llama-server (NVIDIA, comma-separated)
++# LLAMA_SERVER_GPU_INDICES=          # GPU indices for llama-server (AMD, comma-separated)
+ # LLAMA_ARG_SPLIT_MODE=none          # none | layer (pipeline) | row (tensor/hybrid)
+ # LLAMA_ARG_TENSOR_SPLIT=            # Proportional VRAM weights (e.g. 3,1)
+-# COMFYUI_GPU_UUID=                  # GPU UUID for ComfyUI
+-# WHISPER_GPU_UUID=                  # GPU UUID for Whisper
+-# EMBEDDINGS_GPU_UUID=               # GPU UUID for embeddings
++# COMFYUI_GPU_UUID=                  # GPU UUID for ComfyUI (NVIDIA)
++# WHISPER_GPU_UUID=                  # GPU UUID for Whisper (NVIDIA)
++# EMBEDDINGS_GPU_UUID=               # GPU UUID for embeddings (NVIDIA)
++# ROCR_VISIBLE_DEVICES=              # AMD GPU indices visible to ROCm (comma-separated)
++# VIDEO_GID=44                       # Host 'video' group GID (AMD)
++# RENDER_GID=992                     # Host 'render' group GID (AMD)
++# HSA_OVERRIDE_GFX_VERSION=          # AMD gfx version override for ROCm compatibility
+ # LLM_MODEL_SIZE_MB=                 # Approximate model size in MB
+ 
+ # ═══════════════════════════════════════════════════════════════════
+diff --git a/dream-server/.env.schema.json b/dream-server/.env.schema.json
+index c25a2d85..eb815be0 100644
+--- a/dream-server/.env.schema.json
++++ b/dream-server/.env.schema.json
+@@ -330,15 +330,17 @@
+     },
+     "VIDEO_GID": {
+       "type": "integer",
+-      "description": "Video group ID (AMD only)"
++      "description": "GID of the 'video' group on the host (used in container group_add for AMD GPU access)",
++      "default": 44
+     },
+     "RENDER_GID": {
+       "type": "integer",
+-      "description": "Render group ID (AMD only)"
++      "description": "GID of the 'render' group on the host (used in container group_add for AMD GPU access)",
++      "default": 992
+     },
+     "HSA_OVERRIDE_GFX_VERSION": {
+       "type": "string",
+-      "description": "AMD ROCm GFX version override"
++      "description": "Override AMD GPU gfx version for ROCm compatibility (e.g. 'gfx1100')"
+     },
+     "ROCBLAS_USE_HIPBLASLT": {
+       "type": "integer",
+@@ -528,6 +530,10 @@
+       "enum": ["off", "auto", "on"],
+       "default": "off"
+     },
++    "LLAMA_SERVER_GPU_INDICES": {
++      "type": "string",
++      "description": "GPU indices assigned to llama-server (comma-separated, used by ROCR_VISIBLE_DEVICES on AMD)"
++    },
+     "LLAMA_ARG_SPLIT_MODE": {
+       "type": "string",
+       "description": "llama.cpp split mode (LLAMA_ARG_SPLIT_MODE): none | layer (pipeline) | row (tensor/hybrid)"
+@@ -538,15 +544,40 @@
+     },
+     "EMBEDDINGS_GPU_UUID": {
+       "type": "string",
+-      "description": "GPU UUID assigned to embeddings service"
++      "description": "GPU UUID assigned to embeddings service (NVIDIA)"
++    },
++    "EMBEDDINGS_GPU_INDEX": {
++      "type": "integer",
++      "description": "GPU index for embeddings service (AMD, used as ROCR_VISIBLE_DEVICES)",
++      "default": 0
+     },
+     "COMFYUI_GPU_UUID": {
+       "type": "string",
+-      "description": "GPU UUID assigned to ComfyUI"
++      "description": "GPU UUID assigned to ComfyUI (NVIDIA)"
++    },
++    "COMFYUI_GPU_INDEX": {
++      "type": "integer",
++      "description": "GPU index for ComfyUI (AMD, used as ROCR_VISIBLE_DEVICES)",
++      "default": 0
+     },
+     "WHISPER_GPU_UUID": {
+       "type": "string",
+-      "description": "GPU UUID assigned to Whisper"
++      "description": "GPU UUID assigned to Whisper (NVIDIA)"
++    },
++    "WHISPER_GPU_INDEX": {
++      "type": "integer",
++      "description": "GPU index for Whisper service (AMD, used as ROCR_VISIBLE_DEVICES)",
++      "default": 0
++    },
++    "ROCR_VISIBLE_DEVICES": {
++      "type": "string",
++      "description": "AMD GPU indices visible to ROCm runtime (comma-separated, e.g. '0,1,2')"
++    },
++    "LEMONADE_LLAMACPP": {
++      "type": "string",
++      "description": "Lemonade inner llama.cpp backend selector for AMD multi-GPU. Applied by docker-compose.multigpu-amd.yml. Defaults to 'rocm' (only backend with working multi-GPU tensor split on ROCm). Override for debugging only.",
++      "enum": ["rocm", "vulkan", "cpu"],
++      "default": "rocm"
+     },
+     "LLM_MODEL_SIZE_MB": {
+       "type": "integer",
+diff --git a/dream-server/config/gpu-database.json b/dream-server/config/gpu-database.json
+index 6240101a..951e9164 100644
+--- a/dream-server/config/gpu-database.json
++++ b/dream-server/config/gpu-database.json
+@@ -67,6 +67,166 @@
+         "tier": "SH_COMPACT"
+       }
+     },
++    {
++      "id": "rx_7900_xtx",
++      "match": {
++        "device_ids": ["0x744c"],
++        "name_patterns": ["RX 7900 XTX", "Navi 31"]
++      },
++      "specs": {
++        "label": "AMD Radeon RX 7900 XTX",
++        "vendor": "amd",
++        "architecture": "rdna-3",
++        "memory_type": "discrete",
++        "memory_mb": 24576,
++        "memory_source": "vram",
++        "bandwidth_gbps": 960
++      },
++      "recommended": {
++        "backend": "amd",
++        "tier": "T3"
++      }
++    },
++    {
++      "id": "rx_7900_xt",
++      "match": {
++        "device_ids": ["0x744c"],
++        "name_patterns": ["RX 7900 XT"]
++      },
++      "specs": {
++        "label": "AMD Radeon RX 7900 XT",
++        "vendor": "amd",
++        "architecture": "rdna-3",
++        "memory_type": "discrete",
++        "memory_mb": 20480,
++        "memory_source": "vram",
++        "bandwidth_gbps": 800
++      },
++      "recommended": {
++        "backend": "amd",
++        "tier": "T3"
++      }
++    },
++    {
++      "id": "rx_7900_gre",
++      "match": {
++        "device_ids": ["0x744c"],
++        "name_patterns": ["RX 7900 GRE"]
++      },
++      "specs": {
++        "label": "AMD Radeon RX 7900 GRE",
++        "vendor": "amd",
++        "architecture": "rdna-3",
++        "memory_type": "discrete",
++        "memory_mb": 16384,
++        "memory_source": "vram",
++        "bandwidth_gbps": 576
++      },
++      "recommended": {
++        "backend": "amd",
++        "tier": "T2"
++      }
++    },
++    {
++      "id": "rx_7800_xt",
++      "match": {
++        "device_ids": ["0x7480"],
++        "name_patterns": ["RX 7800 XT", "Navi 32"]
++      },
++      "specs": {
++        "label": "AMD Radeon RX 7800 XT",
++        "vendor": "amd",
++        "architecture": "rdna-3",
++        "memory_type": "discrete",
++        "memory_mb": 16384,
++        "memory_source": "vram",
++        "bandwidth_gbps": 624
++      },
++      "recommended": {
++        "backend": "amd",
++        "tier": "T2"
++      }
++    },
++    {
++      "id": "rx_7700_xt",
++      "match": {
++        "device_ids": ["0x7480"],
++        "name_patterns": ["RX 7700 XT"]
++      },
++      "specs": {
++        "label": "AMD Radeon RX 7700 XT",
++        "vendor": "amd",
++        "architecture": "rdna-3",
++        "memory_type": "discrete",
++        "memory_mb": 12288,
++        "memory_source": "vram",
++        "bandwidth_gbps": 432
++      },
++      "recommended": {
++        "backend": "amd",
++        "tier": "T2"
++      }
++    },
++    {
++      "id": "rx_7600",
++      "match": {
++        "device_ids": [],
++        "name_patterns": ["RX 7600"]
++      },
++      "specs": {
++        "label": "AMD Radeon RX 7600",
++        "vendor": "amd",
++        "architecture": "rdna-3",
++        "memory_type": "discrete",
++        "memory_mb": 8192,
++        "memory_source": "vram",
++        "bandwidth_gbps": 288
++      },
++      "recommended": {
++        "backend": "amd",
++        "tier": "T1"
++      }
++    },
++    {
++      "id": "rx_9070_xt",
++      "match": {
++        "device_ids": [],
++        "name_patterns": ["RX 9070 XT", "Navi 48"]
++      },
++      "specs": {
++        "label": "AMD Radeon RX 9070 XT",
++        "vendor": "amd",
++        "architecture": "rdna-4",
++        "memory_type": "discrete",
++        "memory_mb": 16384,
++        "memory_source": "vram",
++        "bandwidth_gbps": 624
++      },
++      "recommended": {
++        "backend": "amd",
++        "tier": "T2"
++      }
++    },
++    {
++      "id": "rx_9070",
++      "match": {
++        "device_ids": [],
++        "name_patterns": ["RX 9070"]
++      },
++      "specs": {
++        "label": "AMD Radeon RX 9070",
++        "vendor": "amd",
++        "architecture": "rdna-4",
++        "memory_type": "discrete",
++        "memory_mb": 16384,
++        "memory_source": "vram",
++        "bandwidth_gbps": 488
++      },
++      "recommended": {
++        "backend": "amd",
++        "tier": "T2"
++      }
++    },
+     {
+       "id": "strix_halo_385",
+       "match": {
+diff --git a/dream-server/docker-compose.multigpu-amd.yml b/dream-server/docker-compose.multigpu-amd.yml
+new file mode 100644
+index 00000000..5ac9cb12
+--- /dev/null
++++ b/dream-server/docker-compose.multigpu-amd.yml
+@@ -0,0 +1,48 @@
++# Dream Server — AMD Multi-GPU Overlay
++# Applied when GPU_COUNT > 1 and GPU_BACKEND = amd.
++# llama-server gets all of /dev/dri + ROCR_VISIBLE_DEVICES for multi-GPU inference.
++# Single-GPU services use ROCR_VISIBLE_DEVICES for GPU isolation.
++# Dashboard-api gets all GPUs for monitoring.
++#
++# Lemonade passthrough: Lemonade launches its inner llama-server via fork()+execv()
++# and constructs the CLI explicitly — LLAMA_ARG_* env vars are NOT guaranteed to be
++# read by the inner process. We pass --split-mode explicitly via --llamacpp-args
++# (Lemonade's official mechanism). --split-mode and --tensor-split are NOT in
++# Lemonade's blocked flag list (-m, --port, --ctx-size, -ngl, --jinja, --mmproj,
++# --embeddings, --reranking), so they pass through safely.
++#
++# Backend selection: --llamacpp rocm is valid in v10+ C++ binary, but the Docker
++# guide recommends env vars (LEMONADE_LLAMACPP=rocm). We omit --llamacpp from
++# the command and use the env var for compatibility with both Python and C++ builds.
++# Note: command fully replaces the base docker-compose.amd.yml command.
++
++services:
++  llama-server:
++    # devices and group_add inherited from docker-compose.amd.yml
++    command:
++      - serve
++      - --port
++      - "8080"
++      - --host
++      - "0.0.0.0"
++      - --no-tray
++      - --llamacpp-args
++      - "--metrics --host 0.0.0.0 --split-mode ${LLAMA_ARG_SPLIT_MODE:-layer}"
++      - --extra-models-dir
++      - /models
++    environment:
++      LEMONADE_LLAMACPP: "${LEMONADE_LLAMACPP:-rocm}"
++      ROCR_VISIBLE_DEVICES: "${LLAMA_SERVER_GPU_INDICES:-}"
++      # Tensor split ratio (e.g. "0.5,0.5") — passed via env var because it may
++      # be empty (auto-split). Inherited by inner llama-server via fork()+execv().
++      LLAMA_ARG_TENSOR_SPLIT: "${LLAMA_ARG_TENSOR_SPLIT:-}"
++      HSA_OVERRIDE_GFX_VERSION: "${HSA_OVERRIDE_GFX_VERSION:-}"
++
++  dashboard-api:
++    devices:
++      - /dev/kfd:/dev/kfd
++      - /dev/dri:/dev/dri
++    environment:
++      GPU_COUNT: "${GPU_COUNT:-1}"
++      GPU_ASSIGNMENT_JSON_B64: "${GPU_ASSIGNMENT_JSON_B64:-}"
++    # volumes (sysfs mounts) inherited from docker-compose.amd.yml
+diff --git a/dream-server/docker-compose.multigpu.yml b/dream-server/docker-compose.multigpu-nvidia.yml
+similarity index 100%
+rename from dream-server/docker-compose.multigpu.yml
+rename to dream-server/docker-compose.multigpu-nvidia.yml
+diff --git a/dream-server/dream-cli b/dream-server/dream-cli
+index 6e160f64..1c3dce4c 100755
+--- a/dream-server/dream-cli
++++ b/dream-server/dream-cli
+@@ -484,8 +484,25 @@ get_compose_flags() {
+         local cached
+         cached=$(< "$INSTALL_DIR/.compose-flags")
+         if [[ "$cached" == -f\ * ]]; then
+-            echo "$cached"
+-            return
++            # Validate that every referenced compose file still exists.
++            # Protects against renames across upgrades (e.g. multigpu.yml →
++            # multigpu-nvidia.yml) where the cache would otherwise hand docker
++            # compose a path that no longer resolves.
++            local stale=0 prev="" tok
++            for tok in $cached; do
++                if [[ "$prev" == "-f" ]]; then
++                    if [[ "$tok" = /* ]]; then
++                        [[ -f "$tok" ]] || { stale=1; break; }
++                    else
++                        [[ -f "$INSTALL_DIR/$tok" ]] || { stale=1; break; }
++                    fi
++                fi
++                prev="$tok"
++            done
++            if [[ "$stale" == "0" ]]; then
++                echo "$cached"
++                return
++            fi
+         fi
+         # Stale or corrupt — remove and fall through to dynamic resolution
+         rm -f "$INSTALL_DIR/.compose-flags"
+@@ -2559,18 +2576,119 @@ _gpu_status() {
+         fi
+ 
+     elif [[ "${GPU_BACKEND:-}" == "amd" ]]; then
+-        echo "  AMD GPU(s):"
++        printf "  %-4s %-22s %-22s  %-7s  %-7s  %s\n" \
++            "#" "Name" "VRAM Used/Total" "Util" "Temp" "Power"
++        printf "  %-4s %-22s %-22s  %-7s  %-7s  %s\n" \
++            "─" "──────────────────────" "──────────────────────" "───────" "───────" "─────"
++        local _amd_idx=0 _amd_total_u=0 _amd_total_t=0 _amd_util_sum=0 _amd_max_temp=0 _amd_pw_sum=0
+         for card_dir in /sys/class/drm/card*/device; do
+             [[ -f "$card_dir/vendor" ]] || continue
++            local vendor
+             vendor=$(cat "$card_dir/vendor" 2>/dev/null)
+             [[ "$vendor" == "0x1002" ]] || continue
++            local name vram_total vram_used busy temp_c pw_w
+             name=$(cat "$card_dir/product_name" 2>/dev/null || echo "AMD Radeon")
++            [[ -z "$name" || "$name" == "(null)" ]] && name="AMD Radeon"
+             vram_total=$(cat "$card_dir/mem_info_vram_total" 2>/dev/null || echo "0")
+             vram_used=$(cat "$card_dir/mem_info_vram_used" 2>/dev/null || echo "0")
+             busy=$(cat "$card_dir/gpu_busy_percent" 2>/dev/null || echo "0")
+-            card=$(basename "$(dirname "$card_dir")")
+-            echo "  $card  $name  $(awk "BEGIN{printf \"%.1f / %.1f GB\", $vram_used/1073741824, $vram_total/1073741824}")  ${busy}%"
++
++            # Temperature: find junction sensor via hwmon labels
++            temp_c="N/A"
++            for hwmon_dir in "$card_dir"/hwmon/hwmon*; do
++                [[ -d "$hwmon_dir" ]] || continue
++                for label_file in "$hwmon_dir"/temp*_label; do
++                    [[ -f "$label_file" ]] || continue
++                    local label_val
++                    label_val=$(cat "$label_file" 2>/dev/null)
++                    if [[ "$label_val" == "junction" || "$label_val" == "edge" ]]; then
++                        local input_file="${label_file/_label/_input}"
++                        if [[ -f "$input_file" ]]; then
++                            local millic
++                            millic=$(cat "$input_file" 2>/dev/null) || millic=0
++                            temp_c=$((millic / 1000))
++                            break 2
++                        fi
++                    fi
++                done
++                # Fallback: try temp1_input if no labels found
++                if [[ "$temp_c" == "N/A" && -f "$hwmon_dir/temp1_input" ]]; then
++                    local millic
++                    millic=$(cat "$hwmon_dir/temp1_input" 2>/dev/null) || millic=0
++                    temp_c=$((millic / 1000))
++                fi
++            done
++
++            # Power: try power1_average then power1_input (microwatts)
++            pw_w="N/A"
++            for hwmon_dir in "$card_dir"/hwmon/hwmon*; do
++                [[ -d "$hwmon_dir" ]] || continue
++                local pw_uw=0
++                if [[ -f "$hwmon_dir/power1_average" ]]; then
++                    pw_uw=$(cat "$hwmon_dir/power1_average" 2>/dev/null) || pw_uw=0
++                fi
++                if [[ ! "$pw_uw" =~ ^[0-9]+$ || "$pw_uw" -eq 0 ]] && [[ -f "$hwmon_dir/power1_input" ]]; then
++                    pw_uw=$(cat "$hwmon_dir/power1_input" 2>/dev/null) || pw_uw=0
++                fi
++                if [[ "$pw_uw" =~ ^[0-9]+$ && "$pw_uw" -gt 0 ]]; then
++                    pw_w=$((pw_uw / 1000000))
++                    break
++                fi
++            done
++
++            local vram_str
++            vram_str=$(awk "BEGIN{printf \"%.1f / %.1f GB\", $vram_used/1073741824, $vram_total/1073741824}")
++            local temp_str pw_str
++            [[ "$temp_c" != "N/A" ]] && temp_str="${temp_c}°C" || temp_str="N/A"
++            [[ "$pw_w" != "N/A" ]] && pw_str="${pw_w}W" || pw_str="N/A"
++
++            printf "  %-4s %-22s %-22s  %3s%%     %-7s %s\n" \
++                "$_amd_idx" "${name:0:22}" "$vram_str" "$busy" "$temp_str" "$pw_str"
++
++            _amd_total_u=$((vram_used + _amd_total_u))
++            _amd_total_t=$((vram_total + _amd_total_t))
++            _amd_util_sum=$((busy + _amd_util_sum))
++            [[ "$temp_c" != "N/A" && "$temp_c" -gt "$_amd_max_temp" ]] && _amd_max_temp=$temp_c
++            [[ "$pw_w" != "N/A" ]] && _amd_pw_sum=$((_amd_pw_sum + pw_w))
++            _amd_idx=$((_amd_idx + 1))
+         done
++
++        if [[ $_amd_idx -gt 1 ]]; then
++            printf "                         ──────────────────────\n"
++            local vram_str
++            vram_str=$(awk "BEGIN{printf \"%.1f / %.1f GB\", $_amd_total_u/1073741824, $_amd_total_t/1073741824}")
++            printf "  %-4s %-22s %-22s  %3d%%     %3d°C   %dW\n" \
++                "Σ" "" "$vram_str" $((_amd_util_sum / _amd_idx)) "$_amd_max_temp" "$_amd_pw_sum"
++        fi
++
++        echo ""
++
++        # Assignment summary (same logic as NVIDIA, but map UUIDs via topology JSON)
++        local assignment_b64="${GPU_ASSIGNMENT_JSON_B64:-}"
++        if [[ -n "$assignment_b64" ]] && command -v jq &>/dev/null; then
++            assignment_b64=$(echo "$assignment_b64" | tr -d '\r' | tr -d '[:space:]')
++            local assignment_json
++            assignment_json=$(echo "$assignment_b64" | base64 -d 2>/dev/null) || assignment_json=""
++            if [[ -n "$assignment_json" ]]; then
++                local topo_file="$INSTALL_DIR/config/gpu-topology.json"
++                echo "  GPU Assignments:"
++                echo "$assignment_json" | jq -r '.gpu_assignment.services | to_entries[] | [.key, (.value.gpus | join(","))] | @tsv' \
++                | while IFS=$'\t' read -r svc gpus; do
++                    local labels=""
++                    while IFS= read -r uuid; do
++                        [[ -z "$uuid" ]] && continue
++                        local idx=""
++                        # Look up UUID in topology JSON for index
++                        if [[ -f "$topo_file" ]]; then
++                            idx=$(jq -r --arg u "$uuid" '.gpus[] | select(.uuid == $u) | .index' "$topo_file" 2>/dev/null)
++                        fi
++                        labels="${labels:+$labels, }${idx:+GPU${idx}}"
++                    done < <(echo "$gpus" | tr ',' '\n')
++                    printf "    %-20s %s\n" "$svc" "${labels:-$gpus}"
++                done
++                echo ""
++            fi
++        fi
+     else
+         warn "GPU status unavailable: nvidia-smi not found and GPU_BACKEND is not amd"
+     fi
+@@ -2589,23 +2707,26 @@ _gpu_topology() {
+     echo -e "${BLUE}━━━ GPU Topology ━━━${NC}"
+     echo ""
+ 
+-    if [[ "${GPU_BACKEND:-}" == "amd" ]]; then
+-        echo "  AMD multi-GPU topology detection not yet supported."
+-        echo "  Use 'dream gpu status' to see per-card utilization."
++    if ! command -v jq &>/dev/null; then
++        warn "jq not found — required for topology display"
+         return
+     fi
+ 
+-    if ! command -v nvidia-smi &>/dev/null; then
+-        warn "nvidia-smi not found — topology unavailable"
+-        return
+-    fi
++    local backend="${GPU_BACKEND:-nvidia}"
++    local topo_lib topo_detect_fn
+ 
+-    if ! command -v jq &>/dev/null; then
+-        warn "jq not found — required for topology display"
+-        return
++    if [[ "$backend" == "amd" ]]; then
++        topo_lib="$SCRIPT_DIR/installers/lib/amd-topo.sh"
++        topo_detect_fn="detect_amd_topo"
++    else
++        topo_lib="$SCRIPT_DIR/installers/lib/nvidia-topo.sh"
++        topo_detect_fn="detect_nvidia_topo"
++        if ! command -v nvidia-smi &>/dev/null; then
++            warn "nvidia-smi not found — topology unavailable"
++            return
++        fi
+     fi
+ 
+-    local topo_lib="$SCRIPT_DIR/installers/lib/nvidia-topo.sh"
+     if [[ ! -f "$topo_lib" ]]; then
+         warn "Topology library not found: $topo_lib"
+         return
+@@ -2619,18 +2740,25 @@ _gpu_topology() {
+     else
+         [[ "$force" -eq 1 && -f "$topo_file" ]] && log "Re-detecting topology (--force)..."
+         . "$topo_lib"
+-        topo_json=$(detect_nvidia_topo 2>&1) || { warn "Failed to detect GPU topology"; return; }
++        topo_json=$($topo_detect_fn 2>&1) || { warn "Failed to detect GPU topology"; return; }
+         echo "$topo_json" > "$topo_file"
+         chmod 644 "$topo_file"
+         log "Topology saved to $topo_file"
+     fi
+ 
+-    local gpu_count driver mig_enabled
++    local gpu_count driver
+     gpu_count=$(echo "$topo_json" | jq -r '.gpu_count // 0')
+     driver=$(echo "$topo_json" | jq -r '.driver_version // "unknown"')
+-    mig_enabled=$(echo "$topo_json" | jq -r '.mig_enabled // false')
+ 
+-    echo "  GPUs: ${gpu_count}    Driver: ${driver}    MIG: ${mig_enabled}"
++    if [[ "$backend" == "amd" ]]; then
++        local vendor_label
++        vendor_label=$(echo "$topo_json" | jq -r '.vendor // "amd"')
++        echo "  GPUs: ${gpu_count}    Driver: ROCm ${driver}    Backend: ${vendor_label}"
++    else
++        local mig_enabled
++        mig_enabled=$(echo "$topo_json" | jq -r '.mig_enabled // false')
++        echo "  GPUs: ${gpu_count}    Driver: ${driver}    MIG: ${mig_enabled}"
++    fi
+     echo ""
+ 
+     # Build a fixed-width link_type matrix from the JSON links array
+@@ -2656,6 +2784,20 @@ _gpu_topology() {
+     local numa_nodes
+     numa_nodes=$(echo "$topo_json" | jq -r '.numa.nodes // 1')
+     echo "  NUMA nodes: ${numa_nodes}"
++
++    # AMD-specific: show gfx versions and memory types
++    if [[ "$backend" == "amd" ]]; then
++        local has_gfx
++        has_gfx=$(echo "$topo_json" | jq -r '[.gpus[].gfx_version // empty] | length')
++        if [[ "$has_gfx" -gt 0 ]]; then
++            echo ""
++            echo "  GPU Details:"
++            echo "$topo_json" | jq -r '
++                .gpus[] |
++                "    GPU\(.index): \(.name) — gfx\(.gfx_version // "?") \(.memory_type // "discrete") \(.memory_gb)GB renderD\(.render_node // "?")"
++            ' 2>/dev/null
++        fi
++    fi
+ }
+ 
+ _gpu_assignment() {
+@@ -2691,8 +2833,14 @@ _gpu_assignment() {
+     echo ""
+ 
+     # Build UUID → index map for readable display
+-    local uuid_map=""
+-    if command -v nvidia-smi &>/dev/null; then
++    local uuid_map="" backend="${GPU_BACKEND:-nvidia}"
++    if [[ "$backend" == "amd" ]]; then
++        # For AMD, use topology JSON which has index + uuid per GPU
++        local topo_file="$INSTALL_DIR/config/gpu-topology.json"
++        if [[ -f "$topo_file" ]] && command -v jq &>/dev/null; then
++            uuid_map=$(jq -r '.gpus[] | "\(.index), \(.uuid)"' "$topo_file" 2>/dev/null) || uuid_map=""
++        fi
++    elif command -v nvidia-smi &>/dev/null; then
+         uuid_map=$(nvidia-smi --query-gpu=index,uuid --format=csv,noheader,nounits 2>/dev/null) || uuid_map=""
+     fi
+ 
+@@ -2736,7 +2884,19 @@ _gpu_validate() {
+     # Check 1: GPU_COUNT matches actual
+     local env_count="${GPU_COUNT:-1}"
+     local actual_count=1
+-    if command -v nvidia-smi &>/dev/null; then
++    local backend="${GPU_BACKEND:-nvidia}"
++
++    if [[ "$backend" == "amd" ]]; then
++        # Count AMD GPUs via sysfs vendor ID
++        actual_count=0
++        for card_dir in /sys/class/drm/card*/device; do
++            [[ -d "$card_dir" ]] || continue
++            local vendor
++            vendor=$(cat "$card_dir/vendor" 2>/dev/null) || continue
++            [[ "$vendor" == "0x1002" ]] && ((actual_count++)) || true
++        done
++        [[ "$actual_count" -eq 0 ]] && actual_count=1
++    elif command -v nvidia-smi &>/dev/null; then
+         actual_count=$(nvidia-smi --list-gpus 2>/dev/null | wc -l | tr -d ' ')
+     fi
+ 
+@@ -2760,7 +2920,13 @@ _gpu_validate() {
+         local assignment_json
+         if assignment_json=$(echo "$assignment_b64" | base64 -d 2>/dev/null); then
+             local live_uuids=""
+-            if command -v nvidia-smi &>/dev/null; then
++            if [[ "$backend" == "amd" ]]; then
++                # For AMD, rebuild UUID list from topology JSON or sysfs
++                local topo_file="$INSTALL_DIR/config/gpu-topology.json"
++                if [[ -f "$topo_file" ]]; then
++                    live_uuids=$(jq -r '.gpus[].uuid' "$topo_file" 2>/dev/null | tr -d ' ')
++                fi
++            elif command -v nvidia-smi &>/dev/null; then
+                 live_uuids=$(nvidia-smi --query-gpu=uuid --format=csv,noheader,nounits 2>/dev/null | tr -d ' ')
+             fi
+             local missing=0
+@@ -2803,6 +2969,18 @@ _gpu_validate() {
+     echo "  Result: ${pass} check(s) passed, ${fail} failed"
+ }
+ 
++# Helper: write AMD-specific env vars from topology JSON for manual assignment
++_gpu_reassign_write_amd_env() {
++    local topo_json="$1" indices_csv="$2"
++    _env_set "LLAMA_SERVER_GPU_INDICES" "$indices_csv"
++    _env_set "ROCR_VISIBLE_DEVICES" "$indices_csv"
++    local video_gid render_gid
++    video_gid=$(getent group video 2>/dev/null | cut -d: -f3) || video_gid="44"
++    render_gid=$(getent group render 2>/dev/null | cut -d: -f3) || render_gid="992"
++    _env_set "VIDEO_GID" "$video_gid"
++    _env_set "RENDER_GID" "$render_gid"
++}
++
+ _gpu_reassign() {
+     local auto_mode=0 dry_run=0 manual_mode=0
+     while [[ $# -gt 0 ]]; do
+@@ -2820,17 +2998,26 @@ _gpu_reassign() {
+     echo -e "${BLUE}━━━ GPU Reassign ━━━${NC}"
+     echo ""
+ 
+-    if ! command -v nvidia-smi &>/dev/null; then
+-        warn "GPU reassign is only supported for NVIDIA. Use 'dream gpu status' for AMD."
+-        return
+-    fi
+-
+     if ! command -v jq &>/dev/null; then
+         warn "jq not found — required for GPU reassignment"
+         return
+     fi
+ 
+-    local topo_lib="$SCRIPT_DIR/installers/lib/nvidia-topo.sh"
++    local backend="${GPU_BACKEND:-nvidia}"
++    local topo_lib topo_detect_fn
++
++    if [[ "$backend" == "amd" ]]; then
++        topo_lib="$SCRIPT_DIR/installers/lib/amd-topo.sh"
++        topo_detect_fn="detect_amd_topo"
++    else
++        topo_lib="$SCRIPT_DIR/installers/lib/nvidia-topo.sh"
++        topo_detect_fn="detect_nvidia_topo"
++        if ! command -v nvidia-smi &>/dev/null; then
++            warn "nvidia-smi not found — GPU reassignment unavailable"
++            return
++        fi
++    fi
++
+     local assign_script="$SCRIPT_DIR/scripts/assign_gpus.py"
+ 
+     [[ -f "$topo_lib" ]] || { warn "Topology library not found: $topo_lib"; return; }
+@@ -2841,7 +3028,7 @@ _gpu_reassign() {
+ 
+     log "Detecting GPU topology..."
+     local topo_json
+-    topo_json=$(detect_nvidia_topo 2>&1) || error "Failed to detect GPU topology"
++    topo_json=$($topo_detect_fn) || error "Failed to detect GPU topology"
+ 
+     # Persist topology for the dashboard API
+     mkdir -p "$INSTALL_DIR/config"
+@@ -2875,19 +3062,25 @@ _gpu_reassign() {
+     if [[ "$manual_mode" -eq 1 ]]; then
+         echo ""
+         echo "  Available GPUs:"
+-        local gpu_list_smi
+-        gpu_list_smi=$(nvidia-smi --query-gpu=index,name,memory.total \
+-            --format=csv,noheader,nounits 2>/dev/null) || { warn "nvidia-smi failed"; return; }
+-        local gpu_indices=()
+-        while IFS= read -r gline; do
+-            [[ -z "$gline" ]] && continue
+-            local idx gname gmem
+-            idx=$(echo "$gline"   | awk -F', ' '{gsub(/ /,"",$1); print $1}')
+-            gname=$(echo "$gline" | awk -F', ' '{gsub(/^ +/,"",$2); print $2}')
+-            gmem=$(echo "$gline"  | awk -F', ' '{gsub(/ /,"",$3); printf "%.0f GB", $3/1024}')
+-            echo "    GPU${idx}: ${gname} (${gmem})"
+-            gpu_indices+=("$idx")
+-        done <<<"$gpu_list_smi"
++
++        if [[ "$backend" == "amd" ]]; then
++            # List AMD GPUs from topology JSON
++            echo "$topo_json" | jq -r '.gpus[] |
++                "    GPU\(.index): \(.name) (\(.memory_gb) GB \(.memory_type // "discrete"))"
++            ' 2>/dev/null
++        else
++            local gpu_list_smi
++            gpu_list_smi=$(nvidia-smi --query-gpu=index,name,memory.total \
++                --format=csv,noheader,nounits 2>/dev/null) || { warn "nvidia-smi failed"; return; }
++            while IFS= read -r gline; do
++                [[ -z "$gline" ]] && continue
++                local idx gname gmem
++                idx=$(echo "$gline"   | awk -F', ' '{gsub(/ /,"",$1); print $1}')
++                gname=$(echo "$gline" | awk -F', ' '{gsub(/^ +/,"",$2); print $2}')
++                gmem=$(echo "$gline"  | awk -F', ' '{gsub(/ /,"",$3); printf "%.0f GB", $3/1024}')
++                echo "    GPU${idx}: ${gname} (${gmem})"
++            done <<<"$gpu_list_smi"
++        fi
+         echo ""
+ 
+         local _manual_llama _manual_whisper _manual_comfyui
+@@ -2900,7 +3093,11 @@ _gpu_reassign() {
+ 
+         # Build UUID lists from indices
+         local uuid_map
+-        uuid_map=$(nvidia-smi --query-gpu=index,uuid --format=csv,noheader,nounits 2>/dev/null)
++        if [[ "$backend" == "amd" ]]; then
++            uuid_map=$(echo "$topo_json" | jq -r '.gpus[] | "\(.index), \(.uuid)"' 2>/dev/null)
++        else
++            uuid_map=$(nvidia-smi --query-gpu=index,uuid --format=csv,noheader,nounits 2>/dev/null)
++        fi
+ 
+         _get_uuid() {
+             echo "$uuid_map" | awk -F', ' -v i="$1" '{gsub(/ /,"",$1); if($1==i){gsub(/ /,"",$2); print $2; exit}}'
+@@ -2948,6 +3145,11 @@ _gpu_reassign() {
+         [[ -n "$whisper_uuid_m" ]]   && _env_set "WHISPER_GPU_UUID"  "$whisper_uuid_m"
+         [[ -n "$comfyui_uuid_m" ]]   && _env_set "COMFYUI_GPU_UUID"  "$comfyui_uuid_m"
+ 
++        # AMD-specific: write render node and ROCR env vars
++        if [[ "$backend" == "amd" ]]; then
++            _gpu_reassign_write_amd_env "$topo_json" "$_manual_llama"
++        fi
++
+         success "Manual GPU assignment saved"
+         echo ""
+         echo -n "  Apply changes now? [Y/n] "
+@@ -3025,6 +3227,48 @@ _gpu_reassign() {
+     [[ -n "$embeddings_uuid" ]] && _env_set "EMBEDDINGS_GPU_UUID" "$embeddings_uuid"
+     _env_set "GPU_ASSIGNMENT_JSON_B64" "$assignment_b64"
+ 
++    # AMD-specific: write render node, ROCR_VISIBLE_DEVICES, gfx overrides
++    if [[ "$backend" == "amd" ]]; then
++        # Extract llama GPU indices from assignment by matching UUIDs to topology
++        local llama_idx_csv=""
++        while IFS= read -r _uuid; do
++            [[ -z "$_uuid" ]] && continue
++            local _idx
++            _idx=$(echo "$topo_json" | jq -r --arg u "$_uuid" '.gpus[] | select(.uuid == $u) | .index')
++            llama_idx_csv="${llama_idx_csv:+$llama_idx_csv,}${_idx}"
++        done < <(echo "$assignment_json" | jq -r '.gpu_assignment.services.llama_server.gpus[]' 2>/dev/null)
++        [[ -n "$llama_idx_csv" ]] && _env_set "LLAMA_SERVER_GPU_INDICES" "$llama_idx_csv"
++        _env_set "ROCR_VISIBLE_DEVICES" "$llama_idx_csv"
++
++        # Write GPU index for auxiliary services (whisper, comfyui, embeddings)
++        _amd_svc_env() {
++            local svc_prefix="$1" svc_uuid="$2"
++            [[ -z "$svc_uuid" ]] && return
++            local _si
++            _si=$(echo "$topo_json" | jq -r --arg u "$svc_uuid" '.gpus[] | select(.uuid == $u) | .index')
++            [[ -n "$_si" && "$_si" != "null" ]] && _env_set "${svc_prefix}_GPU_INDEX" "$_si"
++        }
++        _amd_svc_env "WHISPER" "$whisper_uuid"
++        _amd_svc_env "COMFYUI" "$comfyui_uuid"
++        _amd_svc_env "EMBEDDINGS" "$embeddings_uuid"
++
++        # Detect and persist GID values for AMD container group_add
++        local video_gid render_gid
++        video_gid=$(getent group video 2>/dev/null | cut -d: -f3) || video_gid="44"
++        render_gid=$(getent group render 2>/dev/null | cut -d: -f3) || render_gid="992"
++        _env_set "VIDEO_GID" "$video_gid"
++        _env_set "RENDER_GID" "$render_gid"
++
++        # Check mixed gfx — set global HSA_OVERRIDE_GFX_VERSION if all llama GPUs share one
++        local unique_gfx
++        unique_gfx=$(echo "$topo_json" | jq -r '[.gpus[].gfx_version] | unique | length')
++        if [[ "$unique_gfx" -eq 1 ]]; then
++            local gfx_ver
++            gfx_ver=$(echo "$topo_json" | jq -r '.gpus[0].gfx_version')
++            [[ -n "$gfx_ver" && "$gfx_ver" != "null" ]] && _env_set "HSA_OVERRIDE_GFX_VERSION" "$gfx_ver"
++        fi
++    fi
++
+     success "GPU assignment updated (strategy: ${strategy})"
+     echo ""
+     echo -n "  Apply changes now? [Y/n] "
+diff --git a/dream-server/extensions/services/comfyui/compose.multigpu-amd.yaml b/dream-server/extensions/services/comfyui/compose.multigpu-amd.yaml
+new file mode 100644
+index 00000000..e2952b33
+--- /dev/null
++++ b/dream-server/extensions/services/comfyui/compose.multigpu-amd.yaml
+@@ -0,0 +1,9 @@
++# ComfyUI — AMD multi-GPU isolation overlay
++# compose.amd.yaml already mounts all of /dev/dri, and Docker Compose appends
++# device lists (no override). Render node passthrough is therefore redundant.
++# Use ROCR_VISIBLE_DEVICES to restrict ComfyUI to a single GPU at runtime.
++services:
++  comfyui:
++    # devices and group_add inherited from compose.amd.yaml
++    environment:
++      ROCR_VISIBLE_DEVICES: "${COMFYUI_GPU_INDEX:-0}"
+diff --git a/dream-server/extensions/services/comfyui/compose.multigpu.yaml b/dream-server/extensions/services/comfyui/compose.multigpu-nvidia.yaml
+similarity index 100%
+rename from dream-server/extensions/services/comfyui/compose.multigpu.yaml
+rename to dream-server/extensions/services/comfyui/compose.multigpu-nvidia.yaml
+diff --git a/dream-server/extensions/services/dashboard-api/gpu.py b/dream-server/extensions/services/dashboard-api/gpu.py
+index 86a791a8..60443296 100644
+--- a/dream-server/extensions/services/dashboard-api/gpu.py
++++ b/dream-server/extensions/services/dashboard-api/gpu.py
+@@ -87,13 +87,8 @@ def get_gpu_info_amd() -> Optional[GPUInfo]:
+         temp = 0
+         power_w = None
+         if hwmon:
+-            temp_str = _read_sysfs(f"{hwmon}/temp1_input")
+-            if temp_str:
+-                temp = int(temp_str) // 1000
+-
+-            power_str = _read_sysfs(f"{hwmon}/power1_average")
+-            if power_str:
+-                power_w = round(int(power_str) / 1e6, 1)
++            temp = _find_hwmon_temp(hwmon)
++            power_w = _find_hwmon_power(hwmon)
+ 
+         gpu_name = _read_sysfs(f"{base}/product_name")
+         memory_type = "unified" if is_unified else "discrete"
+@@ -508,9 +503,36 @@ def get_gpu_info_nvidia_detailed() -> Optional[list[IndividualGPU]]:
+     return gpus or None
+ 
+ 
++def _find_hwmon_temp(hwmon_dir: str) -> int:
++    """Find GPU temperature via hwmon label-based discovery (junction > edge > temp1)."""
++    import glob as _glob
++    # Prefer junction temperature (accurate die temp), then edge
++    for label_path in sorted(_glob.glob(f"{hwmon_dir}/temp*_label")):
++        label = _read_sysfs(label_path)
++        if label and label.lower() in ("junction", "edge"):
++            input_path = label_path.replace("_label", "_input")
++            temp_str = _read_sysfs(input_path)
++            if temp_str:
++                return int(temp_str) // 1000
++    # Fallback to temp1_input
++    temp_str = _read_sysfs(f"{hwmon_dir}/temp1_input")
++    return int(temp_str) // 1000 if temp_str else 0
++
++
++def _find_hwmon_power(hwmon_dir: str) -> Optional[float]:
++    """Read GPU power: power1_average → power1_input fallback (microwatts → watts)."""
++    for attr in ("power1_average", "power1_input"):
++        power_str = _read_sysfs(f"{hwmon_dir}/{attr}")
++        if power_str:
++            return round(int(power_str) / 1e6, 1)
++    return None
++
++
+ def get_gpu_info_amd_detailed() -> Optional[list[IndividualGPU]]:
+     """Return one IndividualGPU per AMD GPU by iterating all amdgpu sysfs cards.
+ 
++    Uses topology JSON (if available) for stable UUIDs and assignment mapping.
++    Falls back to card index as UUID.
+     Returns None if no AMD GPUs are found.
+     """
+     import glob as _glob
+@@ -519,6 +541,15 @@ def get_gpu_info_amd_detailed() -> Optional[list[IndividualGPU]]:
+     if not amd_cards:
+         return None
+ 
++    # Load topology for UUID mapping and assignment for service mapping
++    topo = read_gpu_topology()
++    topo_gpus = topo.get("gpus", []) if topo else []
++    # Build index→topology entry lookup
++    topo_by_index = {g["index"]: g for g in topo_gpus if "index" in g}
++
++    assignment = decode_gpu_assignment()
++    uuid_service_map = _build_uuid_service_map(assignment) if assignment else {}
++
+     gpus: list[IndividualGPU] = []
+     for idx, base in enumerate(amd_cards):
+         hwmon = _find_hwmon_dir(base)
+@@ -545,21 +576,19 @@ def get_gpu_info_amd_detailed() -> Optional[list[IndividualGPU]]:
+             temp = 0
+             power_w = None
+             if hwmon:
+-                temp_str = _read_sysfs(f"{hwmon}/temp1_input")
+-                if temp_str:
+-                    temp = int(temp_str) // 1000
+-                power_str = _read_sysfs(f"{hwmon}/power1_average")
+-                if power_str:
+-                    power_w = round(int(power_str) / 1e6, 1)
+-
+-            gpu_name = _read_sysfs(f"{base}/product_name") or "AMD Radeon"
+-            card_id = base.split("/")[-2]  # "card0", "card1", …
++                temp = _find_hwmon_temp(hwmon)
++                power_w = _find_hwmon_power(hwmon)
++
++            # Use topology UUID if available, otherwise fall back to card index
++            topo_entry = topo_by_index.get(idx, {})
++            gpu_uuid = topo_entry.get("uuid", f"card{idx}")
++            gpu_name = topo_entry.get("name") or _read_sysfs(f"{base}/product_name") or "AMD Radeon"
+             mem_used_mb = mem_used // (1024 * 1024)
+             mem_total_mb = mem_total // (1024 * 1024)
+ 
+             gpus.append(IndividualGPU(
+                 index=idx,
+-                uuid=card_id,
++                uuid=gpu_uuid,
+                 name=gpu_name,
+                 memory_used_mb=mem_used_mb,
+                 memory_total_mb=mem_total_mb,
+@@ -567,7 +596,7 @@ def get_gpu_info_amd_detailed() -> Optional[list[IndividualGPU]]:
+                 utilization_percent=gpu_busy,
+                 temperature_c=temp,
+                 power_w=power_w,
+-                assigned_services=[],  # AMD assignment uses NVIDIA UUIDs; not mapped here
++                assigned_services=uuid_service_map.get(gpu_uuid, []),
+             ))
+         except (ValueError, TypeError):
+             continue
+diff --git a/dream-server/extensions/services/dashboard-api/tests/test_gpu_amd.py b/dream-server/extensions/services/dashboard-api/tests/test_gpu_amd.py
+new file mode 100644
+index 00000000..984b7a95
+--- /dev/null
++++ b/dream-server/extensions/services/dashboard-api/tests/test_gpu_amd.py
+@@ -0,0 +1,431 @@
++"""Tests for AMD multi-GPU detection, hwmon helpers, and topology-aware naming."""
++
++from unittest.mock import patch
++
++from gpu import (
++    _find_hwmon_power,
++    _find_hwmon_temp,
++    get_gpu_info_amd,
++    get_gpu_info_amd_detailed,
++)
++
++
++# ============================================================================
++# _find_hwmon_temp — label-based discovery (junction > edge > temp1)
++# ============================================================================
++
++
++class TestFindHwmonTemp:
++    def test_prefers_junction_over_edge(self, monkeypatch, tmp_path):
++        """MI300X pattern: temp1 unavailable, temp2=junction is preferred."""
++        hwmon = tmp_path / "hwmon0"
++        hwmon.mkdir()
++        (hwmon / "temp1_label").write_text("mem\n")
++        (hwmon / "temp1_input").write_text("50000\n")
++        (hwmon / "temp2_label").write_text("junction\n")
++        (hwmon / "temp2_input").write_text("72000\n")
++        (hwmon / "temp3_label").write_text("edge\n")
++        (hwmon / "temp3_input").write_text("65000\n")
++
++        monkeypatch.setattr("gpu._read_sysfs", lambda path: open(path).read().strip()
++                            if (tmp_path / "hwmon0" / path.split("/")[-1]).exists()
++                            else None)
++
++        result = _find_hwmon_temp(str(hwmon))
++        # junction (72000) is preferred over edge (65000)
++        assert result == 72
++
++    def test_falls_back_to_edge(self, monkeypatch, tmp_path):
++        """When no junction label, use edge."""
++        hwmon = tmp_path / "hwmon0"
++        hwmon.mkdir()
++        (hwmon / "temp1_label").write_text("edge\n")
++        (hwmon / "temp1_input").write_text("65000\n")
++
++        result = _find_hwmon_temp(str(hwmon))
++        assert result == 65
++
++    def test_falls_back_to_temp1_input(self, monkeypatch, tmp_path):
++        """When no labels exist, fall back to temp1_input."""
++        hwmon = tmp_path / "hwmon0"
++        hwmon.mkdir()
++        (hwmon / "temp1_input").write_text("55000\n")
++        # No label files at all
++
++        result = _find_hwmon_temp(str(hwmon))
++        assert result == 55
++
++    def test_returns_zero_when_nothing_available(self, tmp_path):
++        """When no temp files exist, return 0."""
++        hwmon = tmp_path / "hwmon0"
++        hwmon.mkdir()
++
++        result = _find_hwmon_temp(str(hwmon))
++        assert result == 0
++
++
++# ============================================================================
++# _find_hwmon_power — power1_average → power1_input fallback
++# ============================================================================
++
++
++class TestFindHwmonPower:
++    def test_reads_power1_average(self, tmp_path):
++        """Standard case: power1_average available."""
++        hwmon = tmp_path / "hwmon0"
++        hwmon.mkdir()
++        (hwmon / "power1_average").write_text("200000000\n")
++
++        result = _find_hwmon_power(str(hwmon))
++        assert result == 200.0
++
++    def test_falls_back_to_power1_input(self, tmp_path):
++        """MI300X pattern: power1_average unavailable, power1_input exists."""
++        hwmon = tmp_path / "hwmon0"
++        hwmon.mkdir()
++        (hwmon / "power1_input").write_text("150000000\n")
++        # No power1_average
++
++        result = _find_hwmon_power(str(hwmon))
++        assert result == 150.0
++
++    def test_returns_none_when_nothing_available(self, tmp_path):
++        """No power files → None."""
++        hwmon = tmp_path / "hwmon0"
++        hwmon.mkdir()
++
++        result = _find_hwmon_power(str(hwmon))
++        assert result is None
++
++    def test_prefers_average_over_input(self, tmp_path):
++        """When both exist, power1_average takes precedence."""
++        hwmon = tmp_path / "hwmon0"
++        hwmon.mkdir()
++        (hwmon / "power1_average").write_text("250000000\n")
++        (hwmon / "power1_input").write_text("150000000\n")
++
++        result = _find_hwmon_power(str(hwmon))
++        assert result == 250.0
++
++
++# ============================================================================
++# get_gpu_info_amd — aggregate AMD GPU metrics
++# ============================================================================
++
++
++class TestGetGpuInfoAmdMultiGpu:
++    def test_discrete_gpu_uses_vram(self, monkeypatch):
++        """Discrete GPU: VRAM >> GTT → uses VRAM for memory metrics."""
++        monkeypatch.setattr("gpu._find_amd_gpu_sysfs", lambda: "/sys/class/drm/card0/device")
++        monkeypatch.setattr("gpu._find_hwmon_dir", lambda base: None)
++
++        sysfs_values = {
++            "/sys/class/drm/card0/device/mem_info_vram_total": str(24 * 1024**3),
++            "/sys/class/drm/card0/device/mem_info_vram_used": str(8 * 1024**3),
++            "/sys/class/drm/card0/device/mem_info_gtt_total": str(16 * 1024**3),
++            "/sys/class/drm/card0/device/mem_info_gtt_used": str(2 * 1024**3),
++            "/sys/class/drm/card0/device/gpu_busy_percent": "60",
++            "/sys/class/drm/card0/device/product_name": "AMD Radeon RX 7900 XTX",
++        }
++        monkeypatch.setattr("gpu._read_sysfs", lambda path: sysfs_values.get(path))
++
++        info = get_gpu_info_amd()
++        assert info is not None
++        assert info.memory_type == "discrete"
++        assert info.memory_total_mb == 24 * 1024
++        assert info.memory_used_mb == 8 * 1024
++        assert info.name == "AMD Radeon RX 7900 XTX"
++        assert info.gpu_backend == "amd"
++
++    def test_no_redundant_power_overwrite(self, monkeypatch):
++        """Verify power reading is not overwritten by redundant code (S2 fix)."""
++        monkeypatch.setattr("gpu._find_amd_gpu_sysfs", lambda: "/sys/class/drm/card0/device")
++
++        # Simulate MI300X: power1_average unavailable, power1_input = 150W
++        sysfs_values = {
++            "/sys/class/drm/card0/device/mem_info_vram_total": str(192 * 1024**3),
++            "/sys/class/drm/card0/device/mem_info_vram_used": str(10 * 1024**3),
++            "/sys/class/drm/card0/device/mem_info_gtt_total": str(16 * 1024**3),
++            "/sys/class/drm/card0/device/mem_info_gtt_used": str(0),
++            "/sys/class/drm/card0/device/gpu_busy_percent": "5",
++            "/sys/class/drm/card0/device/product_name": "AMD Instinct MI300X",
++        }
++
++        def mock_read_sysfs(path):
++            return sysfs_values.get(path)
++
++        def mock_find_hwmon(base):
++            return "/fake/hwmon0"
++
++        def mock_find_hwmon_temp(hwmon):
++            return 72
++
++        def mock_find_hwmon_power(hwmon):
++            return 150.0  # power1_input fallback
++
++        monkeypatch.setattr("gpu._read_sysfs", mock_read_sysfs)
++        monkeypatch.setattr("gpu._find_hwmon_dir", mock_find_hwmon)
++        monkeypatch.setattr("gpu._find_hwmon_temp", mock_find_hwmon_temp)
++        monkeypatch.setattr("gpu._find_hwmon_power", mock_find_hwmon_power)
++
++        info = get_gpu_info_amd()
++        assert info is not None
++        # S2 fix: power should come from _find_hwmon_power (150W), not overwritten
++        assert info.power_w == 150.0
++
++
++# ============================================================================
++# get_gpu_info_amd_detailed — per-GPU enumeration with topology
++# ============================================================================
++
++
++class TestGetGpuInfoAmdDetailedMultiGpu:
++    def _make_sysfs(self, cards: list[str], vram_gb: int = 16) -> dict:
++        sysfs = {}
++        for card in cards:
++            base = f"/sys/class/drm/{card}/device"
++            sysfs.update({
++                f"{base}/mem_info_vram_total": str(vram_gb * 1024**3),
++                f"{base}/mem_info_vram_used": str(4 * 1024**3),
++                f"{base}/mem_info_gtt_total": str(8 * 1024**3),
++                f"{base}/mem_info_gtt_used": str(1 * 1024**3),
++                f"{base}/gpu_busy_percent": "45",
++                f"{base}/product_name": f"AMD RX 7900 ({card})",
++            })
++        return sysfs
++
++    def _make_topology(self, gpu_count: int, link_type: str = "XGMI") -> dict:
++        gpus = []
++        for i in range(gpu_count):
++            gpus.append({
++                "index": i,
++                "name": f"AMD Instinct MI300X GPU{i}",
++                "memory_gb": 192.0,
++                "pcie_gen": "5",
++                "pcie_width": "x16",
++                "uuid": f"MI300X-UUID-{i}",
++                "gfx_version": "gfx942",
++                "render_node": str(128 + i),
++                "memory_type": "discrete",
++                "pci_bdf": f"0000:f{9+i*2}:00.0",
++            })
++        links = []
++        for i in range(gpu_count):
++            for j in range(i + 1, gpu_count):
++                links.append({
++                    "gpu_a": i, "gpu_b": j,
++                    "link_type": link_type, "link_label": link_type,
++                    "rank": 90 if link_type == "XGMI" else 40,
++                })
++        return {"vendor": "amd", "gpu_count": gpu_count, "gpus": gpus, "links": links}
++
++    def test_4gpu_with_topology_names(self, monkeypatch):
++        """4 AMD GPUs with topology file → names come from topology (C3 fix)."""
++        cards = ["card0", "card1", "card2", "card3"]
++        sysfs = self._make_sysfs(cards, vram_gb=192)
++        topo = self._make_topology(4)
++
++        def mock_read_sysfs(path):
++            if path.endswith("/vendor"):
++                return "0x1002"
++            if path.endswith("/product_name"):
++                return None  # MI300X: product_name unavailable
++            return sysfs.get(path)
++
++        monkeypatch.setattr("gpu._read_sysfs", mock_read_sysfs)
++        monkeypatch.setattr("gpu._find_hwmon_dir", lambda base: None)
++        monkeypatch.setattr("gpu.read_gpu_topology", lambda: topo)
++        monkeypatch.setattr("gpu.decode_gpu_assignment", lambda: None)
++
++        card_paths = [f"/sys/class/drm/{c}/device" for c in cards]
++        with patch("glob.glob", return_value=card_paths):
++            result = get_gpu_info_amd_detailed()
++
++        assert result is not None
++        assert len(result) == 4
++        # Names should come from topology, not sysfs (C3 fix)
++        assert result[0].name == "AMD Instinct MI300X GPU0"
++        assert result[3].name == "AMD Instinct MI300X GPU3"
++        # UUIDs should come from topology
++        assert result[0].uuid == "MI300X-UUID-0"
++        assert result[1].uuid == "MI300X-UUID-1"
++
++    def test_4gpu_without_topology_falls_back_to_sysfs(self, monkeypatch):
++        """Without topology file, names and UUIDs come from sysfs."""
++        cards = ["card0", "card1", "card2", "card3"]
++        sysfs = self._make_sysfs(cards)
++
++        def mock_read_sysfs(path):
++            if path.endswith("/vendor"):
++                return "0x1002"
++            return sysfs.get(path)
++
++        monkeypatch.setattr("gpu._read_sysfs", mock_read_sysfs)
++        monkeypatch.setattr("gpu._find_hwmon_dir", lambda base: None)
++        monkeypatch.setattr("gpu.read_gpu_topology", lambda: None)
++        monkeypatch.setattr("gpu.decode_gpu_assignment", lambda: None)
++
++        card_paths = [f"/sys/class/drm/{c}/device" for c in cards]
++        with patch("glob.glob", return_value=card_paths):
++            result = get_gpu_info_amd_detailed()
++
++        assert result is not None
++        assert len(result) == 4
++        assert result[0].name == "AMD RX 7900 (card0)"
++        assert result[0].uuid == "card0"  # No topology → card index as UUID
++
++    def test_filters_non_amd_vendor(self, monkeypatch):
++        """Non-0x1002 vendor cards (XCP virtual cards) are filtered out."""
++        def mock_read_sysfs(path):
++            if path == "/sys/class/drm/card0/device/vendor":
++                return "0x1002"
++            if path == "/sys/class/drm/card1/device/vendor":
++                return ""  # XCP card: empty vendor
++            if path == "/sys/class/drm/card2/device/vendor":
++                return "0x1002"
++            base = path.rsplit("/", 1)[0]
++            card = base.split("/")[-2]
++            if "mem_info_vram_total" in path:
++                return str(16 * 1024**3)
++            if "mem_info_vram_used" in path:
++                return str(4 * 1024**3)
++            if "mem_info_gtt" in path:
++                return str(8 * 1024**3)
++            if "gpu_busy_percent" in path:
++                return "10"
++            if "product_name" in path:
++                return f"AMD GPU ({card})"
++            return None
++
++        monkeypatch.setattr("gpu._read_sysfs", mock_read_sysfs)
++        monkeypatch.setattr("gpu._find_hwmon_dir", lambda base: None)
++        monkeypatch.setattr("gpu.read_gpu_topology", lambda: None)
++        monkeypatch.setattr("gpu.decode_gpu_assignment", lambda: None)
++
++        card_paths = [
++            "/sys/class/drm/card0/device",
++            "/sys/class/drm/card1/device",
++            "/sys/class/drm/card2/device",
++        ]
++        with patch("glob.glob", return_value=card_paths):
++            result = get_gpu_info_amd_detailed()
++
++        assert result is not None
++        assert len(result) == 2  # card1 (XCP) filtered out
++        assert result[0].index == 0
++        assert result[1].index == 1
++
++    def test_service_assignment_mapping(self, monkeypatch):
++        """GPU assignment JSON maps services to GPUs by UUID."""
++        cards = ["card0", "card1"]
++        sysfs = self._make_sysfs(cards)
++        topo = self._make_topology(2, link_type="PCIE")
++        assignment = {
++            "gpu_assignment": {
++                "version": "1.0",
++                "strategy": "dedicated",
++                "services": {
++                    "llama_server": {"gpus": ["MI300X-UUID-0", "MI300X-UUID-1"]},
++                    "whisper": {"gpus": ["MI300X-UUID-1"]},
++                },
++            }
++        }
++
++        def mock_read_sysfs(path):
++            if path.endswith("/vendor"):
++                return "0x1002"
++            return sysfs.get(path)
++
++        monkeypatch.setattr("gpu._read_sysfs", mock_read_sysfs)
++        monkeypatch.setattr("gpu._find_hwmon_dir", lambda base: None)
++        monkeypatch.setattr("gpu.read_gpu_topology", lambda: topo)
++        monkeypatch.setattr("gpu.decode_gpu_assignment", lambda: assignment)
++
++        card_paths = [f"/sys/class/drm/{c}/device" for c in cards]
++        with patch("glob.glob", return_value=card_paths):
++            result = get_gpu_info_amd_detailed()
++
++        assert result is not None
++        gpu_by_uuid = {g.uuid: g for g in result}
++        assert "llama_server" in gpu_by_uuid["MI300X-UUID-0"].assigned_services
++        assert "llama_server" in gpu_by_uuid["MI300X-UUID-1"].assigned_services
++        assert "whisper" in gpu_by_uuid["MI300X-UUID-1"].assigned_services
++
++    def test_hwmon_temp_and_power_per_gpu(self, monkeypatch):
++        """Each GPU gets independent hwmon readings."""
++        cards = ["card0", "card1"]
++        sysfs = self._make_sysfs(cards)
++        # Temperatures and power values per hwmon path
++        hwmon_temps = {}
++        hwmon_powers = {}
++
++        def mock_read_sysfs(path):
++            if path.endswith("/vendor"):
++                return "0x1002"
++            return sysfs.get(path)
++
++        def mock_hwmon(base):
++            card = base.split("/")[-2]
++            hwmon_path = f"/fake/hwmon/{card}"
++            hwmon_temps[hwmon_path] = 72 if card == "card0" else 68
++            hwmon_powers[hwmon_path] = 150.0 if card == "card0" else 130.0
++            return hwmon_path
++
++        def mock_temp(hwmon_dir):
++            return hwmon_temps.get(hwmon_dir, 0)
++
++        def mock_power(hwmon_dir):
++            return hwmon_powers.get(hwmon_dir)
++
++        monkeypatch.setattr("gpu._read_sysfs", mock_read_sysfs)
++        monkeypatch.setattr("gpu._find_hwmon_dir", mock_hwmon)
++        monkeypatch.setattr("gpu._find_hwmon_temp", mock_temp)
++        monkeypatch.setattr("gpu._find_hwmon_power", mock_power)
++        monkeypatch.setattr("gpu.read_gpu_topology", lambda: None)
++        monkeypatch.setattr("gpu.decode_gpu_assignment", lambda: None)
++
++        card_paths = [f"/sys/class/drm/{c}/device" for c in cards]
++        with patch("glob.glob", return_value=card_paths):
++            result = get_gpu_info_amd_detailed()
++
++        assert result is not None
++        assert len(result) == 2
++        assert result[0].temperature_c == 72
++        assert result[0].power_w == 150.0
++        assert result[1].temperature_c == 68
++        assert result[1].power_w == 130.0
++
++    def test_skips_card_with_missing_vram(self, monkeypatch):
++        """Cards with no VRAM data are skipped (not crash)."""
++        def mock_read_sysfs(path):
++            if path.endswith("/vendor"):
++                return "0x1002"
++            if "card0" in path and "mem_info_vram_total" in path:
++                return None  # Missing VRAM
++            if "card1" in path and "mem_info_vram_total" in path:
++                return str(16 * 1024**3)
++            if "mem_info_vram_used" in path:
++                return str(4 * 1024**3)
++            if "mem_info_gtt" in path:
++                return str(8 * 1024**3)
++            if "gpu_busy_percent" in path:
++                return "10"
++            if "product_name" in path:
++                return "Test GPU"
++            return None
++
++        monkeypatch.setattr("gpu._read_sysfs", mock_read_sysfs)
++        monkeypatch.setattr("gpu._find_hwmon_dir", lambda base: None)
++        monkeypatch.setattr("gpu.read_gpu_topology", lambda: None)
++        monkeypatch.setattr("gpu.decode_gpu_assignment", lambda: None)
++
++        card_paths = [
++            "/sys/class/drm/card0/device",
++            "/sys/class/drm/card1/device",
++        ]
++        with patch("glob.glob", return_value=card_paths):
++            result = get_gpu_info_amd_detailed()
++
++        assert result is not None
++        assert len(result) == 1  # card0 skipped, card1 present
++        assert result[0].index == 1  # Keeps enumeration index (card1)
+diff --git a/dream-server/extensions/services/embeddings/compose.multigpu-amd.yaml b/dream-server/extensions/services/embeddings/compose.multigpu-amd.yaml
+new file mode 100644
+index 00000000..290e2335
+--- /dev/null
++++ b/dream-server/extensions/services/embeddings/compose.multigpu-amd.yaml
+@@ -0,0 +1,12 @@
++# Embeddings — AMD multi-GPU isolation overlay
++# Restricts embeddings to a single GPU via ROCR_VISIBLE_DEVICES.
++services:
++  embeddings:
++    devices:
++      - /dev/kfd:/dev/kfd
++      - /dev/dri:/dev/dri
++    group_add:
++      - "${VIDEO_GID:-44}"
++      - "${RENDER_GID:-992}"
++    environment:
++      ROCR_VISIBLE_DEVICES: "${EMBEDDINGS_GPU_INDEX:-0}"
+diff --git a/dream-server/extensions/services/embeddings/compose.multigpu.yaml b/dream-server/extensions/services/embeddings/compose.multigpu-nvidia.yaml
+similarity index 100%
+rename from dream-server/extensions/services/embeddings/compose.multigpu.yaml
+rename to dream-server/extensions/services/embeddings/compose.multigpu-nvidia.yaml
+diff --git a/dream-server/extensions/services/whisper/compose.multigpu-amd.yaml b/dream-server/extensions/services/whisper/compose.multigpu-amd.yaml
+new file mode 100644
+index 00000000..4579a0d2
+--- /dev/null
++++ b/dream-server/extensions/services/whisper/compose.multigpu-amd.yaml
+@@ -0,0 +1,12 @@
++# Whisper — AMD multi-GPU isolation overlay
++# Restricts Whisper to a single GPU via ROCR_VISIBLE_DEVICES.
++services:
++  whisper:
++    devices:
++      - /dev/kfd:/dev/kfd
++      - /dev/dri:/dev/dri
++    group_add:
++      - "${VIDEO_GID:-44}"
++      - "${RENDER_GID:-992}"
++    environment:
++      ROCR_VISIBLE_DEVICES: "${WHISPER_GPU_INDEX:-0}"
+diff --git a/dream-server/extensions/services/whisper/compose.multigpu.yaml b/dream-server/extensions/services/whisper/compose.multigpu-nvidia.yaml
+similarity index 100%
+rename from dream-server/extensions/services/whisper/compose.multigpu.yaml
+rename to dream-server/extensions/services/whisper/compose.multigpu-nvidia.yaml
+diff --git a/dream-server/installers/lib/amd-topo.sh b/dream-server/installers/lib/amd-topo.sh
+new file mode 100755
+index 00000000..c03c2d1b
+--- /dev/null
++++ b/dream-server/installers/lib/amd-topo.sh
+@@ -0,0 +1,460 @@
++#!/usr/bin/env bash
++# ============================================================================
++# Dream Server Installer — AMD GPU Topology Detection
++# ============================================================================
++# Part of: installers/lib/
++# Purpose: Detect AMD Multi-GPU topology and return as JSON.
++#          Mirrors nvidia-topo.sh output schema for vendor-agnostic consumption
++#          by assign_gpus.py and the dashboard API.
++#
++# Expects: jq, warn(), log()
++# Provides: detect_amd_topo(), amd_gpu_id(), amd_gfx_version(),
++#           amd_render_node()
++#
++# Modder notes:
++#   Detection fallback chain:
++#     GPU ID:   amd-smi list --json → sysfs unique_id → composite PCI BDF ID
++#     Topology: amd-smi topology --json → rocm-smi --showtopo → sysfs NUMA/IOMMU
++#     gfx ver:  rocm-smi --showproductname → amd-smi static --asic → ip_discovery
++#
++#   Link rank values (shared with nvidia-topo.sh):
++#     XGMI = 90  AMD Infinity Fabric (Instinct MI-series)
++#     PIX  = 50  Same PCIe switch
++#     PXB  = 40  Different PCIe switches, same CPU root complex
++#     PHB  = 30  PCIe host bridge (default for same-NUMA consumer GPUs)
++#     SYS  = 10  Cross-NUMA
++# ============================================================================
++
++# Generate a stable AMD GPU identifier using tiered strategy:
++#   1. amd-smi UUID (Instinct only)
++#   2. sysfs unique_id (Instinct only)
++#   3. Composite PCI BDF + device_id + subsystem_id (all AMD GPUs)
++amd_gpu_id() {
++    local card_dir="$1"
++    local gpu_idx="$2"  # 0-based index for amd-smi lookup
++
++    # Method 1: amd-smi UUID
++    if command -v amd-smi &>/dev/null; then
++        local uuid
++        uuid=$(amd-smi list --json 2>/dev/null | jq -r ".[$gpu_idx].uuid // empty" 2>/dev/null)
++        if [[ -n "$uuid" && "$uuid" != "null" && "$uuid" != "N/A" ]]; then
++            echo "$uuid"
++            return 0
++        fi
++    fi
++
++    # Method 2: sysfs unique_id (Instinct hardware)
++    if [[ -f "$card_dir/unique_id" ]]; then
++        local uid
++        uid=$(cat "$card_dir/unique_id" 2>/dev/null)
++        if [[ -n "$uid" && "$uid" != "0x0000000000000000" ]]; then
++            echo "AMD-UID-${uid}"
++            return 0
++        fi
++    fi
++
++    # Method 3: Composite PCI BDF ID (works on all AMD GPUs)
++    local pci_bdf device_id subsystem_id
++    pci_bdf=$(readlink -f "$card_dir" | grep -oP '[0-9a-f]{4}:[0-9a-f]{2}:[0-9a-f]{2}\.[0-9]' | tail -1) || pci_bdf="unknown"
++    device_id=$(cat "$card_dir/device" 2>/dev/null | sed 's/^0x//') || device_id="0000"
++    subsystem_id=$(cat "$card_dir/subsystem_device" 2>/dev/null | sed 's/^0x//') || subsystem_id="0000"
++    echo "AMD-${pci_bdf}-${device_id}-${subsystem_id}"
++}
++
++# Detect gfx version for an AMD GPU
++# Fallback chain: rocm-smi → amd-smi → ip_discovery sysfs
++amd_gfx_version() {
++    local card_dir="$1"
++    local gpu_idx="$2"
++
++    # Method 1: rocm-smi --showproductname (most reliable for full gfx string)
++    if command -v rocm-smi &>/dev/null; then
++        local gfx
++        gfx=$(rocm-smi --showproductname 2>/dev/null \
++            | sed 's/\x1b\[[0-9;]*m//g' \
++            | grep "GPU\[$gpu_idx\].*GFX Version" \
++            | sed 's/.*GFX Version:[[:space:]]*//' \
++            | head -1)
++        [[ -n "$gfx" && "$gfx" != "N/A" ]] && echo "$gfx" && return 0
++    fi
++
++    # Method 2: amd-smi static --asic (TARGET_GRAPHICS_VERSION)
++    if command -v amd-smi &>/dev/null; then
++        local gfx
++        gfx=$(amd-smi static --json --asic 2>/dev/null \
++            | jq -r ".[$gpu_idx].asic.target_graphics_version // empty" 2>/dev/null)
++        [[ -n "$gfx" && "$gfx" != "null" ]] && echo "$gfx" && return 0
++    fi
++
++    # Method 3: ip_discovery sysfs (kernel 6.1+) — may return incomplete values
++    local ip_path="$card_dir/ip_discovery/die/0/GC/0"
++    if [[ -d "$ip_path" ]]; then
++        local major minor revision
++        major=$(cat "$ip_path/major" 2>/dev/null) || major=""
++        minor=$(cat "$ip_path/minor" 2>/dev/null) || minor=""
++        revision=$(cat "$ip_path/revision" 2>/dev/null) || revision="0"
++        if [[ -n "$major" && -n "$minor" ]]; then
++            echo "gfx${major}${minor}${revision}"
++            return 0
++        fi
++    fi
++
++    # Method 4: Parse rocminfo by PCI BDF
++    if command -v rocminfo &>/dev/null; then
++        local pci_bdf
++        pci_bdf=$(readlink -f "$card_dir" | grep -oP '[0-9a-f]{4}:[0-9a-f]{2}:[0-9a-f]{2}\.[0-9]') || pci_bdf=""
++        if [[ -n "$pci_bdf" ]]; then
++            local gfx
++            gfx=$(rocminfo 2>/dev/null | grep -A10 "$pci_bdf" | grep -oP 'gfx\d+' | head -1)
++            [[ -n "$gfx" ]] && echo "$gfx" && return 0
++        fi
++    fi
++
++    echo "unknown"
++}
++
++# Get render node for an AMD GPU card by matching PCI device paths
++amd_render_node() {
++    local card_dir="$1"
++    local card_pci
++    card_pci=$(readlink -f "$card_dir") || { echo "unknown"; return 1; }
++
++    for render_dir in /sys/class/drm/renderD*/device; do
++        [[ -d "$render_dir" ]] || continue
++        local render_pci
++        render_pci=$(readlink -f "$render_dir") || continue
++        if [[ "$card_pci" == "$render_pci" ]]; then
++            # Return numeric ID only (e.g. "130"), not "renderD130"
++            basename "$(dirname "$render_dir")" | sed 's/^renderD//'
++            return 0
++        fi
++    done
++
++    echo "unknown"
++}
++
++# Get GPU marketing name with fallback chain:
++#   sysfs product_name → lspci → device ID
++amd_gpu_name() {
++    local card_dir="$1"
++    local device_id="$2"
++
++    # Try sysfs product_name
++    if [[ -f "$card_dir/product_name" ]]; then
++        local name
++        name=$(cat "$card_dir/product_name" 2>/dev/null)
++        if [[ -n "$name" && "$name" != "(null)" && -n "${name// /}" ]]; then
++            echo "$name"
++            return 0
++        fi
++    fi
++
++    # Fallback: parse lspci for the bracketed device name
++    local pci_bdf
++    pci_bdf=$(readlink -f "$card_dir" | grep -oP '[0-9a-f]{4}:[0-9a-f]{2}:[0-9a-f]{2}\.[0-9]') || pci_bdf=""
++    if [[ -n "$pci_bdf" ]] && command -v lspci &>/dev/null; then
++        local lspci_name
++        lspci_name=$(lspci -s "$pci_bdf" 2>/dev/null | sed 's/.*: //')
++        [[ -n "$lspci_name" ]] && echo "$lspci_name" && return 0
++    fi
++
++    echo "AMD GPU (0x${device_id})"
++}
++
++# ============================================================================
++# Topology detection via amd-smi (preferred) or sysfs fallback
++# ============================================================================
++
++# Try amd-smi topology --json for rich topology data (XGMI, weights, hops)
++_detect_topo_amdsmi() {
++    local gpu_count="$1"
++    command -v amd-smi &>/dev/null || return 1
++
++    local topo_json
++    topo_json=$(amd-smi topology --json 2>/dev/null) || return 1
++    [[ -z "$topo_json" || "$topo_json" == "null" ]] && return 1
++
++    local links_tsv=""
++    local i j
++    for ((i = 0; i < gpu_count; i++)); do
++        for ((j = i + 1; j < gpu_count; j++)); do
++            local link_type weight rank link_label
++            link_type=$(echo "$topo_json" | jq -r ".[$i].links[] | select(.gpu == $j) | .link_type // \"PCIE\"" 2>/dev/null)
++            weight=$(echo "$topo_json" | jq -r ".[$i].links[] | select(.gpu == $j) | .weight // 30" 2>/dev/null)
++
++            case "$link_type" in
++                XGMI*)  rank=90; link_label="XGMI" ;;
++                PCIE)
++                    # Map weight to rank: lower weight = closer connection
++                    if [[ "$weight" -le 15 ]]; then rank=50; link_label="PCIe-SameSwitch"
++                    elif [[ "$weight" -le 30 ]]; then rank=40; link_label="PCIe-CrossSwitch"
++                    elif [[ "$weight" -le 50 ]]; then rank=30; link_label="PCIe-HostBridge"
++                    else rank=10; link_label="CrossNUMA"; fi
++                    ;;
++                *)      rank=30; link_label="PCIe-HostBridge" ;;
++            esac
++
++            links_tsv+="${i}	${j}	${link_type}	${link_label}	${rank}"$'\n'
++        done
++    done
++
++    if [[ -n "$links_tsv" ]]; then
++        printf '%s' "$links_tsv" | jq -Rn '[inputs | split("\t") | {
++            gpu_a: (.[0] | tonumber),
++            gpu_b: (.[1] | tonumber),
++            link_type: .[2],
++            link_label: .[3],
++            rank: (.[4] | tonumber)
++        }]'
++        return 0
++    fi
++    return 1
++}
++
++# Try rocm-smi --showtopo for topology (text parsing)
++_detect_topo_rocmsmi() {
++    local gpu_count="$1"
++    command -v rocm-smi &>/dev/null || return 1
++
++    local topo_out
++    topo_out=$(rocm-smi --showtopo 2>/dev/null | sed 's/\x1b\[[0-9;]*m//g') || return 1
++    [[ -z "$topo_out" ]] && return 1
++
++    # Parse weight and type tables from rocm-smi output
++    local links_tsv=""
++    local i j
++    for ((i = 0; i < gpu_count; i++)); do
++        for ((j = i + 1; j < gpu_count; j++)); do
++            local weight=30 link_type="PCIE" rank link_label
++
++            # Try to extract weight from the weight table
++            local w
++            w=$(echo "$topo_out" | awk -v gpu="GPU$i" -v col=$((j+2)) '/^GPU/ && $1==gpu {print $col}' | head -1)
++            [[ -n "$w" && "$w" =~ ^[0-9]+$ ]] && weight="$w"
++
++            # Try to extract link type from the type table
++            local lt
++            lt=$(echo "$topo_out" | awk -v gpu="GPU$i" -v col=$((j+2)) '/Link Type/ {found=1; next} found && /^GPU/ && $1==gpu {print $col; exit}')
++            [[ -n "$lt" ]] && link_type="$lt"
++
++            case "$link_type" in
++                XGMI*)  rank=90; link_label="XGMI" ;;
++                PCIE)
++                    if [[ "$weight" -le 15 ]]; then rank=50; link_label="PCIe-SameSwitch"
++                    elif [[ "$weight" -le 30 ]]; then rank=40; link_label="PCIe-CrossSwitch"
++                    elif [[ "$weight" -le 50 ]]; then rank=30; link_label="PCIe-HostBridge"
++                    else rank=10; link_label="CrossNUMA"; fi
++                    ;;
++                *)      rank=30; link_label="PCIe-HostBridge" ;;
++            esac
++
++            links_tsv+="${i}	${j}	${link_type}	${link_label}	${rank}"$'\n'
++        done
++    done
++
++    if [[ -n "$links_tsv" ]]; then
++        printf '%s' "$links_tsv" | jq -Rn '[inputs | split("\t") | {
++            gpu_a: (.[0] | tonumber),
++            gpu_b: (.[1] | tonumber),
++            link_type: .[2],
++            link_label: .[3],
++            rank: (.[4] | tonumber)
++        }]'
++        return 0
++    fi
++    return 1
++}
++
++# Fallback: sysfs NUMA + IOMMU topology
++_detect_topo_sysfs() {
++    local gpu_count="$1"
++    shift
++    local card_dirs=("$@")
++
++    local links_tsv=""
++    local i j
++    for ((i = 0; i < gpu_count; i++)); do
++        for ((j = i + 1; j < gpu_count; j++)); do
++            local link_type link_label rank
++            link_type=$(_sysfs_link_type "${card_dirs[$i]}" "${card_dirs[$j]}")
++
++            case "$link_type" in
++                PIX)  rank=50; link_label="PCIe-SameSwitch" ;;
++                PXB)  rank=40; link_label="PCIe-CrossSwitch" ;;
++                PHB)  rank=30; link_label="PCIe-HostBridge" ;;
++                SYS)  rank=10; link_label="CrossNUMA" ;;
++                *)    rank=30; link_label="PCIe-HostBridge" ;;
++            esac
++
++            links_tsv+="${i}	${j}	${link_type}	${link_label}	${rank}"$'\n'
++        done
++    done
++
++    if [[ -n "$links_tsv" ]]; then
++        printf '%s' "$links_tsv" | jq -Rn '[inputs | split("\t") | {
++            gpu_a: (.[0] | tonumber),
++            gpu_b: (.[1] | tonumber),
++            link_type: .[2],
++            link_label: .[3],
++            rank: (.[4] | tonumber)
++        }]'
++        return 0
++    fi
++    echo "[]"
++}
++
++# Determine PCIe link type between two card dirs via sysfs
++_sysfs_link_type() {
++    local card_a="$1" card_b="$2"
++
++    # Read NUMA nodes
++    local numa_a numa_b
++    numa_a=$(cat "$card_a/numa_node" 2>/dev/null) || numa_a="-1"
++    numa_b=$(cat "$card_b/numa_node" 2>/dev/null) || numa_b="-1"
++
++    # Cross-NUMA → SYS
++    if [[ "$numa_a" != "$numa_b" && "$numa_a" != "-1" && "$numa_b" != "-1" ]]; then
++        echo "SYS"; return 0
++    fi
++
++    # Check IOMMU groups for PCIe switch proximity
++    local pci_a pci_b
++    pci_a=$(readlink -f "$card_a" | grep -oP '[0-9a-f]{4}:[0-9a-f]{2}:[0-9a-f]{2}\.[0-9]') || pci_a=""
++    pci_b=$(readlink -f "$card_b" | grep -oP '[0-9a-f]{4}:[0-9a-f]{2}:[0-9a-f]{2}\.[0-9]') || pci_b=""
++
++    if [[ -n "$pci_a" && -n "$pci_b" ]]; then
++        local iommu_a="" iommu_b=""
++        for group_dir in /sys/kernel/iommu_groups/*/devices/; do
++            [[ -d "$group_dir" ]] || continue
++            [[ -e "${group_dir}${pci_a}" ]] && iommu_a=$(basename "$(dirname "$group_dir")")
++            [[ -e "${group_dir}${pci_b}" ]] && iommu_b=$(basename "$(dirname "$group_dir")")
++        done
++
++        if [[ -n "$iommu_a" && -n "$iommu_b" && "$iommu_a" == "$iommu_b" ]]; then
++            echo "PIX"; return 0
++        fi
++
++        # Check for shared upstream PCI bridge
++        local upstream_a upstream_b
++        upstream_a=$(readlink -f "$card_a/../" 2>/dev/null | xargs basename 2>/dev/null) || upstream_a=""
++        upstream_b=$(readlink -f "$card_b/../" 2>/dev/null | xargs basename 2>/dev/null) || upstream_b=""
++        if [[ -n "$upstream_a" && -n "$upstream_b" && "$upstream_a" == "$upstream_b" ]]; then
++            echo "PXB"; return 0
++        fi
++    fi
++
++    echo "PHB"
++}
++
++# ============================================================================
++# Main topology detection
++# ============================================================================
++
++detect_amd_topo() {
++    # Discover all AMD GPU card dirs (vendor 0x1002)
++    local card_dirs=()
++    for card_dir in /sys/class/drm/card*/device; do
++        [[ -d "$card_dir" ]] || continue
++        local vendor
++        vendor=$(cat "$card_dir/vendor" 2>/dev/null) || continue
++        [[ "$vendor" == "0x1002" ]] && card_dirs+=("$card_dir")
++    done
++
++    local gpu_count=${#card_dirs[@]}
++    if [[ $gpu_count -eq 0 ]]; then
++        warn "No AMD GPUs found in sysfs"
++        echo "{}"
++        return 1
++    fi
++
++    # Build per-GPU JSON
++    local gpus_tsv=""
++    local idx=0
++    for card_dir in "${card_dirs[@]}"; do
++        local device_id vram_bytes vram_gb uuid gfx_ver render_node name
++        local pci_bdf pcie_gen pcie_width
++
++        device_id=$(cat "$card_dir/device" 2>/dev/null | sed 's/^0x//') || device_id="0000"
++        vram_bytes=$(cat "$card_dir/mem_info_vram_total" 2>/dev/null) || vram_bytes=0
++        vram_gb=$(awk -v bytes="$vram_bytes" 'BEGIN { printf "%.1f", bytes / 1073741824 }')
++
++        uuid=$(amd_gpu_id "$card_dir" "$idx")
++        gfx_ver=$(amd_gfx_version "$card_dir" "$idx")
++        render_node=$(amd_render_node "$card_dir")
++        name=$(amd_gpu_name "$card_dir" "$device_id")
++
++        # PCIe info: try current, fall back to max
++        pci_bdf=$(readlink -f "$card_dir" | grep -oP '[0-9a-f]{4}:[0-9a-f]{2}:[0-9a-f]{2}\.[0-9]' | tail -1) || pci_bdf="unknown"
++        pcie_gen=$(cat "$card_dir/current_link_speed" 2>/dev/null | grep -oP '^\d+' || \
++                   cat "$card_dir/max_link_speed" 2>/dev/null | grep -oP '^\d+' || echo "unknown")
++        pcie_width=$(cat "$card_dir/current_link_width" 2>/dev/null | grep -oP '^\d+' || \
++                     cat "$card_dir/max_link_width" 2>/dev/null | grep -oP '^\d+' || echo "unknown")
++        [[ "$pcie_width" == "0" ]] && \
++            pcie_width=$(cat "$card_dir/max_link_width" 2>/dev/null | grep -oP '^\d+' || echo "unknown")
++
++        # Detect memory type per card
++        local gtt_bytes mem_type
++        gtt_bytes=$(cat "$card_dir/mem_info_gtt_total" 2>/dev/null) || gtt_bytes=0
++        local gtt_gb_int=$(( gtt_bytes / 1073741824 ))
++        local vram_gb_int=$(( vram_bytes / 1073741824 ))
++        if [[ $gtt_gb_int -ge 16 && $vram_gb_int -le 4 ]] || [[ $gtt_gb_int -ge 32 ]] || [[ $vram_gb_int -ge 32 ]]; then
++            mem_type="unified"
++        else
++            mem_type="discrete"
++        fi
++
++        gpus_tsv+="${idx}	${name}	${vram_gb}	${pcie_gen}	x${pcie_width}	${uuid}	${gfx_ver}	${render_node}	${mem_type}	${pci_bdf}"$'\n'
++        idx=$((idx + 1))
++    done
++
++    local gpus_json
++    gpus_json=$(printf '%s' "$gpus_tsv" | jq -Rn '[inputs | split("\t") | {
++        index: (.[0] | tonumber),
++        name: .[1],
++        memory_gb: (.[2] | tonumber),
++        pcie_gen: .[3],
++        pcie_width: .[4],
++        uuid: .[5],
++        gfx_version: .[6],
++        render_node: .[7],
++        memory_type: .[8],
++        pci_bdf: .[9]
++    }]')
++
++    # Topology detection with fallback chain:
++    #   amd-smi topology --json → rocm-smi --showtopo → sysfs NUMA/IOMMU
++    local links_json="[]"
++    if [[ $gpu_count -gt 1 ]]; then
++        links_json=$(_detect_topo_amdsmi "$gpu_count") || \
++        links_json=$(_detect_topo_rocmsmi "$gpu_count") || \
++        links_json=$(_detect_topo_sysfs "$gpu_count" "${card_dirs[@]}")
++    fi
++
++    # Driver version
++    local driver_ver
++    driver_ver=$(modinfo amdgpu 2>/dev/null | grep '^version:' | awk '{print $2}') || driver_ver="unknown"
++
++    # NUMA info
++    local numa_json="{}"
++    if command -v numactl &>/dev/null; then
++        local numa_nodes
++        numa_nodes=$(numactl --hardware 2>/dev/null | grep "^node [0-9]* cpus" | wc -l)
++        numa_json=$(jq -n --argjson n "$numa_nodes" '{nodes: $n}')
++    fi
++
++    jq -n \
++        --arg vendor "amd" \
++        --argjson gpu_count "$gpu_count" \
++        --arg driver "$driver_ver" \
++        --argjson numa "$numa_json" \
++        --argjson gpus "$gpus_json" \
++        --argjson links "$links_json" \
++        '{
++            vendor: $vendor,
++            gpu_count: $gpu_count,
++            driver_version: $driver,
++            numa: $numa,
++            gpus: $gpus,
++            links: $links
++        }'
++}
+diff --git a/dream-server/installers/lib/detection.sh b/dream-server/installers/lib/detection.sh
+index 0a4f4c9e..b07faeef 100755
+--- a/dream-server/installers/lib/detection.sh
++++ b/dream-server/installers/lib/detection.sh
+@@ -246,45 +246,90 @@ detect_gpu() {
+         done
+     fi
+ 
+-    # Try AMD APU (Strix Halo / unified memory) via sysfs
++    # Try AMD GPUs (discrete RDNA + APU) via sysfs
++    local amd_card_dirs=()
+     for card_dir in "$_drm_sys"/card*/device; do
+         [[ -d "$card_dir" ]] || continue
+         local vendor
+         vendor=$(cat "$card_dir/vendor" 2>/dev/null) || continue
+-        if [[ "$vendor" == "0x1002" ]]; then
+-            local vram_bytes gtt_bytes
++        [[ "$vendor" == "0x1002" ]] && amd_card_dirs+=("$card_dir")
++    done
++
++    if [[ ${#amd_card_dirs[@]} -gt 0 ]]; then
++        GPU_BACKEND="amd"
++        GPU_COUNT=${#amd_card_dirs[@]}
++        local total_vram_mb=0
++        local gpu_names=()
++        local has_apu=false has_discrete=false
++
++        for card_dir in "${amd_card_dirs[@]}"; do
++            local vram_bytes gtt_bytes device_id
+             vram_bytes=$(cat "$card_dir/mem_info_vram_total" 2>/dev/null) || vram_bytes=0
+             gtt_bytes=$(cat "$card_dir/mem_info_gtt_total" 2>/dev/null) || gtt_bytes=0
++            device_id=$(cat "$card_dir/device" 2>/dev/null) || device_id="unknown"
++
++            local vram_mb=$(( vram_bytes / 1048576 ))
+             local gtt_gb=$(( gtt_bytes / 1073741824 ))
+             local vram_gb=$(( vram_bytes / 1073741824 ))
++            total_vram_mb=$(( total_vram_mb + vram_mb ))
+ 
+-            # Read device ID from sysfs
+-            GPU_DEVICE_ID=$(cat "$card_dir/device" 2>/dev/null) || GPU_DEVICE_ID="unknown"
+-
+-            # Detect APU: small VRAM + large GTT = unified memory
++            # Classify: APU has small VRAM + large GTT, or very large unified pool
+             if [[ $gtt_gb -ge 16 && $vram_gb -le 4 ]] || [[ $gtt_gb -ge 32 ]] || [[ $vram_gb -ge 32 ]]; then
+-                GPU_BACKEND="amd"
+-                GPU_MEMORY_TYPE="unified"
+-                GPU_VRAM=$(( vram_bytes / 1048576 ))  # in MB
+-                GPU_COUNT=1
+-                # Try marketing name
+-                if [[ -f "$card_dir/product_name" ]]; then
+-                    GPU_NAME=$(cat "$card_dir/product_name" 2>/dev/null) || GPU_NAME="AMD APU"
+-                else
+-                    GPU_NAME="AMD APU ($GPU_DEVICE_ID)"
+-                fi
+-                log "GPU: $GPU_NAME (unified memory, AMD APU, device_id=$GPU_DEVICE_ID)"
++                has_apu=true
++            else
++                has_discrete=true
++            fi
+ 
+-                # Check for NPU (Ryzen AI) for Lemonade hybrid mode
+-                HAS_NPU=false
+-                if [[ -d /sys/class/misc/amdnpu ]] || lspci 2>/dev/null | grep -qi 'AMD.*NPU\|AMD.*IPU'; then
+-                    HAS_NPU=true
+-                    log "NPU detected: Ryzen AI Neural Processing Unit"
+-                fi
+-                return 0
++            # Get marketing name
++            local name
++            if [[ -f "$card_dir/product_name" ]]; then
++                name=$(cat "$card_dir/product_name" 2>/dev/null) || name="AMD GPU ($device_id)"
++            else
++                name="AMD GPU ($device_id)"
+             fi
++            gpu_names+=("$name")
++        done
++
++        GPU_VRAM=$total_vram_mb
++        GPU_DEVICE_ID=$(cat "${amd_card_dirs[0]}/device" 2>/dev/null) || GPU_DEVICE_ID="unknown"
++
++        # Determine memory type
++        if $has_apu && $has_discrete; then
++            GPU_MEMORY_TYPE="mixed"
++        elif $has_apu; then
++            GPU_MEMORY_TYPE="unified"
++        else
++            GPU_MEMORY_TYPE="discrete"
+         fi
+-    done
++
++        # Build display name (mirrors NVIDIA multi-GPU naming)
++        if [[ $GPU_COUNT -eq 1 ]]; then
++            GPU_NAME="${gpu_names[0]}"
++        else
++            local first_name="${gpu_names[0]}"
++            local second_name="${gpu_names[1]}"
++            if [[ "$first_name" == "$second_name" ]]; then
++                GPU_NAME="${first_name} × ${GPU_COUNT}"
++            else
++                GPU_NAME="${first_name} + ${second_name}"
++                [[ $GPU_COUNT -gt 2 ]] && GPU_NAME="${GPU_NAME} + $((GPU_COUNT - 2)) more"
++            fi
++        fi
++
++        # Check for NPU (Ryzen AI) for Lemonade hybrid mode
++        HAS_NPU=false
++        if [[ -d /sys/class/misc/amdnpu ]] || lspci 2>/dev/null | grep -qi 'AMD.*NPU\|AMD.*IPU'; then
++            HAS_NPU=true
++            log "NPU detected: Ryzen AI Neural Processing Unit"
++        fi
++
++        if [[ $GPU_COUNT -gt 1 ]]; then
++            log "GPU: ${GPU_COUNT}x AMD (${GPU_VRAM}MB total VRAM, type=${GPU_MEMORY_TYPE}) — ${GPU_NAME}"
++        else
++            log "GPU: $GPU_NAME (${GPU_VRAM}MB VRAM, ${GPU_MEMORY_TYPE} memory, AMD)"
++        fi
++        return 0
++    fi
+ 
+     # No GPU detected - fall back to CPU-only mode
+     GPU_NAME="None (CPU-only mode)"
+diff --git a/dream-server/installers/phases/02-detection.sh b/dream-server/installers/phases/02-detection.sh
+index d517d1d6..ac92415e 100755
+--- a/dream-server/installers/phases/02-detection.sh
++++ b/dream-server/installers/phases/02-detection.sh
+@@ -319,6 +319,33 @@ if [[ $GPU_COUNT -gt 1 && "$GPU_BACKEND" == "nvidia" ]]; then
+     fi
+ fi
+ 
++# -----------------------------------------------------------------------------
++# AMD Multi-GPU Topology Detection
++# -----------------------------------------------------------------------------
++if [[ $GPU_COUNT -gt 1 && "$GPU_BACKEND" == "amd" ]]; then
++    ai "Detecting AMD multi-GPU topology..."
++    if [[ -f "$SCRIPT_DIR/installers/lib/amd-topo.sh" ]]; then
++        source "$SCRIPT_DIR/installers/lib/amd-topo.sh"
++
++        GPU_TOPOLOGY_JSON=$(detect_amd_topo 2>>"$LOG_FILE") || {
++            warn "AMD multi-GPU topology detection failed — using fallback"
++            ai_warn "Could not detect AMD GPU topology. Using default PCIe configuration."
++            GPU_TOPOLOGY_JSON="{}"
++        }
++
++        if [[ -n "$GPU_TOPOLOGY_JSON" && "$GPU_TOPOLOGY_JSON" != "{}" ]]; then
++            GPU_TOTAL_VRAM=$(echo "$GPU_TOPOLOGY_JSON" | jq -r '[.gpus[].memory_gb] | add * 1024 | floor')
++            log "AMD multi-GPU topology: Total VRAM=${GPU_TOTAL_VRAM}MB"
++        else
++            log "AMD topology detection returned empty, using basic GPU info"
++            GPU_TOTAL_VRAM=$GPU_VRAM
++        fi
++    else
++        log "AMD topology detection script not found, using basic GPU info"
++        GPU_TOTAL_VRAM=$GPU_VRAM
++    fi
++fi
++
+ # Auto-detect tier if not specified
+ if [[ -z "$TIER" ]]; then
+     PROFILE_TIER="$(normalize_profile_tier "${CAP_RECOMMENDED_TIER:-}")"
+diff --git a/dream-server/installers/phases/03-features.sh b/dream-server/installers/phases/03-features.sh
+index d57a0a5a..4e62e47c 100755
+--- a/dream-server/installers/phases/03-features.sh
++++ b/dream-server/installers/phases/03-features.sh
+@@ -444,13 +444,21 @@ else
+     esac
+ fi
+ 
+-LLAMA_SERVER_GPU_UUIDS=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.llama_server.gpus // [] | join(",")')
+-if [[ -z "$LLAMA_SERVER_GPU_UUIDS" ]]; then
+-    warn "LLAMA_SERVER_GPU_UUIDS is empty — NVIDIA_VISIBLE_DEVICES will fall back to 'all' (all GPUs visible to llama-server)"
++# Extract per-service GPU assignments (NVIDIA uses UUIDs, AMD uses indices)
++if [[ "$VENDOR" == "nvidia" ]]; then
++    LLAMA_SERVER_GPU_UUIDS=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.llama_server.gpus // [] | join(",")')
++    if [[ -z "$LLAMA_SERVER_GPU_UUIDS" ]]; then
++        warn "LLAMA_SERVER_GPU_UUIDS is empty — NVIDIA_VISIBLE_DEVICES will fall back to 'all' (all GPUs visible to llama-server)"
++    fi
++    WHISPER_GPU_UUID=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.whisper.gpus[0]?')
++    COMFYUI_GPU_UUID=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.comfyui.gpus[0]?')
++    EMBEDDINGS_GPU_UUID=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.embeddings.gpus[0]?')
++elif [[ "$VENDOR" == "amd" ]]; then
++    LLAMA_SERVER_GPU_INDICES=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.llama_server.gpu_indices // [] | map(tostring) | join(",")')
++    WHISPER_GPU_INDEX=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.whisper.gpu_indices[0] // 0')
++    COMFYUI_GPU_INDEX=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.comfyui.gpu_indices[0] // 0')
++    EMBEDDINGS_GPU_INDEX=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.embeddings.gpu_indices[0] // 0')
+ fi
+-WHISPER_GPU_UUID=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.whisper.gpus[0]?')
+-COMFYUI_GPU_UUID=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.comfyui.gpus[0]?')
+-EMBEDDINGS_GPU_UUID=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.embeddings.gpus[0]?')
+ 
+ _mode=$(echo "$GPU_ASSIGNMENT_JSON" | jq -r '.gpu_assignment.services.llama_server.parallelism.mode // "none"')
+ case "$_mode" in
+diff --git a/dream-server/installers/phases/06-directories.sh b/dream-server/installers/phases/06-directories.sh
+index 251a4271..9ecaa5ba 100755
+--- a/dream-server/installers/phases/06-directories.sh
++++ b/dream-server/installers/phases/06-directories.sh
+@@ -416,6 +416,15 @@ EMBEDDINGS_GPU_UUID=${EMBEDDINGS_GPU_UUID:-}
+ LLAMA_SERVER_GPU_UUIDS=${LLAMA_SERVER_GPU_UUIDS:-}
+ LLAMA_ARG_SPLIT_MODE=${LLAMA_ARG_SPLIT_MODE:-none}
+ LLAMA_ARG_TENSOR_SPLIT=${LLAMA_ARG_TENSOR_SPLIT:-}
++$(if [[ "$GPU_BACKEND" == "amd" && "${GPU_COUNT:-1}" -gt 1 ]]; then cat << AMD_MULTI_ENV
++
++#=== AMD Multi-GPU Settings ===
++LLAMA_SERVER_GPU_INDICES=${LLAMA_SERVER_GPU_INDICES:-}
++COMFYUI_GPU_INDEX=${COMFYUI_GPU_INDEX:-0}
++WHISPER_GPU_INDEX=${WHISPER_GPU_INDEX:-0}
++EMBEDDINGS_GPU_INDEX=${EMBEDDINGS_GPU_INDEX:-0}
++AMD_MULTI_ENV
++fi)
+ 
+ ENV_EOF
+ 
+diff --git a/dream-server/installers/phases/10-amd-tuning.sh b/dream-server/installers/phases/10-amd-tuning.sh
+index cc7d7ffd..b612f54f 100755
+--- a/dream-server/installers/phases/10-amd-tuning.sh
++++ b/dream-server/installers/phases/10-amd-tuning.sh
+@@ -184,29 +184,56 @@ GTT_EOF
+     # To re-enable later: sudo sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/s/amd_iommu=off/iommu=pt/' /etc/default/grub && sudo update-grub
+     if [[ -f /etc/default/grub ]]; then
+         current_cmdline=$(grep '^GRUB_CMDLINE_LINUX_DEFAULT=' /etc/default/grub 2>/dev/null || true)
+-        if [[ -n "$current_cmdline" ]] && ! echo "$current_cmdline" | grep -q 'amd_iommu=off'; then
+-            # Replace iommu=pt if present, otherwise append amd_iommu=off
+-            if echo "$current_cmdline" | grep -q 'iommu=pt'; then
+-                if sudo -n sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/s/iommu=pt/amd_iommu=off/' /etc/default/grub 2>/dev/null; then
+-                    sudo -n update-grub >> "$LOG_FILE" 2>&1 || true
+-                    ai_ok "GRUB: replaced iommu=pt with amd_iommu=off (~6% GPU bandwidth improvement)"
+-                    _amd_needs_reboot=true
++        if [[ "${GPU_COUNT:-1}" -gt 1 ]]; then
++            # Multi-GPU: iommu=pt is REQUIRED for proper device passthrough
++            if [[ -n "$current_cmdline" ]] && ! echo "$current_cmdline" | grep -q 'iommu=pt'; then
++                ai_warn "Multi-GPU requires 'iommu=pt' kernel parameter for device passthrough"
++                ai "  Add to GRUB_CMDLINE_LINUX_DEFAULT in /etc/default/grub:"
++                ai "  sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=\"\\(.*\\)\"/GRUB_CMDLINE_LINUX_DEFAULT=\"\\1 iommu=pt\"/' /etc/default/grub && sudo update-grub"
++                ai "  Then reboot."
++            elif [[ -n "$current_cmdline" ]] && echo "$current_cmdline" | grep -q 'iommu=pt'; then
++                ai_ok "iommu=pt kernel parameter is set (required for multi-GPU)"
++            fi
++        else
++            # Single GPU APU: amd_iommu=off gives ~6% memory bandwidth improvement
++            if [[ -n "$current_cmdline" ]] && ! echo "$current_cmdline" | grep -q 'amd_iommu=off'; then
++                # Replace iommu=pt if present, otherwise append amd_iommu=off
++                if echo "$current_cmdline" | grep -q 'iommu=pt'; then
++                    if sudo -n sed -i '/^GRUB_CMDLINE_LINUX_DEFAULT=/s/iommu=pt/amd_iommu=off/' /etc/default/grub 2>/dev/null; then
++                        sudo -n update-grub >> "$LOG_FILE" 2>&1 || true
++                        ai_ok "GRUB: replaced iommu=pt with amd_iommu=off (~6% GPU bandwidth improvement)"
++                        _amd_needs_reboot=true
++                    else
++                        ai_warn "Could not update GRUB (needs sudo). Run manually:"
++                        ai "  sudo sed -i 's/iommu=pt/amd_iommu=off/' /etc/default/grub && sudo update-grub"
++                    fi
+                 else
+-                    ai_warn "Could not update GRUB (needs sudo). Run manually:"
+-                    ai "  sudo sed -i 's/iommu=pt/amd_iommu=off/' /etc/default/grub && sudo update-grub"
++                    if sudo -n sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 amd_iommu=off"/' /etc/default/grub 2>/dev/null; then
++                        sudo -n update-grub >> "$LOG_FILE" 2>&1 || true
++                        ai_ok "GRUB: added amd_iommu=off (~6% GPU bandwidth improvement)"
++                        _amd_needs_reboot=true
++                    else
++                        ai_warn "Could not update GRUB (needs sudo). Run manually:"
++                        ai "  sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=\"\\(.*\\)\"/GRUB_CMDLINE_LINUX_DEFAULT=\"\\1 amd_iommu=off\"/' /etc/default/grub && sudo update-grub"
++                    fi
+                 fi
+             else
+-                if sudo -n sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 amd_iommu=off"/' /etc/default/grub 2>/dev/null; then
+-                    sudo -n update-grub >> "$LOG_FILE" 2>&1 || true
+-                    ai_ok "GRUB: added amd_iommu=off (~6% GPU bandwidth improvement)"
+-                    _amd_needs_reboot=true
+-                else
+-                    ai_warn "Could not update GRUB (needs sudo). Run manually:"
+-                    ai "  sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=\"\\(.*\\)\"/GRUB_CMDLINE_LINUX_DEFAULT=\"\\1 amd_iommu=off\"/' /etc/default/grub && sudo update-grub"
+-                fi
++                ai_ok "GRUB: amd_iommu=off already set"
+             fi
++        fi
++    fi
++
++    # Multi-GPU: verify render nodes for each GPU
++    if [[ "${GPU_COUNT:-1}" -gt 1 ]]; then
++        render_count=0
++        for rn in /dev/dri/renderD*; do
++            [[ -e "$rn" ]] && ((render_count++)) || true
++        done
++        if [[ "$render_count" -ge "${GPU_COUNT:-1}" ]]; then
++            ai_ok "Found ${render_count} render nodes for ${GPU_COUNT} GPUs"
+         else
+-            ai_ok "GRUB: amd_iommu=off already set"
++            ai_warn "Only ${render_count} render node(s) found but GPU_COUNT=${GPU_COUNT}"
++            ai_warn "Some GPUs may not be usable. Check: ls -la /dev/dri/renderD*"
+         fi
+     fi
+ 
+diff --git a/dream-server/scripts/assign_gpus.py b/dream-server/scripts/assign_gpus.py
+index c504180b..84311d4a 100644
+--- a/dream-server/scripts/assign_gpus.py
++++ b/dream-server/scripts/assign_gpus.py
+@@ -30,10 +30,11 @@ NON_LLAMA         = ["whisper", "comfyui", "embeddings"]
+ 
+ @dataclass
+ class GPU:
+-    index:     int
+-    uuid:      str
+-    name:      str
+-    memory_mb: float
++    index:       int
++    uuid:        str
++    name:        str
++    memory_mb:   float
++    memory_type: str = "discrete"  # "discrete" or "unified" (APU)
+ 
+ @dataclass
+ class Link:
+@@ -79,6 +80,7 @@ def parse_gpus(topology: dict) -> list:
+             uuid=g["uuid"],
+             name=g["name"],
+             memory_mb=g["memory_gb"] * 1024,
++            memory_type=g.get("memory_type", "discrete"),
+         ))
+     return gpus
+ 
+@@ -198,7 +200,7 @@ def span_subsets(all_gpus: list, rank_matrix: dict, model_size_mb: float, ordere
+     )
+ 
+ 
+-def assign_services(all_gpus: list, llama_gpus: list, rank_matrix: dict, enabled_services: list) -> tuple:
++def assign_services(all_gpus: list, llama_gpus: list, rank_matrix: dict, enabled_services: list, vendor: str = "nvidia") -> tuple:
+     """
+     Assign remaining GPUs to non-llama services.
+     Returns (service_assignments dict, final_llama_gpus list, strategy str).
+@@ -209,6 +211,9 @@ def assign_services(all_gpus: list, llama_gpus: list, rank_matrix: dict, enabled
+       remaining == 2  → whisper → [0], comfyui+embeddings → [1]    → colocated
+       remaining >= 3  → whisper → [0], comfyui → [1], emb → [2]    → dedicated
+                         remaining[3:] → back to llama
++
++    AMD APU+dGPU hybrid: if mixed memory types (unified + discrete), prefer APU
++    GPUs for auxiliary services (lower bandwidth but sufficient for whisper/embeddings).
+     """
+     llama_indices = {g.index for g in llama_gpus}
+     remaining = sorted(
+@@ -217,6 +222,15 @@ def assign_services(all_gpus: list, llama_gpus: list, rank_matrix: dict, enabled
+         reverse=True,
+     )
+ 
++    # AMD hybrid strategy: sort remaining so APU GPUs come first for auxiliary
++    # services (they're better suited for lightweight tasks like whisper/embeddings,
++    # freeing discrete GPUs for LLM inference)
++    if vendor == "amd" and any(g.memory_type == "unified" for g in remaining):
++        remaining = sorted(
++            remaining,
++            key=lambda g: (0 if g.memory_type == "unified" else 1, -g.memory_mb),
++        )
++
+     active_non_llama = [s for s in NON_LLAMA if s in enabled_services]
+     assignments = {}
+     final_llama_gpus = list(llama_gpus)
+@@ -375,7 +389,10 @@ def build_output(result: AssignmentResult) -> dict:
+     services = {}
+ 
+     for name, assignment in result.services.items():
+-        entry = {"gpus": [g.uuid for g in assignment.gpus]}
++        entry = {
++            "gpus": [g.uuid for g in assignment.gpus],
++            "gpu_indices": [g.index for g in assignment.gpus],
++        }
+ 
+         if assignment.parallelism:
+             p = assignment.parallelism
+@@ -468,8 +485,25 @@ def main():
+         print(f"ERROR: {e}", file=sys.stderr)
+         sys.exit(1)
+ 
++    vendor = topology.get("vendor", "nvidia")
++
++    # AMD APU+dGPU hybrid: if topology has mixed memory types, ensure LLM
++    # gets discrete GPUs. Re-sort llama subset to prefer discrete over unified.
++    if vendor == "amd":
++        has_mixed = (
++            any(g.memory_type == "unified" for g in gpus)
++            and any(g.memory_type == "discrete" for g in gpus)
++        )
++        if has_mixed:
++            discrete_gpus = [g for g in llama_subset.gpus if g.memory_type == "discrete"]
++            if discrete_gpus:
++                # Rebuild llama subset using only discrete GPUs if they cover model size
++                discrete_subset = compute_subset(discrete_gpus, rank_matrix)
++                if discrete_subset.total_vram_mb >= model_size_mb:
++                    llama_subset = discrete_subset
++
+     service_assignments, final_llama_gpus, strategy = assign_services(
+-        gpus, llama_subset.gpus, rank_matrix, enabled_services
++        gpus, llama_subset.gpus, rank_matrix, enabled_services, vendor=vendor
+     )
+ 
+     #  Phase 3: Llama parallelism
+diff --git a/dream-server/scripts/classify-hardware.sh b/dream-server/scripts/classify-hardware.sh
+index 8c7e4f67..b2a280fc 100755
+--- a/dream-server/scripts/classify-hardware.sh
++++ b/dream-server/scripts/classify-hardware.sh
+@@ -83,6 +83,8 @@ OVERLAY_MAP = {
+ 
+ # --- Pass 1: Match known_gpus by device_id then name_patterns ---
+ selected = None
++best_name_len = 0          # longest matching pattern wins (prevents "XT" matching "XTX")
++best_id_vram_diff = None   # closest VRAM wins for device_id-only fallback
+ combined_name = f"{gpu_name} {cpu_name}".strip().lower()
+ 
+ for entry in db.get("known_gpus", []):
+@@ -94,20 +96,30 @@ for entry in db.get("known_gpus", []):
+ 
+     # Try name_patterns match (case-insensitive substring against gpu_name + cpu_name)
+     patterns = match.get("name_patterns", [])
+-    name_matched = any(p.lower() in combined_name for p in patterns) if combined_name and patterns else False
++    matched_patterns = [p for p in patterns if p.lower() in combined_name] if combined_name and patterns else []
++    name_matched = len(matched_patterns) > 0
++    match_len = max((len(p) for p in matched_patterns), default=0)
+ 
+     if id_matched and name_matched:
+-        # Best match: both device_id and name match
+-        selected = entry
+-        break
+-    elif id_matched and not selected:
+-        # Device ID matched but name didn't — remember as fallback
+-        selected = entry
+-        # Keep looking for a better match with same device_id
+-        continue
++        # Both match — prefer longest pattern to avoid "XT" matching "XTX"
++        if match_len > best_name_len:
++            selected = entry
++            best_name_len = match_len
++    elif id_matched and best_name_len == 0:
++        # Device ID matched but name didn't — use VRAM proximity as tiebreaker
++        entry_vram = entry.get("specs", {}).get("memory_mb", 0)
++        if vram_mb > 0:
++            diff = abs(entry_vram - vram_mb)
++        else:
++            # No VRAM info: prefer smallest card (under-provision is safe,
++            # over-provision crashes the model loader)
++            diff = entry_vram if entry_vram > 0 else float("inf")
++        if best_id_vram_diff is None or diff < best_id_vram_diff:
++            selected = entry
++            best_id_vram_diff = diff
+     elif name_matched and not selected:
+         selected = entry
+-        break
++        best_name_len = match_len
+ 
+ # --- Pass 2: Heuristic fallback (threshold-based, top-down) ---
+ if not selected:
+diff --git a/dream-server/scripts/resolve-compose-stack.sh b/dream-server/scripts/resolve-compose-stack.sh
+index b29c873a..93a3ee22 100755
+--- a/dream-server/scripts/resolve-compose-stack.sh
++++ b/dream-server/scripts/resolve-compose-stack.sh
+@@ -134,8 +134,10 @@ if not resolved:
+     resolved = [primary]
+ 
+ # Multi-GPU overlay if we have more than 1 GPU.
+-if gpu_count > 1 and (script_dir / "docker-compose.multigpu.yml").exists():
+-    resolved.append("docker-compose.multigpu.yml")
++if gpu_count > 1:
++    multigpu_file = f"docker-compose.multigpu-{gpu_backend}.yml"
++    if (script_dir / multigpu_file).exists():
++        resolved.append(multigpu_file)
+ 
+ # Discover enabled extension compose fragments via manifests
+ ext_dir = script_dir / "extensions" / "services"
+@@ -198,7 +200,7 @@ if ext_dir.exists():
+             
+             # Multi-GPU overlay if we have more than 1 GPU
+             if gpu_count > 1:
+-                multi_gpu_overlay = service_dir / "compose.multigpu.yaml"
++                multi_gpu_overlay = service_dir / f"compose.multigpu-{gpu_backend}.yaml"
+                 if multi_gpu_overlay.exists():
+                     resolved.append(str(multi_gpu_overlay.relative_to(script_dir)))
+ 
+diff --git a/dream-server/tests/bats-tests/amd-topo.bats b/dream-server/tests/bats-tests/amd-topo.bats
+new file mode 100644
+index 00000000..95525ca8
+--- /dev/null
++++ b/dream-server/tests/bats-tests/amd-topo.bats
+@@ -0,0 +1,484 @@
++#!/usr/bin/env bats
++# ============================================================================
++# BATS tests for installers/lib/amd-topo.sh
++# ============================================================================
++# Tests: amd_render_node(), amd_gfx_version(), amd_gpu_name(), amd_gpu_id(),
++#        _detect_topo_amdsmi(), _detect_topo_rocmsmi()
++
++load '../bats/bats-support/load'
++load '../bats/bats-assert/load'
++
++FIXTURES_DIR="$BATS_TEST_DIRNAME/../fixtures/amd"
++
++setup() {
++    # Stub logging functions that amd-topo.sh expects
++    warn() { :; }; export -f warn
++    err() { :; }; export -f err
++
++    # Source the library under test
++    source "$BATS_TEST_DIRNAME/../../installers/lib/amd-topo.sh"
++}
++
++# ── amd_render_node ─────────────────────────────────────────────────────────
++
++@test "amd_render_node: returns numeric ID, not full name" {
++    # Create mock sysfs structure — device must be a symlink (not a dir)
++    # to match real sysfs layout where /sys/class/drm/card0/device → PCI path
++    local tmpdir
++    tmpdir=$(mktemp -d)
++    mkdir -p "$tmpdir/card0"
++    mkdir -p "$tmpdir/renderD128"
++
++    local pci_path="$tmpdir/pci-0000:03:00.0"
++    mkdir -p "$pci_path"
++    ln -sfn "$pci_path" "$tmpdir/card0/device"
++    ln -sfn "$pci_path" "$tmpdir/renderD128/device"
++
++    # Redefine to use tmpdir instead of /sys/class/drm (hardcoded in original)
++    # Call directly (not via `run`) because BATS `run` uses a subshell
++    # where function redefinitions aren't visible.
++    amd_render_node() {
++        local card_dir="$1"
++        local card_pci
++        card_pci=$(readlink -f "$card_dir") || { echo "unknown"; return 1; }
++
++        for render_dir in "$tmpdir"/renderD*/device; do
++            [[ -d "$render_dir" ]] || continue
++            local render_pci
++            render_pci=$(readlink -f "$render_dir") || continue
++            if [[ "$card_pci" == "$render_pci" ]]; then
++                basename "$(dirname "$render_dir")" | sed 's/^renderD//'
++                return 0
++            fi
++        done
++        echo "unknown"
++    }
++
++    output=$(amd_render_node "$tmpdir/card0/device")
++    status=$?
++    assert_output "128"
++    rm -rf "$tmpdir"
++}
++
++@test "amd_render_node: returns unknown when no matching render node" {
++    local tmpdir
++    tmpdir=$(mktemp -d)
++    mkdir -p "$tmpdir/card0/device"
++    ln -sfn "$tmpdir/pci-a" "$tmpdir/card0/device"
++
++    amd_render_node() {
++        local card_dir="$1"
++        local card_pci
++        card_pci=$(readlink -f "$card_dir") || { echo "unknown"; return 1; }
++        # No render nodes to iterate
++        echo "unknown"
++    }
++
++    run amd_render_node "$tmpdir/card0/device"
++    assert_output "unknown"
++    rm -rf "$tmpdir"
++}
++
++@test "amd_render_node: handles renderD130 correctly" {
++    local tmpdir
++    tmpdir=$(mktemp -d)
++    local pci_path="$tmpdir/pci-0000:fd:00.0"
++    mkdir -p "$pci_path"
++    mkdir -p "$tmpdir/card2"
++    mkdir -p "$tmpdir/renderD130"
++    ln -sfn "$pci_path" "$tmpdir/card2/device"
++    ln -sfn "$pci_path" "$tmpdir/renderD130/device"
++
++    # Call directly — BATS `run` subshell doesn't see redefined functions
++    amd_render_node() {
++        local card_dir="$1"
++        local card_pci
++        card_pci=$(readlink -f "$card_dir") || { echo "unknown"; return 1; }
++        for render_dir in "$tmpdir"/renderD*/device; do
++            [[ -d "$render_dir" ]] || continue
++            local render_pci
++            render_pci=$(readlink -f "$render_dir") || continue
++            if [[ "$card_pci" == "$render_pci" ]]; then
++                basename "$(dirname "$render_dir")" | sed 's/^renderD//'
++                return 0
++            fi
++        done
++        echo "unknown"
++    }
++
++    output=$(amd_render_node "$tmpdir/card2/device")
++    status=$?
++    assert_output "130"
++    rm -rf "$tmpdir"
++}
++
++# ── amd_gfx_version: rocm-smi parsing ──────────────────────────────────────
++
++@test "amd_gfx_version: parses GPU[0] gfx942 from rocm-smi" {
++    rocm-smi() {
++        cat "$FIXTURES_DIR/rocm_smi_productname_4gpu_mi300x.txt"
++    }
++
++    run amd_gfx_version "/fake/card0" 0
++    assert_output "gfx942"
++}
++
++@test "amd_gfx_version: parses GPU[2] gfx942 from rocm-smi (not GPU[0])" {
++    rocm-smi() {
++        cat "$FIXTURES_DIR/rocm_smi_productname_4gpu_mi300x.txt"
++    }
++
++    run amd_gfx_version "/fake/card2" 2
++    assert_output "gfx942"
++}
++
++@test "amd_gfx_version: parses GPU[3] correctly (last GPU)" {
++    rocm-smi() {
++        cat "$FIXTURES_DIR/rocm_smi_productname_4gpu_mi300x.txt"
++    }
++
++    run amd_gfx_version "/fake/card3" 3
++    assert_output "gfx942"
++}
++
++@test "amd_gfx_version: falls back to amd-smi when rocm-smi unavailable" {
++    # Undefine rocm-smi, define amd-smi
++    rocm-smi() { return 1; }
++
++    # amd-smi static --json --asic → jq path: .[gpu_idx].asic.target_graphics_version
++    amd-smi() {
++        if [[ "$1" == "static" && "$2" == "--json" && "$3" == "--asic" ]]; then
++            echo '[{"asic": {"target_graphics_version": "gfx1100"}}]'
++        else
++            return 1
++        fi
++    }
++
++    run amd_gfx_version "/fake/card0" 0
++    assert_output "gfx1100"
++}
++
++# ── amd_gpu_name ────────────────────────────────────────────────────────────
++
++@test "amd_gpu_name: reads sysfs product_name when available" {
++    local tmpdir
++    tmpdir=$(mktemp -d)
++    echo "AMD Radeon RX 7900 XTX" > "$tmpdir/product_name"
++
++    run amd_gpu_name "$tmpdir" "744c"
++    assert_output "AMD Radeon RX 7900 XTX"
++    rm -rf "$tmpdir"
++}
++
++@test "amd_gpu_name: skips empty product_name" {
++    local tmpdir
++    tmpdir=$(mktemp -d)
++    echo "" > "$tmpdir/product_name"
++
++    # No lspci, no PCI BDF
++    lspci() { return 1; }
++
++    run amd_gpu_name "$tmpdir" "74b5"
++    assert_output "AMD GPU (0x74b5)"
++    rm -rf "$tmpdir"
++}
++
++@test "amd_gpu_name: skips (null) product_name" {
++    local tmpdir
++    tmpdir=$(mktemp -d)
++    echo "(null)" > "$tmpdir/product_name"
++
++    lspci() { return 1; }
++
++    run amd_gpu_name "$tmpdir" "74b5"
++    assert_output "AMD GPU (0x74b5)"
++    rm -rf "$tmpdir"
++}
++
++@test "amd_gpu_name: falls back to device ID format" {
++    local tmpdir
++    tmpdir=$(mktemp -d)
++    # No product_name file
++
++    lspci() { return 1; }
++
++    run amd_gpu_name "$tmpdir" "744c"
++    assert_output "AMD GPU (0x744c)"
++    rm -rf "$tmpdir"
++}
++
++# ── amd_gpu_id ──────────────────────────────────────────────────────────────
++
++@test "amd_gpu_id: returns unique_id from sysfs when available" {
++    local tmpdir
++    tmpdir=$(mktemp -d)
++    echo "0x0123456789abcdef" > "$tmpdir/unique_id"
++
++    # No amd-smi
++    amd-smi() { return 1; }
++
++    run amd_gpu_id "$tmpdir" 0
++    # Code wraps unique_id with AMD-UID- prefix
++    assert_output "AMD-UID-0x0123456789abcdef"
++    rm -rf "$tmpdir"
++}
++
++@test "amd_gpu_id: builds composite ID when unique_id unavailable" {
++    local tmpdir
++    tmpdir=$(mktemp -d)
++    # No unique_id file
++
++    # No amd-smi
++    amd-smi() { return 1; }
++
++    # Create files for composite ID (device_id + subsystem_id)
++    # Don't mkdir device — it's read as a file by cat "$card_dir/device"
++    echo "0x74b5" > "$tmpdir/device"
++    echo "0x1234" > "$tmpdir/subsystem_device"
++
++    run amd_gpu_id "$tmpdir" 5
++    # Should contain "AMD-" prefix since it builds a composite
++    assert_output --partial "AMD-"
++    rm -rf "$tmpdir"
++}
++
++# ── _detect_topo_amdsmi: 4-GPU XGMI full mesh ──────────────────────────────
++
++@test "_detect_topo_amdsmi: parses 4-GPU XGMI topology correctly" {
++    amd-smi() {
++        if [[ "$1" == "topology" && "$2" == "--json" ]]; then
++            cat "$FIXTURES_DIR/amd_smi_topology_4gpu_xgmi.json"
++        fi
++    }
++
++    run _detect_topo_amdsmi 4
++    assert_success
++
++    # Should produce 6 links (4 choose 2 = 6)
++    local link_count
++    link_count=$(echo "$output" | jq '. | length')
++    [[ "$link_count" -eq 6 ]]
++
++    # All links should be XGMI
++    local xgmi_count
++    xgmi_count=$(echo "$output" | jq '[.[] | select(.link_type == "XGMI")] | length')
++    [[ "$xgmi_count" -eq 6 ]]
++
++    # All XGMI links should have rank 90
++    local rank_90
++    rank_90=$(echo "$output" | jq '[.[] | select(.rank == 90)] | length')
++    [[ "$rank_90" -eq 6 ]]
++}
++
++@test "_detect_topo_amdsmi: link pairs are correct (0-1, 0-2, 0-3, 1-2, 1-3, 2-3)" {
++    amd-smi() {
++        if [[ "$1" == "topology" && "$2" == "--json" ]]; then
++            cat "$FIXTURES_DIR/amd_smi_topology_4gpu_xgmi.json"
++        fi
++    }
++
++    run _detect_topo_amdsmi 4
++    assert_success
++
++    # Check all 6 expected pairs exist
++    local pair
++    for pair in "0,1" "0,2" "0,3" "1,2" "1,3" "2,3"; do
++        local a=${pair%%,*} b=${pair##*,}
++        local found
++        found=$(echo "$output" | jq --argjson a "$a" --argjson b "$b" \
++            '[.[] | select(.gpu_a == $a and .gpu_b == $b)] | length')
++        [[ "$found" -eq 1 ]]
++    done
++}
++
++@test "_detect_topo_amdsmi: uses field-based lookup, not positional indexing" {
++    # Create a topology where links array is NOT in GPU index order
++    # GPU 0's links: SELF, GPU2, GPU1 (reversed order)
++    amd-smi() {
++        if [[ "$1" == "topology" && "$2" == "--json" ]]; then
++            cat <<'EOF'
++[
++  {"gpu": 0, "bdf": "0:0", "links": [
++    {"gpu": 0, "weight": 0, "link_type": "SELF"},
++    {"gpu": 2, "weight": 15, "link_type": "XGMI"},
++    {"gpu": 1, "weight": 40, "link_type": "PCIE"}
++  ]},
++  {"gpu": 1, "bdf": "0:1", "links": [
++    {"gpu": 1, "weight": 0, "link_type": "SELF"},
++    {"gpu": 0, "weight": 40, "link_type": "PCIE"},
++    {"gpu": 2, "weight": 15, "link_type": "XGMI"}
++  ]},
++  {"gpu": 2, "bdf": "0:2", "links": [
++    {"gpu": 2, "weight": 0, "link_type": "SELF"},
++    {"gpu": 0, "weight": 15, "link_type": "XGMI"},
++    {"gpu": 1, "weight": 15, "link_type": "XGMI"}
++  ]}
++]
++EOF
++        fi
++    }
++
++    run _detect_topo_amdsmi 3
++    assert_success
++
++    # GPU 0→1 should be PCIE (weight 40), not XGMI
++    local link_01_type
++    link_01_type=$(echo "$output" | jq -r '.[] | select(.gpu_a == 0 and .gpu_b == 1) | .link_type')
++    [[ "$link_01_type" == "PCIE" ]]
++
++    # GPU 0→2 should be XGMI
++    local link_02_type
++    link_02_type=$(echo "$output" | jq -r '.[] | select(.gpu_a == 0 and .gpu_b == 2) | .link_type')
++    [[ "$link_02_type" == "XGMI" ]]
++}
++
++# ── _detect_topo_amdsmi: 2-GPU PCIe ────────────────────────────────────────
++
++@test "_detect_topo_amdsmi: parses 2-GPU PCIe topology" {
++    amd-smi() {
++        if [[ "$1" == "topology" && "$2" == "--json" ]]; then
++            cat "$FIXTURES_DIR/amd_smi_topology_2gpu_pcie.json"
++        fi
++    }
++
++    run _detect_topo_amdsmi 2
++    assert_success
++
++    local link_count
++    link_count=$(echo "$output" | jq '. | length')
++    [[ "$link_count" -eq 1 ]]
++
++    local link_type
++    link_type=$(echo "$output" | jq -r '.[0].link_type')
++    [[ "$link_type" == "PCIE" ]]
++
++    # Weight 40 → PCIe-HostBridge (rank 30)
++    local rank
++    rank=$(echo "$output" | jq '.[0].rank')
++    [[ "$rank" -eq 30 ]]
++
++    local label
++    label=$(echo "$output" | jq -r '.[0].link_label')
++    [[ "$label" == "PCIe-HostBridge" ]]
++}
++
++# ── _detect_topo_amdsmi: PCIe weight-to-rank mapping ───────────────────────
++
++@test "_detect_topo_amdsmi: weight 15 maps to PCIe-SameSwitch rank 50" {
++    amd-smi() {
++        if [[ "$1" == "topology" && "$2" == "--json" ]]; then
++            echo '[
++                {"gpu":0,"links":[{"gpu":0,"weight":0,"link_type":"SELF"},{"gpu":1,"weight":15,"link_type":"PCIE"}]},
++                {"gpu":1,"links":[{"gpu":1,"weight":0,"link_type":"SELF"},{"gpu":0,"weight":15,"link_type":"PCIE"}]}
++            ]'
++        fi
++    }
++
++    run _detect_topo_amdsmi 2
++    assert_success
++
++    local rank label
++    rank=$(echo "$output" | jq '.[0].rank')
++    label=$(echo "$output" | jq -r '.[0].link_label')
++    [[ "$rank" -eq 50 ]]
++    [[ "$label" == "PCIe-SameSwitch" ]]
++}
++
++@test "_detect_topo_amdsmi: weight 60 maps to CrossNUMA rank 10" {
++    amd-smi() {
++        if [[ "$1" == "topology" && "$2" == "--json" ]]; then
++            echo '[
++                {"gpu":0,"links":[{"gpu":0,"weight":0,"link_type":"SELF"},{"gpu":1,"weight":60,"link_type":"PCIE"}]},
++                {"gpu":1,"links":[{"gpu":1,"weight":0,"link_type":"SELF"},{"gpu":0,"weight":60,"link_type":"PCIE"}]}
++            ]'
++        fi
++    }
++
++    run _detect_topo_amdsmi 2
++    assert_success
++
++    local rank label
++    rank=$(echo "$output" | jq '.[0].rank')
++    label=$(echo "$output" | jq -r '.[0].link_label')
++    [[ "$rank" -eq 10 ]]
++    [[ "$label" == "CrossNUMA" ]]
++}
++
++# ── _detect_topo_amdsmi: edge cases ────────────────────────────────────────
++
++@test "_detect_topo_amdsmi: returns failure when amd-smi not available" {
++    amd-smi() { return 1; }
++
++    run _detect_topo_amdsmi 2
++    assert_failure
++}
++
++@test "_detect_topo_amdsmi: returns failure on empty JSON" {
++    amd-smi() {
++        if [[ "$1" == "topology" && "$2" == "--json" ]]; then
++            echo ""
++        fi
++    }
++
++    run _detect_topo_amdsmi 2
++    assert_failure
++}
++
++@test "_detect_topo_amdsmi: single GPU produces no links" {
++    amd-smi() {
++        if [[ "$1" == "topology" && "$2" == "--json" ]]; then
++            echo '[{"gpu":0,"links":[{"gpu":0,"weight":0,"link_type":"SELF"}]}]'
++        fi
++    }
++
++    run _detect_topo_amdsmi 1
++    # With 1 GPU, the inner loop (j = i+1) never runs → empty links_tsv → failure
++    assert_failure
++}
++
++# ── _detect_topo_rocmsmi ────────────────────────────────────────────────────
++
++@test "_detect_topo_rocmsmi: parses 4-GPU XGMI topology from rocm-smi" {
++    rocm-smi() {
++        if [[ "$1" == "--showtopo" ]]; then
++            cat "$FIXTURES_DIR/rocm_smi_showtopo_4gpu_xgmi.txt"
++        fi
++    }
++
++    run _detect_topo_rocmsmi 4
++    assert_success
++
++    local link_count
++    link_count=$(echo "$output" | jq '. | length')
++    [[ "$link_count" -eq 6 ]]
++
++    local xgmi_count
++    xgmi_count=$(echo "$output" | jq '[.[] | select(.link_type == "XGMI")] | length')
++    [[ "$xgmi_count" -eq 6 ]]
++}
++
++@test "_detect_topo_rocmsmi: parses 2-GPU PCIe topology from rocm-smi" {
++    rocm-smi() {
++        if [[ "$1" == "--showtopo" ]]; then
++            cat "$FIXTURES_DIR/rocm_smi_showtopo_2gpu_pcie.txt"
++        fi
++    }
++
++    run _detect_topo_rocmsmi 2
++    assert_success
++
++    local link_count
++    link_count=$(echo "$output" | jq '. | length')
++    [[ "$link_count" -eq 1 ]]
++
++    local link_type
++    link_type=$(echo "$output" | jq -r '.[0].link_type')
++    [[ "$link_type" == "PCIE" ]]
++}
++
++@test "_detect_topo_rocmsmi: returns failure when rocm-smi not available" {
++    rocm-smi() { return 1; }
++
++    run _detect_topo_rocmsmi 2
++    assert_failure
++}
+diff --git a/dream-server/tests/bats-tests/docker-phase.bats b/dream-server/tests/bats-tests/docker-phase.bats
+index 68d97a3e..10e6c4da 100644
+--- a/dream-server/tests/bats-tests/docker-phase.bats
++++ b/dream-server/tests/bats-tests/docker-phase.bats
+@@ -97,7 +97,7 @@ teardown() {
+         }
+         _docker_cmd_arr
+     '
+-    assert_output $'sudo\ndocker'
++    assert_output "sudo docker"
+ }
+ 
+ @test "_docker_cmd_arr: returns docker when DOCKER_CMD is empty" {
+diff --git a/dream-server/tests/contracts/test-installer-contracts.sh b/dream-server/tests/contracts/test-installer-contracts.sh
+index 228e368f..58947054 100755
+--- a/dream-server/tests/contracts/test-installer-contracts.sh
++++ b/dream-server/tests/contracts/test-installer-contracts.sh
+@@ -67,4 +67,90 @@ if grep -q 'cdn.jsdelivr.net/npm/chart.js\|cdn.jsdelivr.net/npm/chartjs-adapter-
+   exit 1
+ fi
+ 
++# --- classify-hardware: shared device_id disambiguation ---
++echo "[contract] classify-hardware shared device_id"
++_classify() {
++  bash scripts/classify-hardware.sh --device-id "$1" --gpu-name "$2" --gpu-vendor "${3:-amd}" --vram-mb "${4:-0}" 2>/dev/null
++}
++_classify_id()   { _classify "$@" | jq -r '.id'; }
++_classify_tier() { _classify "$@" | jq -r '.recommended.tier'; }
++_classify_bw()   { _classify "$@" | jq -r '.bandwidth_gbps'; }
++
++# --- 0x744c: XTX / XT / GRE (same die, different SKUs) ---
++
++# Happy path: device_id + name → exact match
++[[ "$(_classify_id 0x744c "AMD Radeon RX 7900 XTX" amd 24576)" == "rx_7900_xtx" ]] \
++  || { echo "[FAIL] XTX with name"; exit 1; }
++[[ "$(_classify_id 0x744c "AMD Radeon RX 7900 XT" amd 20480)" == "rx_7900_xt" ]] \
++  || { echo "[FAIL] XT with name"; exit 1; }
++[[ "$(_classify_id 0x744c "AMD Radeon RX 7900 GRE" amd 16384)" == "rx_7900_gre" ]] \
++  || { echo "[FAIL] GRE with name"; exit 1; }
++
++# Substring safety: "RX 7900 XT" is a substring of "RX 7900 XTX"
++# XT name must NOT match XTX entry (longest pattern wins)
++[[ "$(_classify_id 0x744c "AMD Radeon RX 7900 XT" amd 20480)" != "rx_7900_xtx" ]] \
++  || { echo "[FAIL] XT matched XTX (substring collision)"; exit 1; }
++# XTX name must NOT match XT entry
++[[ "$(_classify_id 0x744c "AMD Radeon RX 7900 XTX" amd 24576)" != "rx_7900_xt" ]] \
++  || { echo "[FAIL] XTX matched XT"; exit 1; }
++
++# Tier correctness: GRE is T2, the others are T3
++[[ "$(_classify_tier 0x744c "AMD Radeon RX 7900 XTX" amd 24576)" == "T3" ]] \
++  || { echo "[FAIL] XTX tier"; exit 1; }
++[[ "$(_classify_tier 0x744c "AMD Radeon RX 7900 GRE" amd 16384)" == "T2" ]] \
++  || { echo "[FAIL] GRE tier"; exit 1; }
++
++# Bandwidth correctness: each SKU has a different value
++[[ "$(_classify_bw 0x744c "AMD Radeon RX 7900 XTX" amd 24576)" == "960" ]] \
++  || { echo "[FAIL] XTX bandwidth"; exit 1; }
++[[ "$(_classify_bw 0x744c "AMD Radeon RX 7900 XT" amd 20480)" == "800" ]] \
++  || { echo "[FAIL] XT bandwidth"; exit 1; }
++[[ "$(_classify_bw 0x744c "AMD Radeon RX 7900 GRE" amd 16384)" == "576" ]] \
++  || { echo "[FAIL] GRE bandwidth"; exit 1; }
++
++# Empty name: VRAM tiebreaker picks closest match
++[[ "$(_classify_id 0x744c "" amd 24576)" == "rx_7900_xtx" ]] \
++  || { echo "[FAIL] empty name + 24GB → XTX"; exit 1; }
++[[ "$(_classify_id 0x744c "" amd 20480)" == "rx_7900_xt" ]] \
++  || { echo "[FAIL] empty name + 20GB → XT"; exit 1; }
++[[ "$(_classify_id 0x744c "" amd 16384)" == "rx_7900_gre" ]] \
++  || { echo "[FAIL] empty name + 16GB → GRE"; exit 1; }
++
++# Empty name + zero VRAM: picks smallest card (under-provision is safe,
++# over-provision would crash the model loader)
++[[ "$(_classify_id 0x744c "" amd 0)" == "rx_7900_gre" ]] \
++  || { echo "[FAIL] empty name + 0 VRAM → should be GRE (smallest)"; exit 1; }
++
++# Empty name + close-but-not-exact VRAM: picks nearest
++# 22000 MB is closer to XT (20480, diff=1520) than XTX (24576, diff=2576)
++[[ "$(_classify_id 0x744c "" amd 22000)" == "rx_7900_xt" ]] \
++  || { echo "[FAIL] empty name + 22GB → should be XT (nearest)"; exit 1; }
++# 18000 MB is closer to GRE (16384, diff=1616) than XT (20480, diff=2480)
++[[ "$(_classify_id 0x744c "" amd 18000)" == "rx_7900_gre" ]] \
++  || { echo "[FAIL] empty name + 18GB → should be GRE (nearest)"; exit 1; }
++
++# --- 0x7480: RX 7800 XT / RX 7700 XT (second shared device_id pair) ---
++
++[[ "$(_classify_id 0x7480 "AMD Radeon RX 7800 XT" amd 16384)" == "rx_7800_xt" ]] \
++  || { echo "[FAIL] 7800 XT with name"; exit 1; }
++[[ "$(_classify_id 0x7480 "AMD Radeon RX 7700 XT" amd 12288)" == "rx_7700_xt" ]] \
++  || { echo "[FAIL] 7700 XT with name"; exit 1; }
++[[ "$(_classify_id 0x7480 "" amd 16384)" == "rx_7800_xt" ]] \
++  || { echo "[FAIL] 0x7480 empty name + 16GB → 7800 XT"; exit 1; }
++[[ "$(_classify_id 0x7480 "" amd 12288)" == "rx_7700_xt" ]] \
++  || { echo "[FAIL] 0x7480 empty name + 12GB → 7700 XT"; exit 1; }
++
++# --- Name-only match (no device_id) ---
++
++[[ "$(_classify_id "" "RYZEN AI MAX+ 395" amd 0)" == "strix_halo_395" ]] \
++  || { echo "[FAIL] Strix Halo name-only match"; exit 1; }
++[[ "$(_classify_id "" "RX 9070 XT" amd 16384)" == "rx_9070_xt" ]] \
++  || { echo "[FAIL] RX 9070 XT name-only match"; exit 1; }
++
++# --- No match → heuristic fallback (should not crash) ---
++
++result=$(_classify_id "0xFFFF" "Unknown GPU" amd 8192)
++[[ -n "$result" && "$result" != "null" ]] \
++  || { echo "[FAIL] unknown GPU crashed"; exit 1; }
++
+ echo "[PASS] installer contracts"
+diff --git a/dream-server/tests/fixtures/amd/amd_smi_topology_2gpu_pcie.json b/dream-server/tests/fixtures/amd/amd_smi_topology_2gpu_pcie.json
+new file mode 100644
+index 00000000..fe2d0b99
+--- /dev/null
++++ b/dream-server/tests/fixtures/amd/amd_smi_topology_2gpu_pcie.json
+@@ -0,0 +1,46 @@
++[
++    {
++        "gpu": 0,
++        "bdf": "0000:03:00.0",
++        "links": [
++            {
++                "gpu": 0,
++                "bdf": "0000:03:00.0",
++                "weight": 0,
++                "link_status": "ENABLED",
++                "link_type": "SELF",
++                "num_hops": 0
++            },
++            {
++                "gpu": 1,
++                "bdf": "0000:0a:00.0",
++                "weight": 40,
++                "link_status": "ENABLED",
++                "link_type": "PCIE",
++                "num_hops": 2
++            }
++        ]
++    },
++    {
++        "gpu": 1,
++        "bdf": "0000:0a:00.0",
++        "links": [
++            {
++                "gpu": 0,
++                "bdf": "0000:03:00.0",
++                "weight": 40,
++                "link_status": "ENABLED",
++                "link_type": "PCIE",
++                "num_hops": 2
++            },
++            {
++                "gpu": 1,
++                "bdf": "0000:0a:00.0",
++                "weight": 0,
++                "link_status": "ENABLED",
++                "link_type": "SELF",
++                "num_hops": 0
++            }
++        ]
++    }
++]
+diff --git a/dream-server/tests/fixtures/amd/amd_smi_topology_4gpu_xgmi.json b/dream-server/tests/fixtures/amd/amd_smi_topology_4gpu_xgmi.json
+new file mode 100644
+index 00000000..aad9429d
+--- /dev/null
++++ b/dream-server/tests/fixtures/amd/amd_smi_topology_4gpu_xgmi.json
+@@ -0,0 +1,234 @@
++[
++    {
++        "gpu": 0,
++        "bdf": "0000:f9:00.0",
++        "links": [
++            {
++                "gpu": 0,
++                "bdf": "0000:f9:00.0",
++                "weight": 0,
++                "link_status": "ENABLED",
++                "link_type": "SELF",
++                "num_hops": 0,
++                "bandwidth": "N/A",
++                "coherent": "SELF",
++                "atomics": "SELF",
++                "dma": "SELF",
++                "bi_dir": "SELF"
++            },
++            {
++                "gpu": 1,
++                "bdf": "0000:fb:00.0",
++                "weight": 15,
++                "link_status": "ENABLED",
++                "link_type": "XGMI",
++                "num_hops": 1,
++                "bandwidth": "64000-64000",
++                "coherent": "C",
++                "atomics": "64,32",
++                "dma": "T",
++                "bi_dir": "T"
++            },
++            {
++                "gpu": 2,
++                "bdf": "0000:fd:00.0",
++                "weight": 15,
++                "link_status": "ENABLED",
++                "link_type": "XGMI",
++                "num_hops": 1,
++                "bandwidth": "64000-64000",
++                "coherent": "C",
++                "atomics": "64,32",
++                "dma": "T",
++                "bi_dir": "T"
++            },
++            {
++                "gpu": 3,
++                "bdf": "0000:ff:00.0",
++                "weight": 15,
++                "link_status": "ENABLED",
++                "link_type": "XGMI",
++                "num_hops": 1,
++                "bandwidth": "64000-64000",
++                "coherent": "C",
++                "atomics": "64,32",
++                "dma": "T",
++                "bi_dir": "T"
++            }
++        ]
++    },
++    {
++        "gpu": 1,
++        "bdf": "0000:fb:00.0",
++        "links": [
++            {
++                "gpu": 0,
++                "bdf": "0000:f9:00.0",
++                "weight": 15,
++                "link_status": "ENABLED",
++                "link_type": "XGMI",
++                "num_hops": 1,
++                "bandwidth": "64000-64000",
++                "coherent": "C",
++                "atomics": "64,32",
++                "dma": "T",
++                "bi_dir": "T"
++            },
++            {
++                "gpu": 1,
++                "bdf": "0000:fb:00.0",
++                "weight": 0,
++                "link_status": "ENABLED",
++                "link_type": "SELF",
++                "num_hops": 0,
++                "bandwidth": "N/A",
++                "coherent": "SELF",
++                "atomics": "SELF",
++                "dma": "SELF",
++                "bi_dir": "SELF"
++            },
++            {
++                "gpu": 2,
++                "bdf": "0000:fd:00.0",
++                "weight": 15,
++                "link_status": "ENABLED",
++                "link_type": "XGMI",
++                "num_hops": 1,
++                "bandwidth": "64000-64000",
++                "coherent": "C",
++                "atomics": "64,32",
++                "dma": "T",
++                "bi_dir": "T"
++            },
++            {
++                "gpu": 3,
++                "bdf": "0000:ff:00.0",
++                "weight": 15,
++                "link_status": "ENABLED",
++                "link_type": "XGMI",
++                "num_hops": 1,
++                "bandwidth": "64000-64000",
++                "coherent": "C",
++                "atomics": "64,32",
++                "dma": "T",
++                "bi_dir": "T"
++            }
++        ]
++    },
++    {
++        "gpu": 2,
++        "bdf": "0000:fd:00.0",
++        "links": [
++            {
++                "gpu": 0,
++                "bdf": "0000:f9:00.0",
++                "weight": 15,
++                "link_status": "ENABLED",
++                "link_type": "XGMI",
++                "num_hops": 1,
++                "bandwidth": "64000-64000",
++                "coherent": "C",
++                "atomics": "64,32",
++                "dma": "T",
++                "bi_dir": "T"
++            },
++            {
++                "gpu": 1,
++                "bdf": "0000:fb:00.0",
++                "weight": 15,
++                "link_status": "ENABLED",
++                "link_type": "XGMI",
++                "num_hops": 1,
++                "bandwidth": "64000-64000",
++                "coherent": "C",
++                "atomics": "64,32",
++                "dma": "T",
++                "bi_dir": "T"
++            },
++            {
++                "gpu": 2,
++                "bdf": "0000:fd:00.0",
++                "weight": 0,
++                "link_status": "ENABLED",
++                "link_type": "SELF",
++                "num_hops": 0,
++                "bandwidth": "N/A",
++                "coherent": "SELF",
++                "atomics": "SELF",
++                "dma": "SELF",
++                "bi_dir": "SELF"
++            },
++            {
++                "gpu": 3,
++                "bdf": "0000:ff:00.0",
++                "weight": 15,
++                "link_status": "ENABLED",
++                "link_type": "XGMI",
++                "num_hops": 1,
++                "bandwidth": "64000-64000",
++                "coherent": "C",
++                "atomics": "64,32",
++                "dma": "T",
++                "bi_dir": "T"
++            }
++        ]
++    },
++    {
++        "gpu": 3,
++        "bdf": "0000:ff:00.0",
++        "links": [
++            {
++                "gpu": 0,
++                "bdf": "0000:f9:00.0",
++                "weight": 15,
++                "link_status": "ENABLED",
++                "link_type": "XGMI",
++                "num_hops": 1,
++                "bandwidth": "64000-64000",
++                "coherent": "C",
++                "atomics": "64,32",
++                "dma": "T",
++                "bi_dir": "T"
++            },
++            {
++                "gpu": 1,
++                "bdf": "0000:fb:00.0",
++                "weight": 15,
++                "link_status": "ENABLED",
++                "link_type": "XGMI",
++                "num_hops": 1,
++                "bandwidth": "64000-64000",
++                "coherent": "C",
++                "atomics": "64,32",
++                "dma": "T",
++                "bi_dir": "T"
++            },
++            {
++                "gpu": 2,
++                "bdf": "0000:fd:00.0",
++                "weight": 15,
++                "link_status": "ENABLED",
++                "link_type": "XGMI",
++                "num_hops": 1,
++                "bandwidth": "64000-64000",
++                "coherent": "C",
++                "atomics": "64,32",
++                "dma": "T",
++                "bi_dir": "T"
++            },
++            {
++                "gpu": 3,
++                "bdf": "0000:ff:00.0",
++                "weight": 0,
++                "link_status": "ENABLED",
++                "link_type": "SELF",
++                "num_hops": 0,
++                "bandwidth": "N/A",
++                "coherent": "SELF",
++                "atomics": "SELF",
++                "dma": "SELF",
++                "bi_dir": "SELF"
++            }
++        ]
++    }
++]
+diff --git a/dream-server/tests/fixtures/amd/rocm_smi_productname_4gpu_mi300x.txt b/dream-server/tests/fixtures/amd/rocm_smi_productname_4gpu_mi300x.txt
+new file mode 100644
+index 00000000..dd8ad146
+--- /dev/null
++++ b/dream-server/tests/fixtures/amd/rocm_smi_productname_4gpu_mi300x.txt
+@@ -0,0 +1,42 @@
++
++
++============================ ROCm System Management Interface ============================
++====================================== Product Info ======================================
++GPU[0]		: Card Series: 		AMD Instinct MI300X VF
++GPU[0]		: Card Model: 		0x74b5
++GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
++GPU[0]		: Card SKU: 		M3000108
++GPU[0]		: Subsystem ID: 	0x74a1
++GPU[0]		: Device Rev: 		0x00
++GPU[0]		: Node ID: 		4
++GPU[0]		: GUID: 		5656
++GPU[0]		: GFX Version: 		gfx942
++GPU[1]		: Card Series: 		AMD Instinct MI300X VF
++GPU[1]		: Card Model: 		0x74b5
++GPU[1]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
++GPU[1]		: Card SKU: 		M3000108
++GPU[1]		: Subsystem ID: 	0x74a1
++GPU[1]		: Device Rev: 		0x00
++GPU[1]		: Node ID: 		5
++GPU[1]		: GUID: 		30617
++GPU[1]		: GFX Version: 		gfx942
++GPU[2]		: Card Series: 		AMD Instinct MI300X VF
++GPU[2]		: Card Model: 		0x74b5
++GPU[2]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
++GPU[2]		: Card SKU: 		M3000108
++GPU[2]		: Subsystem ID: 	0x74a1
++GPU[2]		: Device Rev: 		0x00
++GPU[2]		: Node ID: 		6
++GPU[2]		: GUID: 		54554
++GPU[2]		: GFX Version: 		gfx942
++GPU[3]		: Card Series: 		AMD Instinct MI300X VF
++GPU[3]		: Card Model: 		0x74b5
++GPU[3]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
++GPU[3]		: Card SKU: 		M3000108
++GPU[3]		: Subsystem ID: 	0x74a1
++GPU[3]		: Device Rev: 		0x00
++GPU[3]		: Node ID: 		7
++GPU[3]		: GUID: 		46235
++GPU[3]		: GFX Version: 		gfx942
++==========================================================================================
++================================== End of ROCm SMI Log ===================================
+diff --git a/dream-server/tests/fixtures/amd/rocm_smi_showtopo_2gpu_pcie.txt b/dream-server/tests/fixtures/amd/rocm_smi_showtopo_2gpu_pcie.txt
+new file mode 100644
+index 00000000..9826da89
+--- /dev/null
++++ b/dream-server/tests/fixtures/amd/rocm_smi_showtopo_2gpu_pcie.txt
+@@ -0,0 +1,24 @@
++
++
++============================ ROCm System Management Interface ============================
++================================ Weight between two GPUs =================================
++       GPU0         GPU1
++GPU0   0            40
++GPU1   40           0
++
++================================= Hops between two GPUs ==================================
++       GPU0         GPU1
++GPU0   0            2
++GPU1   2            0
++
++=============================== Link Type between two GPUs ===============================
++       GPU0         GPU1
++GPU0   0            PCIE
++GPU1   PCIE         0
++
++======================================= Numa Nodes =======================================
++GPU[0]		: (Topology) Numa Node: 0
++GPU[0]		: (Topology) Numa Affinity: 0
++GPU[1]		: (Topology) Numa Node: 0
++GPU[1]		: (Topology) Numa Affinity: 0
++================================== End of ROCm SMI Log ===================================
+diff --git a/dream-server/tests/fixtures/amd/rocm_smi_showtopo_4gpu_xgmi.txt b/dream-server/tests/fixtures/amd/rocm_smi_showtopo_4gpu_xgmi.txt
+new file mode 100644
+index 00000000..094b346d
+--- /dev/null
++++ b/dream-server/tests/fixtures/amd/rocm_smi_showtopo_4gpu_xgmi.txt
+@@ -0,0 +1,34 @@
++
++
++============================ ROCm System Management Interface ============================
++================================ Weight between two GPUs =================================
++       GPU0         GPU1         GPU2         GPU3         
++GPU0   0            15           15           15           
++GPU1   15           0            15           15           
++GPU2   15           15           0            15           
++GPU3   15           15           15           0            
++
++================================= Hops between two GPUs ==================================
++       GPU0         GPU1         GPU2         GPU3         
++GPU0   0            1            1            1            
++GPU1   1            0            1            1            
++GPU2   1            1            0            1            
++GPU3   1            1            1            0            
++
++=============================== Link Type between two GPUs ===============================
++       GPU0         GPU1         GPU2         GPU3         
++GPU0   0            XGMI         XGMI         XGMI         
++GPU1   XGMI         0            XGMI         XGMI         
++GPU2   XGMI         XGMI         0            XGMI         
++GPU3   XGMI         XGMI         XGMI         0            
++
++======================================= Numa Nodes =======================================
++GPU[0]		: (Topology) Numa Node: 3
++GPU[0]		: (Topology) Numa Affinity: 3
++GPU[1]		: (Topology) Numa Node: 2
++GPU[1]		: (Topology) Numa Affinity: 2
++GPU[2]		: (Topology) Numa Node: 1
++GPU[2]		: (Topology) Numa Affinity: 1
++GPU[3]		: (Topology) Numa Node: 0
++GPU[3]		: (Topology) Numa Affinity: 0
++================================== End of ROCm SMI Log ===================================
+diff --git a/dream-server/tests/test-amd-topo.sh b/dream-server/tests/test-amd-topo.sh
+new file mode 100644
+index 00000000..4e1a6acd
+--- /dev/null
++++ b/dream-server/tests/test-amd-topo.sh
+@@ -0,0 +1,313 @@
++#!/usr/bin/env bash
++# ============================================================================
++# Dream Server — AMD Topology Detection Integration Test
++# ============================================================================
++# Part of: tests/
++# Purpose: Test AMD topology detection against fixture files
++#
++# Usage: ./test-amd-topo.sh
++# ============================================================================
++
++set -e
++
++SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
++FIXTURES_DIR="$SCRIPT_DIR/fixtures/amd"
++TOPO_SCRIPT="$SCRIPT_DIR/../installers/lib/amd-topo.sh"
++
++source "$SCRIPT_DIR/../installers/lib/constants.sh"
++
++# Counters
++TESTS_RUN=0
++TESTS_PASSED=0
++TESTS_FAILED=0
++
++# Check dependencies
++if ! command -v jq &>/dev/null; then
++    echo -e "${RED}ERROR: jq is required but not installed${NC}"
++    exit 1
++fi
++
++assert_eq() {
++    local label="$1" expected="$2" actual="$3"
++    TESTS_RUN=$((TESTS_RUN + 1))
++    if [[ "$expected" == "$actual" ]]; then
++        echo -e "  ${GRN}✓ $label${NC}"
++        TESTS_PASSED=$((TESTS_PASSED + 1))
++    else
++        echo -e "  ${RED}✗ $label: expected '$expected', got '$actual'${NC}"
++        TESTS_FAILED=$((TESTS_FAILED + 1))
++    fi
++}
++
++assert_gt() {
++    local label="$1" value="$2" threshold="$3"
++    TESTS_RUN=$((TESTS_RUN + 1))
++    if [[ "$value" -gt "$threshold" ]]; then
++        echo -e "  ${GRN}✓ $label ($value > $threshold)${NC}"
++        TESTS_PASSED=$((TESTS_PASSED + 1))
++    else
++        echo -e "  ${RED}✗ $label: expected > $threshold, got $value${NC}"
++        TESTS_FAILED=$((TESTS_FAILED + 1))
++    fi
++}
++
++# ── Test: _detect_topo_amdsmi with 4-GPU XGMI fixture ──────────────────────
++
++test_amdsmi_4gpu_xgmi() {
++    echo -e "${BLU}Testing: _detect_topo_amdsmi with 4-GPU XGMI${NC}"
++
++    amd-smi() {
++        if [[ "$1" == "topology" && "$2" == "--json" ]]; then
++            cat "$FIXTURES_DIR/amd_smi_topology_4gpu_xgmi.json"
++        fi
++    }
++
++    source "$TOPO_SCRIPT"
++    local result
++    result=$(_detect_topo_amdsmi 4)
++
++    local link_count xgmi_count all_rank_90
++    link_count=$(echo "$result" | jq '. | length')
++    xgmi_count=$(echo "$result" | jq '[.[] | select(.link_type == "XGMI")] | length')
++    all_rank_90=$(echo "$result" | jq '[.[] | select(.rank == 90)] | length')
++
++    assert_eq "6 links (4 choose 2)" "6" "$link_count"
++    assert_eq "all links are XGMI" "6" "$xgmi_count"
++    assert_eq "all XGMI links have rank 90" "6" "$all_rank_90"
++
++    # Verify specific pairs
++    local pair_01 pair_23
++    pair_01=$(echo "$result" | jq '[.[] | select(.gpu_a == 0 and .gpu_b == 1)] | length')
++    pair_23=$(echo "$result" | jq '[.[] | select(.gpu_a == 2 and .gpu_b == 3)] | length')
++    assert_eq "pair 0-1 exists" "1" "$pair_01"
++    assert_eq "pair 2-3 exists" "1" "$pair_23"
++}
++
++# ── Test: _detect_topo_amdsmi with 2-GPU PCIe fixture ──────────────────────
++
++test_amdsmi_2gpu_pcie() {
++    echo -e "${BLU}Testing: _detect_topo_amdsmi with 2-GPU PCIe${NC}"
++
++    amd-smi() {
++        if [[ "$1" == "topology" && "$2" == "--json" ]]; then
++            cat "$FIXTURES_DIR/amd_smi_topology_2gpu_pcie.json"
++        fi
++    }
++
++    source "$TOPO_SCRIPT"
++    local result
++    result=$(_detect_topo_amdsmi 2)
++
++    local link_count link_type link_rank link_label
++    link_count=$(echo "$result" | jq '. | length')
++    link_type=$(echo "$result" | jq -r '.[0].link_type')
++    link_rank=$(echo "$result" | jq '.[0].rank')
++    link_label=$(echo "$result" | jq -r '.[0].link_label')
++
++    assert_eq "1 link" "1" "$link_count"
++    assert_eq "link type is PCIE" "PCIE" "$link_type"
++    assert_eq "rank is 30 (HostBridge, weight=40)" "30" "$link_rank"
++    assert_eq "label is PCIe-HostBridge" "PCIe-HostBridge" "$link_label"
++}
++
++# ── Test: _detect_topo_rocmsmi with 4-GPU XGMI fixture ─────────────────────
++
++test_rocmsmi_4gpu_xgmi() {
++    echo -e "${BLU}Testing: _detect_topo_rocmsmi with 4-GPU XGMI${NC}"
++
++    rocm-smi() {
++        if [[ "$1" == "--showtopo" ]]; then
++            cat "$FIXTURES_DIR/rocm_smi_showtopo_4gpu_xgmi.txt"
++        fi
++    }
++
++    source "$TOPO_SCRIPT"
++    local result
++    result=$(_detect_topo_rocmsmi 4)
++
++    local link_count xgmi_count
++    link_count=$(echo "$result" | jq '. | length')
++    xgmi_count=$(echo "$result" | jq '[.[] | select(.link_type == "XGMI")] | length')
++
++    assert_eq "6 links" "6" "$link_count"
++    assert_eq "all links are XGMI" "6" "$xgmi_count"
++}
++
++# ── Test: _detect_topo_rocmsmi with 2-GPU PCIe fixture ─────────────────────
++
++test_rocmsmi_2gpu_pcie() {
++    echo -e "${BLU}Testing: _detect_topo_rocmsmi with 2-GPU PCIe${NC}"
++
++    rocm-smi() {
++        if [[ "$1" == "--showtopo" ]]; then
++            cat "$FIXTURES_DIR/rocm_smi_showtopo_2gpu_pcie.txt"
++        fi
++    }
++
++    source "$TOPO_SCRIPT"
++    local result
++    result=$(_detect_topo_rocmsmi 2)
++
++    local link_count link_type
++    link_count=$(echo "$result" | jq '. | length')
++    link_type=$(echo "$result" | jq -r '.[0].link_type')
++
++    assert_eq "1 link" "1" "$link_count"
++    assert_eq "link type is PCIE" "PCIE" "$link_type"
++}
++
++# ── Test: amd-smi and rocm-smi produce same topology ──────────────────────
++
++test_amdsmi_rocmsmi_agreement() {
++    echo -e "${BLU}Testing: amd-smi and rocm-smi agree on 4-GPU XGMI topology${NC}"
++
++    amd-smi() {
++        if [[ "$1" == "topology" && "$2" == "--json" ]]; then
++            cat "$FIXTURES_DIR/amd_smi_topology_4gpu_xgmi.json"
++        fi
++    }
++    rocm-smi() {
++        if [[ "$1" == "--showtopo" ]]; then
++            cat "$FIXTURES_DIR/rocm_smi_showtopo_4gpu_xgmi.txt"
++        fi
++    }
++
++    source "$TOPO_SCRIPT"
++    local amdsmi_result rocmsmi_result
++    amdsmi_result=$(_detect_topo_amdsmi 4)
++    rocmsmi_result=$(_detect_topo_rocmsmi 4)
++
++    local amdsmi_count rocmsmi_count
++    amdsmi_count=$(echo "$amdsmi_result" | jq '. | length')
++    rocmsmi_count=$(echo "$rocmsmi_result" | jq '. | length')
++    assert_eq "same link count" "$amdsmi_count" "$rocmsmi_count"
++
++    local amdsmi_xgmi rocmsmi_xgmi
++    amdsmi_xgmi=$(echo "$amdsmi_result" | jq '[.[] | select(.link_type == "XGMI")] | length')
++    rocmsmi_xgmi=$(echo "$rocmsmi_result" | jq '[.[] | select(.link_type == "XGMI")] | length')
++    assert_eq "same XGMI count" "$amdsmi_xgmi" "$rocmsmi_xgmi"
++}
++
++# ── Test: field-based jq select vs positional indexing ─────────────────────
++
++test_field_based_select() {
++    echo -e "${BLU}Testing: field-based select handles reordered links correctly${NC}"
++
++    # GPU 0's links are in order: SELF, GPU2(XGMI), GPU1(PCIE) — not sorted by GPU index
++    amd-smi() {
++        if [[ "$1" == "topology" && "$2" == "--json" ]]; then
++            cat <<'EOF'
++[
++  {"gpu": 0, "bdf": "0:0", "links": [
++    {"gpu": 0, "weight": 0, "link_type": "SELF"},
++    {"gpu": 2, "weight": 15, "link_type": "XGMI"},
++    {"gpu": 1, "weight": 40, "link_type": "PCIE"}
++  ]},
++  {"gpu": 1, "bdf": "0:1", "links": [
++    {"gpu": 1, "weight": 0, "link_type": "SELF"},
++    {"gpu": 0, "weight": 40, "link_type": "PCIE"},
++    {"gpu": 2, "weight": 15, "link_type": "XGMI"}
++  ]},
++  {"gpu": 2, "bdf": "0:2", "links": [
++    {"gpu": 2, "weight": 0, "link_type": "SELF"},
++    {"gpu": 0, "weight": 15, "link_type": "XGMI"},
++    {"gpu": 1, "weight": 15, "link_type": "XGMI"}
++  ]}
++]
++EOF
++        fi
++    }
++
++    source "$TOPO_SCRIPT"
++    local result
++    result=$(_detect_topo_amdsmi 3)
++
++    # With positional indexing, 0→1 would look at links[1] which is GPU2(XGMI) — WRONG
++    # With field-based select, 0→1 correctly finds GPU1(PCIE)
++    local link_01_type link_02_type
++    link_01_type=$(echo "$result" | jq -r '.[] | select(.gpu_a == 0 and .gpu_b == 1) | .link_type')
++    link_02_type=$(echo "$result" | jq -r '.[] | select(.gpu_a == 0 and .gpu_b == 2) | .link_type')
++
++    assert_eq "0→1 is PCIE (not XGMI)" "PCIE" "$link_01_type"
++    assert_eq "0→2 is XGMI" "XGMI" "$link_02_type"
++}
++
++# ── Test: GFX version parsing from rocm-smi ────────────────────────────────
++
++test_gfx_version_parsing() {
++    echo -e "${BLU}Testing: amd_gfx_version parses per-GPU GFX version${NC}"
++
++    rocm-smi() {
++        cat "$FIXTURES_DIR/rocm_smi_productname_4gpu_mi300x.txt"
++    }
++    # Disable amd-smi fallback
++    amd-smi() { return 1; }
++
++    source "$TOPO_SCRIPT"
++
++    local gfx0 gfx1 gfx2 gfx3
++    gfx0=$(amd_gfx_version "/fake" 0)
++    gfx1=$(amd_gfx_version "/fake" 1)
++    gfx2=$(amd_gfx_version "/fake" 2)
++    gfx3=$(amd_gfx_version "/fake" 3)
++
++    assert_eq "GPU[0] gfx942" "gfx942" "$gfx0"
++    assert_eq "GPU[1] gfx942" "gfx942" "$gfx1"
++    assert_eq "GPU[2] gfx942" "gfx942" "$gfx2"
++    assert_eq "GPU[3] gfx942" "gfx942" "$gfx3"
++}
++
++# ── Test: GFX version parsing with mixed versions ──────────────────────────
++
++test_gfx_version_mixed() {
++    echo -e "${BLU}Testing: amd_gfx_version handles mixed GPU versions${NC}"
++
++    rocm-smi() {
++        echo "============================ ROCm System Management Interface ============================"
++        echo "====================================== Product Info ======================================"
++        echo "GPU[0]		: GFX Version: 		gfx1100"
++        echo "GPU[1]		: GFX Version: 		gfx1101"
++        echo "==========================================================================================="
++    }
++    amd-smi() { return 1; }
++
++    source "$TOPO_SCRIPT"
++
++    local gfx0 gfx1
++    gfx0=$(amd_gfx_version "/fake" 0)
++    gfx1=$(amd_gfx_version "/fake" 1)
++
++    assert_eq "GPU[0] gfx1100" "gfx1100" "$gfx0"
++    assert_eq "GPU[1] gfx1101" "gfx1101" "$gfx1"
++}
++
++# ── Main test runner ───────────────────────────────────────────────────────
++
++echo -e "${MAG}=== AMD Topology Detection Tests ===${NC}\n"
++
++test_amdsmi_4gpu_xgmi
++echo
++test_amdsmi_2gpu_pcie
++echo
++test_rocmsmi_4gpu_xgmi
++echo
++test_rocmsmi_2gpu_pcie
++echo
++test_amdsmi_rocmsmi_agreement
++echo
++test_field_based_select
++echo
++test_gfx_version_parsing
++echo
++test_gfx_version_mixed
++
++echo -e "\n${MAG}=== Test Summary ===${NC}"
++echo -e "Tests run:    $TESTS_RUN"
++echo -e "${GRN}Tests passed: $TESTS_PASSED${NC}"
++if [[ $TESTS_FAILED -gt 0 ]]; then
++    echo -e "${RED}Tests failed: $TESTS_FAILED${NC}"
++    exit 1
++else
++    echo -e "${GRN}All tests passed!${NC}"
++    exit 0
++fi

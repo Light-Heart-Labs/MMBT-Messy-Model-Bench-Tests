@@ -1,0 +1,24 @@
+{
+  "additions": 356,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nThe compose security scanner `_scan_compose_content` rejects extensions whose ports do not bind to literal `127.0.0.1`. PR #964 made the loopback bind address configurable by changing core port bindings from `127.0.0.1:HOST:CONTAINER` to `${BIND_ADDRESS:-127.0.0.1}:HOST:CONTAINER`, but the scanner was not updated. As a result, any extension that adopts the sanctioned LAN-toggle pattern fails the install path with:\n\n```\nExtension rejected: port binding '${BIND_ADDRESS:-127.0.0.1}:${CONTINUE_PORT:-8890}:8080'\nin continue must use 127.0.0.1\n```\n\nThe dashboard install path goes through `_scan_compose_content`; the bare `docker compose up` from the installer does not, which is why core services started cleanly but `dashboard install` of community extensions failed silently.\n\n## What this changes\n\n- New `_host_part_is_loopback(host)` helper accepts exactly two host-part forms:\n  1. literal `\"127.0.0.1\"`\n  2. `\"\\${VAR:-127.0.0.1}\"` \u2014 variable expansion with literal-127.0.0.1 default\n- New `_split_port_host(port_str)` correctly extracts the host part from `\\${VAR:-127.0.0.1}:HOST:CONTAINER` (naive `str.split(':')` is wrong because the `:-` default operator contains a colon; on `\\${BIND_ADDRESS:-127.0.0.1}:8080:80` it yields four parts and the host check then compares against `\\\"\\${BIND_ADDRESS\\\"`, which is why the strict equality always failed).\n- Both list-form and dict-form (`host_ip:`) bindings use the helper.\n- `re.fullmatch` (not `re.match`) so the `\\$`-anchor cannot accept a trailing newline.\n\nDefault-secure posture is unchanged: when `BIND_ADDRESS` is unset, `\\${BIND_ADDRESS:-127.0.0.1}` resolves to `127.0.0.1`. Bare `\\${VAR}` (no default), `\\${VAR:-0.0.0.0}`, literal `0.0.0.0`, hostnames, IPv6, and assignment-default `\\${VAR:=\u2026}` are all still rejected.\n\n## Test plan\n\n- [x] `python3 -m pytest tests/test_extensions.py` \u2014 165/165 pass\n- [x] 23 new tests across three classes:\n  - `TestHostPartIsLoopback` (10) \u2014 literal/var-with-default accepted; `\\${VAR}`, `\\${VAR:-0.0.0.0}`, `\\${VAR:=\u2026}` (assignment), `\\${VAR-\u2026}` (no colon), zero-padded `127.000.000.001`, IPv6 `::1`/`[::1]`, trailing-newline, empty/whitespace all rejected\n  - `TestSplitPortHost` (10) \u2014 happy-path, proto-suffix combined with var form, `\\${VAR}` no-default, plus six malformed-expansion fail-closed cases\n  - `TestScanComposePortBindingRegressionLocks` (3) \u2014 `[::1]:8080:80` rejected, `\\${VAR:-127.0.0.1}:8554:8554/udp` accepted (frigate-style WebRTC port), `localhost:8080:80` rejected\n- [x] Live install verification on macOS Apple Silicon: `dashboard install of continue` returns 200 (was 400 pre-fix), `dream-continue` container Up (healthy) on `127.0.0.1:8890`, serving its nginx config",
+  "changedFiles": 2,
+  "createdAt": "2026-04-25T16:34:07Z",
+  "deletions": 18,
+  "headRefName": "fix/scan-compose-bind-address-pattern",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1044,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dashboard-api): accept ${VAR:-127.0.0.1} in compose port-binding scan",
+  "updatedAt": "2026-04-25T16:34:07Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1044"
+}

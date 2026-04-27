@@ -1,0 +1,24 @@
+{
+  "additions": 39,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nFlip `\"secret\": true` on five provider API-key entries in `dream-server/.env.schema.json`:\n- `TARGET_API_KEY`\n- `ANTHROPIC_API_KEY`\n- `OPENAI_API_KEY`\n- `TOGETHER_API_KEY`\n- `LIVEKIT_API_KEY`\n\nAdds a parametric pytest locking the flag in as a regression guard.\n\n## Why\nThese keys were already being masked in `dream config show` (inline grep on `key=`) and in the dashboard-api `GET /api/settings/env` response (via `_is_secret_field` regex fallback on `API_KEY`). The schema is the intended authoritative source, and relying on name-pattern coincidence is fragile \u2014 any future rename that breaks the pattern would silently stop masking.\n\nNo runtime behavior change: both the schema-authoritative path and the regex fallback produce the same masked output today. This just routes through the primary path.\n\n## How\n- Added `\"secret\": true` as the third property on each of the five entries, matching the style of neighbors like `LIVEKIT_API_SECRET` and `OPENCLAW_TOKEN`.\n- Added a parametric pytest (`test_production_schema_marks_provider_api_keys_secret`) that loads the **production** schema (not a fixture) and asserts the flag on each of the five keys. Uses `pathlib.Path(__file__).resolve().parents[4]` for cross-platform path resolution.\n\n## Testing\n- [x] `jq . dream-server/.env.schema.json` \u2014 parses cleanly\n- [x] `python3 -m pytest extensions/services/dashboard-api/tests/test_settings_env.py -v` \u2014 **16/16 pass** (11 pre-existing + 5 new parametric)\n- [x] `make lint` \u2014 clean\n- [x] Pre-commit hooks (gitleaks / private-key / large-file) \u2014 clean\n- [x] Manual macOS: `dream config show` continues to mask these 5 keys (unchanged behavior)\n\n## Platform Impact\n- **macOS**: no runtime change (schema consumed identically)\n- **Linux**: no runtime change\n- **Windows (WSL2)**: no runtime change\n\nSchema is read by the dashboard-api container and `validate-env.sh` (jq) identically on all three platforms.",
+  "changedFiles": 2,
+  "createdAt": "2026-04-23T22:23:02Z",
+  "deletions": 5,
+  "headRefName": "chore/schema-secret-flip",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1010,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "chore(schema): mark provider API keys as secret in .env.schema.json",
+  "updatedAt": "2026-04-23T22:23:02Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1010"
+}

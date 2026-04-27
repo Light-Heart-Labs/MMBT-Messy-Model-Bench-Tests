@@ -1,0 +1,21 @@
+ README.md                                          |   2 +-
+ dream-server/.env.example                          |   7 +-
+ dream-server/.env.schema.json                      |   2 +-
+ dream-server/QUICKSTART.md                         |  20 ++--
+ dream-server/README.md                             |  14 +--
+ dream-server/SECURITY.md                           |  24 +++++
+ dream-server/bin/dream-host-agent.py               |  12 +--
+ dream-server/docs/FAQ.md                           |  96 ++++++++++++++++-
+ dream-server/docs/HOST-AGENT-API.md                |   1 +
+ dream-server/docs/MODE-SWITCH.md                   |  35 +++++--
+ dream-server/docs/POST-INSTALL-CHECKLIST.md        |  77 ++++++++++----
+ dream-server/docs/SUPPORT-MATRIX.md                |   1 +
+ dream-server/docs/WINDOWS-QUICKSTART.md            | 100 +++++++-----------
+ dream-server/extensions/CATALOG.md                 |   2 +
+ .../extensions/services/langfuse/README.md         | 116 +++++++++++++++++++++
+ dream-server/installers/macos/dream-macos.sh       |   2 +-
+ dream-server/installers/macos/install-macos.sh     |   2 +-
+ dream-server/installers/windows/dream.ps1          |   4 +-
+ .../installers/windows/install-windows.ps1         |   4 +-
+ dream-server/scripts/bootstrap-upgrade.sh          |   4 +-
+ 20 files changed, 393 insertions(+), 132 deletions(-)

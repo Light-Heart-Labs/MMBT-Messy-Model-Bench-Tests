@@ -1,0 +1,24 @@
+{
+  "additions": 187,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nFix five clustered defects in the host agent's extension install flow that combined to produce silent install failures.\n\n## Why\n- Built-in extensions declaring a `post_install` hook had their hooks silently skipped \u2014 the ext_dir was hardcoded to the user-extensions directory so `_resolve_hook` never found the manifest.\n- `_precreate_data_dirs` had the same hardcode, plus a prefix filter that only caught `./data/` bind-mount sources. Community extensions like label-studio (`./upload`, `./media`, `./www`), continue and sillytavern (`./config/...`) were skipped, Docker auto-created those dirs as `root:root`, and non-root containers broke on Linux.\n- Relative paths in extension compose files were resolved against `INSTALL_DIR`, but Docker Compose resolves them against the compose file's directory \u2014 dirs were created in the wrong place.\n- Post-`compose up -d` progress was written as \"started\" unconditionally on return-code zero, which Docker emits for Exited/Created/Restarting containers as well as Running. The dashboard showed green for crash-looping services.\n\n## How\n1. `_run_install` and `_precreate_data_dirs` now call `_find_ext_dir(service_id)`.\n2. Prefix filter widened: any relative bind-mount source (no leading `/`, contains `/`) is now pre-created; named volumes are still skipped.\n3. `dir_path` and the traversal safety check both anchor on `ext_dir`.\n4. `_handle_install` polls `docker inspect --format '{{.State.Status}}|{{.State.Error}}'` for up to 15s (1s interval). Non-running -> `status=error` with `State.Error`; running -> `status=started` as before.\n\n## Testing\n- `python3 -m py_compile` clean.\n- `ruff check` \u2014 all checks passed.\n- `pytest tests/test_host_agent.py` \u2014 44/44 pass (includes 6 new tests).\n- `pytest tests/` \u2014 rest of suite green (two pre-existing Python-3.14 asyncio baseline failures in `test_main.py` and `test_gpu_detailed.py` are unrelated and reproduce on `main`).\n- `make lint` \u2014 clean.\n- `pre-commit` \u2014 gitleaks / private-key / large-file all pass.\n\n## Review\nCritique Guardian: APPROVED WITH WARNINGS. No required changes. CG flagged nice-to-have follow-ups tracked as separate fork issues.\n\n## Known Considerations\n- **15s post-up window** is a tuning choice. If a cold-boot image (e.g. qdrant / whisper on first disk-cache miss) takes longer to reach `running` state (not healthy \u2014 just running), operators can widen via follow-up.\n- **Per-service lock held during poll** \u2014 previously fire-and-forget, now serializes concurrent enables for the same service for up to 15s. This is an improvement (no more races) but callers that polled rapidly will see the latency.\n\n## Platform Impact\n- **macOS:** defects #1 and #5 fully active; #2/#3/#4 partially masked by Docker Desktop's auto-creation of bind-mount dirs. Fix corrects behavior on all three regardless.\n- **Linux:** all five defects fully active; rootless Docker / strict permissions make #2/#3 a hard fail. Fix required.\n- **Windows (WSL2):** same as Linux (WSL2 Docker behaves as Linux).\n",
+  "changedFiles": 2,
+  "createdAt": "2026-04-24T17:47:13Z",
+  "deletions": 3,
+  "headRefName": "fix/host-agent-install-flow",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1030,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(host-agent): install flow \u2014 built-in hooks, bind-mount anchor, post-up state verify",
+  "updatedAt": "2026-04-25T12:33:26Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1030"
+}

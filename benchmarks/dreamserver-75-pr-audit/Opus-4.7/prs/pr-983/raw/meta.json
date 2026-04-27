@@ -1,0 +1,24 @@
+{
+  "additions": 5054,
+  "author": {
+    "id": "U_kgDOBb4zqw",
+    "is_bot": false,
+    "login": "Arifuzzamanjoy",
+    "name": "Arifuzzaman Joy"
+  },
+  "baseRefName": "main",
+  "body": "### What\r\n\r\nOne-command DreamServer deployment on peer-to-peer GPU marketplaces (Vast.ai). Handles 28 known provider quirks \u2014 root user rejection, Docker socket permissions, NVIDIA/AMD toolkit setup, model bootstrapping, multi-GPU topology, reverse proxy, and SSH tunnel generation.\r\n\r\n### Where\r\n\r\nEverything lives in `resources/p2p-gpu/` \u2014 fully self-contained, no modifications to core DreamServer code or extension manifests.",
+  "changedFiles": 33,
+  "createdAt": "2026-04-18T12:58:34Z",
+  "deletions": 165,
+  "headRefName": "feat/p2p-gpu-hints-vastai-guard",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 983,
+  "reviewDecision": "CHANGES_REQUESTED",
+  "title": "feat(resources): add p2p-gpu deploy toolkit for Vast.ai GPU instances",
+  "updatedAt": "2026-04-26T21:12:22Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/983"
+}

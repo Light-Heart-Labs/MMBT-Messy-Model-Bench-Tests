@@ -1,0 +1,24 @@
+{
+  "additions": 473,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "> **DRAFT: must merge AFTER #1030.** This branch is based on `fix/host-agent-install-flow` (#1030) and depends on `_find_ext_dir` for built-in hook discovery. Promote to ready-for-review after #1030 merges.\n\n## Summary\nlangfuse's `postgres:17.9-alpine` (uid **70**) and `clickhouse/clickhouse-server:26.2.4.23` (uid **101**) containers crash on Linux native Docker when their bind-mounted data dirs are owned by the install user. Phase 06 pre-creates the dirs but its generic chown loop restores install-user ownership \u2014 not the per-image uids these containers expect. macOS Docker Desktop and Windows WSL2 Docker Desktop mask the issue (osxfs/virtiofs translates uids transparently); **Linux native Docker does not**.\n\n## How\nAdds `extensions/services/langfuse/hooks/post_install.sh`:\n- **Darwin**: short-circuits with a log message, exits 0 (macOS Docker Desktop masks uid).\n- **Linux / WSL2**: `chown -R 70:70` on the postgres dir and `101:101` on the clickhouse dir. Uses `sudo` when available; falls back to direct chown when root.\n- **Fail-hard on any of 3 failure paths** (mkdir fails without sudo, sudo chown fails, plain chown fails without sudo): exits non-zero with an actionable ERROR message that includes the exact manual-recovery command. Host agent surfaces this to the dashboard via `progress.error`, so users see the error immediately instead of a silent install-success followed by a postgres crash-loop.\n\nAlso adds `tests/reproducers/langfuse-uid-check.sh` as a documented two-phase reproducer (install-user-owned \u2192 chowned-to-70) to demonstrate the bug and verify the fix.\n\n## Platform Impact\n| Platform | Behavior |\n|---|---|\n| macOS Docker Desktop | Hook exits 0 (Darwin short-circuit). osxfs masks uid. |\n| Linux native Docker | Hook runs chown; fails loud with actionable message on failure. |\n| Windows WSL2 Docker Desktop | Hook runs chown (virtiofs masks uid so it's harmless-but-unnecessary). |\n\n## Testing\n- `shellcheck hooks/post_install.sh` \u2192 0 findings.\n- `shellcheck tests/reproducers/langfuse-uid-check.sh` \u2192 0 findings.\n- `bash -n` on both \u2192 OK.\n- Darwin live test (macOS dev box): `bash post_install.sh /tmp/fake-install cpu` \u2192 prints \"macOS Docker Desktop handles uid translation; no chown needed\" and exits 0.\n- `pytest tests/test_host_agent.py` \u2192 44/44 pass.\n- `make lint` + `make test` clean.\n\nManual (Linux / WSL2):\n1. Fresh `dream install`.\n2. Enable langfuse from the dashboard \u2192 hook runs, postgres/clickhouse containers start cleanly.\n3. Optional diagnostic: `bash tests/reproducers/langfuse-uid-check.sh` \u2014 two-phase reproducer, expect phase 1 fail + phase 2 pass on Linux.\n\n## Known gaps (filed as fork follow-ups)\n- No structural pytest asserting manifest `setup_hook` field and hook file coexist.\n- Hardcoded uids (70/101) are tied to current pinned image tags; future image bumps should re-verify.\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)",
+  "changedFiles": 5,
+  "createdAt": "2026-04-24T19:55:02Z",
+  "deletions": 3,
+  "headRefName": "fix/langfuse-setup-hook",
+  "isDraft": true,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1040,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(langfuse): chown postgres/clickhouse data dirs to image uids on Linux",
+  "updatedAt": "2026-04-25T12:33:38Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1040"
+}

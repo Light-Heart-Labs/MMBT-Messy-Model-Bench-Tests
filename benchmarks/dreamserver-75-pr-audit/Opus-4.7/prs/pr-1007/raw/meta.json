@@ -1,0 +1,24 @@
+{
+  "additions": 1,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\n`_gpu_reassign` registered its cleanup trap with single-quoted outer\nsyntax:\n\n```bash\ntrap 'rm -rf \"$tmpdir\"' RETURN\n```\n\nSingle-quoted outer defers `$tmpdir` expansion until trap fire time.\nRETURN traps are process-level (not function-scoped), so after\n`_gpu_reassign` returns to `cmd_gpu` the trap fires again in\n`cmd_gpu`'s scope where `$tmpdir` is unbound. Under `set -u` that\ntriggers `tmpdir: unbound variable` and exit 1 even on a successful\nreassign.\n\n## How\nSwitched to double-quoted outer so `$tmpdir` is baked in at\ntrap-set time:\n\n```bash\ntrap \"rm -rf '$tmpdir'\" RETURN\n```\n\nSingle-quoted inner continues to protect paths containing spaces.\nMatches the already-landed pattern at `dream-cli:542`.\n\n## Platform Impact\n- macOS Apple Silicon / AMD / CPU: unaffected \u2014 the `nvidia-smi`\n  early-return at line 2825 precedes the trap registration.\n- Linux NVIDIA: fixed.\n- Windows WSL2 + NVIDIA passthrough: fixed (same Bash semantic).\n- Windows WSL2 + AMD / Linux AMD Lemonade: unaffected (no\n  `nvidia-smi`, same early-return).\n\n## Testing\n- `bash -n` passes.\n- `shellcheck` shows the same `SC2064` on line 2869 as on the\n  precedent line 542 \u2014 intentional (we want expansion at set time).\n- Bash repro: `bash -c 'set -u; f(){ local t; t=$(mktemp -d); trap \"rm -rf \\\"$t\\\"\" RETURN; }; g(){ f; return 0; }; g'` \u2192 exit 0.\n\n## Merge order (important)\nThis fix is **preventive** on upstream/main today: `dream-cli` is\non `set -e` only, so the unbound-variable crash does not manifest\nyet. It becomes load-bearing the moment #1002\n(`refactor/dream-cli-nounset-audit`, enables `set -u`) merges \u2014\nwithout this fix in place, `dream gpu reassign` on NVIDIA Linux\n(and Windows WSL2 + NVIDIA passthrough) exits 1 even on a\nsuccessful reassign.\n\n**Recommended ordering:** merge this PR in the same batch as\n#1002, or land this first. If #1002 merges alone, users on\nupstream hit the regression immediately.\n\n## Known follow-up\nThe sibling trap at `dream-cli:651` has the same wrong quoting\nstyle but does not leak (it is dispatched from the main case\nblock, not from a function). Tracked as a minor consistency\nfollow-up outside this PR.\n\n## Manual test (requires NVIDIA Linux host)\n`dream gpu reassign --dry-run && echo ok` \u2192 `ok`, exit 0.\n",
+  "changedFiles": 1,
+  "createdAt": "2026-04-23T21:21:42Z",
+  "deletions": 1,
+  "headRefName": "fix/gpu-reassign-return-trap",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1007,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dream-cli): double-quote tmpdir in gpu_reassign RETURN trap",
+  "updatedAt": "2026-04-23T21:33:02Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1007"
+}

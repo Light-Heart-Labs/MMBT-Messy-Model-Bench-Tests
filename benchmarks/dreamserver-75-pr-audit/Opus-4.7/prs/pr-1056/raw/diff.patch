@@ -1,0 +1,272 @@
+diff --git a/dream-server/extensions/services/dashboard-api/helpers.py b/dream-server/extensions/services/dashboard-api/helpers.py
+index 81e40756..bc368131 100644
+--- a/dream-server/extensions/services/dashboard-api/helpers.py
++++ b/dream-server/extensions/services/dashboard-api/helpers.py
+@@ -53,6 +53,9 @@ logger = logging.getLogger(__name__)
+ 
+ _aio_session: Optional[aiohttp.ClientSession] = None
+ _HEALTH_TIMEOUT = aiohttp.ClientTimeout(total=30)
++# Short timeout for the catalog fan-out: one slow probe must not stall the
++# whole Extensions page (frontend aborts after 8 s).
++_CATALOG_HEALTH_TIMEOUT = aiohttp.ClientTimeout(total=5)
+ 
+ 
+ async def _get_aio_session() -> aiohttp.ClientSession:
+@@ -231,8 +234,18 @@ def get_cached_services() -> Optional[list]:
+ 
+ # --- Service Health ---
+ 
+-async def check_service_health(service_id: str, config: dict) -> ServiceStatus:
+-    """Check if a service is healthy by hitting its health endpoint."""
++async def check_service_health(
++    service_id: str,
++    config: dict,
++    *,
++    timeout: Optional[aiohttp.ClientTimeout] = None,
++) -> ServiceStatus:
++    """Check if a service is healthy by hitting its health endpoint.
++
++    *timeout* overrides the session-level timeout for a single probe.  The
++    catalog fan-out passes a shorter timeout so one slow service does not
++    stall the entire Extensions page.
++    """
+     if config.get("type") == "host-systemd":
+         # Host-systemd services bind to 127.0.0.1 and are unreachable from
+         # inside Docker.  The installer manages them via systemd (auto-restart
+@@ -255,7 +268,10 @@ async def check_service_health(service_id: str, config: dict) -> ServiceStatus:
+         # Send Host header so reverse-proxy services (e.g. Caddy in Baserow)
+         # route the request correctly instead of returning 404.
+         headers = {"Host": "localhost"}
+-        async with session.get(url, headers=headers) as resp:
++        get_kwargs: dict = {"headers": headers}
++        if timeout is not None:
++            get_kwargs["timeout"] = timeout
++        async with session.get(url, **get_kwargs) as resp:
+             response_time = (asyncio.get_event_loop().time() - start) * 1000
+             status = "healthy" if resp.status < 400 else "unhealthy"
+     except asyncio.TimeoutError:
+diff --git a/dream-server/extensions/services/dashboard-api/routers/extensions.py b/dream-server/extensions/services/dashboard-api/routers/extensions.py
+index 4e4e3554..8d0e63b6 100644
+--- a/dream-server/extensions/services/dashboard-api/routers/extensions.py
++++ b/dream-server/extensions/services/dashboard-api/routers/extensions.py
+@@ -254,6 +254,7 @@ def _scan_compose_content(
+     *,
+     trusted: bool = False,
+     skip_name_collision: bool = False,
++    skip_gpu_passthrough_check: bool = False,
+ ) -> None:
+     """Reject compose files containing dangerous directives."""
+     try:
+@@ -381,6 +382,25 @@ def _scan_compose_content(
+                 status_code=400,
+                 detail=f"Extension rejected: devices in {svc_name}",
+             )
++        # Block Docker Compose v2 GPU passthrough for user extensions.
++        # Built-ins (e.g. docker-compose.nvidia.yml) legitimately request
++        # NVIDIA devices via deploy.resources.reservations.devices, so the
++        # caller passes skip_gpu_passthrough_check=True for those.
++        if not skip_gpu_passthrough_check:
++            deploy = svc_def.get("deploy") or {}
++            reservations = (
++                deploy.get("resources", {}).get("reservations", {})
++                if isinstance(deploy, dict) else {}
++            )
++            if isinstance(reservations, dict) and reservations.get("devices"):
++                raise HTTPException(
++                    status_code=400,
++                    detail=(
++                        f"Extension rejected: GPU passthrough via "
++                        f"deploy.resources.reservations.devices is not "
++                        f"permitted in user extensions ({svc_name})"
++                    ),
++                )
+         ports = svc_def.get("ports", [])
+         for port in ports:
+             if isinstance(port, dict):
+@@ -656,15 +676,18 @@ async def extensions_catalog(
+ 
+     # Health-check user extensions so _compute_extension_status can distinguish
+     # "enabled" (healthy) from "stopped" (unhealthy / not running).
+-    from helpers import check_service_health
++    from helpers import _CATALOG_HEALTH_TIMEOUT, check_service_health
+     from user_extensions import get_user_services_cached
+ 
+     user_svc_configs = get_user_services_cached(USER_EXTENSIONS_DIR)
+ 
+-    # Only health-check extensions that declare a health endpoint
++    # Only health-check extensions that declare a health endpoint.  Use a
++    # short per-probe timeout so one slow extension cannot stall the catalog
++    # response (frontend aborts at 8 s).
+     checkable = {sid: cfg for sid, cfg in user_svc_configs.items() if cfg.get("health")}
+     user_health_tasks = [
+-        check_service_health(sid, cfg) for sid, cfg in checkable.items()
++        check_service_health(sid, cfg, timeout=_CATALOG_HEALTH_TIMEOUT)
++        for sid, cfg in checkable.items()
+     ]
+     user_health = await asyncio.gather(*user_health_tasks, return_exceptions=True)
+     for (sid, _), result in zip(checkable.items(), user_health):
+@@ -791,7 +814,7 @@ async def extension_detail(
+     if not ext:
+         raise HTTPException(status_code=404, detail=f"Extension not found: {service_id}")
+ 
+-    from helpers import check_service_health, get_all_services
++    from helpers import _CATALOG_HEALTH_TIMEOUT, check_service_health, get_all_services
+     from user_extensions import get_user_services_cached
+ 
+     service_list = await get_all_services()
+@@ -799,9 +822,12 @@ async def extension_detail(
+ 
+     user_svc_configs = get_user_services_cached(USER_EXTENSIONS_DIR)
+ 
++    # Same short per-probe timeout as the catalog fan-out — one slow user
++    # extension must not block the detail view.
+     checkable = {sid: cfg for sid, cfg in user_svc_configs.items() if cfg.get("health")}
+     user_health_tasks = [
+-        check_service_health(sid, cfg) for sid, cfg in checkable.items()
++        check_service_health(sid, cfg, timeout=_CATALOG_HEALTH_TIMEOUT)
++        for sid, cfg in checkable.items()
+     ]
+     user_health = await asyncio.gather(*user_health_tasks, return_exceptions=True)
+     for (sid, _), result in zip(checkable.items(), user_health):
+@@ -1109,7 +1135,11 @@ def _activate_service(service_id: str) -> dict:
+     # and controls whether `build:` directives are allowed (library installs
+     # need it, built-in activations do not).
+     is_builtin = ext_dir.is_relative_to(EXTENSIONS_DIR.resolve())
+-    _scan_compose_content(disabled_compose, skip_name_collision=is_builtin)
++    _scan_compose_content(
++        disabled_compose,
++        skip_name_collision=is_builtin,
++        skip_gpu_passthrough_check=is_builtin,
++    )
+ 
+     # Reject symlinks
+     st = os.lstat(disabled_compose)
+@@ -1158,7 +1188,11 @@ def enable_extension(
+             # appears in CORE_SERVICE_IDS — skip the name-collision check for
+             # them, mirroring _activate_service's logic.
+             is_builtin = ext_dir.is_relative_to(EXTENSIONS_DIR.resolve())
+-            _scan_compose_content(enabled_compose, skip_name_collision=is_builtin)
++            _scan_compose_content(
++                enabled_compose,
++                skip_name_collision=is_builtin,
++                skip_gpu_passthrough_check=is_builtin,
++            )
+         # Dependencies were satisfied at install time; compose content is re-scanned above
+         _write_initial_progress(service_id)
+         # Invalidate .compose-flags cache so dream-cli picks up this extension
+@@ -1438,8 +1472,13 @@ def orphaned_storage(api_key: str = Depends(verify_api_key)):
+     if not data_path.is_dir():
+         return {"orphaned": [], "total_gb": 0}
+ 
+-    # Known system directories that are not service data
+-    system_dirs = {"models", "config", "user-extensions", "extensions-library"}
++    # Known system directories that are not service data.  Includes runtime
++    # state created outside the installer: extension-progress (this router)
++    # and config-backups (host agent's .env backup writer).
++    system_dirs = {
++        "models", "config", "user-extensions", "extensions-library",
++        "extension-progress", "config-backups",
++    }
+     known_ids = set(SERVICES.keys()) | system_dirs
+ 
+     orphaned = []
+diff --git a/dream-server/extensions/services/dashboard-api/tests/test_extensions.py b/dream-server/extensions/services/dashboard-api/tests/test_extensions.py
+index dd1c0313..682b0908 100644
+--- a/dream-server/extensions/services/dashboard-api/tests/test_extensions.py
++++ b/dream-server/extensions/services/dashboard-api/tests/test_extensions.py
+@@ -1248,6 +1248,32 @@ class TestComposeScanEdgeCases:
+         assert resp.status_code == 400
+         assert "dangerous security_opt" in resp.json()["detail"]
+ 
++    def test_scan_rejects_deploy_resources_devices(
++        self, test_client, monkeypatch, tmp_path,
++    ):
++        """400 when compose requests GPU passthrough via
++        deploy.resources.reservations.devices (Compose v2 GPU syntax).
++        Library installs default to skip_gpu_passthrough_check=False."""
++        compose = (
++            "services:\n  svc:\n    image: test\n"
++            "    deploy:\n"
++            "      resources:\n"
++            "        reservations:\n"
++            "          devices:\n"
++            "            - driver: nvidia\n"
++            "              count: 1\n"
++            "              capabilities: [gpu]\n"
++        )
++        lib_dir = _setup_library_ext(tmp_path, "bad-ext", compose_content=compose)
++        _patch_mutation_config(monkeypatch, tmp_path, lib_dir=lib_dir)
++
++        resp = test_client.post(
++            "/api/extensions/bad-ext/install",
++            headers=test_client.auth_headers,
++        )
++        assert resp.status_code == 400
++        assert "GPU passthrough" in resp.json()["detail"]
++
+ 
+ # --- skip_name_collision flag isolation ---
+ 
+@@ -1288,6 +1314,46 @@ class TestScanComposeSkipNameCollision:
+         assert "Docker socket" in exc.value.detail
+ 
+ 
++# --- skip_gpu_passthrough_check flag isolation ---
++
++
++class TestScanComposeSkipGpuPassthroughCheck:
++    """Direct unit tests for the skip_gpu_passthrough_check parameter that
++    permits built-in extensions (e.g. comfyui's nvidia overlay) to declare
++    deploy.resources.reservations.devices while user extensions cannot."""
++
++    _GPU_COMPOSE = (
++        "services:\n  svc:\n    image: test\n"
++        "    deploy:\n"
++        "      resources:\n"
++        "        reservations:\n"
++        "          devices:\n"
++        "            - driver: nvidia\n"
++        "              count: 1\n"
++        "              capabilities: [gpu]\n"
++    )
++
++    def test_rejects_deploy_devices_by_default(self, tmp_path):
++        from routers.extensions import _scan_compose_content
++        compose = tmp_path / "compose.yaml"
++        compose.write_text(self._GPU_COMPOSE)
++        with pytest.raises(HTTPException) as exc:
++            _scan_compose_content(compose)
++        assert exc.value.status_code == 400
++        assert "GPU passthrough" in exc.value.detail
++
++    def test_allows_deploy_devices_when_skipped(self, tmp_path):
++        """Built-in compose paths pass skip_gpu_passthrough_check=True so the
++        legitimate NVIDIA reservation in docker-compose.nvidia.yml does not
++        get rejected when the dashboard-api re-scans during activate/enable.
++        """
++        from routers.extensions import _scan_compose_content
++        compose = tmp_path / "compose.yaml"
++        compose.write_text(self._GPU_COMPOSE)
++        # Should not raise
++        _scan_compose_content(compose, skip_gpu_passthrough_check=True)
++
++
+ # --- Size quota enforcement ---
+ 
+ 
+diff --git a/dream-server/extensions/services/dashboard-api/user_extensions.py b/dream-server/extensions/services/dashboard-api/user_extensions.py
+index b87ffd62..a3eb38dc 100644
+--- a/dream-server/extensions/services/dashboard-api/user_extensions.py
++++ b/dream-server/extensions/services/dashboard-api/user_extensions.py
+@@ -86,6 +86,11 @@ def scan_user_extension_services(
+                 "external_port": int(svc.get("external_port_default", port)),
+                 "health": health,
+                 "name": name,
++                # Optional: extensions whose health endpoint lives on a
++                # secondary port (e.g. milvus 9091) need an explicit
++                # health_port; check_service_health() falls back to "port"
++                # when absent.
++                **({"health_port": int(svc["health_port"])} if "health_port" in svc else {}),
+             }
+         except (TypeError, ValueError) as exc:
+             logger.warning("Skipping extension %s: invalid manifest value: %s", service_id, exc)

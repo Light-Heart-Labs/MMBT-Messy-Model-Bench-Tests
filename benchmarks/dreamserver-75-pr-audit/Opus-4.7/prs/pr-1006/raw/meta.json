@@ -1,0 +1,24 @@
+{
+  "additions": 2,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\n`dream-cli`'s `log()` and `warn()` helpers wrote to stdout. `dream\nbenchmark` captures `cmd_chat`'s stdout to measure LLM response time,\nso the `[dream] Sending to <model>...` info line emitted inside\n`cmd_chat` leaked into the captured response string. Output looked\nlike:\n\n```\nResponse: [dream] Sending to local...\nHello World\n```\n\n## Why / How\nAppended `>&2` to the two helpers. This follows Unix convention\n(informational messages on stderr) and cleanly separates status\ntext from data. The only `\\$(cmd_*)` capture in the entire 3418-line\nfile (`cmd_benchmark` line 1174) already uses `2>/dev/null`, so the\nlog banner is now cleanly discarded before display \u2014 response\ncontains only the LLM reply.\n\nJSON-emitting paths (`cmd_status_json`, `cmd_doctor --json`,\n`cmd_audit --json`) do not invoke `log` / `warn` before emitting\nJSON, so machine-readable output is unchanged.\n\nScope intentionally minimal. Only `log()` and `warn()` changed;\n`success()`, `error()`, and `log_warn()` remain on stdout.\n\n## Testing\n- `bash -n` passes.\n- No new shellcheck warnings at the touched lines.\n- Repo-wide scan confirms no script / test captures `dream-cli`\n  stdout expecting `[dream]` or `\u26a0` prefixes \u2014 zero consumers to\n  break.\n\n## Manual test\n`dream benchmark local` \u2192 the `Response:` line no longer contains\n`[dream] Sending to <model>...`.\n\n## Platform Impact\n- macOS / Linux / Windows WSL2: `>&2` is POSIX; identical behavior\n  on all three platforms.",
+  "changedFiles": 1,
+  "createdAt": "2026-04-23T21:21:25Z",
+  "deletions": 2,
+  "headRefName": "fix/dream-cli-log-to-stderr",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1006,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dream-cli): route log() and warn() to stderr so command captures remain clean",
+  "updatedAt": "2026-04-23T21:21:25Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1006"
+}

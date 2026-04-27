@@ -1,0 +1,24 @@
+{
+  "additions": 56,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\n\nThree visual-polish fixes for `dream-cli`:\n\n1. ANSI-C quoting (`$'\\033[...'`) for color variables + `TTY && NO_COLOR`-guarded color emission, so color codes don't leak as literal escape text into non-ANSI-processing contexts (notably `cmd_help`'s heredoc, and piped/redirected output).\n2. Table separators rendered at correct column widths via a new `hr <width>` helper using `printf -v` + parameter expansion.\n3. `NO_COLOR` check uses `${NO_COLOR+x}` per [no-color.org spec](https://no-color.org/) (empty-string variable counts as \"set\"); `cmd_preset list` adopts the same separator helper for consistency.\n\n## Why\n\n`dream help` was printing literal `\\033[0;34mDream Server CLI...` to terminals because single-quoted color vars held the escape string, not the ESC byte, and heredocs don't process `\\033`. Short separator dashes made `dream list`, `dream template list`, and `dream preset list` headers appear broken on wider terminals.\n\n## How\n\nThree commits, each self-contained with full rationale:\n\n- `d52cb120` \u2014 `$'\\033[0;31m'`-style ANSI-C quoting + TTY+NO_COLOR guard block.\n- `7c407c0a` \u2014 `hr()` helper using `printf -v` + `${var// /<char>}` parameter expansion; dynamic-width `_template_list`.\n- `9cba4879` \u2014 spec-strict NO_COLOR check (`${NO_COLOR+x}`) + `cmd_preset list` separator.\n\n## Testing\n\n- `dream help`, `dream list`, `dream template list`, `dream preset list` render cleanly on macOS Terminal.app and iTerm2.\n- `dream help > file.txt` emits zero escape codes (TTY-guard working as intended).\n- Operator's integration-branch test battery: green.\n\n## Platform Impact\n\n- **macOS:** fix verified on Terminal.app and iTerm2.\n- **Linux:** same fix applies (Bash 4+ features everywhere).\n- **Windows terminal / WSL2:** same \u2014 covers all three reproducers from the underlying fork tracking.\n\nNo GNU-only tools used (no `sed -i`, `grep -P`, or `date -d`).\n",
+  "changedFiles": 1,
+  "createdAt": "2026-04-23T19:50:20Z",
+  "deletions": 16,
+  "headRefName": "fix/dream-cli-visual-polish",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 993,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dream-cli): color-escape + table-separator + NO_COLOR spec",
+  "updatedAt": "2026-04-23T19:50:20Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/993"
+}

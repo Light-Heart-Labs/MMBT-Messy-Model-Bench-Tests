@@ -1,0 +1,24 @@
+{
+  "additions": 170,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## \u26a0\ufe0f Draft \u2014 depends on #999 AND #1001 merging first\n\nAll four fixes live in code introduced by unmerged upstream PRs:\n- **#401, #402** target the Apple GPU_BACKEND branches added by #999 (`fix/dream-cli-apple-silicon-coverage`)\n- **#405, #407** target `_compose_run_with_summary` added by #1001 (`fix/dream-cli-compose-summary-wrapper`)\n\nOnce #999 and #1001 both merge, I'll rebase and the PR diff will reduce to just the delta shown below.\n\n## What\nFour small polish fixes on top of #999 + #1001:\n\n- **#401** \u2014 `cmd_status_json` Apple branch was emitting `gpu_cores` as a string via `jq --arg`. Switch to `--argjson` with integer-or-null detection: numeric values become JSON integers; the fallback literal `\"?\"` becomes JSON `null`.\n- **#402** \u2014 `dream gpu status` header hardcoded `\"(${gpu_count} GPUs)\"` derived from `nvidia-smi --list-gpus`. On Apple Silicon this produced `\"(0 GPUs)\"` despite the Apple branch below showing valid GPU info. Branch on `GPU_BACKEND=apple` to show `\"(1 integrated GPU)\"` instead.\n- **#405** \u2014 `_compose_run_with_summary` mktemp'd a compose log but had no `trap` to clean up on SIGINT/SIGTERM. Ctrl-C during compose ops leaked `/tmp/tmp.*` files. Add `trap 'rm -f \"$_compose_log\"' INT TERM` after mktemp and `trap - INT TERM` before each return.\n- **#407** \u2014 The error surface pipeline `grep | sed | head -20 || warn` never triggered the warn fallback when `grep` found zero matches, because `head -20` exits 0 on empty input (the pipeline exit was 0, not 1). Users saw a blank gap between the error banner and the log path. Capture to `_surfaced` and branch on non-empty \u2014 correct under `set -e` today AND pipefail-safe going forward.\n\n## Our delta (post-deps-rebase view)\nOne file, two commits:\n- `dream-server/dream-cli`: +21/-9 lines across the 4 touched regions\n\n## Testing\n- [x] `bash -n dream-server/dream-cli` \u2014 clean\n- [x] `shellcheck dream-server/dream-cli` \u2014 zero NEW warnings in the delta\n- [x] Pre-commit hooks clean\n- [x] Verified Apple-branch header logic doesn't accidentally affect the non-apple `gpu_count` path (`[[ GPU_BACKEND == \"apple\" ]]` short-circuits before `$gpu_count` is evaluated)\n\n## Platform Impact\n- **macOS Apple Silicon**: user-visible fixes for `dream gpu status` header + `dream status-json` gpu_cores field type.\n- **Linux / Windows WSL2**: compose-wrapper fixes (#405 + #407) apply to all three platforms; Apple-specific fixes (#401 + #402) do not fire on these platforms.\n\n## Known Considerations\nFollow-up fork issue worth filing: the SIGINT trap currently only cleans up the log file without exiting. A cleaner idiom (`trap 'rm -f \"$_compose_log\"; exit 130' INT` or `EXIT` trap) would avoid a downstream log-path-to-deleted-file edge case. Not a regression vs. current behavior (previously no cleanup at all on INT) so out-of-scope for this PR.",
+  "changedFiles": 3,
+  "createdAt": "2026-04-23T23:40:26Z",
+  "deletions": 33,
+  "headRefName": "fix/dream-cli-polish",
+  "isDraft": true,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1016,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dream-cli): Apple GPU output polish + compose wrapper SIGINT/zero-match",
+  "updatedAt": "2026-04-25T13:07:39Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1016"
+}

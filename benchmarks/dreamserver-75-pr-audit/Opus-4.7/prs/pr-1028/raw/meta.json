@@ -1,0 +1,24 @@
+{
+  "additions": 1,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nRaise `start_period` on the `embeddings` extension healthcheck from `120s` to `600s`.\n\n## Why\nThe Hugging Face TEI image downloads its model at first start. On slow connections a ~115 MB model (default `BAAI/bge-base-en-v1.5`) can exceed the existing 120s + 5x30s = 270s total grace window, making the container flip `unhealthy` while the download is still progressing, followed by restart-loop confusion on the dashboard.\n\n## How\nOne-line edit to `dream-server/extensions/services/embeddings/compose.yaml:28`.\n\n`start_period` is a grace window \u2014 Docker ignores failed checks inside it and flips to healthy on the first successful probe \u2014 so raising it does not slow down warm starts and does not mask true crash-loops (`restart: unless-stopped` still triggers on non-zero exit).\n\n## Testing\n- `docker compose config` parses the modified file cleanly.\n- `scripts/validate-compose-stack.sh` passes (2 services, exit 0).\n- `python3 -c \"import yaml; yaml.safe_load(...)\"` \u2014 YAML valid.\n- `pre-commit` (gitleaks, private-key, large-file) passes.\n- No env vars added, `.env.schema.json` untouched.\n\n## Review\nCritique Guardian APPROVED (no required changes).\n\n## Platform Impact\n- **macOS:** identical behavior (Docker Desktop); healthcheck semantics are engine-level, platform-neutral.\n- **Linux:** identical behavior.\n- **Windows (WSL2):** identical behavior.\n",
+  "changedFiles": 1,
+  "createdAt": "2026-04-24T17:47:01Z",
+  "deletions": 1,
+  "headRefName": "fix/embeddings-start-period",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1028,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(embeddings): raise healthcheck start_period from 120s to 600s",
+  "updatedAt": "2026-04-24T17:47:01Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1028"
+}

@@ -1,0 +1,24 @@
+{
+  "additions": 7,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nTwo small independent compose defects.\n\n### 1. `ENABLE_IMAGE_GENERATION` default\n`docker-compose.base.yml` defaulted `ENABLE_IMAGE_GENERATION` to\n`true`. ComfyUI's manifest restricts it to `gpu_backends: [amd,\nnvidia]`, so the image-gen backend cannot run on macOS Apple\nSilicon, Linux CPU-only, Linux Intel/ARC, or Windows AMD. On those\nplatforms Open WebUI happily showed the image-gen UI, but clicking\nit produced a connection error to `comfyui:8188`.\n\nFlipped the base default to `false`. NVIDIA and AMD overlays now\nadd `ENABLE_IMAGE_GENERATION` to the `open-webui` environment\nusing env substitution (`\\${ENABLE_IMAGE_GENERATION:-true}`) so the\nexisting user opt-out path remains intact:\n\n- `installers/phases/06-directories.sh` writes\n  `ENABLE_IMAGE_GENERATION=false` to `.env` when `ENABLE_COMFYUI=false`\n  (i.e. `--no-comfyui` or Tier 0/1 auto-disable). Env-substitution\n  means that \\`.env\\` value wins over the overlay default \u2192 button\n  correctly hidden.\n- The dashboard settings toggle (dashboard-api\n  `_OPEN_WEBUI_APPLY_KEYS`) continues to work at runtime by writing\n  `.env`.\n- Git-clone-and-docker-compose-up path (no installer, no `.env`)\n  still gets `true` on NVIDIA/AMD via the overlay default.\n\n### 2. dreamforge network convention\n`extensions/services/dreamforge/compose.yaml` declared a top-level\n`networks: dream-network: external: true` block and added\n`networks: - dream-network` to the service. Base compose renames the\ndefault network to `dream-network` via\n`networks: default: name: dream-network`, so at runtime the merge\nproduced a single network and everything worked.\n\nHowever: standalone `docker compose -f dreamforge/compose.yaml\nconfig` failed (`network dream-network declared as external, but\ncould not be found`), and the pattern diverged from the convention\nused by all 16 other extensions (none declare networks).\n\nRemoved both the top-level `networks:` block and the service-level\n`networks:` reference. Dreamforge now implicitly joins the project\ndefault network \u2014 identical runtime reachability, matching\nconvention.\n\n## Testing\n- `docker compose config --quiet` passes for: base alone, base +\n  nvidia, base + amd, base + dreamforge (merged).\n- Standalone `docker compose -f dreamforge/compose.yaml config` now\n  exits 0 (previously failed).\n- Env substitution verified on both overlays:\n  - NVIDIA / AMD, env unset \u2192 `ENABLE_IMAGE_GENERATION: \"true\"` \u2713\n  - NVIDIA / AMD, env=false \u2192 `ENABLE_IMAGE_GENERATION: \"false\"` \u2713\n\n## Platform Impact\n- macOS Apple Silicon: image-gen UI now hidden (button no longer\n  errors).\n- Linux NVIDIA / AMD default install: unchanged \u2014 UI visible,\n  ComfyUI available.\n- Linux NVIDIA / AMD with `--no-comfyui`: UI now correctly hidden\n  (previously would have shown a broken button).\n- Linux CPU-only / Intel / ARC: UI hidden (was the primary goal of\n  the base flip; matches ComfyUI manifest scope).\n- Windows AMD: UI hidden (correct \u2014 the Windows installer does not\n  load ComfyUI's AMD overlay).\n- Windows NVIDIA: unchanged (UI visible, ComfyUI available).\n\n## Scope note\nAn initially-related healthcheck concern on\n\\`extensions/services/perplexica/compose.yaml\\` was dropped from\nthis PR pending runtime reproduction \u2014 the original report cited\n\\\"Next.js 16\\\" as root cause, which does not exist as a version,\nand the 127.0.0.1 probe was already the intended convention after\nan earlier PR. Tracked as a separate follow-up.",
+  "changedFiles": 4,
+  "createdAt": "2026-04-23T21:22:54Z",
+  "deletions": 7,
+  "headRefName": "fix/compose-runtime-defects",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1009,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(compose): image-gen default off on non-GPU platforms + dreamforge network convention",
+  "updatedAt": "2026-04-24T12:35:54Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1009"
+}

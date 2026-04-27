@@ -1,0 +1,24 @@
+{
+  "additions": 47,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nBinds native `llama-server` (macOS + Windows) and the Linux host agent fallback to `127.0.0.1` (loopback) instead of `0.0.0.0` (all interfaces).\n\n## Why\nNative `llama-server` on macOS (Metal) and Windows (Lemonade + llama.cpp) previously listened on `0.0.0.0:8080`, making the LLM inference API reachable from any device on the LAN without authentication. Similarly, when `_detect_docker_bridge_gateway()` failed on Linux, the host agent fell back to `0.0.0.0`, exposing container management to the LAN.\n\n## How\nMinimal 17+/17- diff across 8 files:\n- `installers/macos/install-macos.sh` + `installers/macos/dream-macos.sh` \u2014 `--host 127.0.0.1` on native llama-server launch\n- `installers/windows/install-windows.ps1` + `installers/windows/dream.ps1` \u2014 `--host 127.0.0.1` on Lemonade + llama.cpp launch\n- `scripts/bootstrap-upgrade.sh` \u2014 `--host 127.0.0.1` on macOS rollback/upgrade paths\n- `bin/dream-host-agent.py` \u2014 Linux bridge-detection fallback changed from `0.0.0.0` to `127.0.0.1`; startup warning updated to reflect the new guidance (directing operators to set `DREAM_AGENT_BIND=<bridge-ip>` if containers need to reach the agent in the failure-mode)\n- `.env.example` + `.env.schema.json` \u2014 doc strings updated to reflect the new Linux fallback\n\nUsers who legitimately need LAN exposure can still set `DREAM_AGENT_BIND=0.0.0.0` explicitly \u2014 that override path is preserved.\n\n## Testing\n- Verified on macOS Apple Silicon install: `lsof -nP -iTCP:7710 -sTCP:LISTEN` shows `127.0.0.1:7710` only\n- Dashboard, Open WebUI, and Docker containers still reach llama via `host.docker.internal` (Docker Desktop routes host-gateway to loopback)\n- Shellcheck clean on all touched shell scripts\n- `python3 -m py_compile bin/dream-host-agent.py` passes\n\n## Platform Impact\n- **macOS**: native llama-server binds loopback-only. Dashboard/WebUI reach it via `host.docker.internal`. No user-visible regression for local use; LAN exposure closed.\n- **Linux**: host agent uses Docker bridge gateway IP on the normal path (unchanged). On bridge-detection failure, falls back to `127.0.0.1` instead of `0.0.0.0` \u2014 containers cannot reach the agent in that rare failure mode. Operators on non-standard Docker setups should set `DREAM_AGENT_BIND=<bridge-ip>` explicitly; startup warning directs them to this.\n- **Windows**: native Lemonade + llama.cpp bind loopback-only. Docker Desktop routes `host.docker.internal` to loopback \u2014 same mental model as macOS. No user-visible regression for local use.",
+  "changedFiles": 8,
+  "createdAt": "2026-04-22T10:53:49Z",
+  "deletions": 17,
+  "headRefName": "fix/security-loopback",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 988,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(security): bind llama-server and host agent to loopback",
+  "updatedAt": "2026-04-24T12:35:44Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/988"
+}

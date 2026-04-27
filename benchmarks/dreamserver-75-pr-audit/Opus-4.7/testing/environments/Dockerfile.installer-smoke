@@ -1,0 +1,69 @@
+# Dockerfile for sanity-checking installer-touching PRs in a Linux container.
+#
+# Usage:
+#   docker build -f testing/environments/Dockerfile.installer-smoke -t dream-installer-smoke .
+#   docker run --rm -v "$PWD/../dreamserver-src:/src:ro" \
+#     dream-installer-smoke bash -c 'cd /src/dream-server && bash -n install-core.sh'
+#
+# This is intentionally minimal: it gives a clean Ubuntu 22.04 with
+# the toolchain the installer expects (bash, jq, curl, python3, docker
+# CLI), and that's it. PRs that touch installer phase logic can be
+# bash -n linted, BATS-tested, and shellcheck-validated against this
+# image without polluting the maintainer's host.
+#
+# It does NOT install Docker daemon — that requires --privileged or
+# Docker-in-Docker, which is outside this image's scope. For docker-
+# compose validation, mount the host's docker.sock and use the host's
+# Docker daemon:
+#   docker run --rm \
+#     -v /var/run/docker.sock:/var/run/docker.sock \
+#     -v "$PWD/../dreamserver-src:/src:ro" \
+#     dream-installer-smoke bash -c 'cd /src/dream-server && docker compose -f docker-compose.base.yml config'
+#
+# Why Ubuntu 22.04 and not 24.04: matrix-smoke runs on both, and
+# 22.04 catches more shell-portability issues (older bash 5.1,
+# different util-linux version). 24.04 is "easier"; 22.04 is the
+# stricter test.
+
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        bash \
+        jq \
+        curl \
+        wget \
+        ca-certificates \
+        coreutils \
+        util-linux \
+        procps \
+        git \
+        python3 \
+        python3-pip \
+        python3-venv \
+        bats \
+        shellcheck \
+        ripgrep \
+        unzip \
+        xxd && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Docker CLI only (not the daemon — bind /var/run/docker.sock instead)
+RUN install -m 0755 -d /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc && \
+    chmod a+r /etc/apt/keyrings/docker.asc && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+        > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        docker-ce-cli \
+        docker-compose-plugin && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+
+CMD ["/bin/bash"]

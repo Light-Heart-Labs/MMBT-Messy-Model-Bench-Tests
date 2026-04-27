@@ -1,0 +1,24 @@
+{
+  "additions": 471,
+  "author": {
+    "id": "U_kgDODGlRPg",
+    "is_bot": false,
+    "login": "championVisionAI",
+    "name": ""
+  },
+  "baseRefName": "main",
+  "body": "## Summary\r\nThis PR adds the missing runtime API contracts used by Dashboard setup/success/voice flows, and backs them with persistence + tests.\r\n\r\n## Why\r\nSeveral frontend and integration flows depend on endpoints that were absent in `dashboard-api` (`/api/settings`, `/api/voice/*`, `/api/test/*`). This created broken UX paths and false-negative health/feature checks.\r\n\r\n## What Changed\r\n- Added new runtime router:\r\n  - `GET /api/settings`\r\n  - `GET /api/voice/settings`\r\n  - `POST /api/voice/settings`\r\n  - `GET /api/voice/status`\r\n  - `POST /api/voice/token`\r\n  - `GET /api/test/{llm|voice|rag|workflows}`\r\n- Wired runtime router into FastAPI app bootstrap.\r\n- Added tests for:\r\n  - settings payload shape/dynamic fields\r\n  - voice settings default + persistence roundtrip\r\n  - voice status aggregation behavior\r\n  - voice token credential checks + JWT format\r\n  - diagnostics endpoint behavior + unknown-target handling\r\n- Updated `dashboard-api` README endpoint docs.\r\n\r\n## Implementation Notes\r\n- Voice settings persist to `DATA_DIR/config/voice-settings.json`.\r\n- LiveKit token is minted with HS256 using `LIVEKIT_API_KEY` + `LIVEKIT_API_SECRET`.\r\n- Voice status aggregates health for Whisper, TTS, and LiveKit with an `available` summary boolean.\r\n- Diagnostics endpoints are intentionally lightweight and UI-friendly.\r\n\r\n## Testing\r\n- Added/updated unit tests in `tests/test_routers.py`.\r\n- Static compile check passed via `python3 -m py_compile`.\r\n- Full pytest run was not possible in this environment because `pytest` is not installed.\r\n\r\n## Risk\r\n- Low to medium: new endpoints only, no migration required.\r\n- Auth behavior remains consistent with existing protected API routes.\r\n\r\n## Rollback\r\n- Revert commit `1738d88` to remove runtime router and restore prior API surface.\r\n",
+  "changedFiles": 4,
+  "createdAt": "2026-03-18T01:45:55Z",
+  "deletions": 149,
+  "headRefName": "feat/dashboard-api-settings-voice-diagnostics",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "DIRTY",
+  "mergeable": "CONFLICTING",
+  "number": 364,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "feat(dashboard-api): add settings, voice runtime, and diagnostics APIs",
+  "updatedAt": "2026-04-18T14:21:39Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/364"
+}

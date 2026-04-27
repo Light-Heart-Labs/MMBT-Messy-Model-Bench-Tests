@@ -1,0 +1,4 @@
+ dream-server/dream-cli               | 162 +++++++++++++++++++++++++++++------
+ dream-server/lib/service-registry.sh |  13 ++-
+ dream-server/scripts/dream-doctor.sh |  28 +++++-
+ 3 files changed, 170 insertions(+), 33 deletions(-)

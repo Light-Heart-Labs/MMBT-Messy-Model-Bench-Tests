@@ -1,0 +1,14 @@
+diff --git a/dream-server/.env.example b/dream-server/.env.example
+index 038b6840..58eb0897 100644
+--- a/dream-server/.env.example
++++ b/dream-server/.env.example
+@@ -38,6 +38,9 @@ SEARXNG_SECRET=CHANGEME
+ # OpenCode web UI password (generate: openssl rand -base64 16)
+ OPENCODE_SERVER_PASSWORD=CHANGEME
+ 
++# OpenClaw gateway token (generate: openssl rand -hex 24)
++OPENCLAW_TOKEN=CHANGEME
++
+ # ═══════════════════════════════════════════════════════════════════
+ # Network Binding
+ # ═══════════════════════════════════════════════════════════════════

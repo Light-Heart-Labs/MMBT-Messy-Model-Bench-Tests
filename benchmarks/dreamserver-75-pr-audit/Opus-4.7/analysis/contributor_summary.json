@@ -1,0 +1,693 @@
+{
+  "yasinBursali": [
+    {
+      "n": 1057,
+      "title": "fix(host-agent): runtime hygiene \u2014 narrow pull, surface failures, normalize bind volumes",
+      "additions": 73,
+      "deletions": 13,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "host-agent"
+    },
+    {
+      "n": 1056,
+      "title": "fix(dashboard-api): catalog timeout, orphaned whitelist, GPU passthrough scan, health_port",
+      "additions": 138,
+      "deletions": 12,
+      "changedFiles": 4,
+      "isDraft": false,
+      "primary_sub": "dashboard-api"
+    },
+    {
+      "n": 1055,
+      "title": "docs(dashboard-api): add development workflow guide for the bake-vs-bind-mount trap",
+      "additions": 159,
+      "deletions": 0,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "docs"
+    },
+    {
+      "n": 1054,
+      "title": "fix(dashboard-api): require deployable compose.yaml to mark extension installable",
+      "additions": 4,
+      "deletions": 1,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "dashboard-api"
+    },
+    {
+      "n": 1053,
+      "title": "ci(openclaw): filesystem-write gate to detect new openclaw write paths",
+      "additions": 131,
+      "deletions": 0,
+      "changedFiles": 1,
+      "isDraft": true,
+      "primary_sub": "ci"
+    },
+    {
+      "n": 1052,
+      "title": "test(langfuse): structural guard for setup_hook + hook file coexistence",
+      "additions": 34,
+      "deletions": 0,
+      "changedFiles": 1,
+      "isDraft": true,
+      "primary_sub": "dashboard-api"
+    },
+    {
+      "n": 1051,
+      "title": "fix(resolver): hoist yaml import, guard empty manifests, align user-ext loop",
+      "additions": 76,
+      "deletions": 10,
+      "changedFiles": 1,
+      "isDraft": true,
+      "primary_sub": "compose-resolver"
+    },
+    {
+      "n": 1050,
+      "title": "fix(installer): block non-POSIX INSTALL_DIR + verify Docker Desktop sharing",
+      "additions": 351,
+      "deletions": 1,
+      "changedFiles": 5,
+      "isDraft": false,
+      "primary_sub": "installer-macos"
+    },
+    {
+      "n": 1049,
+      "title": "fix(jupyter): convert command to exec-form list to avoid shell splitting",
+      "additions": 9,
+      "deletions": 1,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "jupyter"
+    },
+    {
+      "n": 1048,
+      "title": "fix(macos): replace backticks with single quotes in env-generator comment",
+      "additions": 1,
+      "deletions": 1,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "installer-macos"
+    },
+    {
+      "n": 1047,
+      "title": "fix(langfuse): use 127.0.0.1 in healthcheck URLs",
+      "additions": 4,
+      "deletions": 4,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "langfuse"
+    },
+    {
+      "n": 1046,
+      "title": "fix(perplexica): bind Next.js 16 to 0.0.0.0 inside container",
+      "additions": 1,
+      "deletions": 0,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "perplexica"
+    },
+    {
+      "n": 1045,
+      "title": "fix(dashboard-api,host-agent): route extension config sync through host agent",
+      "additions": 569,
+      "deletions": 55,
+      "changedFiles": 4,
+      "isDraft": false,
+      "primary_sub": "dashboard-api"
+    },
+    {
+      "n": 1044,
+      "title": "fix(dashboard-api): accept ${VAR:-127.0.0.1} in compose port-binding scan",
+      "additions": 356,
+      "deletions": 18,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "dashboard-api"
+    },
+    {
+      "n": 1040,
+      "title": "fix(langfuse): chown postgres/clickhouse data dirs to image uids on Linux",
+      "additions": 473,
+      "deletions": 3,
+      "changedFiles": 5,
+      "isDraft": true,
+      "primary_sub": "langfuse"
+    },
+    {
+      "n": 1039,
+      "title": "fix(host-agent): retry install failure through the hook + progress path",
+      "additions": 528,
+      "deletions": 5,
+      "changedFiles": 3,
+      "isDraft": true,
+      "primary_sub": "dashboard-api"
+    },
+    {
+      "n": 1038,
+      "title": "fix(dashboard-api): honor pre_start return, surface post_start failure",
+      "additions": 240,
+      "deletions": 8,
+      "changedFiles": 3,
+      "isDraft": false,
+      "primary_sub": "dashboard-api"
+    },
+    {
+      "n": 1037,
+      "title": "fix(dashboard): expandable error text + poll recovery on extensions page",
+      "additions": 191,
+      "deletions": 15,
+      "changedFiles": 3,
+      "isDraft": true,
+      "primary_sub": "dashboard-api"
+    },
+    {
+      "n": 1036,
+      "title": "chore(extensions-library): remove community privacy-shield (dead code)",
+      "additions": 2,
+      "deletions": 602,
+      "changedFiles": 9,
+      "isDraft": false,
+      "primary_sub": "privacy-shield"
+    },
+    {
+      "n": 1035,
+      "title": "fix(openclaw): trigger open-webui recreate on install; simplify volume layout",
+      "additions": 117,
+      "deletions": 8,
+      "changedFiles": 5,
+      "isDraft": false,
+      "primary_sub": "openclaw"
+    },
+    {
+      "n": 1034,
+      "title": "fix(extensions): piper-audio healthcheck timeout gap; publish milvus health port",
+      "additions": 2,
+      "deletions": 1,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "milvus"
+    },
+    {
+      "n": 1033,
+      "title": "fix(extensions): align librechat MONGO_URI guard; remove :? from jupyter command",
+      "additions": 2,
+      "deletions": 2,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "jupyter"
+    },
+    {
+      "n": 1032,
+      "title": "fix(extensions): mirror manifest depends_on in anythingllm / localai / continue",
+      "additions": 51,
+      "deletions": 0,
+      "changedFiles": 6,
+      "isDraft": false,
+      "primary_sub": "continue"
+    },
+    {
+      "n": 1030,
+      "title": "fix(host-agent): install flow \u2014 built-in hooks, bind-mount anchor, post-up state verify",
+      "additions": 187,
+      "deletions": 3,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "host-agent"
+    },
+    {
+      "n": 1029,
+      "title": "fix(resolver): dedupe override.yml; apply gpu_backends filter to user-extensions",
+      "additions": 46,
+      "deletions": 7,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "installer-core"
+    },
+    {
+      "n": 1028,
+      "title": "fix(embeddings): raise healthcheck start_period from 120s to 600s",
+      "additions": 1,
+      "deletions": 1,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "compose-extensions"
+    },
+    {
+      "n": 1027,
+      "title": "fix(extensions): bind community extension ports via ${BIND_ADDRESS}",
+      "additions": 87,
+      "deletions": 35,
+      "changedFiles": 31,
+      "isDraft": false,
+      "primary_sub": "resources"
+    },
+    {
+      "n": 1026,
+      "title": "fix(installer): pre-mark setup wizard complete on successful install",
+      "additions": 63,
+      "deletions": 0,
+      "changedFiles": 4,
+      "isDraft": false,
+      "primary_sub": "installer-macos"
+    },
+    {
+      "n": 1025,
+      "title": "fix(dashboard-api): wire Apple Silicon into /api/gpu/detailed",
+      "additions": 100,
+      "deletions": 0,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "dashboard-api"
+    },
+    {
+      "n": 1024,
+      "title": "refactor(scripts): array-expand COMPOSE_FLAGS for SC2086 + glob safety",
+      "additions": 31,
+      "deletions": 8,
+      "changedFiles": 3,
+      "isDraft": false,
+      "primary_sub": "scripts-shell"
+    },
+    {
+      "n": 1023,
+      "title": "fix(scripts): SIGPIPE-safe first-line selection in 5 scripts",
+      "additions": 6,
+      "deletions": 6,
+      "changedFiles": 5,
+      "isDraft": false,
+      "primary_sub": "scripts-shell"
+    },
+    {
+      "n": 1022,
+      "title": "fix(dashboard-api): async hygiene in routers/extensions.py",
+      "additions": 102,
+      "deletions": 12,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "dashboard-api"
+    },
+    {
+      "n": 1021,
+      "title": "fix(host-agent): start extension sidecars during install",
+      "additions": 38,
+      "deletions": 1,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "host-agent"
+    },
+    {
+      "n": 1020,
+      "title": "test: contract + mock coverage for Apple Silicon GPU backends",
+      "additions": 538,
+      "deletions": 5,
+      "changedFiles": 4,
+      "isDraft": true,
+      "primary_sub": "tests"
+    },
+    {
+      "n": 1019,
+      "title": "test+fix(setup): complete __DREAM_RESULT__ sentinel contract (exception path + tests)",
+      "additions": 689,
+      "deletions": 60,
+      "changedFiles": 9,
+      "isDraft": true,
+      "primary_sub": "dashboard-ui"
+    },
+    {
+      "n": 1018,
+      "title": "test(dream-cli): BATS regression shield for 5 dream-cli / supporting behaviors",
+      "additions": 1319,
+      "deletions": 117,
+      "changedFiles": 16,
+      "isDraft": true,
+      "primary_sub": "tests"
+    },
+    {
+      "n": 1017,
+      "title": "docs(security): Linux host-agent fallback is 127.0.0.1 post-#988",
+      "additions": 393,
+      "deletions": 132,
+      "changedFiles": 20,
+      "isDraft": true,
+      "primary_sub": "docs"
+    },
+    {
+      "n": 1016,
+      "title": "fix(dream-cli): Apple GPU output polish + compose wrapper SIGINT/zero-match",
+      "additions": 170,
+      "deletions": 33,
+      "changedFiles": 3,
+      "isDraft": true,
+      "primary_sub": "dream-cli"
+    },
+    {
+      "n": 1015,
+      "title": "fix(dashboard): template picker defensive fixes (handleApply + vacuous-truth)",
+      "additions": 217,
+      "deletions": 58,
+      "changedFiles": 6,
+      "isDraft": true,
+      "primary_sub": "dashboard-ui"
+    },
+    {
+      "n": 1014,
+      "title": "fix(tests): repair extension summary assertion in doctor diagnostics test",
+      "additions": 2,
+      "deletions": 1,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "tests"
+    },
+    {
+      "n": 1013,
+      "title": "fix(dream-agent-key): complete DREAM_AGENT_KEY lifecycle on macOS + docs",
+      "additions": 8,
+      "deletions": 0,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "env-schema"
+    },
+    {
+      "n": 1012,
+      "title": "refactor(windows): trim dead fields from New-DreamEnv return hash",
+      "additions": 3,
+      "deletions": 7,
+      "changedFiles": 4,
+      "isDraft": false,
+      "primary_sub": "installer-windows"
+    },
+    {
+      "n": 1011,
+      "title": "chore(bash32): guard declare -A callers + route dream-cli validate through $BASH",
+      "additions": 43,
+      "deletions": 3,
+      "changedFiles": 6,
+      "isDraft": true,
+      "primary_sub": "scripts-shell"
+    },
+    {
+      "n": 1010,
+      "title": "chore(schema): mark provider API keys as secret in .env.schema.json",
+      "additions": 39,
+      "deletions": 5,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "env-schema"
+    },
+    {
+      "n": 1009,
+      "title": "fix(compose): image-gen default off on non-GPU platforms + dreamforge network convention",
+      "additions": 7,
+      "deletions": 7,
+      "changedFiles": 4,
+      "isDraft": false,
+      "primary_sub": "compose-base"
+    },
+    {
+      "n": 1008,
+      "title": "refactor(dream-cli): guard .env grep pipelines against pipefail kill on missing keys",
+      "additions": 7,
+      "deletions": 7,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "dream-cli"
+    },
+    {
+      "n": 1007,
+      "title": "fix(dream-cli): double-quote tmpdir in gpu_reassign RETURN trap",
+      "additions": 1,
+      "deletions": 1,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "dream-cli"
+    },
+    {
+      "n": 1006,
+      "title": "fix(dream-cli): route log() and warn() to stderr so command captures remain clean",
+      "additions": 2,
+      "deletions": 2,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "dream-cli"
+    },
+    {
+      "n": 1005,
+      "title": "fix(macos): install-time polish \u2014 DIM constant, busybox pin, healthcheck rewrite",
+      "additions": 35,
+      "deletions": 17,
+      "changedFiles": 3,
+      "isDraft": false,
+      "primary_sub": "installer-macos"
+    },
+    {
+      "n": 1004,
+      "title": "fix(resolver): skip compose.local.yaml on Apple Silicon to avoid llama-server deadlock",
+      "additions": 7,
+      "deletions": 2,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "compose-resolver"
+    },
+    {
+      "n": 1003,
+      "title": "fix(dashboard,dashboard-api): sentinel-based setup wizard success detection",
+      "additions": 215,
+      "deletions": 57,
+      "changedFiles": 6,
+      "isDraft": false,
+      "primary_sub": "dashboard-ui"
+    },
+    {
+      "n": 1002,
+      "title": "refactor(dream-cli): enable set -u and add guards for conditional variables",
+      "additions": 51,
+      "deletions": 22,
+      "changedFiles": 1,
+      "isDraft": true,
+      "primary_sub": "dream-cli"
+    },
+    {
+      "n": 1000,
+      "title": "feat(dream-cli): --json flag on list/status and document doctor --json",
+      "additions": 53,
+      "deletions": 6,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "dream-cli"
+    },
+    {
+      "n": 999,
+      "title": "feat(dream-cli): Apple Silicon coverage for gpu subcommands and doctor",
+      "additions": 79,
+      "deletions": 5,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "dream-cli"
+    },
+    {
+      "n": 998,
+      "title": "fix(dream-cli): pipefail + surface LLM failures + exit-code contract",
+      "additions": 44,
+      "deletions": 15,
+      "changedFiles": 1,
+      "isDraft": true,
+      "primary_sub": "dream-cli"
+    },
+    {
+      "n": 997,
+      "title": "fix(dream-cli): pre-validate 'dream shell' service + Docker daemon preflight",
+      "additions": 46,
+      "deletions": 2,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "dream-cli"
+    },
+    {
+      "n": 996,
+      "title": "fix(windows): generate DREAM_AGENT_KEY in installer env-generator.ps1",
+      "additions": 7,
+      "deletions": 5,
+      "changedFiles": 4,
+      "isDraft": false,
+      "primary_sub": "installer-windows"
+    },
+    {
+      "n": 994,
+      "title": "fix(dream-cli): schema-driven secret masking + macOS Bash 4 validation",
+      "additions": 89,
+      "deletions": 15,
+      "changedFiles": 4,
+      "isDraft": false,
+      "primary_sub": "env-schema"
+    },
+    {
+      "n": 993,
+      "title": "fix(dream-cli): color-escape + table-separator + NO_COLOR spec",
+      "additions": 56,
+      "deletions": 16,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "dream-cli"
+    },
+    {
+      "n": 992,
+      "title": "fix(ci): add OPENCLAW_TOKEN placeholder to .env.example",
+      "additions": 3,
+      "deletions": 0,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "env-schema"
+    },
+    {
+      "n": 988,
+      "title": "fix(security): bind llama-server and host agent to loopback",
+      "additions": 47,
+      "deletions": 17,
+      "changedFiles": 8,
+      "isDraft": false,
+      "primary_sub": "env-schema"
+    },
+    {
+      "n": 974,
+      "title": "fix(bootstrap): use $DOCKER_CMD for DreamForge restart",
+      "additions": 3,
+      "deletions": 3,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "scripts-shell"
+    },
+    {
+      "n": 973,
+      "title": "docs: sync documentation with codebase after 50+ merged PRs",
+      "additions": 376,
+      "deletions": 115,
+      "changedFiles": 13,
+      "isDraft": false,
+      "primary_sub": "docs"
+    }
+  ],
+  "boffin-dmytro": [
+    {
+      "n": 1042,
+      "title": "feat(support): add redacted diagnostics bundle generator",
+      "additions": 796,
+      "deletions": 0,
+      "changedFiles": 3,
+      "isDraft": false,
+      "primary_sub": "docs"
+    },
+    {
+      "n": 966,
+      "title": "docs(platform): sync Windows and macOS support docs",
+      "additions": 44,
+      "deletions": 30,
+      "changedFiles": 1,
+      "isDraft": false,
+      "primary_sub": "docs"
+    },
+    {
+      "n": 959,
+      "title": "fix: address audit findings \u2014 Windows docs, Token Spy auth, and incubator disclaimers",
+      "additions": 23,
+      "deletions": 9,
+      "changedFiles": 3,
+      "isDraft": false,
+      "primary_sub": "token-spy"
+    }
+  ],
+  "y-coffee-dev": [
+    {
+      "n": 1043,
+      "title": "fix(installer): custom menu's 'n' answers were not actually disabling services",
+      "additions": 47,
+      "deletions": 47,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "installer-core"
+    },
+    {
+      "n": 750,
+      "title": "feat: AMD Multi-GPU Support",
+      "additions": 3092,
+      "deletions": 145,
+      "changedFiles": 33,
+      "isDraft": false,
+      "primary_sub": "tests"
+    }
+  ],
+  "reo0603": [
+    {
+      "n": 351,
+      "title": "test: add comprehensive input validation and injection resistance tests",
+      "additions": 370,
+      "deletions": 2,
+      "changedFiles": 5,
+      "isDraft": false,
+      "primary_sub": "dashboard-api"
+    }
+  ],
+  "championVisionAI": [
+    {
+      "n": 364,
+      "title": "feat(dashboard-api): add settings, voice runtime, and diagnostics APIs",
+      "additions": 471,
+      "deletions": 149,
+      "changedFiles": 4,
+      "isDraft": false,
+      "primary_sub": "dashboard-api"
+    }
+  ],
+  "Arifuzzamanjoy": [
+    {
+      "n": 983,
+      "title": "feat(resources): add p2p-gpu deploy toolkit for Vast.ai GPU instances",
+      "additions": 5054,
+      "deletions": 165,
+      "changedFiles": 33,
+      "isDraft": false,
+      "primary_sub": "resources"
+    },
+    {
+      "n": 716,
+      "title": "fix(extensions-library): add sensible defaults for required env vars",
+      "additions": 27,
+      "deletions": 4,
+      "changedFiles": 3,
+      "isDraft": false,
+      "primary_sub": "resources"
+    }
+  ],
+  "gabsprogrammer": [
+    {
+      "n": 961,
+      "title": "feat: add mobile paths for Android Termux and iOS a-Shell",
+      "additions": 6891,
+      "deletions": 26,
+      "changedFiles": 30,
+      "isDraft": false,
+      "primary_sub": "other"
+    }
+  ],
+  "app/dependabot": [
+    {
+      "n": 991,
+      "title": "chore(deps): bump anthropics/claude-code-action from 1.0.97 to 1.0.104",
+      "additions": 4,
+      "deletions": 4,
+      "changedFiles": 3,
+      "isDraft": false,
+      "primary_sub": "ci"
+    },
+    {
+      "n": 990,
+      "title": "chore(deps): bump actions/github-script from 8.0.0 to 9.0.0",
+      "additions": 5,
+      "deletions": 5,
+      "changedFiles": 2,
+      "isDraft": false,
+      "primary_sub": "ci"
+    }
+  ]
+}

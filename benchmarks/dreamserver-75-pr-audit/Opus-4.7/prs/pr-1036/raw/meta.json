@@ -1,0 +1,24 @@
+{
+  "additions": 2,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- Deletes the community-variant `resources/dev/extensions-library/services/privacy-shield/` (8 files, 598 LOC).\n- Removes 2 table rows from `resources/dev/extensions-library/README.md` (catalog + compatibility matrix) and updates the \"33 service extensions\" prose counts to 32.\n- The authoritative built-in at `dream-server/extensions/services/privacy-shield/` is untouched.\n\n## Why a delete\nThe community variant cannot be installed via the dashboard: `_scan_compose_content` in `routers/extensions.py` rejects any compose declaring a service whose name is in `CORE_SERVICE_IDS` (which includes `privacy-shield`, per `config/core-service-ids.json`). So the file existed as reference code but contained multiple regressions vs the built-in:\n\n- `/health` + `/stats` exposed `target_api`, `active_sessions`, `total_pii_scrubbed` **without authentication** (built-in gates these behind `_is_authenticated`).\n- Ephemeral `SHIELD_API_KEY` regenerated every container restart (no persistence via `SHIELD_API_KEY_PATH`).\n- Bare `127.0.0.1:` port binding violates PR #964's `${BIND_ADDRESS:-127.0.0.1}:` pattern.\n- Missing `compatibility.dream_min`.\n\nRemoving the reference is safer than letting users find it and attempt a manual install that would ship those regressions.\n\n## Platform Impact\n- **macOS / Linux / Windows-WSL2**: identical. Filesystem-only delete in `resources/dev/`; no code, compose, installer, or CI behavior changes.\n\n## Testing\n- `make lint` \u2192 All lint checks passed.\n- `pre-commit run` \u2192 gitleaks, private-key, large-file all pass. (`detect-private-key` fails on 3 unrelated pre-existing files on main; not introduced by this PR.)\n- `grep -rn \"extensions-library.*privacy-shield\"` \u2192 0 matches post-delete.\n- `generate-extensions-catalog.py` still produces a valid catalog (32 entries).\n\n## Defense-in-depth retained\n`EXCLUDED_IDS = {\"privacy-shield\"}` at `resources/dev/scripts/generate-extensions-catalog.py:21` is left in place so an accidental directory reintroduction won't silently add `privacy-shield` to the generated catalog.\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)",
+  "changedFiles": 9,
+  "createdAt": "2026-04-24T19:52:41Z",
+  "deletions": 602,
+  "headRefName": "chore/remove-community-privacy-shield",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1036,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "chore(extensions-library): remove community privacy-shield (dead code)",
+  "updatedAt": "2026-04-24T19:52:41Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1036"
+}

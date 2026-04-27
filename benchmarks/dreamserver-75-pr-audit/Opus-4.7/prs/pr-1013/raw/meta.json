@@ -1,0 +1,24 @@
+{
+  "additions": 8,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nTwo related gaps in the `DREAM_AGENT_KEY` lifecycle (the independent 32-byte hex secret introduced by PR #979):\n\n1. **`.env.example`** \u2014 adds a commented documentation entry for `DREAM_AGENT_KEY` next to the existing `DASHBOARD_API_KEY` entry, with a generation hint and a warning that rotation breaks host-agent authentication.\n2. **macOS `installers/macos/lib/env-generator.sh`** \u2014 closes the upgrade gap: pre-PR-#979 installs that re-run the installer without `--force` previously skipped `DREAM_AGENT_KEY` entirely. The host agent then fell back to `DASHBOARD_API_KEY`, defeating #979's intent of making the two secrets independent. Fix adds an idempotent upsert inside the existing early-return block.\n\n## Why\nAfter PR #979 made `DREAM_AGENT_KEY` a distinct secret from `DASHBOARD_API_KEY`, the lifecycle was only complete on Linux (`installers/phases/06-directories.sh:208` \u2014 `_env_get`-or-generate). Windows landed in a separate PR. macOS was left with an inconsistency: fresh installs generated the key (via the heredoc `ENVEOF` path), but reinstalls/upgrades skipped the upsert and left pre-#979 installs without it. `.env.example` also never mentioned the key, making it invisible to anyone reading the example config.\n\n## How\n- `.env.example`: one commented documentation line inserted between the existing `# DASHBOARD_API_KEY=` and the Qdrant section. Matches the style of surrounding commented-key entries.\n- `env-generator.sh`: inside the `if [[ -f \"$env_path\" ]] && [[ \"$force_overwrite\" != \"true\" ]]` early-return block, immediately before `return 0`, adds:\n  ```bash\n  if [[ -z \"$(read_env_value \"$env_path\" \"DREAM_AGENT_KEY\")\" ]]; then\n      upsert_env_value \"$env_path\" \"DREAM_AGENT_KEY\" \"$(new_secure_hex 32)\"\n  fi\n  ```\n  Structurally equivalent to the Linux `_env_get`-or-generate pattern, expressed as an idempotent upsert. Re-runs produce no-ops. Fresh-install Path B (heredoc) is unchanged.\n\n## Testing\n- [x] `bash -n installers/macos/lib/env-generator.sh` \u2014 clean\n- [x] `shellcheck installers/macos/lib/env-generator.sh` \u2014 no new warnings (all pre-existing SC2034/SC2153/SC2006 are far from the edit)\n- [x] Pre-commit (gitleaks / private-key / large-file) \u2014 clean\n- [x] Manual reasoning verified against three scenarios: missing key, empty value, populated value \u2014 upsert is idempotent and preserves existing keys\n\n### Manual test steps (macOS)\n1. Pre-#979 upgrade: take a `.env` lacking `DREAM_AGENT_KEY`, re-run installer without `--force` \u2192 key is generated and upserted; `DASHBOARD_API_KEY` preserved.\n2. Repeat the same installer invocation \u2192 no change to `DREAM_AGENT_KEY` (idempotent).\n3. Fresh install (`.env` absent or `--force`) \u2192 key is still written via the existing heredoc path; no regression.\n\n## Platform Impact\n- **macOS** (primary target): closes the upgrade gap; fresh installs unchanged.\n- **Linux**: no impact \u2014 `installers/phases/06-directories.sh:208` already had the equivalent `_env_get`-or-generate pattern.\n- **Windows (WSL2)**: no impact \u2014 Windows installer uses `Get-EnvOrNew` in its PowerShell env-generator.\n\n## Known Considerations\n`.env.schema.json` line 269's description for `DREAM_AGENT_KEY` still mentions \"falls back to `DASHBOARD_API_KEY` if unset\", which is stale post-#979 (the two are fully independent now). Out-of-scope for this PR; worth a small follow-up to correct the description.",
+  "changedFiles": 2,
+  "createdAt": "2026-04-23T23:03:10Z",
+  "deletions": 0,
+  "headRefName": "fix/dream-agent-key-lifecycle",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1013,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dream-agent-key): complete DREAM_AGENT_KEY lifecycle on macOS + docs",
+  "updatedAt": "2026-04-23T23:03:10Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1013"
+}

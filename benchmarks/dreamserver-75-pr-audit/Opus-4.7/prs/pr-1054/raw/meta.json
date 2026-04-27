@@ -1,0 +1,24 @@
+{
+  "additions": 4,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nTighten `_is_installable` in `routers/extensions.py` so an extension is only advertised as installable when it actually has a deployable `compose.yaml` on disk.\n\n## Why\nThe library currently ships three entries that have only `compose.yaml.disabled` or `compose.yaml.reference` files:\n\n- `dify`, `jan` \u2014 only `compose.yaml.disabled`\n- `fooocus` \u2014 only `.reference` files\n\nThe predicate did `(library_dir / ext_id).is_dir()`, so the dashboard rendered Install buttons for them. Clicking Install copied the directory into `user-extensions/`, but the host agent could not start a service because no compose was deployable. Users saw cryptic errors with no clear cause.\n\n`aider` keeps a real `compose.yaml` with `entrypoint: [\"echo\"]` and `restart: \"no\"` \u2014 that's intentional CLI-tool surface and remains installable, matching existing UX.\n\n## How\nSingle-function change. New body checks both directory presence AND a deployable `compose.yaml`:\n\n```python\ndef _is_installable(ext_id: str) -> bool:\n    ext_dir = EXTENSIONS_LIBRARY_DIR / ext_id\n    return ext_dir.is_dir() and (ext_dir / \"compose.yaml\").exists()\n```\n\nNo schema change, no manifest field added, no frontend change. Catalog response shape is unchanged \u2014 only the `installable` boolean flips for the three affected entries. Both call sites consume the bool directly; no signature change.\n\n## Testing\n- `python3 -m py_compile` PASS.\n- `ruff check` PASS.\n- `pytest tests/` (dashboard-api) \u2014 137/137 PASS, no new failures.\n- Sanity-checked all 33 catalog entries: 3 correctly hidden (dify, jan, fooocus); 30 still installable, including aider.\n- Live runtime verification on macOS Apple Silicon after rebuild: `/api/extensions/catalog` returns `installable: false` for dify/jan/fooocus and `installable: true` for aider/milvus/anythingllm. Extensions page UI shows no Install button for the three blocked entries.\n\n## Review\nNone required from external reviewers \u2014 change is mechanical and observable. Local CG (Critique Guardian) review approved cleanly: five-pillar pass, no warnings.\n\n## Known considerations\nThe predicate hardcodes the filename `compose.yaml`. Today every catalog entry's `compose_file` field is either `\"compose.yaml\"` or `\"\"`, so this matches reality. A future extension that ships a different filename would need its own treatment \u2014 worth keeping in mind, not load-bearing here.\n\n## Platform impact\n- **macOS**: Active. UI no longer offers Install buttons for the three broken extensions on Apple Silicon (where `gpu_backends` already filtered some of them; this is a second layer of defense). Verified live.\n- **Linux**: Same code path. dify/jan are GPU-compatible on AMD/NVIDIA, so this filter is the primary mechanism that hides their Install buttons there.\n- **Windows/WSL2**: Same. Pure Python `pathlib`; no platform-specific behavior.",
+  "changedFiles": 1,
+  "createdAt": "2026-04-26T18:35:29Z",
+  "deletions": 1,
+  "headRefName": "fix/catalog-installable-requires-compose",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1054,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dashboard-api): require deployable compose.yaml to mark extension installable",
+  "updatedAt": "2026-04-26T18:35:29Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1054"
+}

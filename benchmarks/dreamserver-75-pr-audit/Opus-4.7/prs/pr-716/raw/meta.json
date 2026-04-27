@@ -1,0 +1,24 @@
+{
+  "additions": 27,
+  "author": {
+    "id": "U_kgDOBb4zqw",
+    "is_bot": false,
+    "login": "Arifuzzamanjoy",
+    "name": "Arifuzzaman Joy"
+  },
+  "baseRefName": "resources/dev",
+  "body": "8 compose files were failing validate-compose.sh because they required env vars to be set before compose config could run. Added sensible defaults so services can start out of the box.\n\n**Changes:**\n- anythingllm: JWT_SECRET, AUTH_TOKEN\n- flowise: USERNAME, PASSWORD (empty = no auth for local dev)\n- frigate: RTSP_PASSWORD\n- jupyter: TOKEN\n- librechat: CREDS_KEY, CREDS_IV, JWT secrets, MONGO_PASSWORD, MEILI_KEY\n- open-interpreter: API_KEY (optional)\n- paperless-ngx: SECRET_KEY\n- weaviate: API_KEY\n\nAll defaults are obvious placeholders meant for local dev. Users should override them for production.",
+  "changedFiles": 3,
+  "createdAt": "2026-04-01T18:30:37Z",
+  "deletions": 4,
+  "headRefName": "fix/compose-env-defaults",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "UNSTABLE",
+  "mergeable": "MERGEABLE",
+  "number": 716,
+  "reviewDecision": "CHANGES_REQUESTED",
+  "title": "fix(extensions-library): add sensible defaults for required env vars",
+  "updatedAt": "2026-04-23T13:33:03Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/716"
+}

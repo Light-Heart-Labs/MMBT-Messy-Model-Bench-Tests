@@ -1,0 +1,24 @@
+{
+  "additions": 53,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\n\n`dream list --json` and `dream status --json` now work as advertised. Previously the `--json` flag was silently dropped because the main case dispatch forwarded no arguments to the subcommands. Also documents the previously-undocumented `dream doctor --json`, keeps `dream status-json` as a back-compat hyphenated alias.\n\n## Why\n\nScripts piping `dream list` / `dream status` output to `jq` got parse errors because the subcommands emitted human-readable output regardless of any flag passed. The human-readable hyphenated alias `dream status-json` was the only JSON-emitting path; `--json` appeared to work (no error) but emitted the wrong format.\n\n## How\n\nSingle commit `46df7641`:\n\n- Main case dispatch now forwards `\"$@\"` to both `cmd_list` and `cmd_status`.\n- `cmd_list --json` emits a JSON array of `{id, category, status}`.\n- `cmd_status --json` delegates to the existing `cmd_status_json`. The delegation is wrapped in a subshell (`( cmd_status_json )`) to isolate the RETURN trap set inside `cmd_status_json` \u2014 without the subshell, the trap would leak into `cmd_status`'s frame and crash with an unbound-variable error when the sibling nounset PR lands on top.\n- Unknown flags on these subcommands now error cleanly (exit 1).\n- `cmd_help` advertises the new flags and the existing `doctor --json`.\n\n## Testing\n\n- `dream list --json | jq '.'` and `dream status --json | jq '.'` both parse successfully.\n- Isolated sandbox repro under `set -euo pipefail` confirms subshell isolation prevents the RETURN trap leak.\n- Round-1 review: Critique Guardian approved. Round-2 adversarial audit: verified.\n\n## Known Considerations\n\n`cmd_status_json`'s internal RETURN trap (single-quoted, `$tmp` resolved at fire-time) is the latent root cause and exists pre-PR on upstream `main` too \u2014 dormant there because upstream currently has only `set -e`. The subshell wrap in this PR defensively hardens the new caller path without modifying the pre-existing function (the wider trap fix belongs with the nounset PR that adds `set -u`).\n\n`dream status-json` hyphenated alias is kept for one release for back-compat.\n\n## Platform Impact\n\n- **macOS / Linux / Windows (WSL2):** identical. No platform branching.\n",
+  "changedFiles": 1,
+  "createdAt": "2026-04-23T19:50:47Z",
+  "deletions": 6,
+  "headRefName": "feat/dream-cli-json-flag",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1000,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "feat(dream-cli): --json flag on list/status and document doctor --json",
+  "updatedAt": "2026-04-23T19:50:47Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1000"
+}

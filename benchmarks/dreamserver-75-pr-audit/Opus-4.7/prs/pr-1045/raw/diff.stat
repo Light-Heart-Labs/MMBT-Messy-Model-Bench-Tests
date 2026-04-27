@@ -1,0 +1,5 @@
+ dream-server/bin/dream-host-agent.py               | 134 ++++++++
+ .../services/dashboard-api/routers/extensions.py   |  67 ++--
+ .../dashboard-api/tests/test_extensions.py         |  84 +++--
+ .../dashboard-api/tests/test_host_agent.py         | 339 +++++++++++++++++++++
+ 4 files changed, 569 insertions(+), 55 deletions(-)

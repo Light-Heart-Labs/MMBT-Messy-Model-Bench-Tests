@@ -1,0 +1,14 @@
+ README.md                                          |   2 +-
+ dream-server/.env.example                          |   3 +
+ dream-server/QUICKSTART.md                         |  20 ++--
+ dream-server/README.md                             |  14 +--
+ dream-server/SECURITY.md                           |  24 +++++
+ dream-server/docs/FAQ.md                           |  96 ++++++++++++++++-
+ dream-server/docs/HOST-AGENT-API.md                |   1 +
+ dream-server/docs/MODE-SWITCH.md                   |  35 +++++--
+ dream-server/docs/POST-INSTALL-CHECKLIST.md        |  77 ++++++++++----
+ dream-server/docs/SUPPORT-MATRIX.md                |   1 +
+ dream-server/docs/WINDOWS-QUICKSTART.md            | 100 +++++++-----------
+ dream-server/extensions/CATALOG.md                 |   2 +
+ .../extensions/services/langfuse/README.md         | 116 +++++++++++++++++++++
+ 13 files changed, 376 insertions(+), 115 deletions(-)

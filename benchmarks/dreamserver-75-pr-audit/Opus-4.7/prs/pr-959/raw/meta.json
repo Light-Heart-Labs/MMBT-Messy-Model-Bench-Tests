@@ -1,0 +1,24 @@
+{
+  "additions": 23,
+  "author": {
+    "id": "U_kgDODXVawQ",
+    "is_bot": false,
+    "login": "boffin-dmytro",
+    "name": "Dmytro"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nAddresses all 4 findings from the project audit (3 High, 1 Medium):\n\n### Windows support messaging (High)\n- **WINDOWS-QUICKSTART.md**: remove \"Coming Soon\" language, update to reflect current supported status with actual working commands\n- **SUPPORT-MATRIX.md**: update CI section to reflect all smoke coverages already running; fix roadmap framing\n- **README.md**: minor alignment with platform support table\n\n### Token Spy auth flow (High)\n- **main.py**: strip `authorization` from forwarded headers in both Anthropic and OpenAI proxy endpoints; inject upstream auth via new `_get_upstream_auth_headers()` helper that uses `UPSTREAM_API_KEY` for hosted providers and allows local upstreams without auth\n- **TOKEN-SPY-GUIDE.md, README.md**: document the two-key model (`TOKEN_SPY_API_KEY` for dashboard, `UPSTREAM_API_KEY` for upstream) and explicitly state this is not a transparent drop-in proxy\n\n### Incubator doc disclaimers (High)\n- **PHASE1-ARCHITECTURE.md**: add prototype/incubator disclaimer, change \"Implementation Complete\" to \"Prototype Complete\"\n- **resources/products/token-spy/README.md, PRODUCT-SCOPE.md**: add disclaimers distinguishing incubator work from shipped extension\n\n### CI smoke claims (Medium)\n- **SUPPORT-MATRIX.md**: accurately reflects all four smoke coverages (Linux AMD, Linux NVIDIA, Windows/WSL, macOS) as already running\n\n## Test plan\n\n- [ ] Verify WINDOWS-QUICKSTART.md, SUPPORT-MATRIX.md, and README.md all say Windows is supported today\n- [ ] Verify Token Spy proxy endpoints no longer forward `authorization` header upstream\n- [ ] Verify `UPSTREAM_API_KEY` is injected for hosted providers\n- [ ] Verify incubator docs have clear prototype disclaimers\n",
+  "changedFiles": 3,
+  "createdAt": "2026-04-14T15:33:45Z",
+  "deletions": 9,
+  "headRefName": "fix/audit-docs-and-token-spy-auth",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 959,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix: address audit findings \u2014 Windows docs, Token Spy auth, and incubator disclaimers",
+  "updatedAt": "2026-04-18T15:34:04Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/959"
+}

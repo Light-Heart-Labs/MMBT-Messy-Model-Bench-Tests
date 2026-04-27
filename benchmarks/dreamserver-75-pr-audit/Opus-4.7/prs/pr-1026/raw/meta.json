@@ -1,0 +1,24 @@
+{
+  "additions": 63,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nAll three installers now write `setup-complete.json` after a successful install, so the setup wizard does not reappear on first dashboard load.\n\n## Why\n`routers/setup.py::setup_status` returns `first_run=true` whenever `${SETUP_CONFIG_DIR}/setup-complete.json` is absent. The file was only ever written by `POST /api/setup/complete` \u2014 the final step of the wizard UI. A user who installed normally but never clicked through all six wizard steps saw the overlay on every page load indefinitely.\n\n## How\nWrite the marker from all three installers immediately after the success card is displayed and services are confirmed up:\n\n- **Linux** (`installers/phases/13-summary.sh`): added inside the `if ! $DRY_RUN` block after `show_success_card`. Uses `date -u +%Y-%m-%dT%H:%M:%SZ` (BSD/GNU-safe).\n- **macOS** (`installers/macos/install-macos.sh`): added in Phase 6 between `configure_perplexica` and `show_success_card`, past the dry-run exit at L1051. Uses BSD-safe `date -u +\"%Y-%m-%dT%H:%M:%SZ\"`.\n- **Windows** (`installers/windows/install-windows.ps1`): added after `Write-SuccessCard`, wrapped in `try/catch`. Uses `Join-Path`, `New-Item -Force`, `ConvertTo-Json -Compress`, `Set-Content -Encoding UTF8`.\n- **Contract test** (`tests/contracts/test-installer-contracts.sh`): static-grep assertion that all three installers emit the write.\n\nPayload matches what `POST /api/setup/complete` writes:\n```json\n{\"completed_at\":\"<ISO-8601 UTC>\",\"version\":\"1.0.0\"}\n```\n\nHost path: `${INSTALL_DIR}/data/config/setup-complete.json`\nContainer path: `/data/config/setup-complete.json` (via `./data:/data` bind mount in `docker-compose.base.yml`).\n\nFailure to write the marker is non-fatal \u2014 logged as a warning; the worst outcome is the wizard reappearing.\n\n## Testing\n- **Automated:** `bash -n` clean on Linux and macOS installer files; shellcheck shows no new warnings (reductions only); contract test passes (`tests/contracts/test-installer-contracts.sh`).\n- **Manual (Linux):** Run installer to completion \u2192 open dashboard \u2192 confirm setup wizard does **not** appear \u2192 verify `${INSTALL_DIR}/data/config/setup-complete.json` exists with correct JSON.\n- **Manual (macOS):** Same as Linux, using `install-macos.sh`.\n- **Manual (Windows/WSL2):** Run `install-windows.ps1` to completion \u2192 same dashboard check \u2192 verify file at `${INSTALL_DIR}/data/config/setup-complete.json`.\n\n## Platform Impact\n- **macOS:** Affected \u2014 `install-macos.sh` Phase 6 writes the marker using BSD-safe `date -u` syntax.\n- **Linux:** Affected \u2014 `installers/phases/13-summary.sh` writes the marker in the `if ! $DRY_RUN` block.\n- **Windows (WSL2):** Affected \u2014 `install-windows.ps1` writes the marker via PowerShell `Set-Content -Encoding UTF8`.\n\n## Known Considerations\n- The contract test uses static grep \u2014 a future refactor that moves the write call into a helper function without updating the grep pattern would cause a false negative. Runtime verification should be added if the write is ever abstracted.\n- On Windows, `Set-Content -Encoding UTF8` under PowerShell 5.1 writes a UTF-8 BOM. This is moot for this use case because `routers/setup.py` only calls `.exists()` on the file path \u2014 the file content is not parsed on the read path. PowerShell 7+ writes BOM-free UTF-8 by default.\n- PowerShell syntax was not locally validated (pwsh unavailable on macOS dev machine); CI `lint-powershell.yml` is the gate.\n",
+  "changedFiles": 4,
+  "createdAt": "2026-04-24T16:18:41Z",
+  "deletions": 0,
+  "headRefName": "fix/installer-writes-setup-complete",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1026,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(installer): pre-mark setup wizard complete on successful install",
+  "updatedAt": "2026-04-24T16:18:41Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1026"
+}

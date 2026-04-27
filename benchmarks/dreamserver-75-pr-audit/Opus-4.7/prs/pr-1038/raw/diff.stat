@@ -1,0 +1,4 @@
+ .../services/dashboard-api/routers/extensions.py   |  34 +++-
+ .../dashboard-api/tests/test_extensions.py         | 187 +++++++++++++++++++++
+ .../services/dashboard/src/pages/Extensions.jsx    |  27 ++-
+ 3 files changed, 240 insertions(+), 8 deletions(-)

@@ -1,0 +1,24 @@
+{
+  "additions": 538,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## \u26a0\ufe0f Draft \u2014 depends on #999 merging first\n\n#999 (`fix/dream-cli-apple-silicon-coverage`) introduces the 5 Apple `GPU_BACKEND=apple` code paths (`_gpu_status`, `_gpu_topology`, `_gpu_validate`, `_gpu_reassign`, `cmd_status_json`) plus a Darwin branch in `scripts/dream-doctor.sh` (RAM via `sysctl hw.memsize`, POSIX `df -k`). This PR adds regression shields for all of them.\n\nOnce #999 merges, rebase drops the merge commit and the PR diff becomes 2 new test files (138 + 321 LoC).\n\n## What\nTwo new test files locking in Apple-Silicon behavior:\n\n### `tests/contracts/test-dream-doctor.sh` (138 lines, 5 cases, Darwin-guarded)\n- `dream-doctor.sh` exits 0 under `GPU_BACKEND=apple`\n- `.preflight.inputs.ram_gb` > 0 (sysctl hw.memsize path)\n- `.preflight.inputs.disk_gb` > 0 (POSIX df -k on $HOME)\n- `.autofix_hints` has 0 \"incompatible with current GPU backend\" entries under apple backend\n- Empty-sysctl stub forces fallback to `.env` `HOST_RAM_GB` (writes/removes .env; pre-existing .env \u2192 SKIP)\n\nSkips cleanly on Linux CI via `[[ \"$(uname -s)\" == \"Darwin\" ]] || skip`.\n\n### `tests/test-gpu-apple.sh` (321 lines, 21 cases)\nHermetic PATH-stub pattern (sysctl, system_profiler, curl, docker all PATH-prepended). `nvidia-smi` intentionally absent so `command -v nvidia-smi` returns false under the apple branch tests.\n\n- `gpu status` (apple): rc=0 + header + Chip/Unified-memory/GPU-cores output + stub chip reflected\n- `gpu topology` (apple): \"Single integrated GPU\" + rc=0\n- `gpu validate` (apple): \"Result: 0 check(s) passed, 0 failed\" + rc=0\n- `gpu reassign` (apple): rc=1 + \"not applicable on Apple Silicon\"\n- `status-json` (apple): valid JSON with `.gpu.backend=apple`, `.gpu.chip`, `.gpu.unified_memory_gb` (number), `.gpu.gpu_cores=38`\n- **Negative cases**: `GPU_BACKEND=nvidia` and `GPU_BACKEND=amd` do NOT take the apple branch; nvidia fallthrough warning emitted\n\nTop-level Bash-4+ guard skips cleanly on stock macOS `/bin/bash` 3.2.\n\n## Testing\n- [x] `test-gpu-apple.sh`: **21/21 pass** locally (macOS Darwin, homebrew bash 5.3)\n- [x] `test-dream-doctor.sh`: **5/5 pass** locally\n- [x] `bash -n` + `shellcheck` clean (one justified `# shellcheck disable=SC2016` on the single-quoted child-bash probe)\n- [x] Pre-commit hooks clean\n- [x] Fixture cleanup verified: no leftover `.env` files, no orphaned `/tmp/test-*` dirs\n\n## Platform Impact\n- **macOS** (primary target): all 26 assertions exercise Apple GPU_BACKEND paths + Darwin doctor branch\n- **Linux**: Darwin-specific cases skip via `uname`; mock-based cases run and confirm nvidia/amd backends fall through correctly\n- **Windows WSL2**: would run as Linux (no Darwin-specific behavior to exercise; negative cases still valid)",
+  "changedFiles": 4,
+  "createdAt": "2026-04-23T23:41:51Z",
+  "deletions": 5,
+  "headRefName": "test/apple-silicon-and-doctor",
+  "isDraft": true,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1020,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "test: contract + mock coverage for Apple Silicon GPU backends",
+  "updatedAt": "2026-04-23T23:41:51Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1020"
+}

@@ -1,0 +1,10 @@
+ resources/dev/extensions-library/README.md         |   6 +-
+ .../services/privacy-shield/Dockerfile             |  27 ---
+ .../services/privacy-shield/PII_COVERAGE.md        |  62 ------
+ .../services/privacy-shield/README.md              |  54 -----
+ .../services/privacy-shield/compose.yaml           |  42 ----
+ .../services/privacy-shield/manifest.yaml          |  19 --
+ .../services/privacy-shield/pii_scrubber.py        | 170 ----------------
+ .../services/privacy-shield/proxy.py               | 218 ---------------------
+ .../services/privacy-shield/requirements.txt       |   6 -
+ 9 files changed, 2 insertions(+), 602 deletions(-)

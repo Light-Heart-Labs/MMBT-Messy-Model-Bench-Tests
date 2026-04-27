@@ -1,0 +1,24 @@
+{
+  "additions": 2,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nReplaces the order-dependent regex in `tests/test-doctor-extension-diagnostics.sh` test #9 (\"Extension summary output present\") with two order-independent chained greps.\n\n## Why\nThe existing assertion\n```bash\ngrep -q \"ext_total.*ext_healthy\" \"$ROOT_DIR/scripts/dream-doctor.sh\"\n```\nrequires `ext_total` to appear **first** on the matched line. But `scripts/dream-doctor.sh:364` emits\n```python\nprint(f\"  Extensions:    {ext_healthy}/{ext_total} healthy, {ext_issues} with issues\")\n```\n\u2014 `ext_healthy` comes first. The grep has been permanently failing since the format was introduced; test #9 has been broken on every branch that inherits from `main`.\n\n## How\nSwitches to the chained-grep idiom already used elsewhere in the same file (test #7, lines 74\u201380, which checks for `extensions_total`, `extensions_healthy`, and `extensions_issues`):\n```bash\nif grep -q \"ext_total\" \"$ROOT_DIR/scripts/dream-doctor.sh\" && \\\n   grep -q \"ext_healthy\" \"$ROOT_DIR/scripts/dream-doctor.sh\"; then\n```\nOrder-independent and future-proof against either variable being reordered in the print statement.\n\n## Testing\n- [x] `bash -n tests/test-doctor-extension-diagnostics.sh` \u2014 clean\n- [x] `shellcheck tests/test-doctor-extension-diagnostics.sh` \u2014 no new warnings\n- [x] `bash tests/test-doctor-extension-diagnostics.sh` \u2014 all 9 tests pass (was 8/9 before this change)\n- [x] Pre-commit (gitleaks / private-key / large-file) \u2014 clean\n\n## Platform Impact\n- **macOS**: passes\n- **Linux**: passes (CI runs on Ubuntu \u2014 confirmed via identical bash+grep semantics)\n- **Windows (WSL2)**: not exercised \u2014 tests are Linux/macOS only",
+  "changedFiles": 1,
+  "createdAt": "2026-04-23T23:03:18Z",
+  "deletions": 1,
+  "headRefName": "fix/doctor-extension-diagnostics-test",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1014,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(tests): repair extension summary assertion in doctor diagnostics test",
+  "updatedAt": "2026-04-23T23:03:18Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1014"
+}

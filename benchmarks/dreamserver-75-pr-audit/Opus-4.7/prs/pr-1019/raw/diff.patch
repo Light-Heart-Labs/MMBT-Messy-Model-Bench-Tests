@@ -1,0 +1,961 @@
+diff --git a/dream-server/extensions/services/dashboard-api/routers/setup.py b/dream-server/extensions/services/dashboard-api/routers/setup.py
+index f7e82fb8..a879740f 100644
+--- a/dream-server/extensions/services/dashboard-api/routers/setup.py
++++ b/dream-server/extensions/services/dashboard-api/routers/setup.py
+@@ -123,6 +123,7 @@ async def run_setup_diagnostics(api_key: str = Depends(verify_api_key)):
+     if not script_path.exists():
+         async def error_stream():
+             yield "Diagnostic script not found. Running basic connectivity tests...\n"
++            all_ok = True
+             async with aiohttp.ClientSession() as session:
+                 services = [
+                     (cfg.get("name", sid), f"http://{cfg.get('host', sid)}:{cfg.get('port', 80)}{cfg.get('health', '/')}")
+@@ -131,11 +132,20 @@ async def run_setup_diagnostics(api_key: str = Depends(verify_api_key)):
+                 for name, url in services:
+                     try:
+                         async with session.get(url, timeout=5) as resp:
+-                            status = "\u2713" if resp.status == 200 else "\u2717"
+-                            yield f"{status} {name}: {resp.status}\n"
++                            if resp.status == 200:
++                                yield f"\u2713 {name}: {resp.status}\n"
++                            else:
++                                yield f"\u2717 {name}: {resp.status}\n"
++                                all_ok = False
+                     except (aiohttp.ClientError, asyncio.TimeoutError, OSError) as e:
+                         yield f"\u2717 {name}: {e}\n"
+-            yield "\nSetup complete!\n"
++                        all_ok = False
++            # Emit trailer + sentinel in a single chunk (see run_tests() for
++            # why separate yields drop the sentinel at the Starlette boundary).
++            trailer = "All tests passed!" if all_ok else "Some tests failed."
++            result = "PASS" if all_ok else "FAIL"
++            rc = 0 if all_ok else 1
++            yield f"\n{trailer}\n__DREAM_RESULT__:{result}:{rc}\n"
+         return StreamingResponse(error_stream(), media_type="text/plain")
+ 
+     async def run_tests():
+@@ -144,10 +154,32 @@ async def run_setup_diagnostics(api_key: str = Depends(verify_api_key)):
+             stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT,
+         )
+         try:
+-            async for line in process.stdout:
+-                yield line.decode()
+-            await process.wait()
+-            yield f"\n{'All tests passed!' if process.returncode == 0 else 'Some tests failed.'}\n"
++            try:
++                async for line in process.stdout:
++                    yield line.decode()
++                await process.wait()
++                # Emit the human-readable trailer AND the machine-readable sentinel
++                # as a SINGLE chunk. Starlette's StreamingResponse finalizes the
++                # HTTP stream as soon as the async generator exits; when trailer
++                # and sentinel are separate yields, the final sentinel bytes have
++                # been observed to never reach the client (the generator yields
++                # them but the transport drops the last chunk during close).
++                # Combining into one yield guarantees both land on the wire.
++                trailer = "All tests passed!" if process.returncode == 0 else "Some tests failed."
++                status = "PASS" if process.returncode == 0 else "FAIL"
++                yield f"\n{trailer}\n__DREAM_RESULT__:{status}:{process.returncode}\n"
++            except (OSError, asyncio.CancelledError):
++                # Re-raise cancellation/disconnect — the client is gone, no point
++                # emitting a sentinel into a dead stream and CancelledError must
++                # propagate so the runtime can finalize the task tree.
++                raise
++            except Exception as exc:  # noqa: BLE001 — sentinel contract requires *some* terminal signal
++                # The frontend SetupWizard parser treats absence of a sentinel as
++                # failure, so even when the runner blows up unexpectedly we still
++                # close the stream with a FAIL sentinel rather than leaving the
++                # client to fall back on best-effort log scraping.
++                logger.exception("run_setup_diagnostics generator raised: %s", exc)
++                yield f"\nDiagnostic runner error: {exc}\n__DREAM_RESULT__:FAIL:1\n"
+         finally:
+             if process.returncode is None:
+                 try:
+diff --git a/dream-server/extensions/services/dashboard-api/tests/test_setup_sentinel.py b/dream-server/extensions/services/dashboard-api/tests/test_setup_sentinel.py
+new file mode 100644
+index 00000000..b007e9e8
+--- /dev/null
++++ b/dream-server/extensions/services/dashboard-api/tests/test_setup_sentinel.py
+@@ -0,0 +1,148 @@
++"""Tests for the __DREAM_RESULT__ sentinel emission on /api/setup/test.
++
++The frontend SetupWizard parser treats the sentinel as the source of truth
++for diagnostic success/failure. Absence falls back to scraping log lines
++for "All tests passed!", which is fragile, so the contract is that every
++terminal state of the streaming endpoint MUST yield exactly one sentinel
++line as its last line.
++"""
++
++from __future__ import annotations
++
++import os
++import stat
++from pathlib import Path
++
++import pytest
++
++
++SENTINEL_PREFIX = "__DREAM_RESULT__:"
++
++
++def _last_sentinel_line(lines):
++    """Return the parsed (status, rc) tuple for the last sentinel found.
++
++    Yields a tuple even when several sentinel lines exist in the stream
++    so we can assert the final terminator wins. ``rc`` is returned as a
++    string to keep the parse symmetric with the wire format.
++    """
++    sentinel = None
++    for line in lines:
++        if line.startswith(SENTINEL_PREFIX):
++            sentinel = line
++    assert sentinel is not None, f"no __DREAM_RESULT__ line found in stream: {lines!r}"
++    payload = sentinel[len(SENTINEL_PREFIX):]
++    status, _, rc = payload.partition(":")
++    return status, rc
++
++
++def _write_test_script(install_root: Path, body: str) -> Path:
++    """Write a bash script to install_root/scripts/dream-test-functional.sh."""
++    scripts = install_root / "scripts"
++    scripts.mkdir(parents=True, exist_ok=True)
++    path = scripts / "dream-test-functional.sh"
++    path.write_text(body, encoding="utf-8")
++    path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
++    return path
++
++
++@pytest.fixture()
++def setup_install_dir(tmp_path, monkeypatch):
++    """Provide an isolated INSTALL_DIR for the setup router.
++
++    The setup endpoint resolves the diagnostic script via
++    ``Path(INSTALL_DIR) / "scripts" / "dream-test-functional.sh"``; if it's
++    not there it falls back to ``Path(os.getcwd()) / "dream-test-functional.sh"``.
++    We point INSTALL_DIR at a tmp dir and chdir to another tmp dir so the
++    cwd fallback is also empty unless the test opts in.
++    """
++    install_root = tmp_path / "dream-server"
++    install_root.mkdir()
++    cwd_root = tmp_path / "cwd"
++    cwd_root.mkdir()
++
++    monkeypatch.setattr("routers.setup.INSTALL_DIR", str(install_root))
++    monkeypatch.chdir(cwd_root)
++    return install_root
++
++
++def test_setup_test_emits_pass_sentinel_on_success(test_client, setup_install_dir):
++    """A diagnostic script that exits 0 must terminate with PASS:0."""
++    _write_test_script(setup_install_dir, "#!/bin/bash\necho 'check 1 ok'\necho 'check 2 ok'\nexit 0\n")
++
++    with test_client.stream("POST", "/api/setup/test", headers=test_client.auth_headers) as response:
++        assert response.status_code == 200
++        lines = [line for line in response.iter_lines() if line]
++
++    status, rc = _last_sentinel_line(lines)
++    assert status == "PASS"
++    assert rc == "0"
++    # Sentinel must be the LAST non-empty line on the wire.
++    assert lines[-1].startswith(SENTINEL_PREFIX), (
++        f"sentinel was emitted but not last; tail was: {lines[-3:]!r}"
++    )
++
++
++def test_setup_test_emits_fail_sentinel_with_returncode_on_failure(test_client, setup_install_dir):
++    """A diagnostic script that exits non-zero must terminate with FAIL:<rc>."""
++    _write_test_script(setup_install_dir, "#!/bin/bash\necho 'check failed'\nexit 3\n")
++
++    with test_client.stream("POST", "/api/setup/test", headers=test_client.auth_headers) as response:
++        assert response.status_code == 200
++        lines = [line for line in response.iter_lines() if line]
++
++    status, rc = _last_sentinel_line(lines)
++    assert status == "FAIL"
++    assert rc == "3", f"expected the script's literal exit code, got {rc!r}"
++    assert lines[-1].startswith(SENTINEL_PREFIX)
++
++
++def test_setup_test_emits_sentinel_when_script_missing(test_client, setup_install_dir):
++    """When neither INSTALL_DIR/scripts nor cwd has the script, the
++    error_stream() fallback runs aiohttp probes against configured
++    services and still terminates with a sentinel."""
++    # No script written — both lookup paths miss; error_stream() runs.
++    # In the test environment the dashboard SERVICES map is populated but
++    # nothing is actually listening, so every probe will fail and the
++    # sentinel should be FAIL:1.
++
++    with test_client.stream("POST", "/api/setup/test", headers=test_client.auth_headers) as response:
++        assert response.status_code == 200
++        lines = [line for line in response.iter_lines() if line]
++
++    status, rc = _last_sentinel_line(lines)
++    assert status in {"PASS", "FAIL"}, f"unknown sentinel status {status!r}"
++    # The FAIL path is the realistic outcome — services aren't running in
++    # the test harness — but assert only the structural contract here so
++    # this test stays robust against fixture changes.
++    assert rc.lstrip("-").isdigit(), f"sentinel rc must be numeric, got {rc!r}"
++    assert lines[-1].startswith(SENTINEL_PREFIX)
++
++
++def test_setup_test_sentinel_format_is_machine_parseable(test_client, setup_install_dir):
++    """The on-the-wire format must match the regex the SetupWizard frontend
++    pins: ``^__DREAM_RESULT__:(PASS|FAIL):(-?\\d+)$``. This test guards
++    against accidental whitespace, prefix, or trailing-character drift on
++    either side of the contract."""
++    import re
++
++    _write_test_script(setup_install_dir, "#!/bin/bash\nexit 0\n")
++    sentinel_re = re.compile(r"^__DREAM_RESULT__:(PASS|FAIL):(-?\d+)$")
++
++    with test_client.stream("POST", "/api/setup/test", headers=test_client.auth_headers) as response:
++        assert response.status_code == 200
++        lines = [line for line in response.iter_lines() if line]
++
++    sentinel_lines = [line for line in lines if line.startswith(SENTINEL_PREFIX)]
++    assert len(sentinel_lines) == 1, (
++        f"expected exactly one sentinel line, got {len(sentinel_lines)}: {sentinel_lines!r}"
++    )
++    assert sentinel_re.match(sentinel_lines[0]), (
++        f"sentinel does not match frontend parser regex: {sentinel_lines[0]!r}"
++    )
++
++
++def test_setup_test_requires_auth(test_client):
++    """Unauthenticated POST must fail before anything is streamed."""
++    response = test_client.post("/api/setup/test")
++    assert response.status_code == 401
+diff --git a/dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx b/dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx
+index bfe7f5d8..8e80d296 100644
+--- a/dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx
++++ b/dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx
+@@ -1,7 +1,8 @@
+-import { useState, useEffect, useCallback } from 'react'
++import { useState, useEffect, useCallback, useRef } from 'react'
+ import { CheckCircle, Circle, ChevronRight, ChevronLeft, Mic, User, Settings, Play, Shield, Layers } from 'lucide-react'
+ import { PreFlightChecks } from './PreFlightChecks'
+ import { TemplatePicker } from './TemplatePicker'
++import { getTemplateStatus } from '../lib/templates'
+ 
+ export default function SetupWizard({ onComplete }) {
+   const [step, setStep] = useState(1)
+@@ -14,15 +15,53 @@ export default function SetupWizard({ onComplete }) {
+   const [testStatus, setTestStatus] = useState({ running: false, output: [], done: false, success: false })
+   const [preflightIssues, setPreflightIssues] = useState([])
+   const [templates, setTemplates] = useState([])
++  const [extensions, setExtensions] = useState([])
+   const totalSteps = 6
+ 
++  // Holds the AbortController for the currently in-flight /api/setup/test
++  // stream (if any). Aborting it tells the server to release the subprocess
++  // and async generator so a user who abandons the wizard mid-diagnostic
++  // doesn't leave the backend running curls for ~2 minutes.
++  const diagControllerRef = useRef(null)
++
+   useEffect(() => {
+-    fetch('/api/templates')
+-      .then(res => res.ok ? res.json() : { templates: [] })
+-      .then(data => setTemplates(data.templates || []))
+-      .catch(() => {})
++    return () => {
++      if (diagControllerRef.current) {
++        diagControllerRef.current.abort()
++      }
++    }
+   }, [])
+ 
++  // Fetches templates and extensions in parallel and applies their state
++  // updates only after BOTH have settled. React 18 auto-batches the two
++  // setState calls that land in the same async tick, so template cards
++  // don't flash "available" for ~200ms while extensions are still in-flight.
++  // Promise.allSettled lets one side fail without aborting the other.
++  const refreshTemplateData = useCallback(async () => {
++    const [tRes, eRes] = await Promise.allSettled([
++      fetch('/api/templates').then(r => r.ok ? r.json() : { templates: [] }),
++      fetch('/api/extensions/catalog').then(r => r.ok ? r.json() : { extensions: [] })
++    ])
++    if (tRes.status === 'fulfilled') {
++      setTemplates(tRes.value.templates || [])
++    } else {
++      console.error('Failed to load templates:', tRes.reason)
++    }
++    if (eRes.status === 'fulfilled') {
++      setExtensions(eRes.value.extensions || [])
++    } else {
++      console.error('Failed to load extensions:', eRes.reason)
++    }
++  }, [])
++
++  // Re-fetch on every navigation to Step 2: the user may have just applied
++  // a template on a previous visit, in which case extensions state is stale
++  // and the "applied" indicator would lie.
++  useEffect(() => {
++    if (step !== 2) return
++    refreshTemplateData()
++  }, [step, refreshTemplateData])
++
+   const voices = [
+     { id: 'af_heart', name: 'Heart', desc: 'Warm, friendly female' },
+     { id: 'af_bella', name: 'Bella', desc: 'Professional female' },
+@@ -41,25 +80,73 @@ export default function SetupWizard({ onComplete }) {
+   }, [])
+ 
+   const runDiagnostics = async () => {
++    // Cancel any in-flight diagnostic (re-running before previous completes).
++    if (diagControllerRef.current) {
++      diagControllerRef.current.abort()
++    }
++    const controller = new AbortController()
++    diagControllerRef.current = controller
++
+     setTestStatus({ running: true, output: ['Starting diagnostic tests...'], done: false, success: false })
+ 
+     try {
+-      const res = await fetch('/api/setup/test', { method: 'POST' })
++      const res = await fetch('/api/setup/test', { method: 'POST', signal: controller.signal })
+       const reader = res.body.getReader()
+       const decoder = new TextDecoder()
++      // The backend streams plain text. We split on newlines so each script
++      // line becomes its own <div>, and scan for a machine-readable sentinel
++      // (`__DREAM_RESULT__:PASS|FAIL:<returncode>`) to determine success.
++      let buffer = ''
++      let resultStatus = null // 'PASS' | 'FAIL' | null
++      const collected = [] // local mirror of displayed lines for fallback scan
++
++      const pushLine = (line) => {
++        const match = line.match(/^__DREAM_RESULT__:(PASS|FAIL):(-?\d+)$/)
++        if (match) {
++          resultStatus = match[1]
++          return // don't display the sentinel to the user
++        }
++        collected.push(line)
++        setTestStatus(prev => ({ ...prev, output: [...prev.output, line] }))
++      }
+ 
+       while (true) {
+         const { done, value } = await reader.read()
+         if (done) break
+ 
+-        const text = decoder.decode(value)
+-        setTestStatus(prev => ({ ...prev, output: [...prev.output, text] }))
++        buffer += decoder.decode(value, { stream: true })
++        const lines = buffer.split('\n')
++        buffer = lines.pop() // keep the trailing partial line for the next chunk
++        for (const line of lines) pushLine(line)
+       }
+ 
+-      setTestStatus(prev => ({ ...prev, running: false, done: true, success: true }))
+-      setConfig(c => ({ ...c, tested: true }))
++      // Flush any decoder tail plus any remaining unterminated line.
++      buffer += decoder.decode()
++      if (buffer) pushLine(buffer)
++
++      // Prefer the structured sentinel. Fall back to scanning accumulated
++      // output for the human-readable trailer if the sentinel is absent
++      // (older backends, truncated stream). Absence defaults to failure —
++      // we refuse to greenlight a user through a stream of unknown outcome.
++      const success = resultStatus !== null
++        ? resultStatus === 'PASS'
++        : collected.some(l => l.includes('All tests passed!'))
++
++      setTestStatus(prev => ({ ...prev, running: false, done: true, success }))
++      if (success) {
++        setConfig(c => ({ ...c, tested: true }))
++      }
+     } catch (err) {
++      // Aborted fetches throw AbortError. That's the user cancelling or the
++      // component unmounting — don't surface it as a user-visible error.
++      if (err.name === 'AbortError') {
++        return
++      }
+       setTestStatus(prev => ({ ...prev, running: false, done: true, success: false, output: [...prev.output, `Error: ${err.message}`] }))
++    } finally {
++      if (diagControllerRef.current === controller) {
++        diagControllerRef.current = null
++      }
+     }
+   }
+ 
+@@ -117,7 +204,11 @@ export default function SetupWizard({ onComplete }) {
+                 Pick a pre-configured set of services to get started quickly, or skip to customize later.
+               </p>
+               {templates.length > 0 ? (
+-                <TemplatePicker templates={templates} compact />
++                <TemplatePicker
++                  templates={templates.map(t => ({ ...t, _status: getTemplateStatus(t, extensions) }))}
++                  compact
++                  onApplied={refreshTemplateData}
++                />
+               ) : (
+                 <p className="text-sm text-theme-text-muted">No templates available.</p>
+               )}
+diff --git a/dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx b/dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx
+index a402e46c..4cfd2ef9 100644
+--- a/dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx
++++ b/dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx
+@@ -20,8 +20,9 @@ const fetchJson = async (url, options = {}) => {
+  * TemplatePicker — card grid of templates. Click shows preview.
+  *
+  * Templates carry a `_status` field set by the parent: 'available',
+- * 'in_progress', or 'has_errors'. ('applied' is filtered upstream.) The
+- * card renders differently per state and is only clickable in 'available'.
++ * 'in_progress', 'applied', or 'has_errors'. The card renders differently
++ * per state and is only clickable in 'available'. Callers that prefer to
++ * hide applied templates (Extensions page) can filter them out upstream.
+  */
+ export function TemplatePicker({ templates, onApplied, compact = false }) {
+   const [preview, setPreview] = useState(null)
+@@ -36,13 +37,16 @@ export function TemplatePicker({ templates, onApplied, compact = false }) {
+           const status = tmpl._status || 'available'
+           const inProgress = status === 'in_progress'
+           const hasErrors = status === 'has_errors'
+-          const disabled = inProgress || hasErrors
++          const isApplied = status === 'applied'
++          const disabled = inProgress || hasErrors || isApplied
+ 
+           const cardBase = 'text-left rounded-xl p-4 transition-all group border'
+           const cardByStatus = inProgress
+             ? 'bg-theme-card border-blue-500/30 cursor-not-allowed opacity-80'
+             : hasErrors
+             ? 'bg-red-500/5 border-red-500/30 cursor-not-allowed'
++            : isApplied
++            ? 'bg-green-500/5 border-green-500/30 cursor-not-allowed'
+             : 'bg-theme-card border-theme-border hover:border-theme-accent/40 hover:bg-theme-surface-hover'
+ 
+           return (
+@@ -54,12 +58,17 @@ export function TemplatePicker({ templates, onApplied, compact = false }) {
+               className={`${cardBase} ${cardByStatus}`}
+             >
+               <div className="flex items-center gap-3 mb-2">
+-                <div className={`p-2 rounded-lg ${hasErrors ? 'bg-red-500/10' : 'bg-theme-accent/10 group-hover:bg-theme-accent/20'} transition-colors`}>
++                <div className={`p-2 rounded-lg ${hasErrors ? 'bg-red-500/10' : isApplied ? 'bg-green-500/10' : 'bg-theme-accent/10 group-hover:bg-theme-accent/20'} transition-colors`}>
++                  {/* Status icons are decorative — the adjacent text label
++                      ("Installing…" / "Has errors" / "Applied") carries the
++                      semantic meaning, so hide icons from screen readers. */}
+                   {inProgress
+-                    ? <Loader2 size={18} className="animate-spin text-blue-400" />
++                    ? <Loader2 size={18} aria-hidden="true" className="animate-spin text-blue-400" />
+                     : hasErrors
+-                    ? <AlertTriangle size={18} className="text-red-400" />
+-                    : <Icon size={18} className="text-theme-accent-light" />}
++                    ? <AlertTriangle size={18} aria-hidden="true" className="text-red-400" />
++                    : isApplied
++                    ? <Check size={18} aria-hidden="true" className="text-green-400" />
++                    : <Icon size={18} aria-hidden="true" className="text-theme-accent-light" />}
+                 </div>
+                 <div>
+                   <h4 className="text-sm font-semibold text-theme-text">{tmpl.name}</h4>
+@@ -69,7 +78,10 @@ export function TemplatePicker({ templates, onApplied, compact = false }) {
+                   {hasErrors && (
+                     <span className="text-[10px] text-red-400 uppercase tracking-wider">Has errors</span>
+                   )}
+-                  {!inProgress && !hasErrors && tmpl.tier_minimum && (
++                  {isApplied && (
++                    <span className="text-[10px] text-green-400 uppercase tracking-wider">Applied</span>
++                  )}
++                  {!inProgress && !hasErrors && !isApplied && tmpl.tier_minimum && (
+                     <span className="text-[10px] text-theme-text-muted uppercase tracking-wider">
+                       {tmpl.tier_minimum}+
+                     </span>
+diff --git a/dream-server/extensions/services/dashboard/src/components/__tests__/SetupWizard.test.jsx b/dream-server/extensions/services/dashboard/src/components/__tests__/SetupWizard.test.jsx
+new file mode 100644
+index 00000000..3a181fb4
+--- /dev/null
++++ b/dream-server/extensions/services/dashboard/src/components/__tests__/SetupWizard.test.jsx
+@@ -0,0 +1,226 @@
++import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
++
++// Mock children that do their own network I/O so the wizard can be navigated
++// without standing up the entire dashboard backend.
++vi.mock('../PreFlightChecks', () => ({
++  PreFlightChecks: ({ onComplete: _onComplete, onIssuesFound: _onIssuesFound }) =>
++    <div data-testid="preflight-stub">preflight</div>
++}))
++
++vi.mock('../TemplatePicker', () => ({
++  TemplatePicker: () => <div data-testid="template-picker-stub">templates</div>
++}))
++
++vi.mock('../../lib/templates', () => ({
++  getTemplateStatus: () => 'available'
++}))
++
++import SetupWizard from '../SetupWizard' // eslint-disable-line no-unused-vars
++
++/**
++ * Build a minimal Response-shaped object whose body.getReader() yields the
++ * supplied text chunks one at a time. The SetupWizard.runDiagnostics loop
++ * only ever uses res.body.getReader().read() / .releaseLock(), so we don't
++ * need a full Web Streams implementation here.
++ */
++function mockStreamResponse(chunks) {
++  let idx = 0
++  const reader = {
++    read: () => {
++      if (idx >= chunks.length) {
++        return Promise.resolve({ done: true, value: undefined })
++      }
++      const value = new TextEncoder().encode(chunks[idx++])
++      return Promise.resolve({ done: false, value })
++    },
++    releaseLock: () => {}
++  }
++  return {
++    body: { getReader: () => reader }
++  }
++}
++
++/**
++ * Build a Response whose body.getReader().read() never resolves until the
++ * supplied AbortSignal aborts, at which point read() rejects with AbortError.
++ * Used to exercise the AbortController unmount path.
++ */
++function mockNeverResolvingResponse(signal) {
++  const reader = {
++    read: () => new Promise((_resolve, reject) => {
++      if (signal.aborted) {
++        const err = new Error('aborted')
++        err.name = 'AbortError'
++        reject(err)
++        return
++      }
++      signal.addEventListener('abort', () => {
++        const err = new Error('aborted')
++        err.name = 'AbortError'
++        reject(err)
++      })
++    }),
++    releaseLock: () => {}
++  }
++  return { body: { getReader: () => reader } }
++}
++
++/**
++ * Drive the wizard from step 1 to step 6. Every Next press is an act();
++ * step 4 needs a non-empty userName before its Next button activates.
++ */
++async function navigateToStep6() {
++  // Step 1 → Step 2
++  await act(async () => fireEvent.click(screen.getByRole('button', { name: /^Next$/ })))
++  // Step 2 → Step 3
++  await act(async () => fireEvent.click(screen.getByRole('button', { name: /^Next$/ })))
++  // Step 3 → Step 4
++  await act(async () => fireEvent.click(screen.getByRole('button', { name: /^Next$/ })))
++  // Step 4: type a name so Next becomes enabled
++  const nameInput = screen.getByPlaceholderText('Enter your name')
++  await act(async () => fireEvent.change(nameInput, { target: { value: 'Tester' } }))
++  // Step 4 → Step 5
++  await act(async () => fireEvent.click(screen.getByRole('button', { name: /^Next$/ })))
++  // Step 5 → Step 6
++  await act(async () => fireEvent.click(screen.getByRole('button', { name: /^Next$/ })))
++}
++
++describe('SetupWizard diagnostics sentinel parser', () => {
++  beforeEach(() => {
++    // Default fetch: any call to /api/templates or /api/extensions/catalog
++    // during navigation through step 2 should fail-soft (template fetch
++    // already handles non-ok). /api/setup/test is overridden per-test.
++    vi.stubGlobal('fetch', vi.fn((url) => {
++      if (typeof url === 'string' && url.startsWith('/api/templates')) {
++        return Promise.resolve({ ok: false, json: () => Promise.resolve({}) })
++      }
++      if (typeof url === 'string' && url.startsWith('/api/extensions')) {
++        return Promise.resolve({ ok: false, json: () => Promise.resolve({}) })
++      }
++      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
++    }))
++  })
++
++  afterEach(() => {
++    vi.unstubAllGlobals()
++    vi.restoreAllMocks()
++  })
++
++  test('PASS sentinel marks the run successful', async () => {
++    fetch.mockImplementationOnce(() => Promise.resolve(
++      mockStreamResponse([
++        'foo\n',
++        '__DREAM_RESULT__:PASS:0\n'
++      ])
++    ))
++
++    render(<SetupWizard onComplete={() => {}} />)
++    await navigateToStep6()
++
++    await act(async () => fireEvent.click(screen.getByRole('button', { name: /Start Diagnostics/i })))
++
++    await waitFor(() => {
++      expect(screen.getByText(/All systems operational/i)).toBeInTheDocument()
++    })
++    // Sentinel itself must NOT be displayed to the user.
++    expect(screen.queryByText(/__DREAM_RESULT__/)).not.toBeInTheDocument()
++    expect(screen.getByText('foo')).toBeInTheDocument()
++  })
++
++  test('FAIL sentinel marks the run as failed and surfaces the failure UI', async () => {
++    fetch.mockImplementationOnce(() => Promise.resolve(
++      mockStreamResponse([
++        'bar\n',
++        '__DREAM_RESULT__:FAIL:3\n'
++      ])
++    ))
++
++    render(<SetupWizard onComplete={() => {}} />)
++    await navigateToStep6()
++
++    await act(async () => fireEvent.click(screen.getByRole('button', { name: /Start Diagnostics/i })))
++
++    await waitFor(() => {
++      expect(screen.getByText(/Some tests failed/i)).toBeInTheDocument()
++    })
++    expect(screen.queryByText(/__DREAM_RESULT__/)).not.toBeInTheDocument()
++    // Complete Setup remains disabled because tested=false.
++    expect(screen.getByRole('button', { name: /Complete Setup/i })).toBeDisabled()
++  })
++
++  test('falls back to "All tests passed!" trailer when sentinel missing (older backend)', async () => {
++    fetch.mockImplementationOnce(() => Promise.resolve(
++      mockStreamResponse([
++        'starting...\n',
++        'All tests passed!\n'
++      ])
++    ))
++
++    render(<SetupWizard onComplete={() => {}} />)
++    await navigateToStep6()
++
++    await act(async () => fireEvent.click(screen.getByRole('button', { name: /Start Diagnostics/i })))
++
++    await waitFor(() => {
++      expect(screen.getByText(/All systems operational/i)).toBeInTheDocument()
++    })
++  })
++
++  test('defaults to failure when neither sentinel nor "All tests passed" appears', async () => {
++    fetch.mockImplementationOnce(() => Promise.resolve(
++      mockStreamResponse([
++        'doing something\n',
++        'partial output\n'
++      ])
++    ))
++
++    render(<SetupWizard onComplete={() => {}} />)
++    await navigateToStep6()
++
++    await act(async () => fireEvent.click(screen.getByRole('button', { name: /Start Diagnostics/i })))
++
++    await waitFor(() => {
++      expect(screen.getByText(/Some tests failed/i)).toBeInTheDocument()
++    })
++  })
++
++  test('sentinel split across two chunks still parses', async () => {
++    fetch.mockImplementationOnce(() => Promise.resolve(
++      mockStreamResponse([
++        'output line\n__DREAM_RESULT__:PA',
++        'SS:0\n'
++      ])
++    ))
++
++    render(<SetupWizard onComplete={() => {}} />)
++    await navigateToStep6()
++
++    await act(async () => fireEvent.click(screen.getByRole('button', { name: /Start Diagnostics/i })))
++
++    await waitFor(() => {
++      expect(screen.getByText(/All systems operational/i)).toBeInTheDocument()
++    })
++    expect(screen.queryByText(/__DREAM_RESULT__/)).not.toBeInTheDocument()
++  })
++
++  test('unmount aborts the in-flight diagnostic fetch', async () => {
++    let capturedSignal = null
++    fetch.mockImplementationOnce((_url, opts) => {
++      capturedSignal = opts?.signal ?? null
++      return Promise.resolve(mockNeverResolvingResponse(opts.signal))
++    })
++
++    const { unmount } = render(<SetupWizard onComplete={() => {}} />)
++    await navigateToStep6()
++
++    await act(async () => fireEvent.click(screen.getByRole('button', { name: /Start Diagnostics/i })))
++
++    expect(capturedSignal).not.toBeNull()
++    expect(capturedSignal.aborted).toBe(false)
++
++    // Unmount should fire the cleanup which aborts the controller.
++    await act(async () => { unmount() })
++
++    expect(capturedSignal.aborted).toBe(true)
++  })
++})
+diff --git a/dream-server/extensions/services/dashboard/src/components/__tests__/TemplatePicker.a11y.test.jsx b/dream-server/extensions/services/dashboard/src/components/__tests__/TemplatePicker.a11y.test.jsx
+new file mode 100644
+index 00000000..ad44bf1f
+--- /dev/null
++++ b/dream-server/extensions/services/dashboard/src/components/__tests__/TemplatePicker.a11y.test.jsx
+@@ -0,0 +1,84 @@
++import { render, screen, within } from '@testing-library/react'
++import { TemplatePicker } from '../TemplatePicker' // eslint-disable-line no-unused-vars
++
++const baseTemplate = {
++  id: 'chat',
++  name: 'Chat Stack',
++  description: 'Local LLM with chat UI.',
++  icon: 'MessageSquare',
++  services: ['llama-server', 'open-webui'],
++  estimated_disk_gb: 12,
++  tier_minimum: 'mid',
++}
++
++describe('TemplatePicker accessibility', () => {
++  test('default (available) card uses an enabled button with the template name in its accessible name', () => {
++    render(<TemplatePicker templates={[{ ...baseTemplate, _status: 'available' }]} />)
++
++    const card = screen.getByRole('button', { name: /Chat Stack/i })
++    expect(card).toBeEnabled()
++    expect(card).toHaveAttribute('aria-disabled', 'false')
++  })
++
++  test('isApplied card renders the green "Applied" indicator and disables the button', () => {
++    render(<TemplatePicker templates={[{ ...baseTemplate, _status: 'applied' }]} />)
++
++    const card = screen.getByRole('button', { name: /Chat Stack/i })
++    expect(card).toBeDisabled()
++    expect(card).toHaveAttribute('aria-disabled', 'true')
++
++    // The "Applied" caption is the screen-reader-friendly status carrier
++    // (the adjacent green check is decorative / aria-hidden).
++    expect(within(card).getByText(/Applied/i)).toBeInTheDocument()
++  })
++
++  test('inProgress card disables the button and renders the "Installing…" status text', () => {
++    render(<TemplatePicker templates={[{ ...baseTemplate, _status: 'in_progress' }]} />)
++
++    const card = screen.getByRole('button', { name: /Chat Stack/i })
++    expect(card).toBeDisabled()
++    expect(within(card).getByText(/Installing/i)).toBeInTheDocument()
++  })
++
++  test('hasErrors card disables the button and renders the "Has errors" status text', () => {
++    render(<TemplatePicker templates={[{ ...baseTemplate, _status: 'has_errors' }]} />)
++
++    const card = screen.getByRole('button', { name: /Chat Stack/i })
++    expect(card).toBeDisabled()
++    expect(within(card).getByText(/Has errors/i)).toBeInTheDocument()
++  })
++
++  test('decorative status icons (Loader2, AlertTriangle, Check, default Icon) carry aria-hidden="true"', () => {
++    // Render one card per status so we exercise every branch of the icon
++    // ternary. Decorative SVGs must be hidden from screen readers because
++    // the adjacent text label ("Installing…", "Has errors", "Applied", or
++    // the template name) is what carries the semantic meaning.
++    const templates = [
++      { ...baseTemplate, id: 'a', name: 'Available Card', _status: 'available' },
++      { ...baseTemplate, id: 'b', name: 'In Progress Card', _status: 'in_progress' },
++      { ...baseTemplate, id: 'c', name: 'Errors Card', _status: 'has_errors' },
++      { ...baseTemplate, id: 'd', name: 'Applied Card', _status: 'applied' },
++    ]
++    const { container } = render(<TemplatePicker templates={templates} />)
++
++    const svgs = container.querySelectorAll('svg')
++    expect(svgs.length).toBeGreaterThan(0)
++    // Status icons all sit inside the icon wrapper div with rounded-lg
++    // class — we don't enforce that selector here, but every Lucide icon
++    // rendered by the picker passes aria-hidden="true" so the assertion
++    // can simply scan all SVGs.
++    svgs.forEach(svg => {
++      expect(svg).toHaveAttribute('aria-hidden', 'true')
++    })
++  })
++
++  test('returns null when handed an empty template list (defensive)', () => {
++    const { container } = render(<TemplatePicker templates={[]} />)
++    expect(container.firstChild).toBeNull()
++  })
++
++  test('returns null when handed an undefined template list (defensive)', () => {
++    const { container } = render(<TemplatePicker templates={undefined} />)
++    expect(container.firstChild).toBeNull()
++  })
++})
+diff --git a/dream-server/extensions/services/dashboard/src/lib/templates.js b/dream-server/extensions/services/dashboard/src/lib/templates.js
+new file mode 100644
+index 00000000..981263b5
+--- /dev/null
++++ b/dream-server/extensions/services/dashboard/src/lib/templates.js
+@@ -0,0 +1,29 @@
++// Shared template-status helpers. Kept in a dedicated module (rather than
++// re-exported from pages/Extensions.jsx) so components on the initial
++// first-run route — e.g. SetupWizard — don't pull the full Extensions page
++// into the main bundle and defeat its lazy-loading.
++
++// Services defined in docker-compose.base.yml — always running, not togglable via templates.
++export const BASE_COMPOSE_SERVICES = new Set(['llama-server', 'open-webui', 'dashboard', 'dashboard-api'])
++
++// Compute template status from catalog extensions data.
++// Returns one of: 'available', 'in_progress', 'applied', 'has_errors'
++// Precedence: has_errors > in_progress > applied > available
++export function getTemplateStatus(template, extensions) {
++  const services = template.services || []
++  const serviceStatus = {}
++  for (const svcId of services) {
++    if (BASE_COMPOSE_SERVICES.has(svcId)) {
++      serviceStatus[svcId] = 'enabled'
++      continue
++    }
++    const ext = extensions.find(e => e.id === svcId)
++    serviceStatus[svcId] = ext ? ext.status : undefined
++  }
++  const statuses = Object.values(serviceStatus)
++  if (statuses.some(s => s === 'error')) return 'has_errors'
++  if (statuses.some(s => s === 'installing' || s === 'setting_up')) return 'in_progress'
++  const allEnabled = statuses.every(s => s === 'enabled')
++  if (allEnabled) return 'applied'
++  return 'available'
++}
+diff --git a/dream-server/extensions/services/dashboard/src/pages/Extensions.jsx b/dream-server/extensions/services/dashboard/src/pages/Extensions.jsx
+index efa40ccb..c3580217 100644
+--- a/dream-server/extensions/services/dashboard/src/pages/Extensions.jsx
++++ b/dream-server/extensions/services/dashboard/src/pages/Extensions.jsx
+@@ -6,35 +6,14 @@ import {
+ import { useState, useEffect, useRef } from 'react'
+ import { DependencyBadges, DependencyConfirmDialog, DisableDependentWarning } from '../components/DependencyBadges'
+ import { TemplatePicker } from '../components/TemplatePicker'
++import { getTemplateStatus } from '../lib/templates'
+ 
+-// Services defined in docker-compose.base.yml — always running, not togglable via templates
+-const BASE_COMPOSE_SERVICES = new Set(['llama-server', 'open-webui', 'dashboard', 'dashboard-api'])
++// Re-export so existing importers of getTemplateStatus from this module keep working.
++export { getTemplateStatus }
+ 
+ // API/backend services with no user-facing web UI — show badge instead of port link.
+ const HEADLESS_EXTENSIONS = new Set(['embeddings', 'tts', 'whisper', 'privacy-shield'])
+ 
+-// Compute template status from catalog extensions data.
+-// Returns one of: 'available', 'in_progress', 'applied', 'has_errors'
+-// Precedence: has_errors > in_progress > applied > available
+-export function getTemplateStatus(template, extensions) {
+-  const services = template.services || []
+-  const serviceStatus = {}
+-  for (const svcId of services) {
+-    if (BASE_COMPOSE_SERVICES.has(svcId)) {
+-      serviceStatus[svcId] = 'enabled'
+-      continue
+-    }
+-    const ext = extensions.find(e => e.id === svcId)
+-    serviceStatus[svcId] = ext ? ext.status : undefined
+-  }
+-  const statuses = Object.values(serviceStatus)
+-  if (statuses.some(s => s === 'error')) return 'has_errors'
+-  if (statuses.some(s => s === 'installing' || s === 'setting_up')) return 'in_progress'
+-  const allEnabled = statuses.every(s => s === 'enabled')
+-  if (allEnabled) return 'applied'
+-  return 'available'
+-}
+-
+ // Auth: nginx injects "Authorization: Bearer ${DASHBOARD_API_KEY}" via
+ // proxy_set_header for all /api/ requests (see nginx.conf).  All fetches
+ // use relative URLs so they route through the nginx proxy which adds the
+diff --git a/dream-server/scripts/dream-test-functional.sh b/dream-server/scripts/dream-test-functional.sh
+index fe24d18a..a3d91a08 100755
+--- a/dream-server/scripts/dream-test-functional.sh
++++ b/dream-server/scripts/dream-test-functional.sh
+@@ -45,12 +45,15 @@ TESTS_FAILED=0
+ 
+ pass() {
+     echo -e "${GREEN}✓${NC} $1"
+-    ((TESTS_PASSED++))
++    # Arithmetic expansion (not `((...))`) — the compound form returns
++    # exit 1 when the pre-increment value is 0, which would trip `set -e`
++    # on the first pass/fail and abort the script before any summary.
++    TESTS_PASSED=$((TESTS_PASSED + 1))
+ }
+ 
+ fail() {
+     echo -e "${RED}✗${NC} $1"
+-    ((TESTS_FAILED++))
++    TESTS_FAILED=$((TESTS_FAILED + 1))
+ }
+ 
+ warn() {
+@@ -62,8 +65,18 @@ test_llm_functional() {
+     echo ""
+     echo "> Testing LLM Functional Generation"
+ 
+-    local model_id
+-    model_id=$(curl -s --max-time 10 "$LLM_URL/v1/models" 2>/dev/null | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
++    # The grep-based extraction pipelines in this script may legitimately
++    # produce zero matches (LLM/TTS/embeddings/whisper offline or returning
++    # unexpected payload). Under `set -euo pipefail` such a no-match would
++    # abort the script before the `[[ -z ... ]]` guard below can treat it
++    # as a test failure. Using `if ! VAR=$(...)` keeps the set -e safety
++    # net engaged everywhere else; `set -e` is disabled only for the
++    # evaluation of the condition (per bash spec), so a failed pipeline
++    # leaves VAR empty and the explicit `fail` path below runs.
++    local model_id=""
++    if ! model_id=$(curl -s --max-time 10 "$LLM_URL/v1/models" 2>/dev/null | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4); then
++        model_id=""
++    fi
+     model_id="${model_id:-local}"
+ 
+     local prompt="What is 2+2? Answer with just the number."
+@@ -80,8 +93,10 @@ test_llm_functional() {
+         return 1
+     fi
+ 
+-    local content
+-    content=$(echo "$response" | grep -oE '"content":[[:space:]]*"[^"]+"' | head -1 | cut -d'"' -f4)
++    local content=""
++    if ! content=$(echo "$response" | grep -oE '"content":[[:space:]]*"[^"]+"' | head -1 | cut -d'"' -f4); then
++        content=""
++    fi
+ 
+     if [[ -z "$content" ]]; then
+         fail "LLM returned empty content"
+@@ -176,8 +191,10 @@ test_embeddings_functional() {
+     
+     # Check if response contains array of numbers
+     if echo "$response" | grep -qE '\[\s*-?[0-9]+\.[0-9]+'; then
+-        local vector_len
+-        vector_len=$(echo "$response" | grep -oE '-?[0-9]+\.[0-9]+' | wc -l)
++        local vector_len=0
++        if ! vector_len=$(echo "$response" | grep -oE '-?[0-9]+\.[0-9]+' | wc -l); then
++            vector_len=0
++        fi
+         pass "Embeddings generates vectors ($vector_len dimensions)"
+     else
+         fail "Embeddings did not return valid vectors"
+@@ -226,8 +243,10 @@ test_whisper_functional() {
+         return 1
+     fi
+     
+-    local transcription
+-    transcription=$(echo "$response" | grep -oE '"text":[[:space:]]*"[^"]+"' | head -1 | cut -d'"' -f4)
++    local transcription=""
++    if ! transcription=$(echo "$response" | grep -oE '"text":[[:space:]]*"[^"]+"' | head -1 | cut -d'"' -f4); then
++        transcription=""
++    fi
+     
+     if [[ -z "$transcription" ]]; then
+         fail "Whisper returned empty transcription"
+@@ -248,10 +267,19 @@ echo "  DREAM SERVER - FUNCTIONAL TESTS"
+ echo "  Tests actual functionality, not ports"
+ echo "========================================"
+ 
++# Each test returns 1 on failure via its internal `fail` call; we must not
++# let `set -e` short-circuit the remaining tests or skip the summary. The
++# TESTS_PASSED / TESTS_FAILED counters are updated inside pass/fail and
++# drive the final exit code below, so suspending strict mode for exactly
++# this block is the explicit expression of "errors here are accounted for."
++# (CLAUDE.md forbids `|| true` / silent swallow; this bounded toggle makes
++# the intent visible instead of hiding it behind a trailing `|| true`.)
++set +e
+ test_llm_functional
+ test_tts_functional
+ test_embeddings_functional
+ test_whisper_functional
++set -e
+ 
+ echo ""
+ echo "========================================"

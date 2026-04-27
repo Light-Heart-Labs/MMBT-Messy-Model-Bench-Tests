@@ -1,0 +1,5 @@
+ dream-server/installers/windows/install-windows.ps1       | 2 +-
+ dream-server/installers/windows/lib/env-generator.ps1     | 2 --
+ dream-server/installers/windows/phases/06-directories.ps1 | 4 +---
+ dream-server/installers/windows/phases/07-devtools.ps1    | 2 +-
+ 4 files changed, 3 insertions(+), 7 deletions(-)

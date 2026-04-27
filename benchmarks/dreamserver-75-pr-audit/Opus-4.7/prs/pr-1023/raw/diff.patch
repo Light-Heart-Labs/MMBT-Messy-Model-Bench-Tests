@@ -1,0 +1,74 @@
+diff --git a/dream-server/installers/macos/dream-macos.sh b/dream-server/installers/macos/dream-macos.sh
+index 18b908f3..dbf6a8cf 100755
+--- a/dream-server/installers/macos/dream-macos.sh
++++ b/dream-server/installers/macos/dream-macos.sh
+@@ -155,7 +155,7 @@ read_env_value() {
+     local env_file="$1"
+     local key="$2"
+     [[ -f "$env_file" ]] || { echo ""; return 0; }
+-    grep -E "^${key}=" "$env_file" 2>/dev/null | head -n 1 | cut -d'=' -f2- | tr -d '\r' || true
++    grep -E "^${key}=" "$env_file" 2>/dev/null | sed -n '1p' | cut -d'=' -f2- | tr -d '\r' || true
+ }
+ 
+ upsert_env_value() {
+diff --git a/dream-server/installers/macos/lib/env-generator.sh b/dream-server/installers/macos/lib/env-generator.sh
+index fa17588c..26ef89b6 100755
+--- a/dream-server/installers/macos/lib/env-generator.sh
++++ b/dream-server/installers/macos/lib/env-generator.sh
+@@ -36,7 +36,7 @@ read_env_value() {
+     local env_path="$1"
+     local key="$2"
+     [[ -f "$env_path" ]] || { echo ""; return 0; }
+-    grep -E "^${key}=" "$env_path" 2>/dev/null | head -n 1 | cut -d'=' -f2- | tr -d '\r' || true
++    grep -E "^${key}=" "$env_path" 2>/dev/null | sed -n '1p' | cut -d'=' -f2- | tr -d '\r' || true
+ }
+ 
+ # Read SearXNG secret_key from an existing settings.yml file.
+@@ -48,7 +48,7 @@ read_searxng_secret() {
+     [[ -f "$settings_path" ]] || { echo ""; return 0; }
+     # Expected line format: secret_key: "...."
+     grep -E '^[[:space:]]*secret_key:[[:space:]]*"' "$settings_path" 2>/dev/null \
+-        | head -n 1 \
++        | sed -n '1p' \
+         | sed -E 's/^[[:space:]]*secret_key:[[:space:]]*"([^"]+)".*$/\1/' \
+         | tr -d '\r' || true
+ }
+diff --git a/dream-server/scripts/check-offline-models.sh b/dream-server/scripts/check-offline-models.sh
+index 741bb2f5..0bfd19b5 100755
+--- a/dream-server/scripts/check-offline-models.sh
++++ b/dream-server/scripts/check-offline-models.sh
+@@ -24,7 +24,7 @@ MISSING=()
+ 
+ # Check LLM model (GGUF)
+ if ls data/models/*.gguf &>/dev/null; then
+-    MODEL_FILE=$(ls -1 data/models/*.gguf | head -1)
++    MODEL_FILE=$(ls -1 data/models/*.gguf | sed -n '1p')
+     echo -e "${GREEN}✓${NC} LLM model: $(basename "$MODEL_FILE")"
+ else
+     echo -e "${RED}✗${NC} LLM model (GGUF) - MISSING"
+diff --git a/dream-server/scripts/dream-preflight.sh b/dream-server/scripts/dream-preflight.sh
+index a1c6ca43..d426baf6 100755
+--- a/dream-server/scripts/dream-preflight.sh
++++ b/dream-server/scripts/dream-preflight.sh
+@@ -84,7 +84,7 @@ fi
+ # Check GPU if available
+ echo -n "GPU availability... "
+ if docker exec "$LLM_CONTAINER" nvidia-smi >/dev/null 2>&1; then
+-    GPU_MEM=$(docker exec "$LLM_CONTAINER" nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits 2>/dev/null | head -1 | tr -d ' ')
++    GPU_MEM=$(docker exec "$LLM_CONTAINER" nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits 2>/dev/null | sed -n '1p' | tr -d ' ')
+     echo -e "${GREEN}✓ detected (${GPU_MEM}MB free)${NC}"
+ else
+     echo -e "${YELLOW}⚠ not detected (CPU mode)${NC}"
+diff --git a/dream-server/scripts/pre-download.sh b/dream-server/scripts/pre-download.sh
+index 18e596b2..24a7ad09 100755
+--- a/dream-server/scripts/pre-download.sh
++++ b/dream-server/scripts/pre-download.sh
+@@ -109,7 +109,7 @@ check_dependencies() {
+ 
+ detect_vram_gb() {
+     if command -v nvidia-smi &>/dev/null; then
+-        nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits 2>/dev/null | head -1 | awk '{print int($1/1024)}'
++        nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits 2>/dev/null | sed -n '1p' | awk '{print int($1/1024)}'
+     else
+         echo "0"
+     fi

@@ -1,0 +1,7 @@
+ dream-server/dream-cli                        |  4 ++--
+ dream-server/installers/phases/03-features.sh |  8 ++++++++
+ dream-server/lib/progress.sh                  |  8 ++++++++
+ dream-server/scripts/dream-test-functional.sh | 10 +++++++++-
+ dream-server/scripts/pre-download.sh          |  8 ++++++++
+ dream-server/scripts/validate-env.sh          |  8 ++++++++
+ 6 files changed, 43 insertions(+), 3 deletions(-)

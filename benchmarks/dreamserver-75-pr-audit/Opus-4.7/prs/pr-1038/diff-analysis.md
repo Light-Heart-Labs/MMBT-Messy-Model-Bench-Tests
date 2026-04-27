@@ -1,0 +1,16 @@
+# PR #1038 — Diff analysis
+
+What the diff actually changes, vs what the title/body claim.
+
+## Files touched (3)
+
+| File | + | - |
+|------|--:|--:|
+| `dream-server/extensions/services/dashboard-api/routers/extensions.py` | 31 | 3 |
+| `dream-server/extensions/services/dashboard-api/tests/test_extensions.py` | 187 | 0 |
+| `dream-server/extensions/services/dashboard/src/pages/Extensions.jsx` | 22 | 5 |
+
+## Auditor's read of the diff
+
+_TBD — auditor reads `raw/diff.patch` and writes the gap-vs-claim here.
+For Trivial-tier PRs this is often "matches the title; no surprises"._

@@ -1,0 +1,24 @@
+{
+  "additions": 3,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nReduces the `$envResult` hashtable returned by `New-DreamEnv` from four fields (`EnvPath`, `SearxngSecret`, `OpenclawToken`, `DashboardKey`) to the two that are actually consumed (`SearxngSecret`, `OpenclawToken`). Updates three stale header comments and the dry-run stub to match.\n\nFiles touched:\n- `dream-server/installers/windows/lib/env-generator.ps1` \u2014 return block\n- `dream-server/installers/windows/install-windows.ps1` \u2014 header comment\n- `dream-server/installers/windows/phases/06-directories.ps1` \u2014 header comment + dry-run stub\n- `dream-server/installers/windows/phases/07-devtools.ps1` \u2014 header comment\n\n## Why\nPure code hygiene. A full grep of `installers/windows/` confirms `$envResult.EnvPath` and `$envResult.DashboardKey` are never accessed. The fields were stale API surface that drifted past what any caller needs; the headers pointed consumers at properties that would silently return `$null` if accessed.\n\n`DASHBOARD_API_KEY` itself is unaffected \u2014 the `$dashboardApiKey` variable is still generated via `Get-EnvOrNew \"DASHBOARD_API_KEY\"` and written to `.env` through the heredoc. Only its (unused) return-hash surface was dropped.\n\n## How\n- Return block: remove `EnvPath` and `DashboardKey` lines; keep `SearxngSecret` and `OpenclawToken` with existing alignment.\n- Dry-run stub in phase 06: trim to the same 2 fields so real/dry-run shapes remain symmetric.\n- Three `$envResult` header comments: updated to advertise only the fields the function actually emits.\n\n## Testing\n- [x] Grep coverage: `grep -rn '\\.DashboardKey\\|\\.EnvPath\\|\\.DreamAgentKey' installers/windows/` \u2192 0 hits. `grep -rn 'envResult\\.' installers/windows/` \u2192 exactly `.SearxngSecret` and `.OpenclawToken`.\n- [x] Pre-commit (gitleaks / private-key / large-file) \u2014 clean.\n- [ ] **PSScriptAnalyzer could not be run on the macOS dev host** \u2014 maintainer should run `Invoke-ScriptAnalyzer -Path dream-server/installers/windows/ -Recurse` on Windows before merge.\n\n### Manual Windows test checklist (WSL2 + Docker Desktop + PowerShell 7+)\n1. `pwsh -NoProfile -ExecutionPolicy Bypass -File install-windows.ps1 -DryRun` \u2014 phase 06 prints dry-run messages; no `MissingProperty` errors; `$envResult` populated with 2 fields.\n2. Fresh install `pwsh -NoProfile -ExecutionPolicy Bypass -File install-windows.ps1` \u2014 `.env` contains non-empty values for `DASHBOARD_API_KEY`, `SEARXNG_SECRET`, `OPENCLAW_TOKEN`; `config/searxng/settings.yml` and `config/openclaw/openclaw.json` have the generated secrets.\n3. Re-install over existing `.env` \u2014 `DASHBOARD_API_KEY` preserved byte-for-byte (Get-EnvOrNew path).\n4. `Invoke-ScriptAnalyzer -Path dream-server/installers/windows/ -Recurse` \u2014 no new warnings against the four modified files.\n\n## Platform Impact\n- **Windows** (only platform touched): no runtime behavior change. Callers that read `$envResult.SearxngSecret` / `.OpenclawToken` still work. Zero references to the removed `.EnvPath` / `.DashboardKey` exist anywhere in the tree.\n- **Linux**: N/A \u2014 no files in `installers/linux/` or Linux-reachable paths touched.\n- **macOS**: N/A \u2014 no files in `installers/macos/` or macOS-reachable paths touched.\n\n## Merge-order coordination with upstream PR #996\nThe currently-open `fix/windows-dream-agent-key` PR (#996) also edits `New-DreamEnv`. That PR renames the 4th return field `DashboardKey` \u2192 `DreamAgentKey` while adding a `DREAM_AGENT_KEY=...` line to the `.env` heredoc.\n\n**When this PR merges first**, #996's rebase contract is:\n- The `DREAM_AGENT_KEY=...` heredoc line rebases cleanly (independent addition).\n- The return-hash field rename should be **dropped entirely** during the rebase \u2014 the return hash no longer carries any api-key fields, and the host agent reads `DREAM_AGENT_KEY` from `.env` directly (via docker env-file injection), not from the PowerShell installer return value.\n\nIf the ordering inverts, this PR should rebase to drop whichever field ends up as the 4th after #996 (still `EnvPath` + one api-key field). The cleanup intent is identical either way.",
+  "changedFiles": 4,
+  "createdAt": "2026-04-23T22:24:47Z",
+  "deletions": 7,
+  "headRefName": "refactor/windows-env-result-trim",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1012,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "refactor(windows): trim dead fields from New-DreamEnv return hash",
+  "updatedAt": "2026-04-23T22:24:47Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1012"
+}

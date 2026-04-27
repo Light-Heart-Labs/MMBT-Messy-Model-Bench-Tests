@@ -1,0 +1,15 @@
+# PR #1033 — Diff analysis
+
+What the diff actually changes, vs what the title/body claim.
+
+## Files touched (2)
+
+| File | + | - |
+|------|--:|--:|
+| `resources/dev/extensions-library/services/jupyter/compose.yaml` | 1 | 1 |
+| `resources/dev/extensions-library/services/librechat/compose.yaml` | 1 | 1 |
+
+## Auditor's read of the diff
+
+_TBD — auditor reads `raw/diff.patch` and writes the gap-vs-claim here.
+For Trivial-tier PRs this is often "matches the title; no surprises"._

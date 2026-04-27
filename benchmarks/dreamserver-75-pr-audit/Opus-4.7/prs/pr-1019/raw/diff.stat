@@ -1,0 +1,10 @@
+ .../services/dashboard-api/routers/setup.py        |  46 ++++-
+ .../dashboard-api/tests/test_setup_sentinel.py     | 148 ++++++++++++++
+ .../dashboard/src/components/SetupWizard.jsx       | 113 ++++++++++-
+ .../dashboard/src/components/TemplatePicker.jsx    |  28 ++-
+ .../src/components/__tests__/SetupWizard.test.jsx  | 226 +++++++++++++++++++++
+ .../__tests__/TemplatePicker.a11y.test.jsx         |  84 ++++++++
+ .../services/dashboard/src/lib/templates.js        |  29 +++
+ .../services/dashboard/src/pages/Extensions.jsx    |  27 +--
+ dream-server/scripts/dream-test-functional.sh      |  48 ++++-
+ 9 files changed, 689 insertions(+), 60 deletions(-)

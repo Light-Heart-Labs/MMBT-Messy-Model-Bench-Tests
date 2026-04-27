@@ -1,0 +1,24 @@
+{
+  "additions": 191,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "> **DRAFT: must merge AFTER #1031.** This branch is based on `fix/progress-state-machine` (#1031); commits shown here will reduce to just this PR's delta once #1031 lands. Promote to ready-for-review after #1031 merges.\n\n## Summary\nTwo defects in `Extensions.jsx`:\n1. Error messages on extension cards were hard-truncated at 200 chars with `'...'` \u2014 long `docker compose` stderrs got cut off mid-actionable-line, forcing users to open the Console modal to see the full error.\n2. The progress poller had a silent `catch { /* ignore */ }` \u2014 restarting `dashboard-api` mid-install left the spinner stuck forever with no indication polling had stopped.\n\n## How\n- **Error expansion**: short single-line errors (`< 120 chars`, no newline) still render as plain text (no chevron). Long/multiline errors render as `<details>/<summary>` with a rotating ChevronDown \u2014 full text in a `<pre>` with preserved whitespace. Zero new imports.\n- **Poll recovery**: `consecutiveFailuresRef = useRef({})` keyed by serviceId (multiple cards can poll concurrently \u2014 per-service counter). Three consecutive fails \u2192 `pollingLost = true` + page-level amber banner + `fetchCatalog()` recovery attempt. Counter resets on success. Mirrors the log-streaming pattern already in this file.\n\n## Platform Impact\n- **macOS / Linux / Windows-WSL2**: identical. Browser-rendered React; `<details>`, Tailwind `group-open:*`, `whitespace-pre-wrap` supported in all target browsers.\n\n## Testing\n- ESLint: 0 errors, 5 pre-existing warnings in unrelated files.\n- `npm run build` succeeds (`Extensions-*.js 40.35 kB | gzip: 10.59 kB`).\n- Vitest: 35/35 pass.\n\nManual:\n1. Trigger an install with long/multiline stderr \u2192 error card shows chevron, click expands full text, click collapses.\n2. Start an install, run `dream restart dashboard-api` mid-install \u2192 amber banner appears within ~9 s, browser console shows `poll fetch failed:` warnings, banner auto-clears when API recovers.\n3. Short single-line errors still render as plain text (no chevron).\n\n## Out of scope\nThe two other silent catches (one-shot template fetch at L208 and ExtensionDetailsModal log stream at L1061) are untouched.\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)",
+  "changedFiles": 3,
+  "createdAt": "2026-04-24T19:54:07Z",
+  "deletions": 15,
+  "headRefName": "fix/extensions-jsx-error-poller",
+  "isDraft": true,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1037,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dashboard): expandable error text + poll recovery on extensions page",
+  "updatedAt": "2026-04-24T19:54:07Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1037"
+}

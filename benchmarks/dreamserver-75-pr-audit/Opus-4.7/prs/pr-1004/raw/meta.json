@@ -1,0 +1,24 @@
+{
+  "additions": 7,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\n`scripts/resolve-compose-stack.sh` was unconditionally including extension\n`compose.local.yaml` overlays whenever `DREAM_MODE` was `local`, `hybrid`,\nor `lemonade` \u2014 even when `gpu_backend` was `apple`. On macOS, those\noverlays deadlock the stack.\n\n## Why\nExtension `compose.local.yaml` overlays declare\n`depends_on: llama-server: condition: service_healthy`. On macOS the\n`llama-server` Docker service has `replicas: 0` because the real\nllama-server runs natively on the host via LaunchAgent. That dependency\ntherefore can never be satisfied and deadlocks every service that\ndeclares it whenever the resolver regenerates `.compose-flags` (i.e.\nany `dream enable` / `dream disable` / `dream restart`).\n\nThe correct macOS LLM-ready gate is the `llama-server-ready` sidecar in\n`installers/macos/docker-compose.macos.yml`.\n\n## How\nAdd `and gpu_backend != \"apple\"` to the existing\n`dream_mode in (\"local\", \"hybrid\", \"lemonade\")` guard. Linux and Windows\nNVIDIA/AMD paths unchanged \u2014 still pick up all 7 `compose.local.yaml`\nfiles. macOS now correctly emits 0.\n\n## Testing\n- `bash -n` and Python heredoc `ast.parse` pass.\n- Behavior matrix verified locally:\n  | backend | mode | count | expected |\n  | --- | --- | --- | --- |\n  | apple | local / hybrid / lemonade | 0 | 0 |\n  | nvidia | local | 7 | 7 |\n  | amd | local | 7 | 7 |\n- `make lint` and `make test` pass.\n\n## Platform Impact\n- macOS Apple Silicon: deadlock fixed.\n- Linux NVIDIA/AMD/CPU/Intel/ARC: unchanged (still pick up all 7 overlays).\n- Windows WSL2: unchanged.\n\n## Known follow-up\nThe macOS installer currently builds `.compose-flags` inline (in\n`installers/macos/install-macos.sh`) rather than delegating to the\nresolver. That second half of the original audit finding was split off\nto a separate PR because delegating without first mirroring Linux's\nfeature-flag `.disabled` renames would regress `--minimal` macOS\ninstalls. It is tracked separately as a follow-up.",
+  "changedFiles": 1,
+  "createdAt": "2026-04-23T21:20:57Z",
+  "deletions": 2,
+  "headRefName": "fix/macos-resolver-deadlock",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1004,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(resolver): skip compose.local.yaml on Apple Silicon to avoid llama-server deadlock",
+  "updatedAt": "2026-04-23T21:20:57Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1004"
+}

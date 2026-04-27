@@ -1,0 +1,5 @@
+ dream-server/docker-compose.amd.yml                      | 1 +
+ dream-server/docker-compose.base.yml                     | 6 +++++-
+ dream-server/docker-compose.nvidia.yml                   | 1 +
+ dream-server/extensions/services/dreamforge/compose.yaml | 6 ------
+ 4 files changed, 7 insertions(+), 7 deletions(-)

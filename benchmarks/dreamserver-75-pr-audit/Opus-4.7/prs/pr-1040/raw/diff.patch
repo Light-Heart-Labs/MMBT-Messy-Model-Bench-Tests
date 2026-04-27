@@ -1,0 +1,549 @@
+diff --git a/dream-server/bin/dream-host-agent.py b/dream-server/bin/dream-host-agent.py
+index 21fc7642..56282135 100755
+--- a/dream-server/bin/dream-host-agent.py
++++ b/dream-server/bin/dream-host-agent.py
+@@ -15,6 +15,7 @@ import signal
+ import subprocess
+ import sys
+ import threading
++import time
+ from datetime import datetime, timezone
+ from http.server import HTTPServer, BaseHTTPRequestHandler
+ from pathlib import Path
+@@ -167,7 +168,9 @@ def resolve_compose_flags() -> list:
+ 
+ def _precreate_data_dirs(service_id: str):
+     """Pre-create data directories for an extension with correct ownership."""
+-    ext_dir = USER_EXTENSIONS_DIR / service_id
++    ext_dir = _find_ext_dir(service_id)
++    if ext_dir is None:
++        return
+     compose_path = ext_dir / "compose.yaml"
+     if not compose_path.exists():
+         return
+@@ -200,7 +203,13 @@ def _precreate_data_dirs(service_id: str):
+             continue
+         for vol in volumes:
+             vol_str = str(vol).split(":")[0]
+-            if vol_str.startswith("./data/") or vol_str.startswith("data/"):
++            # Accept any relative bind-mount source (e.g. "./data/state",
++            # "./upload", "config/stuff"). Skip named volumes (no "/") and
++            # absolute paths ("/etc/..."). Docker Compose v2 resolves relative
++            # bind paths against the project directory (the first -f file's
++            # parent = INSTALL_DIR), not the individual fragment's directory,
++            # so anchor on INSTALL_DIR to match where Compose actually mounts.
++            if vol_str and not vol_str.startswith("/") and "/" in vol_str:
+                 dir_path = (INSTALL_DIR / vol_str.lstrip("./")).resolve()
+                 try:
+                     dir_path.relative_to(INSTALL_DIR.resolve())
+@@ -1100,10 +1109,15 @@ class AgentHandler(BaseHTTPRequestHandler):
+             try:
+                 flags = resolve_compose_flags()
+ 
++                ext_dir = _find_ext_dir(service_id)
++                if ext_dir is None:
++                    _write_progress(service_id, "error", "Installation failed",
++                                    error=f"Extension directory not found for {service_id}")
++                    return
++
+                 # Step 1: Setup hook (if requested)
+                 if run_setup_hook:
+                     _write_progress(service_id, "setup_hook", "Running setup...")
+-                    ext_dir = USER_EXTENSIONS_DIR / service_id
+                     hook_path = _resolve_hook(ext_dir, "post_install")
+                     if hook_path:
+                         # Minimal allowlist env — mirror _execute_hook (L856-866)
+@@ -1157,6 +1171,43 @@ class AgentHandler(BaseHTTPRequestHandler):
+                                     error=start_result.stderr[:500])
+                     return
+ 
++                # Poll for running state; compose `up -d` returns 0 even for
++                # Created/Exited/Restarting containers, so a 0 exit is not
++                # conclusive proof the service actually started.
++                install_manifest = _read_manifest(ext_dir)
++                install_service_def = install_manifest.get("service", {}) if install_manifest else {}
++                if not isinstance(install_service_def, dict):
++                    install_service_def = {}
++                container_name = install_service_def.get("container_name") or f"dream-{service_id}"
++
++                deadline = time.monotonic() + 15
++                state: str | None = None
++                state_error = ""
++                while time.monotonic() < deadline:
++                    try:
++                        inspect_result = subprocess.run(
++                            ["docker", "inspect", "--format",
++                             "{{.State.Status}}|{{.State.Error}}", container_name],
++                            capture_output=True, text=True, timeout=5,
++                        )
++                    except subprocess.TimeoutExpired:
++                        inspect_result = None
++                    if inspect_result is not None and inspect_result.returncode == 0:
++                        parts = inspect_result.stdout.strip().split("|", 1)
++                        state = parts[0] if parts else ""
++                        state_error = parts[1] if len(parts) > 1 else ""
++                        if state == "running":
++                            break
++                    time.sleep(1)
++
++                if state != "running":
++                    msg = f"Container did not reach running state within 15s (state={state or 'unknown'})"
++                    if state_error:
++                        msg += f": {state_error}"
++                    _write_progress(service_id, "error", "Installation failed",
++                                    error=msg)
++                    return
++
+                 # Step 4: Success
+                 _write_progress(service_id, "started", "Service started")
+ 
+diff --git a/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py b/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py
+index fef1430b..104e5965 100644
+--- a/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py
++++ b/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py
+@@ -490,3 +490,132 @@ class TestHandleModelDownloadCancel:
+         assert handler.parse_response()["status"] == "cancelling"
+         assert _mod._model_download_cancel.is_set() is True
+         assert proc.killed is True
++
++
++# --- _precreate_data_dirs + install flow (PR 2A regressions) ---
++#
++# Defect 1/2: _run_install and _precreate_data_dirs must use _find_ext_dir()
++# so built-in extensions (under EXTENSIONS_DIR) are found — the old
++# USER_EXTENSIONS_DIR-only path silently no-op'd for every built-in.
++#
++# Defect 3: _precreate_data_dirs must create dirs for any relative bind
++# source (not just "./data/..."), so extensions with "./upload:/..." style
++# mounts also get their dirs pre-created. Anchored on INSTALL_DIR because
++# Docker Compose v2 resolves relative bind paths against the project
++# directory (the first -f file's parent = INSTALL_DIR), not against the
++# individual fragment's directory.
++#
++# Defect 5: _handle_install must verify the container reached "running"
++# state before reporting success — compose `up -d` returns 0 even for
++# Created/Exited/Restarting containers.
++
++
++class TestPrecreateDataDirs:
++
++    def _write_compose(self, ext_dir: Path, volumes: list[str]):
++        vol_yaml = "\n".join(f"      - {v}" for v in volumes)
++        ext_dir.mkdir(parents=True, exist_ok=True)
++        (ext_dir / "compose.yaml").write_text(
++            "services:\n"
++            "  svc:\n"
++            "    image: test:latest\n"
++            "    volumes:\n" + vol_yaml + "\n",
++            encoding="utf-8",
++        )
++
++    def test_creates_dirs_for_builtin_ext_via_find_ext_dir(self, tmp_path, monkeypatch):
++        """Defect 1/2: built-in extensions resolved via _find_ext_dir, not USER_EXTENSIONS_DIR."""
++        pytest.importorskip("yaml")
++        builtin_root = tmp_path / "builtin"
++        user_root = tmp_path / "user"
++        install_dir = tmp_path / "install"
++        builtin_root.mkdir()
++        user_root.mkdir()
++        install_dir.mkdir()
++        ext_dir = builtin_root / "svc-b"
++        self._write_compose(ext_dir, ["./data/state:/state"])
++
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", builtin_root)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++
++        _mod._precreate_data_dirs("svc-b")
++
++        # Dir lives under INSTALL_DIR (the Compose project directory),
++        # NOT under ext_dir — matching where Compose actually mounts.
++        assert (install_dir / "data" / "state").is_dir()
++        assert not (ext_dir / "data" / "state").exists()
++
++    def test_creates_dirs_for_non_data_prefix(self, tmp_path, monkeypatch):
++        """Defect 3: relative bind sources outside './data/' must still be created."""
++        pytest.importorskip("yaml")
++        user_root = tmp_path / "user"
++        builtin_root = tmp_path / "builtin"
++        install_dir = tmp_path / "install"
++        user_root.mkdir()
++        builtin_root.mkdir()
++        install_dir.mkdir()
++        ext_dir = user_root / "svc-u"
++        self._write_compose(ext_dir, ["./upload:/upload", "./data/state:/state"])
++
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", builtin_root)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++
++        _mod._precreate_data_dirs("svc-u")
++
++        # Both non-"./data/" and "./data/..." mounts must materialise under
++        # INSTALL_DIR (the Compose project directory).
++        assert (install_dir / "upload").is_dir()
++        assert (install_dir / "data" / "state").is_dir()
++
++    def test_skips_named_volumes(self, tmp_path, monkeypatch):
++        """Named volumes (no '/') must not trigger filesystem creation."""
++        pytest.importorskip("yaml")
++        user_root = tmp_path / "user"
++        builtin_root = tmp_path / "builtin"
++        install_dir = tmp_path / "install"
++        user_root.mkdir()
++        builtin_root.mkdir()
++        install_dir.mkdir()
++        ext_dir = user_root / "svc-n"
++        self._write_compose(ext_dir, ["named_vol:/var/lib/data"])
++
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", builtin_root)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++
++        _mod._precreate_data_dirs("svc-n")
++
++        # Named volume must not materialize as a directory anywhere we own.
++        assert not (ext_dir / "named_vol").exists()
++        assert not (install_dir / "named_vol").exists()
++
++
++class TestInstallRunningStateVerification:
++    """Defect 5: `_handle_install` must poll container state before reporting success."""
++
++    def _install_source(self):
++        import inspect
++        return inspect.getsource(_mod.AgentHandler._handle_install)
++
++    def test_install_uses_find_ext_dir(self):
++        """Defect 1: _run_install resolves ext_dir via _find_ext_dir, not USER_EXTENSIONS_DIR."""
++        src = self._install_source()
++        assert "_find_ext_dir(service_id)" in src
++        assert "USER_EXTENSIONS_DIR / service_id" not in src
++
++    def test_install_polls_docker_inspect_state(self):
++        """State-poll loop must run `docker inspect` and check running state."""
++        src = self._install_source()
++        assert "docker" in src and "inspect" in src
++        assert "{{.State.Status}}" in src
++        assert 'state == "running"' in src
++
++    def test_install_writes_error_when_state_not_running(self):
++        """Failed state-poll must surface as progress error, not 'started'."""
++        src = self._install_source()
++        # The error path must come before (or instead of) the success write.
++        assert "did not reach running state within 15s" in src
++        # Error path uses the existing _write_progress("error", ...) API.
++        assert '_write_progress(service_id, "error"' in src
+diff --git a/dream-server/extensions/services/langfuse/hooks/post_install.sh b/dream-server/extensions/services/langfuse/hooks/post_install.sh
+new file mode 100755
+index 00000000..e118d916
+--- /dev/null
++++ b/dream-server/extensions/services/langfuse/hooks/post_install.sh
+@@ -0,0 +1,121 @@
++#!/usr/bin/env bash
++# Langfuse post_install hook — Linux bind-mount uid alignment.
++#
++# The langfuse stack uses upstream images that run as non-root uids baked
++# into the image:
++#   - postgres:17.9-alpine          -> runs as uid 70  (postgres)
++#   - clickhouse/clickhouse-server  -> runs as uid 101 (clickhouse)
++#
++# On Linux native Docker, bind mounts preserve host uid/gid, so a data
++# directory owned by the install user (e.g. 1000:1000) causes initdb to
++# fail with "permission denied" on first start. macOS Docker Desktop
++# (osxfs/virtiofs) and WSL2 Docker Desktop (virtiofs) mask this by
++# translating uids transparently — no chown needed on those platforms.
++#
++# Hook contract (see bin/dream-host-agent.py:_handle_install):
++#   $1 = INSTALL_DIR (absolute path to dream-server install)
++#   $2 = GPU_BACKEND (informational; unused here)
++#
++# Idempotent by nature: chown is a no-op when ownership already matches.
++
++set -euo pipefail
++
++INSTALL_DIR="${1:-}"
++# shellcheck disable=SC2034  # $2 is part of the hook contract; kept for clarity
++GPU_BACKEND="${2:-}"
++
++log() {
++    echo "langfuse post_install: $*" >&2
++}
++
++if [[ -z "$INSTALL_DIR" ]]; then
++    log "ERROR: INSTALL_DIR (arg 1) is required"
++    exit 2
++fi
++
++# Platform check — only act on Linux-family hosts (including WSL2).
++# macOS Docker Desktop masks uid mismatch; chown would be a harmless
++# no-op there but we skip to keep the intent explicit.
++PLATFORM="$(uname -s)"
++if [[ "$PLATFORM" == "Darwin" ]]; then
++    log "macOS Docker Desktop handles uid translation; no chown needed"
++    exit 0
++fi
++
++POSTGRES_DIR="$INSTALL_DIR/data/langfuse/postgres"
++CLICKHOUSE_DIR="$INSTALL_DIR/data/langfuse/clickhouse"
++
++# Pick an elevator: sudo if available and we're not already root.
++# If neither is possible, fall back to plain chown (may fail — log and
++# continue so the operator sees a clear warning rather than a silent abort).
++SUDO=""
++if [[ "$(id -u)" -ne 0 ]]; then
++    if command -v sudo >/dev/null 2>&1; then
++        SUDO="sudo"
++    fi
++fi
++
++is_container_running() {
++    # docker ps returns only running containers; --quiet is empty when none match.
++    local name="$1"
++    [[ -n "$(docker ps --quiet --filter "name=^${name}$" 2>/dev/null)" ]]
++}
++
++chown_dir() {
++    local dir="$1"
++    local owner="$2"  # uid:gid
++    local guard_container="${3:-}"
++
++    # If the container is already running, ownership must already satisfy the
++    # image's uid (postgres won't start otherwise) — re-running chown -R on a
++    # live data directory races with WAL writes and gains nothing. Skip with
++    # a clear log line so re-invocation of the hook on a healthy install is
++    # safe.
++    if [[ -n "$guard_container" ]] && is_container_running "$guard_container"; then
++        log "$guard_container is running; skipping chown of $dir (ownership already correct)"
++        return 0
++    fi
++
++    # Defensive: create the directory if the installer hasn't yet.
++    # Phase 06 normally pre-creates these, but running the hook
++    # out-of-band (e.g. via extension/install) should still work.
++    if [[ ! -d "$dir" ]]; then
++        log "creating $dir"
++        if ! mkdir -p "$dir" 2>/dev/null; then
++            if [[ -n "$SUDO" ]]; then
++                $SUDO mkdir -p "$dir"
++            else
++                log "ERROR: cannot create $dir — sudo unavailable and mkdir failed (permission denied). " \
++                    "langfuse postgres/clickhouse will fail to initialize without this directory. " \
++                    "Run manually: sudo mkdir -p $dir && sudo chown -R $owner $dir, then retry the install."
++                return 1
++            fi
++        fi
++    fi
++
++    log "chown -R $owner $dir"
++    if [[ -n "$SUDO" ]]; then
++        if ! $SUDO chown -R "$owner" "$dir"; then
++            log "ERROR: 'sudo chown -R $owner $dir' failed. " \
++                "langfuse postgres (uid 70) / clickhouse (uid 101) will fail to initialize without this ownership. " \
++                "Verify the path exists and is writable, then run manually: sudo chown -R $owner $dir, then retry the install."
++            return 1
++        fi
++    else
++        if ! chown -R "$owner" "$dir" 2>/dev/null; then
++            log "ERROR: chown failed for $dir and sudo is unavailable (not root, sudo not installed). " \
++                "langfuse postgres (uid 70) / clickhouse (uid 101) will fail to initialize without this ownership. " \
++                "Run manually as root: chown -R $owner $dir (or install sudo), then retry the install."
++            return 1
++        fi
++    fi
++}
++
++# postgres official image: uid 70 (postgres user baked into image)
++chown_dir "$POSTGRES_DIR" "70:70" "dream-langfuse-postgres"
++
++# clickhouse-server image: uid 101 (clickhouse user)
++chown_dir "$CLICKHOUSE_DIR" "101:101" "dream-langfuse-clickhouse"
++
++log "done"
++exit 0
+diff --git a/dream-server/extensions/services/langfuse/manifest.yaml b/dream-server/extensions/services/langfuse/manifest.yaml
+index 75007cf1..20df4fe5 100644
+--- a/dream-server/extensions/services/langfuse/manifest.yaml
++++ b/dream-server/extensions/services/langfuse/manifest.yaml
+@@ -18,6 +18,7 @@ service:
+   gpu_backends: [all]
+   compose_file: compose.yaml
+   category: optional
++  setup_hook: hooks/post_install.sh
+ 
+ features:
+   - id: observability
+diff --git a/dream-server/tests/reproducers/langfuse-uid-check.sh b/dream-server/tests/reproducers/langfuse-uid-check.sh
+new file mode 100755
+index 00000000..e1f245d3
+--- /dev/null
++++ b/dream-server/tests/reproducers/langfuse-uid-check.sh
+@@ -0,0 +1,168 @@
++#!/usr/bin/env bash
++# Reproducer for langfuse postgres uid mismatch on Linux native Docker.
++#
++# Requires: docker, sudo.
++#
++# Purpose: demonstrate that postgres:17.9-alpine fails to initdb when its
++# data bind-mount is owned by the host install user (uid != 70), and that
++# chowning the dir to 70:70 (as the langfuse post_install hook does on
++# Linux) fixes it. macOS Docker Desktop masks the uid difference via
++# osxfs/virtiofs so the "bug" branch passes trivially there — this
++# reproducer is meaningful only on Linux.
++#
++# Usage:
++#   bash dream-server/tests/reproducers/langfuse-uid-check.sh
++#
++# Exit codes:
++#   0 — observed result matched platform expectation
++#   1 — observed result did NOT match platform expectation
++#   2 — prerequisite missing (docker/sudo)
++
++set -euo pipefail
++
++PLATFORM="$(uname -s)"
++TMPDIR_REPRO="/tmp/ds-3E-repro-$$"
++POSTGRES_IMAGE="postgres:17.9-alpine"
++
++log() {
++    echo "[repro] $*" >&2
++}
++
++# shellcheck disable=SC2329  # invoked via `trap cleanup EXIT` below
++cleanup() {
++    local rc=$?
++    if [[ -d "$TMPDIR_REPRO" ]]; then
++        # Dir may now be owned by uid 70 after chown, so use sudo if available.
++        if command -v sudo >/dev/null 2>&1; then
++            sudo rm -rf "$TMPDIR_REPRO" 2>/dev/null || rm -rf "$TMPDIR_REPRO" 2>/dev/null || true
++        else
++            rm -rf "$TMPDIR_REPRO" 2>/dev/null || true
++        fi
++    fi
++    exit "$rc"
++}
++trap cleanup EXIT
++
++# --- Prerequisites ---------------------------------------------------------
++
++if ! command -v docker >/dev/null 2>&1; then
++    log "ERROR: docker not found; this reproducer requires Docker"
++    exit 2
++fi
++if ! command -v sudo >/dev/null 2>&1; then
++    log "ERROR: sudo not found; this reproducer requires sudo to chown to uid 70"
++    exit 2
++fi
++
++log "platform: $PLATFORM"
++log "postgres image: $POSTGRES_IMAGE"
++
++# Seed temp dir owned by current user (install-user simulation).
++mkdir -p "$TMPDIR_REPRO"
++log "created $TMPDIR_REPRO owned by $(id -un):$(id -gn) (uid $(id -u))"
++
++# Pull image up front so later timeouts aren't image-pull delays.
++log "pulling $POSTGRES_IMAGE (if not cached)"
++docker pull "$POSTGRES_IMAGE" >/dev/null
++
++# --- Phase 1: bug branch — directory owned by install user -----------------
++
++log "phase 1: starting postgres with install-user-owned bind mount"
++set +e
++docker run --rm \
++    -e POSTGRES_PASSWORD=reproducer \
++    -v "$TMPDIR_REPRO":/var/lib/postgresql/data \
++    --name "ds-3E-repro-phase1-$$" \
++    "$POSTGRES_IMAGE" \
++    postgres -c 'shared_buffers=16MB' >/tmp/ds-3E-repro-phase1.log 2>&1 &
++P1_PID=$!
++# Give the container ~10s to fail or succeed initdb; we only need the
++# initial verdict, not a long-running DB.
++sleep 10
++if kill -0 "$P1_PID" 2>/dev/null; then
++    # Still running — on macOS / WSL2 Docker Desktop this is the happy path.
++    log "phase 1: container still running after 10s"
++    docker stop "ds-3E-repro-phase1-$$" >/dev/null 2>&1 || true
++    wait "$P1_PID" 2>/dev/null || true
++    PHASE1_RESULT="running"
++else
++    wait "$P1_PID" 2>/dev/null
++    PHASE1_RC=$?
++    log "phase 1: container exited rc=$PHASE1_RC"
++    if grep -qi "permission denied\|could not\|cannot create" /tmp/ds-3E-repro-phase1.log; then
++        PHASE1_RESULT="permission_denied"
++    else
++        PHASE1_RESULT="exited_other"
++    fi
++fi
++set -e
++log "phase 1 result: $PHASE1_RESULT"
++
++# --- Phase 2: fix branch — chown to 70:70 then retry -----------------------
++
++log "phase 2: chown -R 70:70 $TMPDIR_REPRO (simulating post_install hook)"
++sudo chown -R 70:70 "$TMPDIR_REPRO"
++
++# Wipe any partial state from phase 1 so initdb runs cleanly.
++sudo rm -rf "$TMPDIR_REPRO"
++mkdir -p "$TMPDIR_REPRO"
++sudo chown -R 70:70 "$TMPDIR_REPRO"
++
++log "phase 2: starting postgres with chowned bind mount"
++set +e
++docker run --rm \
++    -e POSTGRES_PASSWORD=reproducer \
++    -v "$TMPDIR_REPRO":/var/lib/postgresql/data \
++    --name "ds-3E-repro-phase2-$$" \
++    "$POSTGRES_IMAGE" \
++    postgres -c 'shared_buffers=16MB' >/tmp/ds-3E-repro-phase2.log 2>&1 &
++P2_PID=$!
++sleep 10
++if kill -0 "$P2_PID" 2>/dev/null; then
++    log "phase 2: container still running after 10s (initdb succeeded)"
++    docker stop "ds-3E-repro-phase2-$$" >/dev/null 2>&1 || true
++    wait "$P2_PID" 2>/dev/null || true
++    PHASE2_RESULT="running"
++else
++    wait "$P2_PID" 2>/dev/null
++    PHASE2_RC=$?
++    log "phase 2: container exited rc=$PHASE2_RC"
++    PHASE2_RESULT="exited"
++fi
++set -e
++log "phase 2 result: $PHASE2_RESULT"
++
++# --- Verdict ---------------------------------------------------------------
++
++echo
++echo "============================================================"
++echo "  Reproducer verdict (platform: $PLATFORM)"
++echo "============================================================"
++echo "  Phase 1 (install-user-owned): $PHASE1_RESULT"
++echo "  Phase 2 (chowned to 70:70):   $PHASE2_RESULT"
++echo "============================================================"
++
++case "$PLATFORM" in
++    Linux)
++        if [[ "$PHASE1_RESULT" == "permission_denied" && "$PHASE2_RESULT" == "running" ]]; then
++            echo "PASS — Linux bug reproduced and hook-equivalent chown fixes it."
++            exit 0
++        fi
++        echo "FAIL — expected phase1=permission_denied, phase2=running on Linux."
++        echo "  See /tmp/ds-3E-repro-phase1.log and /tmp/ds-3E-repro-phase2.log"
++        exit 1
++        ;;
++    Darwin)
++        if [[ "$PHASE1_RESULT" == "running" && "$PHASE2_RESULT" == "running" ]]; then
++            echo "PASS — macOS Docker Desktop masks uid as expected; both phases ran."
++            echo "NOTE: this platform does not exercise the Linux bug path."
++            exit 0
++        fi
++        echo "FAIL — expected both phases to run on macOS (uid translation)."
++        exit 1
++        ;;
++    *)
++        echo "UNKNOWN platform ($PLATFORM) — report results to maintainer."
++        exit 1
++        ;;
++esac

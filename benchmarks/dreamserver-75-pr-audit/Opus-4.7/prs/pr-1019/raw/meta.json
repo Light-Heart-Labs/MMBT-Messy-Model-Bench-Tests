@@ -1,0 +1,24 @@
+{
+  "additions": 689,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## \u26a0\ufe0f Draft \u2014 depends on #1003 merging first\n\n#1003 (`fix/dashboard-setup-wizard`) introduces the `__DREAM_RESULT__:PASS|FAIL:<rc>` sentinel parser in `SetupWizard.jsx` and the emitter for the happy-path + error-stream branches. This PR completes the contract by adding the emitter for the **exception path** (previously the generator could raise mid-stream without ever yielding a sentinel) plus full test coverage for all three branches.\n\nOnce #1003 merges, rebase drops the merge commit and the PR diff reduces to: `routers/setup.py` (+14 / -1) + 3 new test files.\n\n## What\n\n### Backend \u2014 `routers/setup.py` exception-path sentinel\nWraps the `run_setup_diagnostics` generator body in try/except. **Re-raises `CancelledError` and `OSError`** (transport-level concerns \u2014 client disconnect, broken pipe \u2014 should propagate normally). Catches generic `Exception`, logs with `logger.exception()`, yields a `FAIL:1` sentinel so the frontend parser never gets stuck in partial-state UI.\n\nThe `except Exception` is tagged `# noqa: BLE001 \u2014 sentinel contract requires *some* terminal signal`. CG reviewed and accepted this as a CLAUDE.md \u00a72 I/O-boundary exception \u2014 narrow, logged, and the wire contract with the React parser is explicit.\n\n### Tests (3 new files, 18 assertions)\n- **pytest \u2014 `test_setup_sentinel.py`** (5 cases): asserts PASS:0 on success, FAIL:`<rc>` on non-zero exit, fallback sentinel when script missing, machine-parseable regex format, auth required. 5/5 pass locally.\n- **Vitest \u2014 `SetupWizard.test.jsx`** (6 cases): sentinel parser happy path (PASS and FAIL with rc), fallback-scan on `\"All tests passed!\"` without sentinel, default-failure when neither signal is present, AbortController unmount cleanup, mocked ReadableStream chunk split across sentinel boundary.\n- **Vitest \u2014 `TemplatePicker.a11y.test.jsx`** (7 cases): `isApplied` render branch + `aria-hidden=\"true\"` on decorative Lucide icons + defensive undefined-template handling.\n\n## Testing\n- [x] pytest: **5/5 pass** (`python3 -m pytest tests/test_setup_sentinel.py -v`)\n- [ ] Vitest: tests are syntactically valid (match existing `SplashScreen.test.jsx` + `EnvEditor.test.jsx` patterns) but could not be executed locally without `npm install` in the worktree. CI will exercise them.\n- [x] Pre-commit hooks clean\n- [x] Sentinel format matches frontend parser regex at `SetupWizard.jsx:104`: `^__DREAM_RESULT__:(PASS|FAIL):(-?\\d+)$`\n\n## Platform Impact\n- **All three**: dashboard runs in browser; dashboard-api in Docker. Same behavior across macOS / Linux / Windows (WSL2).\n\n## Known Considerations (will file as fork follow-up issues if not addressed in review)\n1. The exception-path yield is not directly exercised by the 5 pytest cases \u2014 forcing it requires monkeypatching `asyncio.create_subprocess_exec` to raise. Small follow-up test worth adding.\n2. `TemplatePicker.a11y.test.jsx` asserts `aria-hidden=\"true\"` on all SVGs by bulk selector. If a future change adds a semantically meaningful SVG (e.g. logo with `role=\"img\"`), the test needs a tighter selector scoped to the status-color wrapper.",
+  "changedFiles": 9,
+  "createdAt": "2026-04-23T23:41:29Z",
+  "deletions": 60,
+  "headRefName": "test/setup-wizard-template-picker-coverage",
+  "isDraft": true,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1019,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "test+fix(setup): complete __DREAM_RESULT__ sentinel contract (exception path + tests)",
+  "updatedAt": "2026-04-23T23:41:29Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1019"
+}

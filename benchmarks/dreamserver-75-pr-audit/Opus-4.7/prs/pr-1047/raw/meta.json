@@ -1,0 +1,24 @@
+{
+  "additions": 4,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nSweep the four healthcheck URLs in `extensions/services/langfuse/compose.yaml.disabled` from `localhost` to `127.0.0.1`. **Line 30 `NEXTAUTH_URL` is intentionally left untouched.**\n\n## Why\nbusybox `wget` in Alpine resolves `localhost` \u2192 `::1` first. The container has no IPv6 stack on the bridge network, so the connection is refused and busybox `wget` gives up without retrying the IPv4 address. langfuse-worker reports `(unhealthy)` permanently as a result.\n\nThis is exactly the failure mode the project memory documents (\"healthchecks must use `127.0.0.1`, not `localhost`\"). The other 12 built-in extensions already follow this convention (n8n, searxng, embeddings, etc.); langfuse was an outlier. langfuse-web / clickhouse / minio currently report healthy because curl / the clickhouse image's wget handle the IPv4 fallback better \u2014 but they're one image-update away from regressing, so the sweep is preventive.\n\n## How\nSingle-file edit to `extensions/services/langfuse/compose.yaml.disabled`:\n\n| Line | Service | URL |\n|---|---|---|\n| 57 | langfuse (web) | `localhost:3000/api/public/health` \u2192 `127.0.0.1:3000/api/public/health` |\n| 117 | langfuse-worker | `localhost:3030/api/health` \u2192 `127.0.0.1:3030/api/health` |\n| 188 | langfuse-clickhouse | `localhost:8123/ping` \u2192 `127.0.0.1:8123/ping` (CMD exec-array form) |\n| 256 | langfuse-minio | `localhost:9000/minio/health/live` \u2192 `127.0.0.1:9000/minio/health/live` (curl) |\n\n**Line 30 `NEXTAUTH_URL: \"http://localhost:${LANGFUSE_PORT:-3006}\"` is preserved** \u2014 that's an OAuth callback URL evaluated by browsers, not by busybox inside the container. Changing it would break NEXTAUTH callbacks for users accessing the langfuse web UI from their browser.\n\nFile is `.disabled` (not auto-loaded; activated via `dream enable langfuse`). YAML still parses cleanly.\n\n## Testing\n- `python3 -c \"import yaml; yaml.safe_load(open('.../compose.yaml.disabled'))\"` \u2192 PASS\n- Diff scope verified: 4 lines changed (4-/4+), exactly the 4 healthcheck URLs\n- `grep -n localhost compose.yaml.disabled` \u2192 only line 30 (`NEXTAUTH_URL`) remains, as intended\n- gitleaks pre-commit \u2192 PASS\n\nManual (operator after `dream enable langfuse`):\n1. `docker exec dream-langfuse-worker wget --quiet --tries=1 --spider http://127.0.0.1:3030/api/health; echo \"exit=$?\"` \u2192 `exit=0`\n2. `docker exec dream-langfuse-worker wget --quiet --tries=1 --spider http://localhost:3030/api/health; echo \"exit=$?\"` \u2192 `exit=1` (confirms the IPv6 issue we're fixing)\n3. `docker ps --filter name=dream-langfuse-worker --format '{{.Status}}'` \u2192 `(healthy)`\n4. Web UI at `http://localhost:${LANGFUSE_PORT:-3006}/` reachable; OAuth login (NEXTAUTH callbacks) still works\n\n## Review\nCritique Guardian APPROVED. No required changes.\n\n## Platform Impact\n| Platform | Impact |\n|---|---|\n| macOS / Linux / Windows (WSL2) | Container-level change only. busybox/Alpine behaviour is identical across hosts. langfuse must be enabled to take effect (compose is `.disabled` by default). |\n",
+  "changedFiles": 1,
+  "createdAt": "2026-04-26T17:24:40Z",
+  "deletions": 4,
+  "headRefName": "fix/langfuse-healthcheck-loopback",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1047,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(langfuse): use 127.0.0.1 in healthcheck URLs",
+  "updatedAt": "2026-04-26T17:24:40Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1047"
+}

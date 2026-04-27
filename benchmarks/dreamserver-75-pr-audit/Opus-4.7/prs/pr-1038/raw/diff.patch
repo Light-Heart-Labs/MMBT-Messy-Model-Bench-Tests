@@ -1,0 +1,402 @@
+diff --git a/dream-server/extensions/services/dashboard-api/routers/extensions.py b/dream-server/extensions/services/dashboard-api/routers/extensions.py
+index 4e4e3554..7c8369aa 100644
+--- a/dream-server/extensions/services/dashboard-api/routers/extensions.py
++++ b/dream-server/extensions/services/dashboard-api/routers/extensions.py
+@@ -198,6 +198,13 @@ def _compute_extension_status(ext: dict, services_by_id: dict) -> str:
+             svc = services_by_id.get(ext_id)
+             if svc and svc.status == "healthy":
+                 return "enabled"
++            # HTTP 4xx/5xx from the health endpoint is the clearest "container
++            # is up but broken" signal — surface it as "unhealthy" so the UI
++            # can prompt a log check. Timeouts / connection refused / DNS
++            # failures stay "stopped" because they don't distinguish a crashed
++            # container from an intentionally-stopped one.
++            if svc and svc.status == "unhealthy":
++                return "unhealthy"
+             return "stopped"
+         if (user_dir / "compose.yaml.disabled").exists():
+             return "disabled"
+@@ -733,10 +740,11 @@ async def extensions_catalog(
+ 
+     summary = {
+         "total": len(extensions),
+-        "installed": sum(1 for e in extensions if e["status"] in ("enabled", "disabled", "stopped")),
++        "installed": sum(1 for e in extensions if e["status"] in ("enabled", "disabled", "stopped", "unhealthy")),
+         "enabled": sum(1 for e in extensions if e["status"] == "enabled"),
+         "disabled": sum(1 for e in extensions if e["status"] == "disabled"),
+         "stopped": sum(1 for e in extensions if e["status"] == "stopped"),
++        "unhealthy": sum(1 for e in extensions if e["status"] == "unhealthy"),
+         "installing": sum(1 for e in extensions if e["status"] == "installing"),
+         "setting_up": sum(1 for e in extensions if e["status"] == "setting_up"),
+         "error": sum(1 for e in extensions if e["status"] == "error"),
+@@ -998,7 +1006,10 @@ def install_extension(service_id: str, api_key: str = Depends(verify_api_key)):
+     agent_ok = _call_agent_install(service_id)
+ 
+     if not agent_ok:
+-        _write_error_progress(service_id, "Host agent failed to start extension")
++        _write_error_progress(
++            service_id,
++            "Host agent failed to start extension. Run 'dream restart' to recover.",
++        )
+ 
+     logger.info("Installed extension: %s", service_id)
+     return {
+@@ -1165,6 +1176,11 @@ def enable_extension(
+         # before the host agent starts the container.
+         _call_agent_invalidate_compose_cache()
+         agent_ok = _call_agent("start", service_id)
++        if not agent_ok:
++            _write_error_progress(
++                service_id,
++                "Host agent failed to start extension. Run 'dream restart' to recover.",
++            )
+         logger.info("Started stopped extension: %s", service_id)
+         return {
+             "id": service_id,
+@@ -1215,13 +1231,24 @@ def enable_extension(
+ 
+     # Start all enabled services via agent (outside lock)
+     agent_ok = True
++    warnings: list[str] = []
+     for svc_id in enabled_services:
+-        _call_agent_hook(svc_id, "pre_start")
++        # pre_start failure is terminal for this service — do not start it
++        if not _call_agent_hook(svc_id, "pre_start"):
++            agent_ok = False
++            _write_error_progress(
++                svc_id,
++                "pre_start hook failed — extension not started.",
++            )
++            continue
+         if not _call_agent("start", svc_id):
+             agent_ok = False
+         # post_start is non-terminal — log failure but don't fail the enable
+         if not _call_agent_hook(svc_id, "post_start"):
+             logger.warning("post_start hook failed for %s (non-fatal)", svc_id)
++            warnings.append(
++                f"{svc_id}: post_start hook failed — manual configuration may be needed",
++            )
+ 
+     logger.info("Enabled extension: %s (deps: %s)", service_id,
+                 enabled_services[:-1] if len(enabled_services) > 1 else "none")
+@@ -1230,6 +1257,7 @@ def enable_extension(
+         "action": "enabled",
+         "enabled_services": enabled_services,
+         "restart_required": not agent_ok,
++        "warnings": warnings,
+         "message": (
+             "Extension enabled and started." if agent_ok
+             else "Extension enabled. Run 'dream restart' to start."
+diff --git a/dream-server/extensions/services/dashboard-api/tests/test_extensions.py b/dream-server/extensions/services/dashboard-api/tests/test_extensions.py
+index dd1c0313..b905a367 100644
+--- a/dream-server/extensions/services/dashboard-api/tests/test_extensions.py
++++ b/dream-server/extensions/services/dashboard-api/tests/test_extensions.py
+@@ -613,6 +613,111 @@ class TestEnableExtension:
+         assert "local build" in resp.json()["detail"]
+ 
+ 
++class TestEnableExtensionHookReturnHandling:
++    """pre_start failures must block start; post_start failures surface as warnings."""
++
++    def test_enable_pre_start_failure_blocks_start(
++        self, test_client, monkeypatch, tmp_path,
++    ):
++        """pre_start False → start NOT called, error progress written, agent_ok=False."""
++        user_dir = _setup_user_ext(tmp_path, "my-ext", enabled=False)
++        _patch_mutation_config(monkeypatch, tmp_path, user_dir=user_dir)
++
++        start_calls = []
++
++        def fake_start(action, sid):
++            start_calls.append((action, sid))
++            return True
++
++        monkeypatch.setattr("routers.extensions._call_agent", fake_start)
++        # pre_start returns False, post_start would return True (but should not be reached)
++        monkeypatch.setattr(
++            "routers.extensions._call_agent_hook",
++            lambda sid, hook: hook != "pre_start",
++        )
++
++        resp = test_client.post(
++            "/api/extensions/my-ext/enable",
++            headers=test_client.auth_headers,
++        )
++        assert resp.status_code == 200
++        data = resp.json()
++        assert data["action"] == "enabled"
++        assert data["restart_required"] is True
++        assert "Run 'dream restart'" in data["message"]
++        assert data["warnings"] == []
++        # start was never called for the service whose pre_start failed
++        assert ("start", "my-ext") not in start_calls
++
++        # Error progress file should record the pre_start failure
++        progress_file = tmp_path / "extension-progress" / "my-ext.json"
++        assert progress_file.exists()
++        progress = json.loads(progress_file.read_text())
++        assert progress["status"] == "error"
++        assert "pre_start hook failed" in progress["error"]
++
++    def test_enable_post_start_failure_returns_warning(
++        self, test_client, monkeypatch, tmp_path,
++    ):
++        """post_start False → start IS called, response carries a warning, success path."""
++        user_dir = _setup_user_ext(tmp_path, "my-ext", enabled=False)
++        _patch_mutation_config(monkeypatch, tmp_path, user_dir=user_dir)
++
++        start_calls = []
++
++        def fake_start(action, sid):
++            start_calls.append((action, sid))
++            return True
++
++        monkeypatch.setattr("routers.extensions._call_agent", fake_start)
++        # pre_start succeeds, post_start fails
++        monkeypatch.setattr(
++            "routers.extensions._call_agent_hook",
++            lambda sid, hook: hook != "post_start",
++        )
++
++        resp = test_client.post(
++            "/api/extensions/my-ext/enable",
++            headers=test_client.auth_headers,
++        )
++        assert resp.status_code == 200
++        data = resp.json()
++        assert data["action"] == "enabled"
++        # post_start failure is non-fatal — service still reports success
++        assert data["restart_required"] is False
++        assert data["message"] == "Extension enabled and started."
++        assert ("start", "my-ext") in start_calls
++        assert isinstance(data["warnings"], list)
++        assert len(data["warnings"]) == 1
++        assert "my-ext" in data["warnings"][0]
++        assert "post_start hook failed" in data["warnings"][0]
++
++    def test_enable_both_hooks_succeed_no_warnings(
++        self, test_client, monkeypatch, tmp_path,
++    ):
++        """Baseline: pre_start + post_start True → no warnings, agent_ok True."""
++        user_dir = _setup_user_ext(tmp_path, "my-ext", enabled=False)
++        _patch_mutation_config(monkeypatch, tmp_path, user_dir=user_dir)
++
++        monkeypatch.setattr(
++            "routers.extensions._call_agent", lambda action, sid: True,
++        )
++        monkeypatch.setattr(
++            "routers.extensions._call_agent_hook", lambda sid, hook: True,
++        )
++
++        resp = test_client.post(
++            "/api/extensions/my-ext/enable",
++            headers=test_client.auth_headers,
++        )
++        assert resp.status_code == 200
++        data = resp.json()
++        assert data["action"] == "enabled"
++        assert data["restart_required"] is False
++        assert data["warnings"] == []
++        assert data["message"] == "Extension enabled and started."
++
++
+ # --- Disable endpoint ---
+ 
+ 
+@@ -1382,6 +1487,44 @@ class TestExtensionLifecycleStatus:
+         ext = resp.json()["extensions"][0]
+         assert ext["status"] == "stopped"
+ 
++    def test_user_extension_http_unhealthy_returns_unhealthy(self, test_client, monkeypatch, tmp_path):
++        """User extension with compose.yaml + HTTP 4xx/5xx health → unhealthy."""
++        user_dir = tmp_path / "user"
++        ext_dir = user_dir / "my-ext"
++        ext_dir.mkdir(parents=True)
++        (ext_dir / "compose.yaml").write_text(_SAFE_COMPOSE)
++        (ext_dir / "manifest.yaml").write_text(yaml.dump({
++            "schema_version": "dream.services.v1",
++            "service": {"id": "my-ext", "name": "My Ext", "port": 8080,
++                         "health": "/health"},
++        }))
++
++        catalog = [_make_catalog_ext("my-ext", "My Extension")]
++        _patch_extensions_config(monkeypatch, catalog, tmp_path=tmp_path)
++        monkeypatch.setattr("routers.extensions.USER_EXTENSIONS_DIR", user_dir)
++
++        mock_svc = _make_service_status("my-ext", "unhealthy")
++        with patch("user_extensions.get_user_services_cached",
++                   return_value={"my-ext": {"host": "my-ext", "port": 8080,
++                                             "health": "/health", "name": "My Ext"}}):
++            with patch("helpers.get_all_services", new_callable=AsyncMock,
++                       return_value=[]):
++                with patch("helpers.check_service_health", new_callable=AsyncMock,
++                           return_value=mock_svc):
++                    resp = test_client.get(
++                        "/api/extensions/catalog",
++                        headers=test_client.auth_headers,
++                    )
++
++        assert resp.status_code == 200
++        data = resp.json()
++        ext = data["extensions"][0]
++        assert ext["status"] == "unhealthy"
++        # Unhealthy counts toward "installed" and has its own summary bucket
++        assert data["summary"]["unhealthy"] == 1
++        assert data["summary"]["installed"] == 1
++        assert data["summary"]["stopped"] == 0
++
+     def test_user_extension_disabled_unchanged(self, test_client, monkeypatch, tmp_path):
+         """User extension with compose.yaml.disabled → disabled (unchanged)."""
+         user_dir = tmp_path / "user"
+@@ -1468,6 +1611,50 @@ class TestExtensionLifecycleStatus:
+         # compose.yaml should still exist (not renamed)
+         assert (user_dir / "my-ext" / "compose.yaml").exists()
+ 
++    def test_enable_stopped_writes_error_progress_on_agent_failure(
++        self, test_client, monkeypatch, tmp_path,
++    ):
++        """Enable-stopped path writes error progress with restart guidance on agent failure."""
++        user_dir = _setup_user_ext(tmp_path, "my-ext", enabled=True)
++        _patch_mutation_config(monkeypatch, tmp_path, user_dir=user_dir)
++        monkeypatch.setattr("routers.extensions._call_agent",
++                            lambda action, sid: False)
++
++        resp = test_client.post(
++            "/api/extensions/my-ext/enable",
++            headers=test_client.auth_headers,
++        )
++
++        assert resp.status_code == 200
++        assert resp.json()["restart_required"] is True
++
++        progress_file = Path(tmp_path) / "extension-progress" / "my-ext.json"
++        assert progress_file.exists(), "enable-stopped path must write progress on agent failure"
++        data = json.loads(progress_file.read_text())
++        assert data["status"] == "error"
++        assert "dream restart" in data["error"]
++
++    def test_install_error_progress_includes_restart_guidance(
++        self, test_client, monkeypatch, tmp_path,
++    ):
++        """Install failure-path error message contains 'dream restart' actionable guidance."""
++        lib_dir = _setup_library_ext(tmp_path, "my-ext")
++        _patch_mutation_config(monkeypatch, tmp_path, lib_dir=lib_dir)
++        monkeypatch.setattr("routers.extensions._call_agent_install",
++                            lambda sid: False)
++
++        resp = test_client.post(
++            "/api/extensions/my-ext/install",
++            headers=test_client.auth_headers,
++        )
++
++        assert resp.status_code == 200
++        progress_file = Path(tmp_path) / "extension-progress" / "my-ext.json"
++        assert progress_file.exists()
++        data = json.loads(progress_file.read_text())
++        assert data["status"] == "error"
++        assert "dream restart" in data["error"]
++
+     def test_enable_stopped_rejects_malicious_compose(self, test_client, monkeypatch, tmp_path):
+         """Enable stopped ext with malicious compose.yaml → 400."""
+         bad_compose = "services:\n  svc:\n    image: test\n    privileged: true\n"
+diff --git a/dream-server/extensions/services/dashboard/src/pages/Extensions.jsx b/dream-server/extensions/services/dashboard/src/pages/Extensions.jsx
+index efa40ccb..8c51aaed 100644
+--- a/dream-server/extensions/services/dashboard/src/pages/Extensions.jsx
++++ b/dream-server/extensions/services/dashboard/src/pages/Extensions.jsx
+@@ -79,6 +79,7 @@ const friendlyError = (detail) => {
+ const STATUS_STYLES = {
+   enabled:       'bg-green-500/20 text-green-400',
+   stopped:       'bg-red-500/20 text-red-400',
++  unhealthy:     'bg-amber-500/20 text-amber-400',
+   disabled:      'bg-theme-border text-theme-text-muted',
+   not_installed: 'border border-theme-border text-theme-text-muted',
+   incompatible:  'bg-orange-500/20 text-orange-400',
+@@ -90,7 +91,8 @@ const STATUS_STYLES = {
+ const STATUS_DESCRIPTIONS = {
+   enabled:       'Service is running and healthy',
+   disabled:      'Installed but turned off \u2014 won\u2019t start on restart',
+-  stopped:       'Enabled but container is not running or unhealthy',
++  stopped:       'Enabled but container is not running',
++  unhealthy:     'Container is running but health check is failing \u2014 check logs',
+   not_installed: 'Available to install from the extension library',
+   incompatible:  'Requires a GPU backend not available on this system',
+   installing:    'Being downloaded and set up',
+@@ -303,8 +305,8 @@ export default function Extensions() {
+       .filter(Boolean)
+   )]
+ 
+-  const STATUS_FILTERS = ['all', 'enabled', 'stopped', 'disabled', 'installing', 'setting_up', 'error', 'not_installed', 'incompatible']
+-  const STATUS_LABELS = { all: 'All', enabled: 'Enabled', stopped: 'Stopped', disabled: 'Disabled', installing: 'Installing', setting_up: 'Setting Up', error: 'Error', not_installed: 'Not Installed', incompatible: 'Incompatible' }
++  const STATUS_FILTERS = ['all', 'enabled', 'stopped', 'unhealthy', 'disabled', 'installing', 'setting_up', 'error', 'not_installed', 'incompatible']
++  const STATUS_LABELS = { all: 'All', enabled: 'Enabled', stopped: 'Stopped', unhealthy: 'Unhealthy', disabled: 'Disabled', installing: 'Installing', setting_up: 'Setting Up', error: 'Error', not_installed: 'Not Installed', incompatible: 'Incompatible' }
+ 
+   // Filter extensions
+   const query = search.toLowerCase()
+@@ -357,6 +359,7 @@ export default function Extensions() {
+           <SummaryItem label="Total" value={summary.total || extensions.length} color="bg-theme-text-muted" />
+           <SummaryItem label="Installed" value={summary.installed ?? 0} color="bg-green-500" />
+           <SummaryItem label="Stopped" value={summary.stopped ?? 0} color="bg-red-500" />
++          <SummaryItem label="Unhealthy" value={summary.unhealthy ?? 0} color="bg-amber-500" />
+           <SummaryItem label="Available" value={summary.not_installed ?? 0} color="bg-theme-accent" />
+           <SummaryItem label="Installing" value={summary.installing ?? 0} color="bg-blue-500" />
+           <SummaryItem label="Error" value={summary.error ?? 0} color="bg-red-500" />
+@@ -601,7 +604,8 @@ function ExtensionCard({ ext, gpuBackend, agentAvailable, onDetails, onConsole,
+   const isUserExt = ext.source === 'user'
+   const isError = status === 'error'
+   const isStopped = status === 'stopped'
+-  const isToggleable = isUserExt && (status === 'enabled' || status === 'disabled' || status === 'error' || status === 'stopped')
++  const isUnhealthy = status === 'unhealthy'
++  const isToggleable = isUserExt && (status === 'enabled' || status === 'disabled' || status === 'error' || status === 'stopped' || status === 'unhealthy')
+   const showRemove = isUserExt && (status === 'disabled' || isError)
+   const showInstall = status === 'not_installed' && ext.installable
+ 
+@@ -616,6 +620,7 @@ function ExtensionCard({ ext, gpuBackend, agentAvailable, onDetails, onConsole,
+             <div className={`p-1.5 rounded-lg ${
+               status === 'enabled' ? 'bg-green-500/10' :
+               status === 'stopped' ? 'bg-red-500/10' :
++              status === 'unhealthy' ? 'bg-amber-500/10' :
+               status === 'incompatible' ? 'bg-orange-500/10' :
+               (status === 'installing' || status === 'setting_up') ? 'bg-blue-500/10' :
+               status === 'error' ? 'bg-red-500/10' :
+@@ -624,6 +629,7 @@ function ExtensionCard({ ext, gpuBackend, agentAvailable, onDetails, onConsole,
+               <Icon size={16} className={
+                 status === 'enabled' ? 'text-green-400' :
+                 status === 'stopped' ? 'text-red-400' :
++                status === 'unhealthy' ? 'text-amber-400' :
+                 status === 'incompatible' ? 'text-orange-400' :
+                 (status === 'installing' || status === 'setting_up') ? 'text-blue-400' :
+                 status === 'error' ? 'text-red-400' :
+@@ -656,6 +662,7 @@ function ExtensionCard({ ext, gpuBackend, agentAvailable, onDetails, onConsole,
+                 className={`relative inline-flex h-[18px] w-[32px] shrink-0 rounded-full transition-colors disabled:opacity-50 ${
+                   status === 'error' ? 'bg-red-500' :
+                   status === 'stopped' ? 'bg-amber-500' :
++                  status === 'unhealthy' ? 'bg-amber-500' :
+                   status === 'enabled' ? 'bg-green-500' : 'bg-theme-border'
+                 }`}
+               >
+@@ -710,6 +717,16 @@ function ExtensionCard({ ext, gpuBackend, agentAvailable, onDetails, onConsole,
+               {isMutating ? <Loader2 size={12} className="animate-spin" /> : 'Start'}
+             </button>
+           )}
++          {isUserExt && isUnhealthy && (
++            <button
++              onClick={onConsole}
++              disabled={agentOffline}
++              title={agentOffline ? 'Host agent is offline' : 'View container logs'}
++              className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.08em] rounded-lg bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 transition-colors disabled:opacity-50"
++            >
++              <Terminal size={12} /> Check Logs
++            </button>
++          )}
+           {isError && (
+             <button
+               disabled={actionDisabled}
+@@ -780,7 +797,7 @@ function ExtensionCard({ ext, gpuBackend, agentAvailable, onDetails, onConsole,
+               className={`flex items-center gap-1.5 px-2 py-1.5 text-[10px] rounded-lg transition-colors ${
+                 agentOffline ? 'text-theme-text-muted/40 cursor-not-allowed' :
+                 isError ? 'text-red-400 hover:text-red-300 hover:bg-red-500/10' :
+-                (status === 'installing' || isStopped) ? 'text-amber-400/80 hover:text-amber-300 hover:bg-amber-500/10' :
++                (status === 'installing' || isStopped || isUnhealthy) ? 'text-amber-400/80 hover:text-amber-300 hover:bg-amber-500/10' :
+                 'text-theme-text-secondary hover:text-theme-text hover:bg-theme-surface-hover/40'
+               }`}
+               title={agentOffline ? 'Agent offline' : 'View logs'}

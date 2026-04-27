@@ -1,0 +1,9 @@
+ dream-server/.env.example                           |  4 ++--
+ dream-server/.env.schema.json                       |  2 +-
+ dream-server/bin/dream-host-agent.py                | 14 ++++++++------
+ dream-server/installers/macos/dream-macos.sh        |  2 +-
+ dream-server/installers/macos/install-macos.sh      |  8 +++++++-
+ dream-server/installers/windows/dream.ps1           |  8 ++++++--
+ dream-server/installers/windows/install-windows.ps1 | 18 ++++++++++++++++--
+ dream-server/scripts/bootstrap-upgrade.sh           |  8 ++++++--
+ 8 files changed, 47 insertions(+), 17 deletions(-)
