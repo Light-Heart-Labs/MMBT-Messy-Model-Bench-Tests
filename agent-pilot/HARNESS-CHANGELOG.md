@@ -6,6 +6,16 @@ Each fix is in the git history if you want to inspect the diff.
 
 ## 2026-04-27
 
+### `--stuck-threshold` flag (was hardcoded 30)
+
+The temp-fix smoke (`coder_pr_audit_smoke_v2`) cleared the deterministic loop trap and let Coder-Next do real work — it fetched 66 PR branches, init'd the audit-repo, made a real first commit, recorded the baseline SHA — then died at iter 54 because of **30 consecutive `ls -la` operations** exploring DreamServer's directory tree. None of those changed the workspace, so the stuck-detector fired even though the agent was doing legitimate codebase recon.
+
+The threshold of 30 was tuned for the memo/board/code-adoption tasks where the entire job fits in ~100 iters (Coder-Next averaged 95 iters on the memo). At that scale, 30 iters of no-write is a strong loop signal. For a 75-PR audit where the agent reasonably needs 50+ ls/cat/git operations to understand the codebase before producing per-PR verdicts, 30 is wrong — it punishes recon, not loops.
+
+`--stuck-threshold` is now configurable per-run, default 30 (preserves prior behavior; receipts under the new harness SHA reflect the actual value used). Suggested 80-150 for long-horizon tasks. Genuine loops still die within `(threshold × ~1.5 s)` of starting, so the cost of a higher threshold is bounded.
+
+Receipt's `harness_loop_config.stuck_threshold_iters` is now dynamic. Also renamed `max_iters_default` → `max_iters` since it now reflects the actual passed-through value, not the default.
+
 ### `--temperature` flag (was hardcoded 0.0)
 
 Added in response to the first DreamServer PR-audit smoke run (`coder_pr_audit_smoke_v1`), where Coder-Next did 11 iters of real work (cloned the repo, listed PRs, gathered file lists for ~10 PRs) and then **fell into a deterministic fixed-point loop**: 30 consecutive iterations of the same `curl .../pull/1057/files` call with no workspace change, until the stuck-detector fired at iter 41 (112 s wall).

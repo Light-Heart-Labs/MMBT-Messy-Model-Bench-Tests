@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-27T15:42:05.611961+00:00",
+  "ended_at": "2026-04-27T15:43:16.477641+00:00",
+  "elapsed_s": 70.9,
+  "iterations": 54,
+  "total_completion_tokens": 3221,
+  "total_prompt_tokens": 722626,
+  "model": "qwen3-coder-next-awq",
+  "finish_reason": "stuck_no_workspace_change_for_30_iters",
+  "done_summary": null
+}

@@ -33,16 +33,17 @@ def docker_inspect(name, fmt=None):
 
 
 def record_environment(run_name, model, api_url, task_file, log_dir, *,
-                       sandbox_runtime=None, temperature=0.0):
+                       sandbox_runtime=None, temperature=0.0, stuck_threshold=30,
+                       max_iters=10000):
     """Capture everything needed to reproduce the run. Written before the loop starts.
 
     sandbox_runtime: dict of per-run sandbox flags (gh_token_set, docker_socket,
     gpus, input_mount). The token value itself is never recorded — only whether
     one was set.
 
-    temperature: actual sampling temperature passed to the model on every
-    request (the receipt's `inference_request_defaults.temperature` reflects
-    this exact value)."""
+    temperature, stuck_threshold, max_iters: actual loop config — receipt fields
+    reflect these exact values (used to be hardcoded constants). Default values
+    here match the historical hardcoded ones for back-compat with prior receipts."""
     receipt = {
         "schema_version": 1,
         "run_name": run_name,
@@ -128,8 +129,8 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
     }
 
     receipt["harness_loop_config"] = {
-        "stuck_threshold_iters": 30,
-        "max_iters_default": 10000,
+        "stuck_threshold_iters": stuck_threshold,
+        "max_iters": max_iters,
         "max_completion_total_default": 10**12,
     }
 
@@ -479,6 +480,14 @@ def main():
                          "At temp=0 with seed=42, models can fall into fixed-point loops on long-horizon "
                          "tasks (same context → same response → same tool result → same response). "
                          "0.3-0.5 is typical for agentic work and breaks these traps without much off-task drift.")
+    ap.add_argument("--stuck-threshold", type=int, default=30,
+                    help="Iterations of unchanged workspace state hash before the harness aborts the run. "
+                         "Default 30 was tuned on the memo/board/code tasks (whole job fits in ~100 iters, "
+                         "so 30 is a strong loop signal). Long-horizon tasks like the DreamServer PR audit "
+                         "do legitimate read-only recon (ls/cat/git log) that doesn't update the workspace "
+                         "hash — bump to 80-150 to give those runs room before the detector fires. "
+                         "Genuine loops still die within (threshold × ~1.5s) of starting, so a higher "
+                         "threshold is cheap insurance.")
     ap.add_argument("--system", default=None, help="Path to system prompt file (optional).")
     ap.add_argument("--input-mount", default=None,
                     help="Host path mounted read-only at /input/repo inside the sandbox. "
@@ -584,11 +593,14 @@ def main():
             "input_mount": args.input_mount,
         },
         temperature=args.temperature,
+        stuck_threshold=args.stuck_threshold,
+        max_iters=args.max_iters,
     )
     print(f"receipt -> {log_dir / 'receipt.json'}  (vllm containers logged: {len(receipt['vllm']['containers'])})")
 
     summary = agent_loop(api_url, args.model, system_prompt, task, log_dir,
-                         max_iters=args.max_iters, temperature=args.temperature)
+                         max_iters=args.max_iters, temperature=args.temperature,
+                         stuck_threshold=args.stuck_threshold)
     print("\n=== SUMMARY ===")
     print(json.dumps(summary, indent=2))
 
