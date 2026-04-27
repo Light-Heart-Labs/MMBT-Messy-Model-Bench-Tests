@@ -34,6 +34,10 @@ benchmarks/
 | [`dreamserver-1-pr-audit`](benchmarks/dreamserver-1-pr-audit/) | Same task spec, scaled to a single PR. Built as the floor of an escalation ladder (1 → 2 → 4 → 8 → 16 → 32) to find each model's complexity ceiling. | `Qwen3-Coder-Next-AWQ`, `Qwen3.6-27B-AWQ`, `Qwen3.6-35B-A3B-AWQ` (floor failure) |
 | [`wallstreet-intern-test`](benchmarks/wallstreet-intern-test/) | Build a traceable investment memo repo with raw sources, extracted data, a three-statement model, valuation, and recommendation. | `GPT-5.5`, `Opus-4.7`, `Qwen3.6-27B-AWQ`, `Qwen3-Coder-Next-AWQ`, `Qwen3.6-35B-A3B-AWQ` (failure-mode entry) |
 
+## Reproducing the runs
+
+The [`tooling/`](tooling/) folder is the reproduction pack — agent harness, sandbox Dockerfile, vLLM launch commands, task prompts, and analysis scripts. With everything there plus a CUDA-capable Linux box and the relevant model quantizations from HuggingFace, an external reader can rerun any of the local-model entries here. See [`tooling/REPRODUCING.md`](tooling/REPRODUCING.md) for the setup-to-rerun walkthrough.
+
 ## How To Read A Model Entry
 
 Start with the benchmark folder README, then open the model folder:
