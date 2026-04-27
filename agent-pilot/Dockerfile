@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --no-cache-dir \
     requests beautifulsoup4 lxml pandas numpy openpyxl \
     yfinance sec-edgar-downloader markdown reportlab \
-    python-pptx matplotlib plotly kaleido Pillow graphviz
+    python-pptx matplotlib plotly kaleido Pillow graphviz \
+    pytest pytest-cov ruff
 WORKDIR /workspace
 RUN git config --global user.email "agent@bench.local" && git config --global user.name "bench-agent"
 CMD ["sleep","infinity"]

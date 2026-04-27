@@ -487,11 +487,30 @@ def main():
         "-v", f"{workspace_host}:/workspace",
     ]
     if args.input_mount:
-        input_mount = Path(args.input_mount).resolve()
-        if not input_mount.exists():
-            raise SystemExit(f"--input-mount path does not exist: {input_mount}")
+        input_src = Path(args.input_mount).resolve()
+        if not input_src.exists():
+            raise SystemExit(f"--input-mount path does not exist: {input_src}")
+        # Copy to a per-run temp dir so we can rename _starter_git_history → .git
+        # without mutating the source. (We track inputs in the outer repo with .git
+        # renamed to avoid nested-repo issues; the agent expects a real .git on its
+        # mount.)
+        input_mount = Path("/home/michael/bench/agent-pilot/workspace") / f"_input_{args.run_name}"
+        if input_mount.exists():
+            subprocess.run(["sudo", "rm", "-rf", str(input_mount)], check=False)
+            subprocess.run(["rm", "-rf", str(input_mount)], check=False)
+        subprocess.run(["cp", "-r", str(input_src), str(input_mount)], check=True)
+        # Restore .git from the renamed history dir if present
+        for hidden_name in ("_starter_git_history", "_agent_git_history"):
+            hidden = input_mount / hidden_name
+            if hidden.is_dir():
+                target = input_mount / ".git"
+                if target.exists():
+                    subprocess.run(["rm", "-rf", str(target)], check=False)
+                hidden.rename(target)
+                print(f"input mount: restored {hidden_name} → .git")
+                break
         docker_run += ["-v", f"{input_mount}:/input/repo:ro"]
-        print(f"input mount: {input_mount} → /input/repo (read-only)")
+        print(f"input mount: {input_src} → /input/repo (read-only via {input_mount})")
     docker_run += ["--network", "bridge", IMAGE]
     subprocess.run(docker_run, check=True, capture_output=True)
     # Init git inside the sandbox; pre-allow safe.directory so agent doesn't have to
