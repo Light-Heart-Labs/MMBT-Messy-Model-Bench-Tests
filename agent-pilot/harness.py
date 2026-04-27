@@ -32,12 +32,17 @@ def docker_inspect(name, fmt=None):
     return p.stdout.strip() if p.returncode == 0 else None
 
 
-def record_environment(run_name, model, api_url, task_file, log_dir, *, sandbox_runtime=None):
+def record_environment(run_name, model, api_url, task_file, log_dir, *,
+                       sandbox_runtime=None, temperature=0.0):
     """Capture everything needed to reproduce the run. Written before the loop starts.
 
     sandbox_runtime: dict of per-run sandbox flags (gh_token_set, docker_socket,
     gpus, input_mount). The token value itself is never recorded — only whether
-    one was set."""
+    one was set.
+
+    temperature: actual sampling temperature passed to the model on every
+    request (the receipt's `inference_request_defaults.temperature` reflects
+    this exact value)."""
     receipt = {
         "schema_version": 1,
         "run_name": run_name,
@@ -114,7 +119,7 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *, sandbox_
 
     # Inference request defaults (the constants used in the loop body)
     receipt["inference_request_defaults"] = {
-        "temperature": 0.0,
+        "temperature": temperature,
         "max_tokens_strategy": "min(180000, max_model_len - last_prompt_tokens - 14000), floor 2048",
         "max_model_len": 262144,
         "stream": False,
@@ -284,7 +289,7 @@ def execute_tool(name, args, log_dir):
 
 def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
                max_completion_total=10**12, max_model_len=262144,
-               stuck_threshold=30):
+               stuck_threshold=30, temperature=0.0):
     """Run the agent until done() or limits hit. Returns final state dict."""
     log_path = Path(log_dir) / "transcript.jsonl"
     summary_path = Path(log_dir) / "summary.json"
@@ -317,7 +322,7 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
             "messages": messages,
             "tools": TOOLS,
             "tool_choice": "auto",
-            "temperature": 0.0,
+            "temperature": temperature,
             "seed": 42,
             "max_tokens": max_tokens_safe,
             "stream": False,
@@ -469,6 +474,11 @@ def main():
     ap.add_argument("--max-iters", type=int, default=10000)
     ap.add_argument("--model", default="qwen3-coder-next-awq")
     ap.add_argument("--port", type=int, default=8001)
+    ap.add_argument("--temperature", type=float, default=0.0,
+                    help="Sampling temperature sent on every request. Default 0.0 (deterministic). "
+                         "At temp=0 with seed=42, models can fall into fixed-point loops on long-horizon "
+                         "tasks (same context → same response → same tool result → same response). "
+                         "0.3-0.5 is typical for agentic work and breaks these traps without much off-task drift.")
     ap.add_argument("--system", default=None, help="Path to system prompt file (optional).")
     ap.add_argument("--input-mount", default=None,
                     help="Host path mounted read-only at /input/repo inside the sandbox. "
@@ -573,10 +583,12 @@ def main():
             "gpus": args.gpus,
             "input_mount": args.input_mount,
         },
+        temperature=args.temperature,
     )
     print(f"receipt -> {log_dir / 'receipt.json'}  (vllm containers logged: {len(receipt['vllm']['containers'])})")
 
-    summary = agent_loop(api_url, args.model, system_prompt, task, log_dir, max_iters=args.max_iters)
+    summary = agent_loop(api_url, args.model, system_prompt, task, log_dir,
+                         max_iters=args.max_iters, temperature=args.temperature)
     print("\n=== SUMMARY ===")
     print(json.dumps(summary, indent=2))
 

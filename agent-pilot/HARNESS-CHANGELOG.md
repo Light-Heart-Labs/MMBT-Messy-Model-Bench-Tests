@@ -6,6 +6,18 @@ Each fix is in the git history if you want to inspect the diff.
 
 ## 2026-04-27
 
+### `--temperature` flag (was hardcoded 0.0)
+
+Added in response to the first DreamServer PR-audit smoke run (`coder_pr_audit_smoke_v1`), where Coder-Next did 11 iters of real work (cloned the repo, listed PRs, gathered file lists for ~10 PRs) and then **fell into a deterministic fixed-point loop**: 30 consecutive iterations of the same `curl .../pull/1057/files` call with no workspace change, until the stuck-detector fired at iter 41 (112 s wall).
+
+Root cause: `temperature: 0.0` + `seed: 42` makes the agent fully deterministic. When a tool call's output doesn't move the conversation forward in the model's view, the next response is identical, the next tool call is identical, the next result is identical — forever, until something else perturbs state. The stuck-detector kills the run, but no useful work happens after the loop entered.
+
+The harness changelog already noted "Determinism is approximate" because of vLLM's bf16 path non-determinism, so we never had bitwise reproducibility anyway — we were keeping seed=42 + temp=0 for a property we didn't actually have, while paying a real cost in loop traps on long-horizon tasks.
+
+`--temperature` is now configurable per-run, default 0.0 (preserves prior runs' settings; receipts under the new harness SHA will reflect the actual value used). For agentic long-horizon tasks: 0.3–0.5 breaks the trap without much off-task drift. `seed: 42` is still sent on every request — it's harmless at temp>0 and gives a reproducibility prior for replays.
+
+The receipt's `inference_request_defaults.temperature` is now dynamic (was hardcoded 0.0). Past receipts are unaffected.
+
 ### Sandbox capability flags: `--gh-token`, `--docker-socket`, `--gpus`
 
 Added in preparation for the DreamServer PR-audit task (`task_dreamserver_pr_audit.md`), which requires the agent to (a) auth against api.github.com to read 75 PRs without hitting the 60 req/hr unauth ceiling, (b) run the DreamServer installer inside clean sibling containers, and (c) optionally exercise GPU code paths on real hardware.
