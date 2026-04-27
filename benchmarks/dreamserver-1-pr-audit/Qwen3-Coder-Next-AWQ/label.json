@@ -1,0 +1,9 @@
+{
+  "primary": "success-shipped",
+  "sub_labels": [
+    "cherry-picked"
+  ],
+  "notes": "MERGE after minor doc improvements. Correctly identified the catalog asymmetry as intentional. Matches ground truth. Cherry-picked correct run of three; other two (v1, v3) gave REJECT (wrong).",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

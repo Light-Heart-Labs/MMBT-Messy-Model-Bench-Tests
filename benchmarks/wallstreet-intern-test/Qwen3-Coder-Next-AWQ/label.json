@@ -1,0 +1,9 @@
+{
+  "primary": "success-shipped",
+  "sub_labels": [
+    "cherry-picked"
+  ],
+  "notes": "DocuSign (DOCU) BUY recommendation. 11 min, 95 iters, done_signal. 10.6 KB three-statement model, full audit trail, tagged release. Cherry-picked best-of-three: v6 and v7 stalled in scaffold-and-stop pattern within 1-2 minutes. Score 80 in the consolidated 2x3x3 grid. Verdict-reliability caveat from the PR-audit benchmark (single-shot Coder-Next can be confidently wrong) extends to this BUY call.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}
