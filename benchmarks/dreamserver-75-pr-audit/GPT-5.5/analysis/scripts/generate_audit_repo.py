@@ -108,7 +108,15 @@ SURFACE_KEYWORDS = [
 
 
 def read(path: str) -> str:
-    repo_local = ROOT / "analysis" / path if path == "pr-metadata-full.json" else ROOT / path
+    if path == "pr-metadata-full.json":
+        repo_local = ROOT / "analysis" / path
+    elif path.startswith("PR_AUDIT") or path in {
+        "ACTIONABLE_FINDINGS_INDEX.md",
+        "75_PR_REVIEW_COMPLETE_REFERENCE.md",
+    }:
+        repo_local = ROOT / "analysis" / "source-ledgers" / path
+    else:
+        repo_local = ROOT / path
     source = repo_local if repo_local.exists() else WORKSPACE / path
     data = source.read_bytes()
     if data.startswith(b"\xff\xfe") or data.startswith(b"\xfe\xff"):

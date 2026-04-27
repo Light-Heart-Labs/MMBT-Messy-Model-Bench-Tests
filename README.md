@@ -1,37 +1,39 @@
-# DreamServer 75 PR Audit
+# MMBT - Messy Model Bench Tests
 
-This repository is the audit deliverable for the 75 open pull requests against
-`Light-Heart-Labs/DreamServer` reviewed on 2026-04-27.
+This repository stores messy, real-world benchmark outputs from different
+models. Each benchmark is a task that looks like actual project work rather
+than a tidy synthetic eval.
 
-## Read In This Order
+## Layout
 
-1. `report/executive-summary.md`
-2. `report/backlog-strategy.md`
-3. `analysis/dependency-graph.md`
-4. `analysis/risk-matrix.md`
-5. `prs/pr-*/verdict.md` for PR-level decisions
-6. `ACTIONABLE_FINDINGS_INDEX.md` for line-level issues
+```text
+benchmarks/
+  dreamserver-75-pr-audit/
+    GPT-5.5/
+      report/
+      prs/
+      analysis/
+      testing/
+      research/
+      decisions/
+```
 
-## Repository Layout
+## Benchmarks
 
-- `report/` contains maintainer-facing synthesis.
-- `prs/pr-{number}/` contains per-PR verdicts, summaries, review notes, tests,
-  diff analysis, interactions, and trace records.
-- `testing/` contains baseline, environment notes, hardware notes, and
-  reproduction pointers.
-- `analysis/` contains cross-PR dependency, risk, surface-area, and script
-  artifacts.
-- `research/` contains upstream context, questions, dead ends, and dated working
-  notes.
-- `decisions/` contains ADR-style records for audit methodology choices.
+| Benchmark | Prompt Shape | Model Entries |
+|---|---|---|
+| `dreamserver-75-pr-audit` | Audit 75 open PRs in a live repository and produce a traceable maintainer triage repo. | `GPT-5.5` |
 
-## Final Accounting
+## How To Read A Model Entry
 
-- Total PRs audited: 75
-- Merge: 34
-- Revise: 40
-- Reject: 1
-- Unaudited: 0
+Start with the benchmark folder README, then open the model folder:
 
-The "Merge" set assumes normal CI, maintainer review, and the merge ordering
-recommended in `report/backlog-strategy.md`.
+1. `benchmarks/<benchmark>/README.md`
+2. `benchmarks/<benchmark>/<model>/README.md`
+3. The model's `report/`, `analysis/`, and `prs/` artifacts
+
+## Current Entry
+
+GPT-5.5's DreamServer 75-PR audit is here:
+
+`benchmarks/dreamserver-75-pr-audit/GPT-5.5/`
