@@ -1,0 +1,9 @@
+{
+  "primary": "stuck-in-research",
+  "sub_labels": [
+    "aborted-mid-run"
+  ],
+  "notes": "157 iters of legitimate `git diff origin/main..pr-XXXX` across dozens of distinct PRs. 0 write_file calls, 0 git commits. Killed on pivot to escalation experiment, but trajectory had been read-only-forever for the whole run.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

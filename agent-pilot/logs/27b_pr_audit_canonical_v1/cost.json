@@ -1,0 +1,36 @@
+{
+  "run_name": "27b_pr_audit_canonical_v1",
+  "model": "qwen3.6-27b-awq",
+  "wall_s": 1426.8,
+  "iters": 57,
+  "tokens": {
+    "completion_total": 38802,
+    "prompt_total": 2927291,
+    "all_total": 2966093
+  },
+  "throughput": {
+    "completion_tps_avg": 27.8,
+    "model_call_wall_s": 1394.9,
+    "tool_call_wall_s": 26.1,
+    "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+  },
+  "time_to": {
+    "first_write_s": 108.1,
+    "first_commit_s": 137.6,
+    "first_tag_s": 1391.0
+  },
+  "gpu": {
+    "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+    "power_limit_w": 600.0,
+    "power_draw_w_at_start": 81.18,
+    "memory_used_mib_at_start": 92463.0,
+    "memory_total_mib": 97887.0,
+    "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+  },
+  "energy_estimate": {
+    "kwh_upper_bound": 0.2378,
+    "cost_usd_upper_bound": 0.0309,
+    "rate_usd_per_kwh": 0.13,
+    "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+  }
+}

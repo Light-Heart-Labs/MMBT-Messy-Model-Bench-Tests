@@ -1,0 +1,9 @@
+{
+  "primary": "identical-call-loop",
+  "sub_labels": [
+    "harness-mid-fix"
+  ],
+  "notes": "30 consecutive identical curl .../pull/1057/files calls (iters 12-41). Surfaced the temp=0+seed=42 deterministic loop trap. Led to --temperature flag.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

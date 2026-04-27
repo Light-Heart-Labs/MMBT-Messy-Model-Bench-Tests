@@ -1,0 +1,9 @@
+{
+  "primary": "cyclic-name-slop",
+  "sub_labels": [
+    "aborted-mid-run"
+  ],
+  "notes": "60 decisions/0XX-final-{report,merge,verification,approval,strategy}.md ADRs across 5 byte-identical templates cycled by filename. Killed manually after content-hash dedupe confirmed the pattern.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

@@ -1,0 +1,10 @@
+{
+  "primary": "identical-call-loop",
+  "sub_labels": [
+    "harness-mid-fix",
+    "wall-killed"
+  ],
+  "notes": "50+ consecutive identical `git log --oneline -1000 --all | grep \"Merge pull request\" | sed | awk | grep | uniq` commands. Wall-clock killed before stuck-detector fired.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

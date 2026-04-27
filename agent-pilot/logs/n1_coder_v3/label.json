@@ -1,0 +1,9 @@
+{
+  "primary": "success-shipped-wrong",
+  "sub_labels": [
+    "wrong-on-4-claims"
+  ],
+  "notes": "REJECT for correctness AND quality, citing four issues: stderr-direction (BACKWARDS \u2014 claimed errors at start when PR's whole point is they're at end), catalog 500 (same conflation as v1), pull edge case (speculation, not tested), llama-server RuntimeError (claimed inconsistent with codebase when it's the explicit fix). Authored fake `tests/test_stderr_truncation.py` to 'demonstrate' the non-existent issue. Worst run of the three.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

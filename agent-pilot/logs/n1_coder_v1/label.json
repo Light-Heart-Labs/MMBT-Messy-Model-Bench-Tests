@@ -1,0 +1,9 @@
+{
+  "primary": "success-shipped-wrong",
+  "sub_labels": [
+    "wrong-on-1-claims"
+  ],
+  "notes": "REJECT for correctness. Conflated _handle_model_list comment with _handle_model_download behavior. Verdict shipped clean (13/13 files, 20 commits, tag, done()) but wrong on the catalog-handling architectural distinction.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

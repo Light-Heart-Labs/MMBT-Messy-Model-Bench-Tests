@@ -1,0 +1,7 @@
+{
+  "primary": "wall-killed",
+  "sub_labels": [],
+  "notes": "First 27B smoke on the 75-PR task. Bulk-downloaded all 75 PR diffs to /tmp/pr_diffs/. Wrote initial README + pr_analyzer.py + ran the analyzer. Made one substantive first commit. Wall-clock killed at iter 26 mid-`cat pr-750.diff`. Demonstrated 27B can do real work on this task class \u2014 distinct from Coder-Next smokes that surfaced loops.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

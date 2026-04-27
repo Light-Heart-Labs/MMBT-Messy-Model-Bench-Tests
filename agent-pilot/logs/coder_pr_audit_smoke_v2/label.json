@@ -1,0 +1,9 @@
+{
+  "primary": "stuck-in-research",
+  "sub_labels": [
+    "harness-mid-fix"
+  ],
+  "notes": "30 ls -la calls of different DreamServer subdirs without writes. Surfaced the workspace-state-hash gap on read-only ops. Led to --stuck-threshold flag.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

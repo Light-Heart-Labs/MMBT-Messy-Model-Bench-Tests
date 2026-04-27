@@ -1,0 +1,7 @@
+{
+  "primary": "partial-no-spec-output",
+  "sub_labels": [],
+  "notes": "Best 27B-on-PR-1057 by content quality at the time. 4 of 13 required files. 1 commit. No verdict.md, no tag, no done(). Caught the rollback-path silent-failure concern (real). Self-corrected on a false logger.info indentation claim. Ran pytest on baseline + PR branch.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

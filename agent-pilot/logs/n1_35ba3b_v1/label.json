@@ -1,0 +1,7 @@
+{
+  "primary": "floor-failure",
+  "sub_labels": [],
+  "notes": "28 iters of legitimate investigation (cloned repo, ran pytest on both branches, grep'd for AMD), then a 25-second thinking turn (4,368 reasoning tokens) emitted no tool calls and stopped. Zero artifacts written, zero commits.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}
