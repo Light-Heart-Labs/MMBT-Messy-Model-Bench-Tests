@@ -1,0 +1,680 @@
+diff --git a/resources/dev/extensions-library/README.md b/resources/dev/extensions-library/README.md
+index e874959..b7939d3 100644
+--- a/resources/dev/extensions-library/README.md
++++ b/resources/dev/extensions-library/README.md
+@@ -1,6 +1,6 @@
+ # DreamServer Extensions Library
+ 
+-**33 service extensions being tested for DreamServer. 17 are already in production — these are next.**
++**32 service extensions being tested for DreamServer. 17 are already in production — these are next.**
+ 
+ Each extension is a self-contained directory with a `manifest.yaml` (service metadata), `compose.yaml` (Docker Compose fragment), and optional Dockerfiles, workflows, and documentation. Drop any of these into your DreamServer's `extensions/services/` directory and run `dream enable <service-id>`.
+ 
+@@ -80,7 +80,6 @@ Each extension is a self-contained directory with a `manifest.yaml` (service met
+ |---------|------------|-----|
+ | [`label-studio/`](services/label-studio/) | Label Studio — data labeling for ML training | CPU |
+ | [`anythingllm/`](services/anythingllm/) | AnythingLLM — all-in-one RAG + chat + agents | AMD, NVIDIA |
+-| [`privacy-shield/`](services/privacy-shield/) | Privacy Shield — PII detection/redaction proxy | AMD, NVIDIA |
+ 
+ ## Platform Compatibility
+ 
+@@ -115,7 +114,6 @@ Quick reference for hardware requirements. Data sourced from each service's `man
+ | open-interpreter | — | — | — | ✓ | — |
+ | paperless-ngx | — | — | — | ✓ | — |
+ | piper-audio | ✓ | ✓ | ✓ | — | — |
+-| privacy-shield | ✓ | ✓ | — | — | — |
+ | rvc | ✓ | ✓ | — | — | 6 GB |
+ | sillytavern | ✓ | ✓ | ✓ | — | — |
+ | text-generation-webui | ✓ | ✓ | — | — | 4 GB |
+@@ -203,4 +201,4 @@ python3 -c "import yaml; yaml.safe_load(open('my-service/manifest.yaml'))"
+ 
+ These extensions are actively tested on DreamServer development builds. Some are battle-tested (Ollama, ChromaDB, Bark), others are newer. All follow the v1 manifest schema and integrate with the DreamServer service registry, dashboard, and CLI.
+ 
+-**17 services have already graduated to production** — these 33 are being prepared for the next wave.
++**17 services have already graduated to production** — these 32 are being prepared for the next wave.
+diff --git a/resources/dev/extensions-library/services/privacy-shield/Dockerfile b/resources/dev/extensions-library/services/privacy-shield/Dockerfile
+deleted file mode 100644
+index b3d5dd9..0000000
+--- a/resources/dev/extensions-library/services/privacy-shield/Dockerfile
++++ /dev/null
+@@ -1,27 +0,0 @@
+-FROM python:3.11-slim
+-
+-WORKDIR /app
+-
+-# Install dependencies
+-COPY requirements.txt .
+-RUN pip install --no-cache-dir -r requirements.txt
+-
+-# Copy application
+-COPY pii_scrubber.py .
+-COPY proxy.py .
+-
+-# Create data directory for session persistence
+-RUN mkdir -p /data && chown -R 1000:1000 /data
+-
+-# Run as non-root
+-USER 1000:1000
+-
+-# Expose port
+-EXPOSE 8085
+-
+-# Health check
+-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+-    CMD python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:8085/health')" || exit 1
+-
+-# Start proxy
+-CMD ["python3", "proxy.py"]
+diff --git a/resources/dev/extensions-library/services/privacy-shield/PII_COVERAGE.md b/resources/dev/extensions-library/services/privacy-shield/PII_COVERAGE.md
+deleted file mode 100644
+index 3ea3487..0000000
+--- a/resources/dev/extensions-library/services/privacy-shield/PII_COVERAGE.md
++++ /dev/null
+@@ -1,62 +0,0 @@
+-# Privacy Shield - PII Detection Coverage
+-
+-## Overview
+-
+-Privacy Shield provides PII (Personally Identifiable Information) detection and redaction for voice agent conversations.
+-
+-## Current Implementation: Regex-Only Detection
+-
+-**Status:** The current implementation uses regex-based pattern matching for PII detection.
+-
+-### Detected PII Types
+-
+-| Type | Pattern | Example |
+-|------|---------|---------|
+-| Email addresses | `\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b` | user@example.com |
+-| Phone numbers (US) | `\b\d{3}[-.]?\d{3}[-.]?\d{4}\b` | 555-123-4567 |
+-| Social Security Numbers | `\b\d{3}-\d{2}-\d{4}\b` | 123-45-6789 |
+-| Credit card numbers | `\b(?:\d[ -]*?){13,16}\b` | 4111 1111 1111 1111 |
+-| IP addresses | `\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b` | 192.168.1.1 |
+-
+-### Limitations
+-
+-The following PII types are **NOT currently detected**:
+-
+-- Person names (e.g., "John Smith")
+-- Physical addresses
+-- Dates of birth
+-- Passport numbers
+-- Driver's license numbers
+-- Bank account numbers
+-- Medical record numbers
+-
+-## Future Enhancement: Presidio Integration
+-
+-**Planned:** Integration with Microsoft Presidio for comprehensive NER-based PII detection.
+-
+-### Benefits of Presidio Integration
+-
+-- Named entity recognition for person names
+-- Address detection and normalization
+-- Context-aware PII detection
+-- Customizable PII recognizers
+-- Support for multiple languages
+-
+-### Implementation Timeline
+-
+-- **Current:** Regex-only detection (ship-ready)
+-- **Post-ship:** Presidio integration for enhanced coverage
+-
+-## Configuration
+-
+-No configuration required. Privacy Shield operates automatically when enabled.
+-
+-## Error Handling
+-
+-Error responses return generic messages to prevent information leakage:
+-
+-```json
+-{"error": "Privacy check failed", "shield": "active"}
+-```
+-
+-Detailed errors are logged server-side.
+diff --git a/resources/dev/extensions-library/services/privacy-shield/README.md b/resources/dev/extensions-library/services/privacy-shield/README.md
+deleted file mode 100644
+index 15abc7c..0000000
+--- a/resources/dev/extensions-library/services/privacy-shield/README.md
++++ /dev/null
+@@ -1,54 +0,0 @@
+-# Privacy Shield (PII Protection)
+-
+-API proxy that sits between your applications and the LLM, automatically scrubbing Personally Identifiable Information (PII) before it leaves your server.
+-
+-## Requirements
+-
+-- **GPU:** NVIDIA or AMD
+-- **Dependencies:** llama-server
+-
+-## Enable / Disable
+-
+-```bash
+-dream enable privacy-shield
+-dream disable privacy-shield
+-```
+-
+-Your data is preserved when disabling. To re-enable later: `dream enable privacy-shield`
+-
+-## Access
+-
+-- **API:** `http://localhost:7808`
+-
+-## First-Time Setup
+-
+-1. Enable the service: `dream enable privacy-shield`
+-2. Route your LLM requests through `http://localhost:7808/v1/chat/completions` instead of calling llama-server directly
+-
+-### Example
+-
+-```python
+-import requests
+-
+-response = requests.post(
+-    "http://localhost:7808/v1/chat/completions",
+-    json={
+-        "model": "qwen2.5-32b-instruct",
+-        "messages": [{"role": "user", "content": "My email is john@example.com"}]
+-    }
+-)
+-# PII is scrubbed: "Your email is <EMAIL_ADDRESS>"
+-```
+-
+-### PII Detection Coverage
+-
+-| Type | Detected |
+-|------|----------|
+-| Email addresses | Yes |
+-| Phone numbers | Yes |
+-| SSN | Yes |
+-| Credit cards | Yes |
+-| IP addresses | Yes |
+-| API keys | Yes |
+-| Person names | No (requires NLP) |
+-| Addresses | No (requires NLP) |
+diff --git a/resources/dev/extensions-library/services/privacy-shield/compose.yaml b/resources/dev/extensions-library/services/privacy-shield/compose.yaml
+deleted file mode 100644
+index 83202d4..0000000
+--- a/resources/dev/extensions-library/services/privacy-shield/compose.yaml
++++ /dev/null
+@@ -1,42 +0,0 @@
+-services:
+-  privacy-shield:
+-    build:
+-      context: .
+-      dockerfile: Dockerfile
+-    container_name: dream-privacy-shield
+-    restart: unless-stopped
+-    user: "${UID:-1000}:${GID:-1000}"
+-    security_opt:
+-      - no-new-privileges:true
+-    environment:
+-      - TARGET_API_URL=${LLM_API_URL:-http://llama-server:8080}/v1
+-      - TARGET_API_KEY=${TARGET_API_KEY:-}
+-      - SHIELD_PORT=${SHIELD_PORT:-7808}
+-      - PII_CACHE_ENABLED=${PII_CACHE_ENABLED:-true}
+-      - PII_CACHE_SIZE=${PII_CACHE_SIZE:-1000}
+-      - PII_CACHE_TTL=${PII_CACHE_TTL:-300}
+-      - LOG_LEVEL=${LOG_LEVEL:-info}
+-    volumes:
+-      - ./data/privacy-shield:/data
+-    ports:
+-      - "127.0.0.1:${SHIELD_PORT:-7808}:8085"
+-    deploy:
+-      resources:
+-        limits:
+-          cpus: '2.0'
+-          memory: 2G
+-        reservations:
+-          cpus: '0.5'
+-          memory: 512M
+-    healthcheck:
+-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8085/health', timeout=5)"]
+-      interval: 30s
+-      timeout: 10s
+-      retries: 3
+-      start_period: 10s
+-    networks:
+-      - dream-network
+-
+-networks:
+-  dream-network:
+-    external: true
+diff --git a/resources/dev/extensions-library/services/privacy-shield/manifest.yaml b/resources/dev/extensions-library/services/privacy-shield/manifest.yaml
+deleted file mode 100644
+index d1169fa..0000000
+--- a/resources/dev/extensions-library/services/privacy-shield/manifest.yaml
++++ /dev/null
+@@ -1,19 +0,0 @@
+-schema_version: dream.services.v1
+-
+-service:
+-  id: privacy-shield
+-  name: Privacy Shield (PII Protection)
+-  aliases: []
+-  container_name: dream-privacy-shield
+-  host_env: PRIVACY_SHIELD_HOST
+-  default_host: privacy-shield
+-  port: 8085
+-  external_port_env: SHIELD_PORT
+-  external_port_default: 7808
+-  health: /health
+-  type: docker
+-  gpu_backends: [amd, nvidia]
+-  compose_file: compose.yaml
+-  category: optional
+-  depends_on: [llama-server]
+-  description: "PII detection and redaction proxy that scrubs sensitive data before it reaches LLMs."
+diff --git a/resources/dev/extensions-library/services/privacy-shield/pii_scrubber.py b/resources/dev/extensions-library/services/privacy-shield/pii_scrubber.py
+deleted file mode 100644
+index 154b86b..0000000
+--- a/resources/dev/extensions-library/services/privacy-shield/pii_scrubber.py
++++ /dev/null
+@@ -1,170 +0,0 @@
+-#!/usr/bin/env python3
+-"""
+-M3: API Privacy Shield - Core PII Scrubber
+-Detects and replaces PII with tokens, restores on reverse.
+-"""
+-
+-import re
+-import hashlib
+-import secrets
+-from typing import Dict, List, Tuple, Optional
+-from dataclasses import dataclass, field
+-
+-
+-@dataclass
+-class PIIDetector:
+-    """Detects and manages PII in text."""
+-    
+-    # Token prefix for PII placeholders
+-    token_prefix: str = "<PII_"
+-    token_suffix: str = ">"
+-    
+-    # Session-specific PII mappings (persistent per conversation)
+-    pii_map: Dict[str, str] = field(default_factory=dict)
+-    counter: int = field(default=0)
+-    
+-    # Stable session token (persisted, doesn't change on restart)
+-    session_token: str = field(default_factory=lambda: secrets.token_hex(16))
+-    
+-    # Regex patterns for PII detection
+-    PATTERNS = {
+-        'email': re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b'),
+-        'phone': re.compile(r'\b(?:\+?1[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}\b'),
+-        'ssn': re.compile(r'\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b'),
+-        'ip_address': re.compile(
+-            r'\b(?:\d{1,3}\.){3}\d{1,3}\b'  # IPv4
+-            r'|'
+-            r'(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}'  # Full IPv6
+-            r'|'
+-            r'(?:[0-9a-fA-F]{1,4}:){1,7}:'  # Trailing ::
+-            r'|'
+-            r'::(?:[0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4}'  # Leading ::
+-            r'|'
+-            r'(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}'  # Middle ::
+-        ),
+-        'api_key': re.compile(r'\b(?:api[_-]?key|apikey|token)[\s]*[=:]\s*["\']?[a-zA-Z0-9_\-]{16,}["\']?\b', re.IGNORECASE),
+-        'credit_card': re.compile(r'\b(?:\d{4}[-\s]?){3}\d{4}\b'),
+-    }
+-    
+-    def _generate_token(self, pii_type: str, original: str) -> str:
+-        """Generate a unique token for PII."""
+-        # Create deterministic hash for same PII = same token within session
+-        # Use stable session_token instead of id(self) which changes on restart
+-        hash_input = f"{pii_type}:{original}:{self.session_token}"
+-        short_hash = hashlib.sha256(hash_input.encode()).hexdigest()[:12]
+-        return f"{self.token_prefix}{pii_type}_{short_hash}{self.token_suffix}"
+-    
+-    def scrub(self, text: str) -> str:
+-        """
+-        Scrub PII from text, replace with tokens.
+-        Returns scrubbed text.
+-        """
+-        scrubbed = text
+-        
+-        for pii_type, pattern in self.PATTERNS.items():
+-            matches = pattern.findall(scrubbed)
+-            for match in matches:
+-                if isinstance(match, tuple):
+-                    match = match[0]  # Handle groups
+-                
+-                # Check if we've seen this PII before
+-                existing_token = None
+-                for token, original in self.pii_map.items():
+-                    if original == match:
+-                        existing_token = token
+-                        break
+-                
+-                if existing_token:
+-                    scrubbed = scrubbed.replace(match, existing_token, 1)
+-                else:
+-                    # New PII - create token
+-                    token = self._generate_token(pii_type, match)
+-                    self.pii_map[token] = match
+-                    scrubbed = scrubbed.replace(match, token, 1)
+-        
+-        return scrubbed
+-    
+-    def restore(self, text: str) -> str:
+-        """
+-        Restore PII from tokens in text.
+-        Returns restored text.
+-        """
+-        restored = text
+-        for token, original in self.pii_map.items():
+-            restored = restored.replace(token, original)
+-        return restored
+-    
+-    def get_stats(self) -> Dict:
+-        """Return statistics about detected PII."""
+-        return {
+-            'unique_pii_count': len(self.pii_map),
+-            'pii_types': list(set(
+-                token.lstrip('<').split('_', 1)[1].rsplit('_', 1)[0]
+-                for token in self.pii_map.keys()
+-            ))
+-        }
+-
+-
+-class PrivacyShield:
+-    """
+-    Main API Privacy Shield wrapper.
+-    Wraps API calls to scrub/restore PII transparently.
+-    """
+-    
+-    def __init__(self, backend_client=None):
+-        self.detector = PIIDetector()
+-        self.backend = backend_client  # e.g., OpenAI client
+-    
+-    def process_request(self, prompt: str) -> Tuple[str, Dict]:
+-        """
+-        Process outgoing request - scrub PII.
+-        Returns (scrubbed_prompt, metadata for restore).
+-        """
+-        scrubbed = self.detector.scrub(prompt)
+-        stats = self.detector.get_stats()
+-        
+-        metadata = {
+-            'scrubbed': scrubbed != prompt,
+-            'pii_count': stats['unique_pii_count'],
+-            'pii_types': stats['pii_types']
+-        }
+-        
+-        return scrubbed, metadata
+-    
+-    def process_response(self, response_text: str) -> str:
+-        """
+-        Process incoming response - restore PII.
+-        """
+-        return self.detector.restore(response_text)
+-
+-
+-# Simple CLI for testing
+-if __name__ == "__main__":
+-    import sys
+-    
+-    shield = PrivacyShield()
+-    
+-    # Test input
+-    test_text = """
+-    Contact John Doe at john.doe@example.com or call 555-123-4567.
+-    API Key: sk-abc123xyz789abcdef
+-    Server IP: 192.168.1.100
+-    SSN: 123-45-6789
+-    """
+-    
+-    print("=== PII Scrubber Test ===")
+-    print(f"\nOriginal:\n{test_text}")
+-    
+-    scrubbed, meta = shield.process_request(test_text)
+-    print(f"\nScrubbed:\n{scrubbed}")
+-    print(f"\nMetadata: {meta}")
+-    
+-    restored = shield.process_response(scrubbed)
+-    print(f"\nRestored:\n{restored}")
+-    
+-    # Verify round-trip
+-    if restored.strip() == test_text.strip():
+-        print("\n✅ Round-trip successful!")
+-    else:
+-        print("\n❌ Round-trip failed!")
+-        print(f"Diff: {set(restored.split()) ^ set(test_text.split())}")
+diff --git a/resources/dev/extensions-library/services/privacy-shield/proxy.py b/resources/dev/extensions-library/services/privacy-shield/proxy.py
+deleted file mode 100644
+index a116eb3..0000000
+--- a/resources/dev/extensions-library/services/privacy-shield/proxy.py
++++ /dev/null
+@@ -1,218 +0,0 @@
+-#!/usr/bin/env python3
+-"""
+-M3: API Privacy Shield - HTTP Proxy (Dream Server Integration)
+-FastAPI-based proxy with connection pooling and PII caching.
+-"""
+-
+-import os
+-import time
+-import httpx
+-import logging
+-import secrets
+-import hashlib
+-from fastapi import FastAPI, Request, Response, Depends, HTTPException, Security
+-from fastapi.responses import JSONResponse
+-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+-from functools import lru_cache
+-import uvicorn
+-import json
+-from cachetools import TTLCache
+-
+-from pii_scrubber import PrivacyShield
+-
+-# Security: API Key Authentication
+-SHIELD_API_KEY = os.environ.get("SHIELD_API_KEY")
+-if not SHIELD_API_KEY:
+-    SHIELD_API_KEY = secrets.token_urlsafe(32)
+-    logging.warning("SHIELD_API_KEY not set. Generated temporary key (not logging for security). "
+-                   "Set SHIELD_API_KEY in .env for production.")
+-
+-security_scheme = HTTPBearer()
+-
+-async def verify_api_key(credentials: HTTPAuthorizationCredentials = Security(security_scheme)):
+-    """Verify API key for protected endpoints."""
+-    if not secrets.compare_digest(credentials.credentials, SHIELD_API_KEY):
+-        raise HTTPException(status_code=403, detail="Invalid API key.")
+-    return credentials.credentials
+-
+-
+-app = FastAPI(title="API Privacy Shield", version="0.2.0")
+-
+-# Configuration from environment
+-TARGET_API_BASE = os.getenv("TARGET_API_URL", "http://llama-server:8080/v1")
+-TARGET_API_KEY = os.getenv("TARGET_API_KEY", "not-needed")
+-PORT = int(os.getenv("SHIELD_PORT", "8085"))
+-CACHE_ENABLED = os.getenv("PII_CACHE_ENABLED", "true").lower() == "true"
+-CACHE_SIZE = int(os.getenv("PII_CACHE_SIZE", "1000"))
+-CACHE_TTL = int(os.getenv("PII_CACHE_TTL", "300"))
+-
+-# Connection pool for better performance
+-http_client = httpx.AsyncClient(
+-    limits=httpx.Limits(max_keepalive_connections=100, max_connections=200),
+-    timeout=httpx.Timeout(60.0, connect=5.0)
+-)
+-
+-# Session store (TTL cache with auto-eviction to prevent unbounded growth)
+-# maxsize=10000 sessions, ttl=3600 seconds (1 hour)
+-SESSION_MAXSIZE = int(os.getenv("SHIELD_SESSION_MAXSIZE", "10000"))
+-SESSION_TTL = int(os.getenv("SHIELD_SESSION_TTL", "3600"))
+-sessions = TTLCache(maxsize=SESSION_MAXSIZE, ttl=SESSION_TTL)
+-
+-
+-class CachedPrivacyShield(PrivacyShield):
+-    """PrivacyShield with LRU cache for PII patterns."""
+-    
+-    def __init__(self, backend_client=None):
+-        super().__init__(backend_client)
+-        if CACHE_ENABLED:
+-            self._scrub_cached = lru_cache(maxsize=CACHE_SIZE)(self._scrub_impl)
+-    
+-    def _scrub_impl(self, text: str) -> str:
+-        """Internal scrub implementation."""
+-        return self.detector.scrub(text)
+-    
+-    def scrub(self, text: str) -> str:
+-        """Scrub with optional caching."""
+-        if CACHE_ENABLED and len(text) < 1000:  # Only cache small texts
+-            return self._scrub_cached(text)
+-        return self._scrub_impl(text)
+-
+-
+-def get_session(request: Request) -> CachedPrivacyShield:
+-    """Get or create session-specific PrivacyShield."""
+-    # Key on client IP to isolate PII between different callers.
+-    # The shared SHIELD_API_KEY cannot differentiate users.
+-    client_ip = request.client.host if request.client else "default"
+-    session_key = hashlib.sha256(client_ip.encode()).hexdigest()
+-    
+-    if session_key not in sessions:
+-        sessions[session_key] = CachedPrivacyShield()
+-
+-    return sessions[session_key]
+-
+-
+-@app.get("/health")
+-async def health():
+-    """Health check endpoint."""
+-    return {
+-        "status": "ok",
+-        "service": "api-privacy-shield",
+-        "version": "0.2.0",
+-        "target_api": TARGET_API_BASE,
+-        "cache_enabled": CACHE_ENABLED,
+-        "active_sessions": len(sessions)
+-    }
+-
+-
+-@app.get("/stats")
+-async def stats():
+-    """Session statistics."""
+-    total_pii = sum(
+-        s.detector.get_stats()['unique_pii_count']
+-        for s in sessions.values()
+-    )
+-    return {
+-        "active_sessions": len(sessions),
+-        "total_pii_scrubbed": total_pii,
+-        "cache_enabled": CACHE_ENABLED,
+-        "cache_size": CACHE_SIZE
+-    }
+-
+-
+-@app.post("/{path:path}", dependencies=[Depends(verify_api_key)])
+-@app.get("/{path:path}", dependencies=[Depends(verify_api_key)])
+-async def proxy(request: Request, path: str):
+-    """
+-    Proxy endpoint that scrubs PII from requests and restores in responses.
+-    """
+-    start_time = time.time()
+-    shield = get_session(request)
+-    
+-    # Read and process request body
+-    body = await request.body()
+-    body_str = body.decode('utf-8') if body else ""
+-    
+-    # Scrub PII from request
+-    scrubbed_body, metadata = shield.process_request(body_str)
+-    
+-    # Forward to target API
+-    target_url = f"{TARGET_API_BASE}/{path}"
+-    headers = {k: v for k, v in request.headers.items() if k.lower() not in ('host', 'content-length')}
+-    
+-    # Set host header for target
+-    host = TARGET_API_BASE.split("//")[-1].split("/")[0]
+-    headers["host"] = host
+-    
+-    # Use target API key if configured
+-    if TARGET_API_KEY and TARGET_API_KEY != "not-needed":
+-        headers["Authorization"] = f"Bearer {TARGET_API_KEY}"
+-    
+-    try:
+-        if request.method == "POST":
+-            resp = await http_client.post(
+-                target_url,
+-                headers=headers,
+-                content=scrubbed_body.encode('utf-8')
+-            )
+-        else:
+-            resp = await http_client.get(
+-                target_url,
+-                headers=headers
+-            )
+-        
+-        # Read response
+-        response_body = resp.content.decode('utf-8', errors='replace')
+-        
+-        # Restore PII in response
+-        restored_body = shield.process_response(response_body)
+-        
+-        # Calculate overhead
+-        overhead_ms = (time.time() - start_time) * 1000
+-        
+-        # Add privacy headers
+-        response_headers = {
+-            "X-Privacy-Shield": "active",
+-            "X-PII-Scrubbed": str(metadata.get('pii_count', 0)),
+-            "X-Processing-Time-Ms": f"{overhead_ms:.2f}",
+-            "Content-Type": resp.headers.get("Content-Type", "application/json")
+-        }
+-        
+-        return Response(
+-            content=restored_body,
+-            status_code=resp.status_code,
+-            headers=response_headers
+-        )
+-        
+-    except httpx.TimeoutException:
+-        return JSONResponse(
+-            status_code=504,
+-            content={"error": "Gateway timeout", "shield": "active"}
+-        )
+-    except Exception as e:
+-        import logging
+-        import re
+-        logger = logging.getLogger("privacy-shield")
+-        # Sanitize error message to prevent PII token leakage
+-        error_str = str(e)
+-        # Strip PII tokens and their original values
+-        error_str = re.sub(r'<PII_\w+_\w{12}>', '[REDACTED]', error_str)
+-        error_str = re.sub(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', '[EMAIL]', error_str)
+-        logger.error(f"Privacy shield error: {error_str}")
+-        return JSONResponse(
+-            status_code=500,
+-            content={"error": "Privacy check failed", "shield": "active"}
+-        )
+-
+-
+-@app.on_event("shutdown")
+-async def shutdown():
+-    """Cleanup on shutdown."""
+-    await http_client.aclose()
+-
+-
+-if __name__ == "__main__":
+-    print(f"🔒 API Privacy Shield starting on port {PORT}")
+-    print(f"📡 Proxying to: {TARGET_API_BASE}")
+-    print(f"💾 Cache: {'enabled' if CACHE_ENABLED else 'disabled'} (size={CACHE_SIZE}, ttl={CACHE_TTL}s)")
+-    print(f"🧪 Test with: curl http://localhost:{PORT}/health")
+-    uvicorn.run(app, host="0.0.0.0", port=PORT)
+diff --git a/resources/dev/extensions-library/services/privacy-shield/requirements.txt b/resources/dev/extensions-library/services/privacy-shield/requirements.txt
+deleted file mode 100644
+index 4108bbc..0000000
+--- a/resources/dev/extensions-library/services/privacy-shield/requirements.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+-fastapi>=0.100.0,<0.120.0
+-httpx>=0.24.0,<0.29.0
+-uvicorn>=0.23.0,<0.30.0
+-cachetools>=5.0.0,<6.0.0
+-# NOTE: Presidio PII detection not integrated - using regex-only detection
+-# See documentation for PII coverage limitations

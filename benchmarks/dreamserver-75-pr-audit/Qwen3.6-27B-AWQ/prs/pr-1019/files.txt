@@ -1,0 +1,9 @@
+dream-server/extensions/services/dashboard-api/routers/setup.py
+dream-server/extensions/services/dashboard-api/tests/test_setup_sentinel.py
+dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx
+dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx
+dream-server/extensions/services/dashboard/src/components/__tests__/SetupWizard.test.jsx
+dream-server/extensions/services/dashboard/src/components/__tests__/TemplatePicker.a11y.test.jsx
+dream-server/extensions/services/dashboard/src/lib/templates.js
+dream-server/extensions/services/dashboard/src/pages/Extensions.jsx
+dream-server/scripts/dream-test-functional.sh

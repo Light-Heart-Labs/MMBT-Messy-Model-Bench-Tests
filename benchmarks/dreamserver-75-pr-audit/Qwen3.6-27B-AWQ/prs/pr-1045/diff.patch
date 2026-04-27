@@ -1,0 +1,713 @@
+diff --git a/dream-server/bin/dream-host-agent.py b/dream-server/bin/dream-host-agent.py
+index 21fc764..3adc634 100755
+--- a/dream-server/bin/dream-host-agent.py
++++ b/dream-server/bin/dream-host-agent.py
+@@ -12,6 +12,7 @@ import re
+ import secrets
+ import shutil
+ import signal
++import stat as stat_mod
+ import subprocess
+ import sys
+ import threading
+@@ -595,6 +596,8 @@ class AgentHandler(BaseHTTPRequestHandler):
+             self._handle_extension_compose_toggle(activate=True)
+         elif self.path == "/v1/extension/deactivate":
+             self._handle_extension_compose_toggle(activate=False)
++        elif self.path == "/v1/extension/sync_config":
++            self._handle_extension_sync_config()
+         elif self.path == "/v1/service/logs":
+             self._handle_service_logs()
+         elif self.path == "/v1/model/download":
+@@ -860,6 +863,137 @@ class AgentHandler(BaseHTTPRequestHandler):
+         logger.info("%sd extension compose: %s", action, sid)
+         json_response(self, 200, {"status": "ok", "service_id": sid, "action": action})
+ 
++    def _handle_extension_sync_config(self):
++        """Copy <ext_dir>/config/* into INSTALL_DIR/config/.
++
++        Some extensions ship a config/ subdirectory whose files are
++        bind-mounted by compose.yaml relative to the compose project root
++        (INSTALL_DIR), not the extension directory.  Without this sync,
++        Docker auto-creates the mount source as an empty directory and
++        the container fails at startup.
++
++        The dashboard-api previously did this copy itself, but its
++        bind-mount of /dream-server/config is read-only, so it cannot
++        write there.  The host agent runs on the host filesystem
++        (writable) and is the right place for this work.
++        """
++        if not check_auth(self):
++            return
++        body = read_json_body(self)
++        if body is None:
++            return
++
++        sid = body.get("service_id", "")
++        if not isinstance(sid, str) or not SERVICE_ID_RE.match(sid):
++            json_response(self, 400, {"error": "Invalid service_id"})
++            return
++
++        # Only user-installed extensions ship a config/ subdir for sync
++        # at install time; built-in configs are pre-created by the
++        # installer and must not be overwritten on re-toggle.
++        ext_dir = USER_EXTENSIONS_DIR / sid
++        if not ext_dir.is_dir():
++            # Not a user extension — no-op (built-ins handled by installer).
++            json_response(self, 200, {"status": "ok", "service_id": sid, "synced": []})
++            return
++
++        ext_config = ext_dir / "config"
++        if not ext_config.is_dir():
++            json_response(self, 200, {"status": "ok", "service_id": sid, "synced": []})
++            return
++
++        # Reject ANY symlink in the config/ tree (or if config/ itself is a
++        # symlink). _copytree_safe (the install-time copier) strips symlinks
++        # from user extensions, so legitimate extensions never have any.
++        # A symlink here implies tampering or a packaging bug, and would be
++        # dereferenced by shutil.copytree(symlinks=False) below — exfiltrating
++        # link-target content into a path the dashboard-api container can read.
++        # Iterating dirs + files (not just files) closes the symlinked-directory
++        # gap: os.walk(followlinks=False) does NOT recurse into symlinked dirs,
++        # so they only ever surface in the parent's `dirs` list.
++        if ext_config.is_symlink():
++            json_response(self, 400, {
++                "error": (
++                    f"config sync refused: {sid}/config is a symlink "
++                    f"(symlinks are not permitted in extension configs)"
++                ),
++            })
++            return
++        for root, dirs, files in os.walk(str(ext_config), followlinks=False):
++            for name in dirs + files:
++                if (Path(root) / name).is_symlink():
++                    json_response(self, 400, {
++                        "error": (
++                            f"config sync refused: symlink {name} in "
++                            f"{sid}/config (symlinks are not permitted)"
++                        ),
++                    })
++                    return
++
++        install_config = (INSTALL_DIR / "config").resolve()
++        try:
++            install_config.mkdir(parents=True, exist_ok=True)
++        except OSError as exc:
++            json_response(self, 500, {"error": f"Failed to prepare config dir: {exc}"})
++            return
++
++        synced: list[str] = []
++        skipped: list[str] = []
++        lock = _service_locks[sid]
++        if not lock.acquire(blocking=False):
++            json_response(self, 409, {"error": f"Operation already in progress for {sid}"})
++            return
++        try:
++            for child in ext_config.iterdir():
++                target = (install_config / child.name).resolve()
++                # Path-traversal guard: target must stay under install_config.
++                if not target.is_relative_to(install_config):
++                    skipped.append(child.name)
++                    logger.warning(
++                        "Skipping config entry outside install dir: %s",
++                        child.name,
++                    )
++                    continue
++                try:
++                    if child.is_dir():
++                        shutil.copytree(
++                            str(child), str(target),
++                            dirs_exist_ok=True, symlinks=False,
++                        )
++                    else:
++                        target.parent.mkdir(parents=True, exist_ok=True)
++                        shutil.copy2(str(child), str(target))
++                    synced.append(child.name)
++                except OSError as exc:
++                    json_response(self, 500, {
++                        "error": f"Failed to copy {child.name}: {exc}",
++                    })
++                    return
++            # Mark .sh files executable in the synced service tree (if any).
++            svc_target = install_config / sid
++            if svc_target.is_dir():
++                for root, _dirs, files in os.walk(str(svc_target)):
++                    for fname in files:
++                        if fname.endswith(".sh"):
++                            fpath = Path(root) / fname
++                            try:
++                                fpath.chmod(
++                                    fpath.stat().st_mode
++                                    | stat_mod.S_IXUSR | stat_mod.S_IXGRP | stat_mod.S_IXOTH,
++                                )
++                            except OSError as exc:
++                                logger.warning("chmod +x failed for %s: %s", fpath, exc)
++        finally:
++            lock.release()
++
++        logger.info("synced config for extension %s (%d entries)", sid, len(synced))
++        json_response(self, 200, {
++            "status": "ok",
++            "service_id": sid,
++            "synced": synced,
++            "skipped": skipped,
++        })
++
+     def _handle_logs(self):
+         if not check_auth(self):
+             return
+diff --git a/dream-server/extensions/services/dashboard-api/routers/extensions.py b/dream-server/extensions/services/dashboard-api/routers/extensions.py
+index 4e4e355..26def2e 100644
+--- a/dream-server/extensions/services/dashboard-api/routers/extensions.py
++++ b/dream-server/extensions/services/dashboard-api/routers/extensions.py
+@@ -24,7 +24,7 @@ from pydantic import BaseModel
+ from config import (
+     AGENT_URL, ALWAYS_ON_SERVICES, CORE_SERVICE_IDS, DATA_DIR,
+     DREAM_AGENT_KEY, EXTENSION_CATALOG, EXTENSIONS_DIR,
+-    EXTENSIONS_LIBRARY_DIR, GPU_BACKEND, INSTALL_DIR, SERVICES,
++    EXTENSIONS_LIBRARY_DIR, GPU_BACKEND, SERVICES,
+     USER_EXTENSIONS_DIR,
+ )
+ from security import verify_api_key
+@@ -122,35 +122,23 @@ def _write_error_progress(service_id: str, error_msg: str) -> None:
+     progress_file.write_text(json.dumps(data), encoding="utf-8")
+ 
+ 
+-def _sync_extension_config(service_id: str) -> None:
+-    """Copy config/<id>/ from an installed extension to INSTALL_DIR/config/.
++def _sync_extension_config(service_id: str) -> bool:
++    """Ask host agent to copy config/<id>/ from an installed extension
++    into INSTALL_DIR/config/.
+ 
+     Some extensions ship a config/ subdirectory whose files are
+     bind-mounted by compose.yaml relative to the compose project root
+     (INSTALL_DIR), not relative to the extension directory.  Without
+     this sync, Docker auto-creates the mount source as an empty
+     directory, and the container fails at startup.
++
++    The dashboard-api container has /dream-server/config bind-mounted
++    read-only, so the actual copy is delegated to the host agent.
++    Returns True on success (including the no-op case where the
++    extension has no config/ subdir), False if the agent rejected the
++    request or was unreachable.
+     """
+-    ext_config = USER_EXTENSIONS_DIR / service_id / "config"
+-    if not ext_config.is_dir():
+-        return
+-    install_config = Path(INSTALL_DIR) / "config"
+-    for child in ext_config.iterdir():
+-        target = (install_config / child.name).resolve()
+-        if not target.is_relative_to(install_config.resolve()):
+-            logger.warning("Skipping config entry outside install dir: %s", child.name)
+-            continue
+-        if child.is_dir():
+-            shutil.copytree(str(child), str(target), dirs_exist_ok=True)
+-        else:
+-            target.parent.mkdir(parents=True, exist_ok=True)
+-            shutil.copy2(str(child), str(target))
+-    # Ensure scripts are executable (e.g. entrypoint.sh)
+-    for root, _dirs, files in os.walk(str(install_config / service_id)):
+-        for fname in files:
+-            fpath = Path(root) / fname
+-            if fname.endswith(".sh"):
+-                fpath.chmod(fpath.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
++    return _call_agent_sync_config(service_id)
+ 
+ 
+ def _compute_extension_status(ext: dict, services_by_id: dict) -> str:
+@@ -567,6 +555,39 @@ def _call_agent_install(service_id: str) -> bool:
+         return False
+ 
+ 
++def _call_agent_sync_config(service_id: str) -> bool:
++    """Ask host agent to copy <ext>/config/* into INSTALL_DIR/config/.
++
++    The dashboard-api container has /dream-server/config bind-mounted
++    read-only, so it cannot do this work itself. The host agent runs
++    on the writable host filesystem.
++
++    Returns True on success (including the no-op case where the
++    extension has no shipped config), False if the agent rejected or
++    was unreachable.
++    """
++    url = f"{AGENT_URL}/v1/extension/sync_config"
++    headers = {
++        "Content-Type": "application/json",
++        "Authorization": f"Bearer {DREAM_AGENT_KEY}",
++    }
++    data = json.dumps({"service_id": service_id}).encode()
++    req = urllib.request.Request(url, data=data, headers=headers, method="POST")
++    try:
++        with urllib.request.urlopen(req, timeout=_AGENT_TIMEOUT) as resp:
++            return resp.status == 200
++    except urllib.error.HTTPError as exc:
++        logger.warning(
++            "sync_config failed for %s (HTTP %d)", service_id, exc.code,
++        )
++        return False
++    except (urllib.error.URLError, OSError, TimeoutError):
++        logger.warning(
++            "Host agent unreachable for sync_config at %s", AGENT_URL,
++        )
++        return False
++
++
+ def _call_agent_compose_rename(action: str, service_id: str) -> bool:
+     """Ask host agent to rename compose.yaml <-> compose.yaml.disabled.
+ 
+diff --git a/dream-server/extensions/services/dashboard-api/tests/test_extensions.py b/dream-server/extensions/services/dashboard-api/tests/test_extensions.py
+index dd1c031..18292f2 100644
+--- a/dream-server/extensions/services/dashboard-api/tests/test_extensions.py
++++ b/dream-server/extensions/services/dashboard-api/tests/test_extensions.py
+@@ -2078,48 +2078,68 @@ class TestInstallProgress:
+         assert data["progress_endpoint"] == "/api/extensions/my-ext/progress"
+ 
+ 
+-# --- Config sync ---
++# --- Config sync (delegated to host agent) ---
+ 
+ 
+ class TestSyncExtensionConfig:
++    """The dashboard-api container has /dream-server/config bind-mounted
++    read-only, so _sync_extension_config must NOT touch the filesystem
++    locally — it forwards to the host agent. End-to-end file-copy behaviour
++    is covered by the host-agent wire test (TestSyncExtensionConfigWire)."""
+ 
+-    def test_copies_config_subdir_to_install_dir(self, monkeypatch, tmp_path):
+-        """Config subdir is synced to INSTALL_DIR/config/ after install."""
+-        from routers.extensions import _sync_extension_config
++    def test_delegates_to_host_agent(self, monkeypatch):
++        """_sync_extension_config calls _call_agent_sync_config with the service id."""
++        from routers import extensions as ext_mod
+ 
+-        user_dir = tmp_path / "user"
+-        ext_dir = user_dir / "my-ext" / "config" / "my-ext"
+-        ext_dir.mkdir(parents=True)
+-        (ext_dir / "nginx.conf").write_text("server {}")
+-        (ext_dir / "entrypoint.sh").write_text("#!/bin/sh\necho hi")
+-
+-        install_dir = tmp_path / "install"
+-        install_dir.mkdir()
+-
+-        monkeypatch.setattr("routers.extensions.USER_EXTENSIONS_DIR", user_dir)
+-        monkeypatch.setattr("routers.extensions.INSTALL_DIR", str(install_dir))
+-
+-        _sync_extension_config("my-ext")
++        calls = []
+ 
+-        target = install_dir / "config" / "my-ext"
+-        assert (target / "nginx.conf").exists()
+-        assert (target / "nginx.conf").read_text() == "server {}"
+-        # .sh files should be executable
+-        import stat
+-        mode = (target / "entrypoint.sh").stat().st_mode
+-        assert mode & stat.S_IXUSR
++        def _fake(sid):
++            calls.append(sid)
++            return True
+ 
+-    def test_noop_when_no_config_dir(self, monkeypatch, tmp_path):
+-        """No crash when extension has no config/ subdirectory."""
+-        from routers.extensions import _sync_extension_config
++        monkeypatch.setattr(ext_mod, "_call_agent_sync_config", _fake)
++        result = ext_mod._sync_extension_config("my-ext")
+ 
+-        user_dir = tmp_path / "user"
+-        (user_dir / "my-ext").mkdir(parents=True)
++        assert calls == ["my-ext"]
++        assert result is True
+ 
+-        monkeypatch.setattr("routers.extensions.USER_EXTENSIONS_DIR", user_dir)
+-        monkeypatch.setattr("routers.extensions.INSTALL_DIR", str(tmp_path))
++    def test_returns_false_on_agent_failure(self, monkeypatch):
++        """Agent failure surfaces as a False return; caller decides what to do."""
++        from routers import extensions as ext_mod
+ 
+-        _sync_extension_config("my-ext")  # should not raise
++        monkeypatch.setattr(
++            ext_mod, "_call_agent_sync_config", lambda _sid: False,
++        )
++        assert ext_mod._sync_extension_config("my-ext") is False
++
++    def test_call_agent_sync_config_sends_post(self, monkeypatch):
++        """The HTTP helper POSTs to /v1/extension/sync_config with bearer auth."""
++        from routers import extensions as ext_mod
++
++        captured = {}
++
++        class _FakeResp:
++            status = 200
++            def __enter__(self): return self
++            def __exit__(self, *a): return False
++
++        def _fake_urlopen(req, timeout=None):
++            captured["url"] = req.full_url
++            captured["method"] = req.get_method()
++            captured["auth"] = req.get_header("Authorization")
++            captured["body"] = req.data
++            return _FakeResp()
++
++        monkeypatch.setattr(ext_mod, "AGENT_URL", "http://agent:7710")
++        monkeypatch.setattr(ext_mod, "DREAM_AGENT_KEY", "secret")
++        monkeypatch.setattr(ext_mod.urllib.request, "urlopen", _fake_urlopen)
++
++        assert ext_mod._call_agent_sync_config("my-ext") is True
++        assert captured["url"] == "http://agent:7710/v1/extension/sync_config"
++        assert captured["method"] == "POST"
++        assert captured["auth"] == "Bearer secret"
++        assert b'"service_id"' in captured["body"]
++        assert b'"my-ext"' in captured["body"]
+ 
+ 
+ # --- Error progress ---
+diff --git a/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py b/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py
+index fef1430..31f86fb 100644
+--- a/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py
++++ b/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py
+@@ -216,6 +216,345 @@ class TestComposeToggleWire:
+             thread.join(timeout=2)
+ 
+ 
++class TestSyncExtensionConfigWire:
++    """End-to-end HTTP test: dashboard-api client + real host-agent handler.
++
++    Proves that ${INSTALL_DIR}/config/<svc>/ ends up populated even though
++    the dashboard-api side only does an HTTP call (not filesystem work).
++    """
++
++    def _make_extension(self, user_root, sid):
++        ext = user_root / sid
++        cfg = ext / "config" / sid
++        cfg.mkdir(parents=True)
++        (cfg / "settings.yaml").write_text("server: ok\n", encoding="utf-8")
++        (cfg / "entrypoint.sh").write_text("#!/bin/sh\necho run\n", encoding="utf-8")
++        return ext
++
++    def test_client_posts_and_host_agent_copies_config(self, tmp_path, monkeypatch):
++        import threading
++        from http.server import HTTPServer
++
++        from routers import extensions as ext_router
++
++        install_dir = tmp_path / "install"
++        user_root = install_dir / "data" / "user-extensions"
++        install_dir.mkdir()
++        user_root.mkdir(parents=True)
++        self._make_extension(user_root, "fakesvc")
++
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", tmp_path / "builtin-empty")
++        monkeypatch.setattr(_mod, "AGENT_API_KEY", "wire-test-secret")
++
++        server = HTTPServer(("127.0.0.1", 0), _mod.AgentHandler)
++        port = server.server_address[1]
++        thread = threading.Thread(target=server.serve_forever, daemon=True)
++        thread.start()
++        try:
++            monkeypatch.setattr(ext_router, "AGENT_URL", f"http://127.0.0.1:{port}")
++            monkeypatch.setattr(ext_router, "DREAM_AGENT_KEY", "wire-test-secret")
++
++            assert ext_router._call_agent_sync_config("fakesvc") is True
++
++            target = install_dir / "config" / "fakesvc"
++            assert (target / "settings.yaml").read_text(encoding="utf-8") == "server: ok\n"
++            # .sh files become executable
++            import stat as _s
++            mode = (target / "entrypoint.sh").stat().st_mode
++            assert mode & _s.S_IXUSR
++        finally:
++            server.shutdown()
++            server.server_close()
++            thread.join(timeout=2)
++
++    def test_noop_when_extension_has_no_config_subdir(self, tmp_path, monkeypatch):
++        import threading
++        from http.server import HTTPServer
++
++        from routers import extensions as ext_router
++
++        install_dir = tmp_path / "install"
++        user_root = install_dir / "data" / "user-extensions"
++        install_dir.mkdir()
++        user_root.mkdir(parents=True)
++        (user_root / "noconfig").mkdir()  # no config/ subdir
++
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", tmp_path / "builtin-empty")
++        monkeypatch.setattr(_mod, "AGENT_API_KEY", "wire-test-secret")
++
++        server = HTTPServer(("127.0.0.1", 0), _mod.AgentHandler)
++        port = server.server_address[1]
++        thread = threading.Thread(target=server.serve_forever, daemon=True)
++        thread.start()
++        try:
++            monkeypatch.setattr(ext_router, "AGENT_URL", f"http://127.0.0.1:{port}")
++            monkeypatch.setattr(ext_router, "DREAM_AGENT_KEY", "wire-test-secret")
++
++            # No config/ → server returns 200 with empty synced list, helper True.
++            assert ext_router._call_agent_sync_config("noconfig") is True
++            # No INSTALL_DIR/config/noconfig should have been created.
++            assert not (install_dir / "config" / "noconfig").exists()
++        finally:
++            server.shutdown()
++            server.server_close()
++            thread.join(timeout=2)
++
++    def test_rejects_wrong_auth(self, tmp_path, monkeypatch):
++        import threading
++        from http.server import HTTPServer
++
++        from routers import extensions as ext_router
++
++        install_dir = tmp_path / "install"
++        user_root = install_dir / "data" / "user-extensions"
++        install_dir.mkdir()
++        user_root.mkdir(parents=True)
++        self._make_extension(user_root, "fakesvc")
++
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", tmp_path / "builtin-empty")
++        monkeypatch.setattr(_mod, "AGENT_API_KEY", "wire-test-secret")
++
++        server = HTTPServer(("127.0.0.1", 0), _mod.AgentHandler)
++        port = server.server_address[1]
++        thread = threading.Thread(target=server.serve_forever, daemon=True)
++        thread.start()
++        try:
++            monkeypatch.setattr(ext_router, "AGENT_URL", f"http://127.0.0.1:{port}")
++            monkeypatch.setattr(ext_router, "DREAM_AGENT_KEY", "wrong-secret")
++
++            assert ext_router._call_agent_sync_config("fakesvc") is False
++            # Nothing copied — auth was rejected before any work.
++            assert not (install_dir / "config" / "fakesvc").exists()
++        finally:
++            server.shutdown()
++            server.server_close()
++            thread.join(timeout=2)
++
++    @staticmethod
++    def _post(port, sid, *, key="wire-test-secret"):
++        """Direct HTTP POST to /v1/extension/sync_config so callers can
++        assert on the raw status code (the dashboard-api helper masks
++        4xx as a generic False, which is too coarse for these tests)."""
++        import json as _json
++        import urllib.request
++        import urllib.error
++        url = f"http://127.0.0.1:{port}/v1/extension/sync_config"
++        req = urllib.request.Request(
++            url,
++            data=_json.dumps({"service_id": sid}).encode(),
++            headers={
++                "Content-Type": "application/json",
++                "Authorization": f"Bearer {key}",
++            },
++            method="POST",
++        )
++        try:
++            with urllib.request.urlopen(req, timeout=5) as resp:
++                return resp.status, _json.loads(resp.read() or b"{}")
++        except urllib.error.HTTPError as exc:
++            try:
++                body = _json.loads(exc.read() or b"{}")
++            except ValueError:
++                body = {}
++            return exc.code, body
++
++    def test_rejects_symlink_in_config_tree(self, tmp_path, monkeypatch):
++        """Symlinks (file or directory, top-level or nested) must be rejected
++        outright. _copytree_safe strips symlinks at install time so legitimate
++        user extensions never have any; one here implies tampering."""
++        import threading
++        from http.server import HTTPServer
++
++        install_dir = tmp_path / "install"
++        user_root = install_dir / "data" / "user-extensions"
++        install_dir.mkdir()
++        user_root.mkdir(parents=True)
++        secret_dir = tmp_path / "secret"
++        secret_dir.mkdir()
++        (secret_dir / "private.key").write_text("EXFIL ME", encoding="utf-8")
++
++        # Build an extension whose config/ contains a symlinked directory
++        # pointing OUTSIDE the extension.  Pre-fix this got dereferenced by
++        # shutil.copytree(symlinks=False) and the secret leaked into
++        # INSTALL_DIR/config/leak/private.key.
++        ext = user_root / "fakesvc"
++        cfg = ext / "config"
++        cfg.mkdir(parents=True)
++        # Plus a normal file in the same tree to prove nothing was copied.
++        (cfg / "ok.yaml").write_text("ok: true\n", encoding="utf-8")
++        (cfg / "leak").symlink_to(secret_dir)
++
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", tmp_path / "builtin-empty")
++        monkeypatch.setattr(_mod, "AGENT_API_KEY", "wire-test-secret")
++
++        server = HTTPServer(("127.0.0.1", 0), _mod.AgentHandler)
++        port = server.server_address[1]
++        thread = threading.Thread(target=server.serve_forever, daemon=True)
++        thread.start()
++        try:
++            status, body = self._post(port, "fakesvc")
++            assert status == 400, f"expected 400, got {status}: {body}"
++            assert "symlink" in body.get("error", "").lower()
++            # Crucially: the secret file did NOT make it into INSTALL_DIR.
++            assert not (install_dir / "config" / "fakesvc").exists()
++            assert not (install_dir / "config" / "leak").exists()
++        finally:
++            server.shutdown()
++            server.server_close()
++            thread.join(timeout=2)
++
++    def test_rejects_symlinked_file_in_config_tree(self, tmp_path, monkeypatch):
++        """Symlinked files (not just directories) are also rejected."""
++        import threading
++        from http.server import HTTPServer
++
++        install_dir = tmp_path / "install"
++        user_root = install_dir / "data" / "user-extensions"
++        install_dir.mkdir()
++        user_root.mkdir(parents=True)
++        secret = tmp_path / "secret.txt"
++        secret.write_text("nope", encoding="utf-8")
++
++        ext = user_root / "fakesvc"
++        cfg = ext / "config" / "fakesvc"
++        cfg.mkdir(parents=True)
++        (cfg / "leak.txt").symlink_to(secret)
++
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", tmp_path / "builtin-empty")
++        monkeypatch.setattr(_mod, "AGENT_API_KEY", "wire-test-secret")
++
++        server = HTTPServer(("127.0.0.1", 0), _mod.AgentHandler)
++        port = server.server_address[1]
++        thread = threading.Thread(target=server.serve_forever, daemon=True)
++        thread.start()
++        try:
++            status, body = self._post(port, "fakesvc")
++            assert status == 400
++            assert "symlink" in body.get("error", "").lower()
++            assert not (install_dir / "config" / "fakesvc").exists()
++        finally:
++            server.shutdown()
++            server.server_close()
++            thread.join(timeout=2)
++
++    def test_rejects_when_config_dir_itself_is_symlink(self, tmp_path, monkeypatch):
++        """Top-level `config/` itself a symlink — covers the upfront
++        ext_config.is_symlink() guard, separate from the dirs+files walk."""
++        import threading
++        from http.server import HTTPServer
++
++        install_dir = tmp_path / "install"
++        user_root = install_dir / "data" / "user-extensions"
++        install_dir.mkdir()
++        user_root.mkdir(parents=True)
++        secret_dir = tmp_path / "secret"
++        secret_dir.mkdir()
++        (secret_dir / "private.key").write_text("EXFIL ME", encoding="utf-8")
++
++        # Build an extension whose `config` IS the symlink (not a child of it).
++        ext = user_root / "fakesvc"
++        ext.mkdir()
++        (ext / "config").symlink_to(secret_dir)
++
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", tmp_path / "builtin-empty")
++        monkeypatch.setattr(_mod, "AGENT_API_KEY", "wire-test-secret")
++
++        server = HTTPServer(("127.0.0.1", 0), _mod.AgentHandler)
++        port = server.server_address[1]
++        thread = threading.Thread(target=server.serve_forever, daemon=True)
++        thread.start()
++        try:
++            status, body = self._post(port, "fakesvc")
++            assert status == 400, f"expected 400, got {status}: {body}"
++            assert "symlink" in body.get("error", "").lower()
++            assert not (install_dir / "config" / "fakesvc").exists()
++        finally:
++            server.shutdown()
++            server.server_close()
++            thread.join(timeout=2)
++
++    def test_rejects_invalid_service_id(self, tmp_path, monkeypatch):
++        """SERVICE_ID_RE rejection — match the auth/symlink reject style."""
++        import threading
++        from http.server import HTTPServer
++
++        install_dir = tmp_path / "install"
++        user_root = install_dir / "data" / "user-extensions"
++        install_dir.mkdir()
++        user_root.mkdir(parents=True)
++
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", tmp_path / "builtin-empty")
++        monkeypatch.setattr(_mod, "AGENT_API_KEY", "wire-test-secret")
++
++        server = HTTPServer(("127.0.0.1", 0), _mod.AgentHandler)
++        port = server.server_address[1]
++        thread = threading.Thread(target=server.serve_forever, daemon=True)
++        thread.start()
++        try:
++            for bad in ("../escape", "Bad-ID", "with space", "", "..", "FAKE"):
++                status, body = self._post(port, bad)
++                assert status == 400, f"bad={bad!r} -> {status}: {body}"
++                assert "service_id" in body.get("error", "").lower()
++        finally:
++            server.shutdown()
++            server.server_close()
++            thread.join(timeout=2)
++
++    def test_noop_for_builtin_only_service(self, tmp_path, monkeypatch):
++        """Built-in extensions (not in USER_EXTENSIONS_DIR) get a 200 no-op.
++
++        Pins the deliberate decision NOT to overwrite installer-managed
++        configs when a built-in's compose toggle re-enables it.
++        """
++        import threading
++        from http.server import HTTPServer
++
++        install_dir = tmp_path / "install"
++        user_root = install_dir / "data" / "user-extensions"
++        builtin_root = tmp_path / "builtin"
++        install_dir.mkdir()
++        user_root.mkdir(parents=True)
++        builtin_root.mkdir()
++        # Built-in present, with a config/ subdir that should NOT be touched.
++        builtin_ext = builtin_root / "core-svc" / "config" / "core-svc"
++        builtin_ext.mkdir(parents=True)
++        (builtin_ext / "should_not_be_synced.yaml").write_text("x: 1\n", encoding="utf-8")
++
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", builtin_root)
++        monkeypatch.setattr(_mod, "AGENT_API_KEY", "wire-test-secret")
++
++        server = HTTPServer(("127.0.0.1", 0), _mod.AgentHandler)
++        port = server.server_address[1]
++        thread = threading.Thread(target=server.serve_forever, daemon=True)
++        thread.start()
++        try:
++            status, body = self._post(port, "core-svc")
++            assert status == 200
++            assert body.get("synced") == []
++            # No file should have been written into INSTALL_DIR/config/.
++            assert not (install_dir / "config" / "core-svc").exists()
++        finally:
++            server.shutdown()
++            server.server_close()
++            thread.join(timeout=2)
++
++
+ class TestInvalidateComposeCache:
+ 
+     def test_unlinks_existing_cache_file(self, tmp_path, monkeypatch):

@@ -1,0 +1,4812 @@
+{
+  "dream-server/bin/dream-host-agent.py": [
+    1057,
+    1050,
+    1045,
+    1040,
+    1039,
+    1035,
+    1030,
+    1021,
+    1017,
+    988,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/helpers.py": [
+    1056,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/extensions.py": [
+    1056,
+    1054,
+    1045,
+    1044,
+    1039,
+    1038,
+    1037,
+    1022,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_extensions.py": [
+    1056,
+    1045,
+    1044,
+    1038,
+    1037,
+    1022,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/user_extensions.py": [
+    1056,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_hooks.py": [
+    1052,
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/resolve-compose-stack.sh": [
+    1051,
+    1029,
+    1004,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/macos/install-macos.sh": [
+    1050,
+    1026,
+    1017,
+    1005,
+    988,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/01-preflight.sh": [
+    1050,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/jupyter/compose.yaml": [
+    1049,
+    1033,
+    1027,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/macos/lib/env-generator.sh": [
+    1048,
+    1023,
+    1013,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/langfuse/compose.yaml.disabled": [
+    1047,
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/perplexica/compose.yaml": [
+    1046,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_host_agent.py": [
+    1045,
+    1040,
+    1039,
+    1035,
+    1030,
+    1021,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/install-core.sh": [
+    1043,
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/03-features.sh": [
+    1043,
+    1011,
+    961,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/dream.ps1": [
+    1043,
+    1017,
+    988,
+    983,
+    974,
+    973,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/install-windows.ps1": [
+    1043,
+    1026,
+    1017,
+    1012,
+    996,
+    988,
+    983,
+    974,
+    973,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/lib/install-report.ps1": [
+    1043,
+    988,
+    983,
+    974,
+    973,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/lib/llm-endpoint.ps1": [
+    1043,
+    988,
+    983,
+    974,
+    973,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/lib/opencode-config.ps1": [
+    1043,
+    988,
+    983,
+    974,
+    973,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/phases/07-devtools.ps1": [
+    1043,
+    1012,
+    996,
+    988,
+    983,
+    974,
+    973,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/bootstrap-upgrade.sh": [
+    1043,
+    1017,
+    988,
+    983,
+    974,
+    973,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/update-windows-opencode-config.ps1": [
+    1043,
+    988,
+    983,
+    974,
+    973,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-windows-opencode-config.sh": [
+    1043,
+    988,
+    983,
+    974,
+    973,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-windows-report-command.sh": [
+    1043,
+    988,
+    983,
+    974,
+    973,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/langfuse/manifest.yaml": [
+    1040,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/pages/Extensions.jsx": [
+    1038,
+    1037,
+    1019,
+    1018,
+    1015,
+    1003,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/README.md": [
+    1036,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/privacy-shield/Dockerfile": [
+    1036,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/privacy-shield/PII_COVERAGE.md": [
+    1036,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/privacy-shield/README.md": [
+    1036,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/privacy-shield/compose.yaml": [
+    1036,
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/privacy-shield/manifest.yaml": [
+    1036,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/privacy-shield/pii_scrubber.py": [
+    1036,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/privacy-shield/proxy.py": [
+    1036,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/privacy-shield/requirements.txt": [
+    1036,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/openclaw/compose.yaml": [
+    1035,
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/06-directories.sh": [
+    1035,
+    983,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/milvus/compose.yaml": [
+    1034,
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/piper-audio/compose.yaml": [
+    1034,
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/librechat/compose.yaml": [
+    1033,
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/anythingllm/compose.yaml": [
+    1032,
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/localai/compose.yaml": [
+    1032,
+    1027,
+    364,
+    351
+  ],
+  "dream-server/installers/lib/compose-select.sh": [
+    1029,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/embeddings/compose.yaml": [
+    1028,
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/Makefile": [
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/audiocraft/compose.yaml": [
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/bark/compose.yaml": [
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/baserow/compose.yaml": [
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/chromadb/compose.yaml": [
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/continue/compose.yaml": [
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/crewai/compose.yaml": [
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/flowise/compose.yaml": [
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/forge/compose.yaml": [
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/frigate/compose.yaml": [
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/gitea/compose.yaml": [
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/immich/compose.yaml": [
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/invokeai/compose.yaml": [
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/label-studio/compose.yaml": [
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/langflow/compose.yaml": [
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/ollama/compose.yaml": [
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/open-interpreter/compose.yaml": [
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/paperless-ngx/compose.yaml": [
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/rvc/compose.yaml": [
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/sillytavern/compose.yaml": [
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/text-generation-webui/compose.yaml": [
+    1027,
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/weaviate/compose.yaml": [
+    1027,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/xtts/compose.yaml": [
+    1027,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/13-summary.sh": [
+    1026,
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/contracts/test-installer-contracts.sh": [
+    1026,
+    983,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/gpu.py": [
+    1025,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_gpu_detailed.py": [
+    1025,
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/dream-preflight.sh": [
+    1024,
+    1023,
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/validate.sh": [
+    1024,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/macos/dream-macos.sh": [
+    1023,
+    1017,
+    988,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/pre-download.sh": [
+    1023,
+    1011
+  ],
+  "dream-server/dream-cli": [
+    1020,
+    1018,
+    1016,
+    1011,
+    1008,
+    1007,
+    1006,
+    1002,
+    1000,
+    999,
+    998,
+    997,
+    994,
+    993,
+    983,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/dream-doctor.sh": [
+    1020,
+    1016,
+    999,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/setup.py": [
+    1019,
+    1018,
+    1015,
+    1003,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx": [
+    1019,
+    1018,
+    1015,
+    1003,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx": [
+    1019,
+    1018,
+    1015,
+    1003,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/lib/templates.js": [
+    1019,
+    1018,
+    1015,
+    1003
+  ],
+  "dream-server/scripts/dream-test-functional.sh": [
+    1019,
+    1018,
+    1015,
+    1011,
+    1003,
+    716,
+    364,
+    351
+  ],
+  "dream-server/.env.schema.json": [
+    1018,
+    1017,
+    1010,
+    994,
+    988,
+    983,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/lib/service-registry.sh": [
+    1018,
+    1016,
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/validate-env.sh": [
+    1018,
+    1011,
+    994
+  ],
+  "dream-server/tests/test-validate-env.sh": [
+    1018,
+    994,
+    716,
+    364,
+    351
+  ],
+  "README.md": [
+    1017,
+    973,
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/.env.example": [
+    1017,
+    1013,
+    992,
+    988,
+    983,
+    973,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/QUICKSTART.md": [
+    1017,
+    973
+  ],
+  "dream-server/README.md": [
+    1017,
+    973,
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/SECURITY.md": [
+    1017,
+    973,
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/FAQ.md": [
+    1017,
+    973,
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/HOST-AGENT-API.md": [
+    1017,
+    973,
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/MODE-SWITCH.md": [
+    1017,
+    973
+  ],
+  "dream-server/docs/POST-INSTALL-CHECKLIST.md": [
+    1017,
+    973
+  ],
+  "dream-server/docs/SUPPORT-MATRIX.md": [
+    1017,
+    973,
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/WINDOWS-QUICKSTART.md": [
+    1017,
+    973,
+    364,
+    351
+  ],
+  "dream-server/extensions/CATALOG.md": [
+    1017,
+    973,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/langfuse/README.md": [
+    1017,
+    973
+  ],
+  "dream-server/installers/windows/lib/env-generator.ps1": [
+    1012,
+    996,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/phases/06-directories.ps1": [
+    1012,
+    996,
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_settings_env.py": [
+    1010,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/docker-compose.amd.yml": [
+    1009,
+    716,
+    364,
+    351
+  ],
+  "dream-server/docker-compose.base.yml": [
+    1009,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/docker-compose.nvidia.yml": [
+    1009,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/compose.yaml": [
+    1009,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/macos/lib/constants.sh": [
+    1005,
+    961,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/ai-issue-triage.yml": [
+    991,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/claude-review.yml": [
+    991,
+    990,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/release-notes.yml": [
+    991,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/autonomous-code-scanner.yml": [
+    990,
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/build-dreamforge.yml": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/dashboard.yml": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/issue-to-pr.yml": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/lint-python.yml": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/nightly-code-review.yml": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/nightly-docs-update.yml": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/type-check-python.yml": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/validate-catalog.yml": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/model-library.json": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/docker-compose.local.yml": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/dream-preflight.sh": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/config.py": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/main.py": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/models.py": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/templates.py": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_helpers.py": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_model_activate.py": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_models.py": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_routers.py": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_templates.py": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/hooks/useDownloadProgress.js": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/pages/Models.jsx": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/Dockerfile.rust": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/compose.local.yaml": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/token-spy/dashboard_charts.js": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/token-spy/main.py": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/whisper/README.md": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/lib/detection.sh": [
+    983,
+    966,
+    961,
+    959,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/08-images.sh": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/09-offline.sh": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/11-services.sh": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/12-health.sh": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/preflight-phase.bats": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/requirements-phase.bats": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/stt-download.bats": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/integration-test.sh": [
+    983,
+    966,
+    961,
+    959,
+    716,
+    364,
+    351
+  ],
+  "resources/README.md": [
+    983,
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/WINDOWS-INSTALL-WALKTHROUGH.md": [
+    966,
+    716,
+    364,
+    351
+  ],
+  "dream-server/FAQ.md": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/ape/compose.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/comfyui/compose.amd.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/comfyui/compose.nvidia.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/updates.py": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/litellm/compose.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/n8n/compose.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/privacy-shield/compose.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/qdrant/compose.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/searxng/compose.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/token-spy/README.md": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/token-spy/TOKEN-SPY-GUIDE.md": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/token-spy/compose.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/token-spy/start.sh": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/tts/compose.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/whisper/compose.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/templates/compose-gpu-only.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/templates/compose-template.yaml": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/lib/path-utils.sh": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/lib/ui.sh": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/macos/lib/ui.sh": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/lib/ui.ps1": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/phases/03-features.ps1": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/lib/validate-dependencies.sh": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/docker-phase.bats": [
+    961,
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/health-phase.bats": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/path-utils.bats": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-secret-security.sh": [
+    961,
+    716,
+    364,
+    351
+  ],
+  "install.ps1": [
+    961,
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/validate-compose.yml": [
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/docker-compose.multigpu.yml": [
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/comfyui/compose.multigpu.yaml": [
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/gpu.py": [
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/embeddings/compose.multigpu.yaml": [
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/whisper/compose.multigpu.yaml": [
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/02-detection.sh": [
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/10-amd-tuning.sh": [
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/assign_gpus.py": [
+    750,
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/classify-hardware.sh": [
+    750,
+    716,
+    364,
+    351
+  ],
+  ".claude/commands/tdd.md": [
+    716,
+    364,
+    351
+  ],
+  ".github/dependabot.yml": [
+    716,
+    364,
+    351
+  ],
+  ".github/prompts/issue-to-pr.md": [
+    716,
+    364,
+    351
+  ],
+  ".github/prompts/nightly-code-review.md": [
+    716,
+    364,
+    351
+  ],
+  ".github/prompts/nightly-docs-update.md": [
+    716,
+    364,
+    351
+  ],
+  ".github/scripts/anthropic_helper.py": [
+    716,
+    364,
+    351
+  ],
+  ".github/scripts/apply-docstrings.py": [
+    716,
+    364,
+    351
+  ],
+  ".github/scripts/apply-type-hints.py": [
+    716,
+    364,
+    351
+  ],
+  ".github/scripts/generate-docstrings.py": [
+    716,
+    364,
+    351
+  ],
+  ".github/scripts/generate-type-hints.py": [
+    716,
+    364,
+    351
+  ],
+  ".github/test-events/issue-opened.json": [
+    716,
+    364,
+    351
+  ],
+  ".github/test-events/pr-opened.json": [
+    716,
+    364,
+    351
+  ],
+  ".github/test-events/release-created.json": [
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/lint-powershell.yml": [
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/lint-shell.yml": [
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/matrix-smoke.yml": [
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/secret-scan.yml": [
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/test-linux.yml": [
+    716,
+    364,
+    351
+  ],
+  ".github/workflows/validate-env.yml": [
+    716,
+    364,
+    351
+  ],
+  "ARCHITECTURE.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/CHANGELOG.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/agents/templates/README.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/agents/templates/code-assistant.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/agents/templates/data-analyst.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/agents/templates/research-assistant.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/agents/templates/system-admin.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/agents/templates/writing-assistant.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/completions/dream-cli.bash": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/backends/amd.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/core-service-ids.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/extensions-catalog.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/hardware-classes.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/litellm/lemonade.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/litellm/strix-halo-config.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/01-chat-endpoint.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/03-voice-transcription.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/05-voice-to-voice.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/06-rag-demo.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/07-code-assistant.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/08-m4-deterministic-voice.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/catalog.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/daily-digest.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/document-qa.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/email-to-task.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/image-gen-webhook.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/llm-summarizer.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/openclaw-agent-trigger.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/privacy-shield-test.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/rag-pipeline-trigger.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/scheduled-web-search.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/voice-memo.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/n8n/whisper-to-notes.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/openclaw/inject-token.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/openclaw/openclaw-strix-halo.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/openclaw/openclaw.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/openclaw/pro.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/config/openclaw/workspace/SYSTEM.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docker-compose.apple.yml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docker-compose.arc.yml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docker-compose.cpu.yml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docker-compose.intel.yml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docker-compose.tier0.yml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/DOCKER-DESKTOP-OPTIMIZATION.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/EXTENSION-PR-BRANCHING.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/EXTENSIONS.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/FIELD-INSTALL-REPORT-LINUX.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/HOW-DREAM-SERVER-WORKS.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/INSTALL-TROUBLESHOOTING.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/INTEL-ARC-GUIDE.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/KNOWN-GOOD-VERSIONS.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/LINUX-PORTABILITY.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/LINUX-TROUBLESHOOTING-GUIDE.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/MACOS-QUICKSTART.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/TROUBLESHOOTING.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/WINDOWS-TROUBLESHOOTING-GUIDE.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/WINDOWS-WSL2-GPU-GUIDE.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/docs/WSL2-GPU-TROUBLESHOOTING.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/dream-backup.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/dream-uninstall.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/dream-update.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/README.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/schema/service-manifest.v1.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/schema/service-template.v1.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/ape/Dockerfile": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/ape/main.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/ape/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/comfyui/Dockerfile": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/comfyui/README.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/comfyui/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/Dockerfile": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/README.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/agent_monitor.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/models.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/agents.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/features.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/privacy.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/resources.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/voice.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/workflows.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/conftest.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_agent_monitor.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_extensions_deps.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_main.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_privacy.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_resources.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_updates.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_user_extensions.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_workflows.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/Dockerfile": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/index.html": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/nginx.conf": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/package-lock.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/package.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/App.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/App.test.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/AssignmentTable.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/DependencyBadges.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/FeatureDiscovery.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/GPUCard.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/GPUChart.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/PreFlightChecks.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/Sidebar.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/SplashScreen.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/SuccessValidation.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/TopologyView.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/TroubleshootingAssistant.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/__tests__/EnvEditor.test.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/__tests__/SplashScreen.test.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/components/settings/EnvEditor.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/contexts/ThemeContext.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/hooks/useGPUDetailed.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/hooks/useModels.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/hooks/useSystemStatus.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/hooks/useVersion.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/hooks/useVoiceAgent.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/index.css": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/main.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/pages/Dashboard.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/pages/GPUMonitor.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/pages/Settings.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/pages/Voice.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/plugins/core.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/plugins/registry.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/src/test/test-utils.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dashboard/tailwind.config.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/.dockerignore": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/.gitignore": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/LICENSE": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/README.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/api-reference.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/configuration-reference.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/docker-guide.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/frontend-development.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/getting-started.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/mcp-configuration.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/memory-guide.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/permissions-guide.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/security-model.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/testing-guide.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/tool-development.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/troubleshooting.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/docs/websocket-protocol.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/Cargo.lock": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/Cargo.toml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/Cargo.toml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/src/client.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/src/error.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/src/lib.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/src/prompt_cache.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/src/providers/anthropic.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/src/providers/mod.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/src/providers/openai_compat.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/src/providers/tier.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/src/sse.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/src/types.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/tests/client_integration.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/tests/openai_compat_integration.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/api/tests/provider_client_integration.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/commands/Cargo.toml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/commands/src/lib.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-cli/Cargo.toml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-cli/src/init.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-cli/src/input.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-cli/src/main.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-cli/src/render.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-cli/tests/cli_flags_and_config_defaults.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-cli/tests/mock_parity_harness.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-cli/tests/output_format_contract.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-cli/tests/resume_slash_commands.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-rag/Cargo.toml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-rag/src/chunker.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-rag/src/embeddings.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-rag/src/lib.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-rag/src/pipeline.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-rag/src/vector_store.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/Cargo.toml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/src/agent_bridge.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/src/config.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/src/documents.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/src/files.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/src/lib.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/src/main.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/src/memory_routes.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/src/routes.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/src/session_store.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/src/voice.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/src/ws.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/dreamforge-server/src/ws_types.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/plugins/Cargo.toml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/plugins/bundled/example-bundled/.claude-plugin/plugin.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/plugins/bundled/example-bundled/hooks/post.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/plugins/bundled/example-bundled/hooks/pre.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/plugins/bundled/sample-hooks/.claude-plugin/plugin.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/plugins/bundled/sample-hooks/hooks/post.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/plugins/bundled/sample-hooks/hooks/pre.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/plugins/src/hooks.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/plugins/src/lib.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/Cargo.toml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/bash.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/bash_validation.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/bootstrap.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/branch_lock.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/compact.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/config.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/conversation.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/dreamforge_config.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/file_ops.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/green_contract.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/hooks.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/json.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/lane_events.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/lib.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/local_conversation.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/lsp_client.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/mcp.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/mcp_client.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/mcp_lifecycle_hardened.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/mcp_stdio.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/mcp_tool_bridge.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/memory/mod.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/memory/retrieval.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/memory/store.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/oauth.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/permission_enforcer.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/permissions.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/plugin_lifecycle.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/policy_engine.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/prompt.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/rbac/mod.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/rbac/policy.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/rbac/roles.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/recovery_recipes.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/remote.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/sandbox.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/secret_scanner.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/session.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/session_control.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/sse.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/stale_branch.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/summary_compression.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/task_packet.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/task_registry.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/team_cron_registry.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/trust_resolver.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/usage.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/src/worker_boot.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/runtime/tests/integration_tests.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/telemetry/Cargo.toml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/telemetry/src/lib.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/tools/.gitignore": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/tools/Cargo.toml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/tools/src/lane_completion.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/crates/tools/src/lib.rs": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/index.html": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/package-lock.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/package.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/postcss.config.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/App.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/components/ActivityIndicator.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/components/ChatPanel.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/components/MessageBubble.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/components/ModeSwitch.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/components/PermissionDialog.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/components/ServicePanel.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/components/SessionSidebar.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/components/StatusBar.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/components/StreamingMarkdown.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/components/ToolCallCard.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/hooks/useWebSocket.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/index.css": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/src/main.jsx": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/tailwind.config.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/dreamforge/rust/frontend/vite.config.js": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/embeddings/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/litellm/compose.amd.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/litellm/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/llama-server/Dockerfile.amd": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/llama-server/README.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/n8n/README.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/n8n/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/open-webui/README.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/openclaw/compose.amd.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/openclaw/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/opencode/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/perplexica/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/privacy-shield/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/privacy-shield/proxy.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/qdrant/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/searxng/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/token-spy/Dockerfile": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/token-spy/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/token-spy/providers/openai.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/token-spy/session-manager.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/tts/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/whisper/compose.nvidia.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/whisper/docker-entrypoint.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/extensions/services/whisper/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/get-dream-server.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/images/llama-sycl/Dockerfile": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/lib/background-tasks.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/lib/bootstrap-model.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/lib/constants.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/lib/logging.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/lib/nvidia-topo.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/lib/packaging.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/lib/tier-map.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/macos/lib/detection.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/macos/lib/tier-map.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/04-requirements.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/05-docker.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/phases/07-devtools.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/docker-compose.windows-amd.yml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/lib/compose-diagnostics.ps1": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/lib/constants.ps1": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/lib/detection.ps1": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/lib/tier-map.ps1": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/phases/02-detection.ps1": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/phases/04-requirements.ps1": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/installers/windows/phases/05-docker.ps1": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/lib/safe-env.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/manifest.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/memory-shepherd/baselines/dream-agent-MEMORY.md": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/opencode/opencode-web.service": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/build-capability-profile.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/detect-hardware.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/dream-test.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/extension-runtime-check.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/first-boot-demo.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/health-check.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/linux-install-preflight.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/migrate-config.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/mode-switch.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/repair/repair-perplexica.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/session-cleanup.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/showcase.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/systemd/dream-host-agent.service": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/scripts/upgrade-model.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/templates/ai-coding-workspace.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/templates/chat-playground.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/templates/creative-studio.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/templates/developer-homelab.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/templates/llm-platform.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/templates/ml-data-workshop.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/templates/multi-agent-laboratory.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/templates/no-code-ai-builder.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/templates/personal-knowledge-base.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/templates/private-research-hub.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/templates/voice-assistant.yaml": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/test-install.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/background-tasks.bats": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/bootstrap-model.bats": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/constants.bats": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/detection.bats": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/logging.bats": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/nvidia-topo.bats": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/tier-map.bats": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/ui.bats": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/contracts/test-amd-lemonade-contracts.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/contracts/test-overlay-map-coherence.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/contracts/test-plist-log-paths.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/contracts/test-port-contracts.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/contracts/test-preflight-fixtures.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_json/nvidia_smi_topo_matrix_1gpu_pcie.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_json/nvidia_smi_topo_matrix_2gpus_phb_coloc.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_json/nvidia_smi_topo_matrix_4gpus_soc.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_json/nvidia_smi_topo_matrix_4gpus_sys_separated_nv_pairs.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_json/nvidia_smi_topo_matrix_5gpus_nv12_with_mlx5.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_json/nvidia_smi_topo_matrix_8gpus_nv12_full_mesh.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_json/nvidia_smi_topo_matrix_8gpus_nv12_full_mesh_with_numa_id.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_json/nvidia_smi_topo_matrix_8gpus_nv1_nv2_partial_mesh.json": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_matrix/nvidia_smi_topo_matrix_1gpu_pcie.txt": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_matrix/nvidia_smi_topo_matrix_4gpus_soc.txt": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_matrix/nvidia_smi_topo_matrix_4gpus_sys_separated_nv_pairs.txt": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_matrix/nvidia_smi_topo_matrix_5gpus_nv12_with_mlx5.txt": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_matrix/nvidia_smi_topo_matrix_8gpus_nv12_full_mesh.txt": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_matrix/nvidia_smi_topo_matrix_8gpus_nv12_full_mesh_with_numa_id.txt": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/fixtures/topology_matrix/nvidia_smi_topo_matrix_8gpus_nv1_nv2_partial_mesh.txt": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/smoke/installer-env-smoke.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-assign-gpus.py": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-bootstrap-mode.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-docker-image-pull-retry.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-extension-runtime-check.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-hardware-compatibility.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-hooks.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-linux-install-preflight.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-network-timeouts.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-nvidia-topo.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-preflight.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-templates.sh": [
+    716,
+    364,
+    351
+  ],
+  "dream-server/tests/test-tier-map.sh": [
+    716,
+    364,
+    351
+  ],
+  "resources/blog/32b-consumer-hardware-2026.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/blog/bootstrap-model-pattern.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/blog/dream-server-vs-cloud-ai.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/blog/hidden-costs-cloud-ai.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/blog/local-gpt4-tutorial.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/blog/local-inference-frameworks-compared.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/blog/m1-fully-local-openclaw-launch.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/blog/privacy-first-ai-local.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/blog/subagent-swarms-local-gpu.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/blog/why-self-host-ai-2026.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/05-multi-gpu-cluster.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/06-swarm-patterns.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/07-grace-voice-agent.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/08-n8n-local-llm.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/README.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/agent-template-code-review.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/agent-template-code.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/agent-template-data.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/agent-template-documentation.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/agent-template-migration.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/agent-template-performance.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/agent-template-refactoring.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/agent-template-research.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/cookbooks/agent-template-writing.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/bootstrap/Dockerfile": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/aider/compose.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/aider/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/audiocraft/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/bark/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/baserow/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/chromadb/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/crewai/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/dify/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/flowise/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/fooocus/compose.nvidia.yaml.reference": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/fooocus/compose.yaml.reference": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/fooocus/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/forge/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/gitea/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/invokeai/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/jan/compose.yaml.disabled": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/label-studio/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/langflow/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/librechat/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/localai/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/milvus/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/ollama/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/open-interpreter/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/paperless-ngx/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/piper-audio/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/rvc/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/sillytavern/config/sillytavern/config.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/weaviate/manifest.yaml": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/validate-compose.sh": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/validate-manifests.py": [
+    716,
+    364,
+    351
+  ],
+  "resources/dev/scripts/generate-extensions-catalog.py": [
+    716,
+    364,
+    351
+  ],
+  "resources/docs/internal/AUDIT-2026-02-13-SHIP-READINESS.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/docs/CAPABILITIES.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/docs/DEPLOY-RUNBOOK.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/docs/GOLDEN-BUILD.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/docs/INFRASTRUCTURE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/docs/LIVEKIT-DEPLOYMENT-GUIDE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/docs/M1-QUICK-REFERENCE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/docs/M1-ZERO-CLOUD-RECIPE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/docs/PRODUCT-PORTFOLIO.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/docs/PROTOCOLS.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/legacy/compose/.env.example": [
+    716,
+    364,
+    351
+  ],
+  "resources/legacy/compose/docker-compose.nano.yml": [
+    716,
+    364,
+    351
+  ],
+  "resources/legacy/compose/docker-compose.pro.yml": [
+    716,
+    364,
+    351
+  ],
+  "resources/multi-agent/patterns/PATTERNS.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/products/privacy-shield/README.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/products/token-spy/COST-ANALYSIS.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/products/voice-classifier/classifier.py": [
+    716,
+    364,
+    351
+  ],
+  "resources/products/voice-classifier/fsm.py": [
+    716,
+    364,
+    351
+  ],
+  "resources/products/voice-classifier/router.py": [
+    716,
+    364,
+    351
+  ],
+  "resources/products/voice-classifier/test_voice_classifier.py": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/hardware/CLUSTER-BENCHMARKS-2026-02-10.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/voice/DETERMINISTIC-CALL-FLOWS.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/architecture/DREAM-SERVER-AUDIT-2026-02-13.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/architecture/DREAM-SERVER-PUNCHLIST.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/architecture/DREAM-SERVER-SPEC.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/market/EDGE-AI-MARKET-TRENDS-2025.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/voice/GPU-TTS-BENCHMARK.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/hardware/HARDWARE-GUIDE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/hardware/HARDWARE-TIERING-RESEARCH.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/models/HOT-SWAP-BEST-PRACTICES.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/livekit/LIVEKIT-AGENTS-ARCHITECTURE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/livekit/LIVEKIT-SELF-HOSTING.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/architecture/LOCAL-AI-BEST-PRACTICES.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/security/M10-SECURITY-AUDIT-2026-02-11.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/architecture/M11-UPDATE-SYSTEM-DESIGN.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/voice/M2-VOICE-LATENCY-OPTIMIZATION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/security/M3-PII-DETECTION-LIBS.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/M3-PRIVACY-SHIELD-STRATEGIES.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/voice/M4-DETERMINISTIC-VOICE-RESEARCH.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/voice/M4-INTENT-TAXONOMY.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/architecture/M5-FIRST-RUN-WIZARD-DESIGN.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/architecture/M5-STRANGER-TESTING-COMPLETE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/hardware/M6-CONSUMER-GPU-BENCHMARKS-2026-02-09.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/hardware/M6-HARDWARE-BUYING-GUIDE-2026.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/hardware/M6-MINIMUM-HARDWARE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/hardware/M6-VRAM-MULTI-SERVICE-LIMITS.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/hardware/M8-CAPACITY-BASELINE-2026-02-09.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/voice/M8-VOICE-CAPACITY.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/models/M9-LOCAL-VS-CLOUD-BENCHMARK.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/models/M9-OSS-MODEL-LANDSCAPE-2026-02.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/voice/M9-STT-ENGINES.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/voice/M9-TTS-ENGINES.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/hardware/MAC-MINI-AI-GUIDE-2026.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/models/OSS-MODEL-LANDSCAPE-2026-02.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/hardware/PI5-AI-GUIDE-2026.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/README.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/hardware/SINGLE-GPU-MULTI-SERVICE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/architecture/TOKEN-SPY-DREAM-INTEGRATION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/models/TOOL-CALLING-SURVEY.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/market/UNSOLVED-LOCAL-AI-PROBLEMS-2026.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/voice/VOICE-LATENCY-OPTIMIZATION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/market/WINDOWS-LOCAL-AI-CHALLENGES-2026.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-ARCHITECTURE-OVERVIEW.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-AUTH-AND-SESSION-MANAGEMENT.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-BOOTSTRAP-AND-CONFIGURATION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-BUILD-AND-DEPENDENCIES.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-CONTEXT-AND-CONVERSATION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-CONTEXT-COMPACTION-ADVANCED.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-COORDINATION-PATTERNS.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-DIFF-AND-FILE-EDITING.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-ENTERPRISE-AND-POLICY.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-ERROR-HANDLING-AND-HOOKS.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-FEATURE-DELIVERY.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-IDE-AND-LSP-INTEGRATION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-INITIALIZATION-AND-WIRING.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-LIFECYCLE-AND-PROCESS.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-LLM-API-INTEGRATION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-LOCAL-LLM-ADAPTATION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-MEDIA-AND-ATTACHMENTS.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-MEMORY-AND-CONSOLIDATION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-MESSAGE-PIPELINE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-PERMISSION-SYSTEM-DESIGN.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-QUERY-LOOP-AND-STATE-MACHINE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-REMOTE-AND-TEAM-COLLABORATION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-SDK-BRIDGE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-SECURITY-COMMAND-EXECUTION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-SECURITY-NETWORK-AND-INJECTION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-SPECULATION-AND-CACHING.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-STREAMING-TOOL-EXECUTION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-SYSTEM-PROMPT-ENGINEERING.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-TASK-AND-BACKGROUND-EXECUTION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-TERMINAL-UI-ARCHITECTURE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-TOOL-ARCHITECTURE.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/AGENT-WORKTREE-AND-ISOLATION.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/agent-systems/README.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/market/competitor-analysis-2026-02-11.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/hardware/gpu-hardware-guide-2026.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/models/tool-calling-command-r.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/models/tool-calling-deepseek.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/models/tool-calling-llama.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/models/tool-calling-mistral.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/models/tool-calling-phi.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/models/tool-calling-qwen.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/models/vllm-tool-calling.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/voice/voice-agent-latency-benchmarks.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/research/voice/voice-agent-scaling-architecture.md": [
+    716,
+    364,
+    351
+  ],
+  "resources/tools/README.md": [
+    716,
+    364,
+    351
+  ],
+  ".gitleaks.toml": [
+    364,
+    351
+  ],
+  "dream-server/config/ports.json": [
+    364,
+    351
+  ],
+  "dream-server/extensions/services/llama-server/manifest.yaml": [
+    364,
+    351
+  ],
+  "dream-server/installers/lib/progress.sh": [
+    364,
+    351
+  ],
+  "dream-server/lib/python-cmd.sh": [
+    364,
+    351
+  ],
+  "dream-server/lib/rsync.sh": [
+    364,
+    351
+  ],
+  "dream-server/scripts/validate-manifests.sh": [
+    364,
+    351
+  ],
+  "dream-server/tests/bats-tests/compose-select.bats": [
+    364,
+    351
+  ],
+  "dream-server/tests/test-backup-integrity.sh": [
+    364,
+    351
+  ],
+  "dream-server/tests/test-backup-restore-roundtrip.sh": [
+    364,
+    351
+  ],
+  "dream-server/tests/test-disk-space-preflight.sh": [
+    364,
+    351
+  ],
+  "dream-server/tests/test-dream-doctor.sh": [
+    364,
+    351
+  ],
+  "dream-server/tests/test-extension-audit.sh": [
+    364,
+    351
+  ],
+  "dream-server/tests/test-preset-diff.sh": [
+    364,
+    351
+  ],
+  "dream-server/tests/test-restore-safety-ux.sh": [
+    364,
+    351
+  ],
+  "dream-server/tests/test-safe-env.sh": [
+    364,
+    351
+  ],
+  "dream-server/tests/test-validate-sim-summary.sh": [
+    364,
+    351
+  ],
+  "resources/dev/bootstrap/entrypoint.sh": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/schema/service-manifest.v1.json": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/aider/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/anythingllm/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/anythingllm/manifest.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/anythingllm/setup.sh": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/audiocraft/Dockerfile": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/audiocraft/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/audiocraft/compose.nvidia.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/bark/Dockerfile": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/bark/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/bark/compose.nvidia.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/bark/test_server.py": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/baserow/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/chromadb/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/continue/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/continue/config/continue/nginx.conf": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/continue/manifest.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/crewai/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/dify/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/dify/compose.yaml.disabled": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/dify/setup.sh": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/flowise/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/flowise/setup.sh": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/fooocus/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/forge/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/forge/compose.nvidia.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/frigate/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/frigate/compose.nvidia.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/frigate/manifest.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/frigate/setup.sh": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/gitea/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/immich/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/immich/manifest.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/invokeai/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/invokeai/compose.amd.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/invokeai/compose.nvidia.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/jan/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/jan/manifest.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/jupyter/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/jupyter/manifest.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/jupyter/setup.sh": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/label-studio/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/langflow/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/librechat/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/librechat/setup.sh": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/localai/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/milvus/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/ollama/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/ollama/compose.amd.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/ollama/compose.nvidia.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/open-interpreter/Dockerfile": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/open-interpreter/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/open-interpreter/server.py": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/open-interpreter/setup.sh": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/paperless-ngx/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/paperless-ngx/setup.sh": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/piper-audio/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/privacy_shield/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/rvc/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/rvc/compose.amd.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/rvc/compose.nvidia.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/sillytavern/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/sillytavern/manifest.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/text-generation-webui/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/text-generation-webui/compose.amd.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/text-generation-webui/compose.nvidia.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/text-generation-webui/manifest.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/weaviate/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/weaviate/setup.sh": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/xtts/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/xtts/compose.amd.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/xtts/compose.nvidia.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/services/xtts/manifest.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/templates/compose-gpu-only.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/templates/compose-gpu-swap.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/templates/compose-template.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/templates/service-template.yaml": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/workflows/bark/list-voices.json": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/workflows/bark/tts-synthesize.json": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/workflows/comfyui/llm-image-gen.json": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/workflows/flowise/chatflow-api.json.bak": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/workflows/n8n/api-integration.json": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/workflows/piper/tts-convert.json": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/workflows/rvc/voice-convert.json": [
+    364,
+    351
+  ],
+  "resources/dev/extensions-library/workflows/sillytavern/README.md": [
+    364,
+    351
+  ],
+  "resources/dev/normie-installer/dreamserver-install.sh": [
+    364,
+    351
+  ]
+}

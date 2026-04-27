@@ -1,0 +1,105 @@
+diff --git a/dream-server/installers/macos/install-macos.sh b/dream-server/installers/macos/install-macos.sh
+index dbec031..7484f1b 100755
+--- a/dream-server/installers/macos/install-macos.sh
++++ b/dream-server/installers/macos/install-macos.sh
+@@ -1150,6 +1150,22 @@ else
+     ai_warn "Perplexica auto-config skipped -- complete setup at http://localhost:3004"
+ fi
+ 
++# ── Pre-mark setup wizard complete ──
++# The dashboard-api reads ${INSTALL_DIR}/data/config/setup-complete.json
++# (mounted at /data/config/setup-complete.json inside the container) to
++# decide first_run state. Writing this here prevents the wizard from
++# reappearing on every visit after a fresh install. Non-fatal.
++_setup_config_dir="${INSTALL_DIR}/data/config"
++_setup_complete_file="${_setup_config_dir}/setup-complete.json"
++_completed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
++if mkdir -p "${_setup_config_dir}" 2>/dev/null \
++    && printf '{"completed_at": "%s", "version": "1.0.0"}\n' "${_completed_at}" > "${_setup_complete_file}" 2>/dev/null \
++    && chmod 644 "${_setup_complete_file}" 2>/dev/null; then
++    ai_ok "Setup wizard pre-marked complete"
++else
++    ai_warn "Could not write ${_setup_complete_file} (non-fatal)"
++fi
++
+ # ── Success card ──
+ if ! $ALL_HEALTHY; then
+     echo ""
+diff --git a/dream-server/installers/phases/13-summary.sh b/dream-server/installers/phases/13-summary.sh
+index 9d24274..9d402ca 100755
+--- a/dream-server/installers/phases/13-summary.sh
++++ b/dream-server/installers/phases/13-summary.sh
+@@ -47,6 +47,24 @@ fi
+ # Show the cinematic success card
+ show_success_card "http://localhost:3000" "http://localhost:3001" "$LOCAL_IP"
+ 
++# Mark the setup wizard as already completed for fresh installs. The
++# dashboard-api reads this file (container path /data/config/setup-complete.json,
++# mounted from ${INSTALL_DIR}/data) to decide first_run state; without it the
++# wizard reappears on every visit after a fresh install. Non-fatal — if the
++# write fails, the wizard simply shows once.
++if ! $DRY_RUN; then
++    _setup_config_dir="${INSTALL_DIR}/data/config"
++    _setup_complete_file="${_setup_config_dir}/setup-complete.json"
++    _completed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
++    if mkdir -p "${_setup_config_dir}" 2>/dev/null \
++        && printf '{"completed_at": "%s", "version": "1.0.0"}\n' "${_completed_at}" > "${_setup_complete_file}" 2>/dev/null \
++        && chmod 644 "${_setup_complete_file}" 2>/dev/null; then
++        log "Setup wizard pre-marked complete at ${_setup_complete_file}"
++    else
++        ai_warn "Could not write ${_setup_complete_file} (non-fatal)"
++    fi
++fi
++
+ # Check background tasks before showing additional info
+ if [[ -f "$SCRIPT_DIR/installers/lib/background-tasks.sh" ]]; then
+     . "$SCRIPT_DIR/installers/lib/background-tasks.sh"
+diff --git a/dream-server/installers/windows/install-windows.ps1 b/dream-server/installers/windows/install-windows.ps1
+index c605371..126a15b 100644
+--- a/dream-server/installers/windows/install-windows.ps1
++++ b/dream-server/installers/windows/install-windows.ps1
+@@ -877,6 +877,23 @@ if ($allHealthy) {
+     Write-SuccessCard
+ }
+ 
++# ── Pre-mark setup wizard complete ────────────────────────────────────────────
++# The dashboard-api reads ${INSTALL_DIR}/data/config/setup-complete.json
++# (mounted at /data/config/setup-complete.json inside the container) to decide
++# first_run state. Writing this here prevents the wizard from reappearing on
++# every visit after a fresh install. Non-fatal.
++try {
++    $setupConfigDir = Join-Path $installDir "data\config"
++    $setupCompleteFile = Join-Path $setupConfigDir "setup-complete.json"
++    New-Item -Path $setupConfigDir -ItemType Directory -Force | Out-Null
++    $completedAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
++    $payload = @{ completed_at = $completedAt; version = "1.0.0" } | ConvertTo-Json -Compress
++    Set-Content -Path $setupCompleteFile -Value $payload -Encoding UTF8
++    Write-AISuccess "Setup wizard pre-marked complete"
++} catch {
++    Write-AIWarn "Could not write setup-complete.json (non-fatal): $_"
++}
++
+ # ── Summary JSON (for CI / automation) ───────────────────────────────────────
+ if ($SummaryJsonPath) {
+     $summary = @{
+diff --git a/dream-server/tests/contracts/test-installer-contracts.sh b/dream-server/tests/contracts/test-installer-contracts.sh
+index 228e368..aa33673 100755
+--- a/dream-server/tests/contracts/test-installer-contracts.sh
++++ b/dream-server/tests/contracts/test-installer-contracts.sh
+@@ -67,4 +67,16 @@ if grep -q 'cdn.jsdelivr.net/npm/chart.js\|cdn.jsdelivr.net/npm/chartjs-adapter-
+   exit 1
+ fi
+ 
++echo "[contract] installers pre-mark setup wizard complete"
++# All three installers must write data/config/setup-complete.json at install time
++# so the dashboard wizard doesn't reappear on every visit after a fresh install.
++# dashboard-api reads this file (container path /data/config/setup-complete.json,
++# mounted from ${INSTALL_DIR}/data) to decide first_run state.
++grep -q 'data/config/setup-complete.json' installers/phases/13-summary.sh \
++  || { echo "[FAIL] Linux phase 13 does not write data/config/setup-complete.json"; exit 1; }
++grep -q 'data/config/setup-complete.json' installers/macos/install-macos.sh \
++  || { echo "[FAIL] macOS installer does not write data/config/setup-complete.json"; exit 1; }
++grep -q 'data\\\\config\\\\setup-complete.json\|setup-complete.json' installers/windows/install-windows.ps1 \
++  || { echo "[FAIL] Windows installer does not write setup-complete.json"; exit 1; }
++
+ echo "[PASS] installer contracts"

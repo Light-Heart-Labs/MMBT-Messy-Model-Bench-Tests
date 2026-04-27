@@ -1,0 +1,5 @@
+dream-server/bin/dream-host-agent.py
+dream-server/installers/macos/install-macos.sh
+dream-server/installers/macos/lib/preflight-fs.sh
+dream-server/installers/phases/01-preflight.sh
+dream-server/installers/windows/phases/01-preflight.ps1

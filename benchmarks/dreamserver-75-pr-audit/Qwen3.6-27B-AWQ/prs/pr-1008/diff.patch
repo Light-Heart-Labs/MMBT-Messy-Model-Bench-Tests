@@ -1,0 +1,67 @@
+diff --git a/dream-server/dream-cli b/dream-server/dream-cli
+index 6e160f6..9f7327c 100755
+--- a/dream-server/dream-cli
++++ b/dream-server/dream-cli
+@@ -251,7 +251,7 @@ _check_version_compat() {
+ 
+     # 1. Installed version
+     _COMPAT_INSTALLED_VER=$(grep '^DREAM_VERSION=' "$INSTALL_DIR/.env" 2>/dev/null \
+-        | head -1 | cut -d= -f2 | tr -d '[:space:]')
++        | sed -n '1p' | cut -d= -f2 | tr -d '[:space:]' || true)
+     # Fall back to .version file (written by dream-update.sh / PR #349 convention)
+     if [[ -z "$_COMPAT_INSTALLED_VER" && -f "$INSTALL_DIR/.version" ]]; then
+         _COMPAT_INSTALLED_VER=$(jq -r '.version // empty' "$INSTALL_DIR/.version" 2>/dev/null \
+@@ -833,7 +833,7 @@ cmd_dry_run() {
+     local cur_ver="0.0.0"
+     if [[ -f "$INSTALL_DIR/.env" ]]; then
+         local _v
+-        _v=$(grep '^DREAM_VERSION=' "$INSTALL_DIR/.env" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
++        _v=$(grep '^DREAM_VERSION=' "$INSTALL_DIR/.env" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]' || true)
+         [[ -n "$_v" ]] && cur_ver="$_v"
+     fi
+     if [[ "$cur_ver" == "0.0.0" && -f "$INSTALL_DIR/.version" ]]; then
+@@ -846,7 +846,7 @@ cmd_dry_run() {
+     local api_json=""
+     local dashboard_port="${DASHBOARD_PORT:-3002}"
+     local api_key=""
+-    api_key=$(grep '^DASHBOARD_API_KEY=' "$INSTALL_DIR/.env" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
++    api_key=$(grep '^DASHBOARD_API_KEY=' "$INSTALL_DIR/.env" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]' || true)
+     if [[ -n "$api_key" ]]; then
+         api_json=$(curl -sf --max-time 5 \
+             -H "X-API-Key: ${api_key}" \
+@@ -935,7 +935,7 @@ cmd_dry_run() {
+     local key
+     for key in "${model_keys[@]}"; do
+         local val
+-        val=$(grep "^${key}=" "$INSTALL_DIR/.env" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
++        val=$(grep "^${key}=" "$INSTALL_DIR/.env" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]' || true)
+         printf "  %-16s %s\n" "${key}:" "${val:-(not set)}"
+     done
+     echo ""
+@@ -950,7 +950,7 @@ cmd_dry_run() {
+     else
+         for key in "${update_keys[@]}"; do
+             local val
+-            val=$(grep "^${key}=" "$INSTALL_DIR/.env" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
++            val=$(grep "^${key}=" "$INSTALL_DIR/.env" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]' || true)
+             printf "  %-16s %s\n" "${key}:" "${val:-(not set)}"
+         done
+     fi
+@@ -1431,7 +1431,7 @@ cmd_enable() {
+         local current_backend="${GPU_BACKEND:-nvidia}"
+         if [[ -f "$INSTALL_DIR/.env" ]]; then
+             local env_backend
+-            env_backend=$(grep "^GPU_BACKEND=" "$INSTALL_DIR/.env" | cut -d= -f2 | tr -d '"')
++            env_backend=$(grep "^GPU_BACKEND=" "$INSTALL_DIR/.env" 2>/dev/null | cut -d= -f2 | tr -d '"' || true)
+             if [[ -n "$env_backend" ]]; then
+                 current_backend="$env_backend"
+             else
+@@ -1778,7 +1778,7 @@ META
+             if [[ -f "$preset_dir/env" ]]; then
+                 cp "$preset_dir/env" "$INSTALL_DIR/.env"
+                 local restored_mode
+-                restored_mode=$(grep "^DREAM_MODE=" "$INSTALL_DIR/.env" 2>/dev/null | cut -d= -f2)
++                restored_mode=$(grep "^DREAM_MODE=" "$INSTALL_DIR/.env" 2>/dev/null | cut -d= -f2 || true)
+                 success "Restored .env (mode: ${restored_mode:-local})"
+             fi
+ 

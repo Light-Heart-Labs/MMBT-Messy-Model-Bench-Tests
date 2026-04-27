@@ -1,0 +1,48 @@
+diff --git a/.github/workflows/ai-issue-triage.yml b/.github/workflows/ai-issue-triage.yml
+index 5662d8f..fc9c256 100644
+--- a/.github/workflows/ai-issue-triage.yml
++++ b/.github/workflows/ai-issue-triage.yml
+@@ -63,7 +63,7 @@ jobs:
+           } >> $GITHUB_OUTPUT
+ 
+       - name: AI Triage
+-        uses: anthropics/claude-code-action@905d4eb99ab3d43143d74fb0dcae537f29ac330a # v1
++        uses: anthropics/claude-code-action@b4d67413279fc18c6e5de930ae307c4f108714eb # v1
+         with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
+           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+diff --git a/.github/workflows/claude-review.yml b/.github/workflows/claude-review.yml
+index 630dea6..d2e5a40 100644
+--- a/.github/workflows/claude-review.yml
++++ b/.github/workflows/claude-review.yml
+@@ -111,7 +111,7 @@ jobs:
+         if: |
+           steps.fork_check.outputs.is_fork != 'true' &&
+           (steps.pr_size.outputs.skip_review == 'false' || contains(github.event.pull_request.labels.*.name, 'force-review'))
+-        uses: anthropics/claude-code-action@905d4eb99ab3d43143d74fb0dcae537f29ac330a # v1
++        uses: anthropics/claude-code-action@b4d67413279fc18c6e5de930ae307c4f108714eb # v1
+         with:
+           claude_args: |
+             code-review --comment \
+@@ -325,7 +325,7 @@ jobs:
+ 
+       - name: Run Claude Code Review with write permissions
+         id: review
+-        uses: anthropics/claude-code-action@905d4eb99ab3d43143d74fb0dcae537f29ac330a # v1
++        uses: anthropics/claude-code-action@b4d67413279fc18c6e5de930ae307c4f108714eb # v1
+         with:
+           claude_args: |
+             code-review \
+diff --git a/.github/workflows/release-notes.yml b/.github/workflows/release-notes.yml
+index 298b3f3..fe0139d 100644
+--- a/.github/workflows/release-notes.yml
++++ b/.github/workflows/release-notes.yml
+@@ -61,7 +61,7 @@ jobs:
+           echo "Previous release: $PREV_TAG"
+ 
+       - name: Generate Release Notes
+-        uses: anthropics/claude-code-action@905d4eb99ab3d43143d74fb0dcae537f29ac330a # v1
++        uses: anthropics/claude-code-action@b4d67413279fc18c6e5de930ae307c4f108714eb # v1
+         with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
+           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}

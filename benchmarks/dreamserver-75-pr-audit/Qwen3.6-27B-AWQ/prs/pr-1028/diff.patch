@@ -1,0 +1,13 @@
+diff --git a/dream-server/extensions/services/embeddings/compose.yaml b/dream-server/extensions/services/embeddings/compose.yaml
+index 940573d..a38d558 100644
+--- a/dream-server/extensions/services/embeddings/compose.yaml
++++ b/dream-server/extensions/services/embeddings/compose.yaml
+@@ -25,7 +25,7 @@ services:
+       interval: 30s
+       timeout: 10s
+       retries: 5
+-      start_period: 120s
++      start_period: 600s
+     logging:
+       driver: "json-file"
+       options:
