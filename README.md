@@ -52,6 +52,10 @@ For comparing multiple model entries within a benchmark, look for cross-cutting 
 
 The "Messy" framing is intentional. Some model entries are clean audits with traceable line-by-line reasoning (`Opus-4.7/` on the 75-PR task). Others are structurally-complete-but-substantively-partial scaffolds with a few hand-written reviews and 70+ template stubs (`Qwen3.6-27B-AWQ/` on the same task). Others are deliberate failure-mode entries with no audit artifacts at all but with documented failure trajectories ([`Qwen3-Coder-Next-AWQ/` on the 75-PR task](benchmarks/dreamserver-75-pr-audit/Qwen3-Coder-Next-AWQ/), [`Qwen3.6-35B-A3B-AWQ/` at N=1](benchmarks/dreamserver-1-pr-audit/Qwen3.6-35B-A3B-AWQ/)).
 
+**Before quoting any number from this repo, read [`KNOWN-LIMITATIONS.md`](KNOWN-LIMITATIONS.md).** It consolidates the caveats that affect what claims this evidence can support — small N, cherry-picked successes, dirty harness git SHAs, hand-graded inputs without a formal rubric, hardware specificity, the gap in cloud-vs-local apples-to-apples grading. Useful evidence; not yet a leaderboard.
+
+This repository is licensed under [MIT](LICENSE). Third-party content (DreamServer code excerpts, SEC filings, cloud-LLM and local-model outputs, Cyankiwi quantizations) retains its original licensing — see [`NOTICE`](NOTICE).
+
 The repo keeps the failures because the *kinds* of failure are themselves the comparison data. A reader picking a model for their own work needs to know that "this model can't complete this task" or "this model produces output shape without substance" — those are real properties of the model, not noise to filter out.
 
 ## Current Entries

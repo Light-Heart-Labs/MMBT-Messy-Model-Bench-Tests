@@ -189,13 +189,46 @@ def extract(run_dir: Path) -> dict:
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("run_dir", nargs="?", help="path to a single run dir")
-    ap.add_argument("--all", action="store_true", help="run on every dir under agent-pilot/logs/")
+    ap = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Layouts:\n"
+            "  Source-bench layout (private working repo): logs live at\n"
+            "    <bench-root>/agent-pilot/logs/<run_name>/. Run from anywhere\n"
+            "    with --all (uses the script's own location to find logs).\n"
+            "  MMBT public layout: per-entry receipt + transcript live at\n"
+            "    benchmarks/<task>/<model>/. Run on a single entry with\n"
+            "    `extract_cost.py benchmarks/<task>/<model>/`. The cost.json\n"
+            "    files for the published entries are already committed; this\n"
+            "    script is for fresh local runs or for re-deriving cost.json\n"
+            "    after harness or transcript changes.\n"
+        ),
+    )
+    ap.add_argument("run_dir", nargs="?", help="path to a single run dir (any layout)")
+    ap.add_argument("--all", action="store_true", help="run on every dir under --logs-dir")
+    ap.add_argument(
+        "--logs-dir", default=None,
+        help="for --all: directory containing run-name subdirs. "
+             "Default: <script>/../logs/ (works from a source-bench layout where "
+             "scripts/ is sibling to logs/). In an MMBT clone the default doesn't "
+             "exist — pass an explicit path or use single-run mode against an entry.",
+    )
     args = ap.parse_args()
 
     if args.all:
-        logs_dir = Path(__file__).resolve().parent.parent / "logs"
+        if args.logs_dir:
+            logs_dir = Path(args.logs_dir).resolve()
+        else:
+            logs_dir = (Path(__file__).resolve().parent.parent / "logs").resolve()
+        if not logs_dir.is_dir():
+            ap.error(
+                f"--all expected a logs directory at {logs_dir} (none found). "
+                f"Pass --logs-dir <path> if your logs live elsewhere, or use single-run mode: "
+                f"`extract_cost.py <run_dir>`. In an MMBT clone, the per-entry cost.json "
+                f"files are already committed at benchmarks/<task>/<model>/cost.json — "
+                f"this script is for re-deriving them or for fresh local runs."
+            )
         run_dirs = sorted([d for d in logs_dir.iterdir() if d.is_dir()])
     elif args.run_dir:
         run_dirs = [Path(args.run_dir)]
