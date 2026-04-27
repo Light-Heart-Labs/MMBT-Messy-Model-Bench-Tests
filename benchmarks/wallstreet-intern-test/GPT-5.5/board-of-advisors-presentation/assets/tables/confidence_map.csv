@@ -1,0 +1,6 @@
+area,confidence,reason,trace
+Historical financials,High,"SEC facts, extracted tables, workbook checks",T005-T010
+Sales mix,High,10-K Note 3 table parsed to CSV,T011-T014
+Guidance mechanics,Medium,Management guide clear; model simplifications remain,T015-T017/T035-T041
+Valuation assumptions,Medium-Low,"WACC, terminal growth, and multiples are judgment calls",ADR 0004/0005
+Sell-side miss conclusion,Medium,Public consensus checked; paid models unavailable,T027-T030

@@ -1,0 +1,6 @@
+step,action,artifact
+Pick a claim,Choose any visible trace ID or slide footer,audit/traces/slide-XX.md
+Open the trace,Read the claim mapping and input commit,audit/traces/
+Resolve the number,Find the trace ID in the numbers audit,audit/numbers.md
+Follow the chain,Open the input repo source chain and model cell,/input/repo/analysis/memo_trace_table.csv
+Verify raw evidence,Land on the SEC filing transcript press release or model artifact,/input/repo/raw and /input/repo/model

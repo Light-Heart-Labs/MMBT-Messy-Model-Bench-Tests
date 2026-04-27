@@ -53,4 +53,4 @@ Start with the benchmark folder README, then open the model folder:
 
 - DreamServer 75 PR Audit / GPT-5.5: `benchmarks/dreamserver-75-pr-audit/GPT-5.5/`
 - DreamServer 75 PR Audit / Claude Opus 4.7 (1M context): `benchmarks/dreamserver-75-pr-audit/Opus-4.7/`
-- Wallstreet Intern Test / GPT-5.5: `benchmarks/wallstreet-intern-test/GPT-5.5/`
+- Wallstreet Intern Test / GPT-5.5: `benchmarks/wallstreet-intern-test/GPT-5.5/`, including the original investment memo repo and the follow-on board-of-advisors presentation in `board-of-advisors-presentation/`.

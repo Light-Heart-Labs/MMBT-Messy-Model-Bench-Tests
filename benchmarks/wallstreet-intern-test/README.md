@@ -20,9 +20,9 @@ The output is not only an answer. The model has to construct a self-contained re
 
 ## Model Entries
 
-| Model | Entry | Company | Recommendation |
-|---|---|---|---|
-| GPT-5.5 | `GPT-5.5/` | YETI Holdings (`YETI`) | HOLD / $41 target |
+| Model | Entry | Company | Recommendation | Follow-On Artifact |
+|---|---|---|---|---|
+| GPT-5.5 | `GPT-5.5/` | YETI Holdings (`YETI`) | HOLD / $41 target | `GPT-5.5/board-of-advisors-presentation/` |
 
 ## Expected Entry Shape
 
@@ -40,3 +40,5 @@ Each model entry should preserve the artifact structure requested by the benchma
 - `README.md`
 
 The GPT-5.5 entry follows this shape and includes the generated PDF memo and `.xlsx` model.
+
+The GPT-5.5 entry also includes a follow-on board-of-advisors presentation package in `GPT-5.5/board-of-advisors-presentation/`. That package is a separate auditable repo snapshot that turns the memo into a 20-slide board discussion deck with PPTX/PDF outputs, reproducible chart scripts, slide-level trace files, quote context, number audit, reconciliation checks, and ADRs for presentation decisions.

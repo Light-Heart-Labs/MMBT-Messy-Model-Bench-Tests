@@ -1,0 +1,5 @@
+category,confidence,what_the_agent_knows,what_a_human_would_add,source
+Historical financials,High,Raw filing values reconcile through extraction tables into the workbook,Refresh against the next 10-Q and management guide,/input/repo/memo/yeti_investment_memo.md:53
+Sales mix and guidance,High,Channel geography and FY2026 guide are tied to filings releases and transcript lines,Channel checks with retailers and owned web traffic data,/input/repo/memo/yeti_investment_memo.md:53
+Valuation assumptions,Medium,WACC terminal growth and multiples are documented ADR choices,Sensitivity around beta peer set and private-market brand transactions,/input/repo/memo/yeti_investment_memo.md:53
+Tariff and category risk,Medium,Management disclosed gross-margin tariff impacts but not item-level exposure,Granular bill-of-materials tariff work and sell-through data,/input/repo/memo/yeti_investment_memo.md:55

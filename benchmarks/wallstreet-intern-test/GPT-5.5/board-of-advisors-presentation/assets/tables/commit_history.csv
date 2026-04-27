@@ -1,0 +1,13 @@
+step,short_sha,message,trace
+1,c643fb7,Start an auditable investment memo package before choosing sources,git commit c643fb7
+2,6c4ffd9,Automate source capture so downloaded evidence stays hashable,git commit 6c4ffd9
+3,a737be0,Keep source capture resilient after transcript URL checks,git commit a737be0
+4,7c442fb,Freeze primary source corpus before extracting YETI financials,git commit 7c442fb
+5,cf2a52b,Add peer market data before deciding valuation multiples,git commit cf2a52b
+6,b6294b2,Refresh source registry after adding relative valuation peers,git commit b6294b2
+7,9c2dff6,Make financial and transcript extraction reproducible before modeling,git commit 9c2dff6
+8,14be47c,Anchor model inputs to reproducible extracted source tables,git commit 14be47c
+9,939f507,Model cash from SEC facts before relying on target output,git commit 939f507
+10,8a8e005,Reject a forced upside thesis after tracing consensus against guidance,git commit 8a8e005
+11,774010f,Make the memo concise because the audit trail carries the detail,git commit 774010f
+12,8bb17db,Finish navigation before tagging the memo package,git commit 8bb17db

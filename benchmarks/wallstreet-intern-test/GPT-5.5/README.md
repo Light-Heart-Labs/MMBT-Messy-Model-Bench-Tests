@@ -2,6 +2,8 @@
 
 This repository is a complete, auditable investment memo package for YETI Holdings (`YETI`). The recommendation is `HOLD`, with the final memo and supporting model included in the repo.
 
+This model entry also includes a follow-on board-of-advisors presentation package at `board-of-advisors-presentation/`. The presentation package is a repo snapshot of the second task: a 20-slide PPTX/PDF deck explaining both the recommendation and the agent's reasoning trail.
+
 Read in this order:
 
 1. `memo/yeti_investment_memo.pdf` for the PM-facing memo.
@@ -15,6 +17,7 @@ Read in this order:
 9. `decisions/` for ADR-style records behind non-obvious choices.
 10. `research/` for dated working notes, questions, and dead ends.
 11. `raw/` for original downloaded filings, transcripts, releases, market pages, and other source files.
+12. `board-of-advisors-presentation/` for the follow-on board deck, slide previews, reproducible visuals, and deck-specific audit trail.
 
 ## Trace Workflow
 

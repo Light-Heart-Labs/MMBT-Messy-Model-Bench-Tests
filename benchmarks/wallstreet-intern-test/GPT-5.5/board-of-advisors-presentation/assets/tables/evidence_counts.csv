@@ -1,0 +1,7 @@
+artifact,count,trace
+SEC filings,12,input raw/filings
+Transcript PDFs,5,input raw/transcripts
+Other primary/market sources,15,input raw/other
+Trace rows,44,analysis/memo_trace_table.csv
+ADRs,6,decisions/
+Commits,12,git history
