@@ -1,0 +1,12 @@
+diff --git a/dream-server/extensions/services/perplexica/compose.yaml b/dream-server/extensions/services/perplexica/compose.yaml
+index b4c04db..5e27553 100644
+--- a/dream-server/extensions/services/perplexica/compose.yaml
++++ b/dream-server/extensions/services/perplexica/compose.yaml
+@@ -9,6 +9,7 @@ services:
+       - SEARXNG_API_URL=http://searxng:8080
+       - OPENAI_BASE_URL=${LLM_API_URL:-http://llama-server:8080}/v1
+       - OPENAI_API_KEY=${OPENAI_API_KEY:-no-key}
++      - HOSTNAME=0.0.0.0
+     volumes:
+       - perplexica-data:/home/perplexica/data
+       - perplexica-uploads:/home/perplexica/uploads

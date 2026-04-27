@@ -1,0 +1,126 @@
+diff --git a/dream-server/dream-cli b/dream-server/dream-cli
+index 6e160f6..f1602a9 100755
+--- a/dream-server/dream-cli
++++ b/dream-server/dream-cli
+@@ -1114,7 +1114,7 @@ cmd_config() {
+         validate)
+             cd "$INSTALL_DIR"
+             if [[ -x "$INSTALL_DIR/scripts/validate-env.sh" ]]; then
+-                "$INSTALL_DIR/scripts/validate-env.sh" "$INSTALL_DIR/.env" "$INSTALL_DIR/.env.schema.json"
++                "$BASH" "$INSTALL_DIR/scripts/validate-env.sh" "$INSTALL_DIR/.env" "$INSTALL_DIR/.env.schema.json"
+             else
+                 warn "validate-env.sh not found at $INSTALL_DIR/scripts/validate-env.sh"
+                 warn "Make sure you're on a recent Dream Server release."
+@@ -1122,7 +1122,7 @@ cmd_config() {
+             echo ""
+             if [[ -x "$INSTALL_DIR/scripts/validate-manifests.sh" ]]; then
+                 log "Validating extension manifests and compatibility..."
+-                if "$INSTALL_DIR/scripts/validate-manifests.sh"; then
++                if "$BASH" "$INSTALL_DIR/scripts/validate-manifests.sh"; then
+                     success "Extension manifests validated"
+                 else
+                     warn "Extension manifest validation reported issues. See output above."
+diff --git a/dream-server/installers/phases/03-features.sh b/dream-server/installers/phases/03-features.sh
+index d57a0a5..6be0aaf 100755
+--- a/dream-server/installers/phases/03-features.sh
++++ b/dream-server/installers/phases/03-features.sh
+@@ -20,6 +20,14 @@
+ #   Add new optional features to the Custom menu here.
+ # ============================================================================
+ 
++# Require Bash 4+ (associative arrays used for GPU topology/link maps)
++if (( BASH_VERSINFO[0] < 4 )); then
++    echo "ERROR: $(basename "${BASH_SOURCE[0]}") requires Bash 4.0+ (current: $BASH_VERSION)" >&2
++    echo "  macOS ships Bash 3.2 due to licensing. Install a modern version:" >&2
++    echo "    brew install bash" >&2
++    return 1 2>/dev/null || exit 1
++fi
++
+ dream_progress 18 "features" "Selecting features"
+ if $INTERACTIVE && ! $DRY_RUN; then
+     show_phase 2 6 "Feature Selection" "~1 minute"
+diff --git a/dream-server/lib/progress.sh b/dream-server/lib/progress.sh
+index cde07ba..4067039 100755
+--- a/dream-server/lib/progress.sh
++++ b/dream-server/lib/progress.sh
+@@ -2,6 +2,14 @@
+ # Dream Server — Progress Bar Utilities
+ # Sourced by install-core.sh for download/install progress display
+ 
++# Require Bash 4+ (associative array PHASE_ESTIMATES used for phase timing)
++if (( BASH_VERSINFO[0] < 4 )); then
++    echo "ERROR: $(basename "${BASH_SOURCE[0]}") requires Bash 4.0+ (current: $BASH_VERSION)" >&2
++    echo "  macOS ships Bash 3.2 due to licensing. Install a modern version:" >&2
++    echo "    brew install bash" >&2
++    return 1 2>/dev/null || exit 1
++fi
++
+ # ═══════════════════════════════════════════════════════════════
+ # PROGRESS BAR
+ # ═══════════════════════════════════════════════════════════════
+diff --git a/dream-server/scripts/dream-test-functional.sh b/dream-server/scripts/dream-test-functional.sh
+index fe24d18..1195452 100755
+--- a/dream-server/scripts/dream-test-functional.sh
++++ b/dream-server/scripts/dream-test-functional.sh
+@@ -11,6 +11,14 @@
+ # This complements dream-test.sh which checks service health.
+ #=============================================================================
+ 
++# Require Bash 4+ (associative arrays used for service-port lookup)
++if (( BASH_VERSINFO[0] < 4 )); then
++    echo "ERROR: $(basename "$0") requires Bash 4.0+ (you have $BASH_VERSION)" >&2
++    echo "  macOS ships Bash 3.2 due to licensing. Install a modern version:" >&2
++    echo "    brew install bash" >&2
++    exit 1
++fi
++
+ set -euo pipefail
+ 
+ # Colors
+@@ -31,7 +39,7 @@ if [[ -f "$_FT_DIR/lib/service-registry.sh" ]]; then
+ fi
+ 
+ # Ensure SERVICE_PORTS is declared even if service-registry.sh was not sourced
+-declare -A SERVICE_PORTS 2>/dev/null || true
++declare -A SERVICE_PORTS
+ 
+ # Service endpoints — resolved from registry
+ LLM_URL="${LLM_URL:-http://localhost:${SERVICE_PORTS[llama-server]:-11434}}"
+diff --git a/dream-server/scripts/pre-download.sh b/dream-server/scripts/pre-download.sh
+index 18e596b..e44cadd 100755
+--- a/dream-server/scripts/pre-download.sh
++++ b/dream-server/scripts/pre-download.sh
+@@ -17,6 +17,14 @@
+ # Cache location: ~/.cache/huggingface/hub/
+ #=============================================================================
+ 
++# Require Bash 4+ (associative arrays used for tier → model mapping)
++if (( BASH_VERSINFO[0] < 4 )); then
++    echo "ERROR: $(basename "$0") requires Bash 4.0+ (you have $BASH_VERSION)" >&2
++    echo "  macOS ships Bash 3.2 due to licensing. Install a modern version:" >&2
++    echo "    brew install bash" >&2
++    exit 1
++fi
++
+ set -euo pipefail
+ 
+ # Colors
+diff --git a/dream-server/scripts/validate-env.sh b/dream-server/scripts/validate-env.sh
+index db4d7f6..6f33873 100755
+--- a/dream-server/scripts/validate-env.sh
++++ b/dream-server/scripts/validate-env.sh
+@@ -7,6 +7,14 @@
+ #  - Validate required keys, unknown keys, types, enums, and numeric ranges
+ #  - Fail deterministically with a single exit code for CI
+ 
++# Require Bash 4+ (associative arrays used for env key/value/line tracking)
++if (( BASH_VERSINFO[0] < 4 )); then
++    echo "ERROR: $(basename "$0") requires Bash 4.0+ (you have $BASH_VERSION)" >&2
++    echo "  macOS ships Bash 3.2 due to licensing. Install a modern version:" >&2
++    echo "    brew install bash" >&2
++    exit 1
++fi
++
+ set -euo pipefail
+ 
+ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

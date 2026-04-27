@@ -1,0 +1,1939 @@
+diff --git a/dream-server/.env.schema.json b/dream-server/.env.schema.json
+index c25a2d8..5b8d5ae 100644
+--- a/dream-server/.env.schema.json
++++ b/dream-server/.env.schema.json
+@@ -75,7 +75,8 @@
+     },
+     "N8N_USER": {
+       "type": "string",
+-      "description": "n8n initial admin email address"
++      "description": "n8n initial admin email address",
++      "secret": true
+     },
+     "N8N_PASS": {
+       "type": "string",
+@@ -497,7 +498,8 @@
+     "LANGFUSE_INIT_USER_EMAIL": {
+       "type": "string",
+       "description": "Langfuse initial admin user email",
+-      "default": "admin@dreamserver.local"
++      "default": "admin@dreamserver.local",
++      "secret": true
+     },
+     "LANGFUSE_INIT_USER_PASSWORD": {
+       "type": "string",
+diff --git a/dream-server/dream-cli b/dream-server/dream-cli
+index 6e160f6..9dbf66f 100755
+--- a/dream-server/dream-cli
++++ b/dream-server/dream-cli
+@@ -3,7 +3,7 @@
+ # Mission: M5 (Clonable Dream Setup Server)
+ # Version: 2.0.0 — Registry-driven service resolution
+ 
+-set -e
++set -euo pipefail
+ 
+ # Require Bash 4+ (associative arrays used by service registry and dream-cli)
+ if (( BASH_VERSINFO[0] < 4 )); then
+@@ -251,7 +251,7 @@ _check_version_compat() {
+ 
+     # 1. Installed version
+     _COMPAT_INSTALLED_VER=$(grep '^DREAM_VERSION=' "$INSTALL_DIR/.env" 2>/dev/null \
+-        | head -1 | cut -d= -f2 | tr -d '[:space:]')
++        | sed -n '1p' | cut -d= -f2 | tr -d '[:space:]')
+     # Fall back to .version file (written by dream-update.sh / PR #349 convention)
+     if [[ -z "$_COMPAT_INSTALLED_VER" && -f "$INSTALL_DIR/.version" ]]; then
+         _COMPAT_INSTALLED_VER=$(jq -r '.version // empty' "$INSTALL_DIR/.version" 2>/dev/null \
+@@ -510,6 +510,60 @@ get_compose_flags() {
+     fi
+ }
+ 
++# Run `docker compose <args...>` with a compact summary on success and a
++# surfaced error banner on failure.
++#
++# Usage:  _compose_run_with_summary <verb> <compose_args...>
++#   <verb>           Human-readable gerund phrase, e.g. "Restarting all services"
++#   <compose_args>   Everything that goes after `docker compose`, including
++#                    any `-f` flags resolved by get_compose_flags.
++#
++# Behavior:
++#   - Runs `docker compose --progress quiet <compose_args>`, capturing
++#     stdout+stderr to a mktemp log file.
++#   - On success: prints "<verb> — done" and removes the log file.
++#   - On failure: prints an error banner, surfaces up to 20 lines matching
++#                 /error|unhealthy|failed|dependency/, preserves the full
++#                 log file for inspection, and returns the compose exit
++#                 code so the caller (under `set -e`) aborts with it.
++#
++# The summary grep pipeline can legitimately produce zero matches if the
++# failing compose output has no error-keyword hits. `upstream/main` today
++# runs under `set -e` only (no `pipefail`), so grep's exit 1 is absorbed
++# by the pipeline's final-stage exit and the function continues to the
++# log-path surface below. When pipefail is eventually adopted (sibling
++# nounset/exit-code audit change), grep's no-match or a SIGPIPE from
++# `head -20` on >20 matches would abort this function before the caller
++# sees the compose log path or the compose exit code. `|| warn "..."`
++# is the project-blessed form (per CLAUDE.md) for "tolerate this specific
++# non-match and log why the summary is empty" — it costs nothing today
++# and keeps the function correct under future pipefail.
++_compose_run_with_summary() {
++    local _verb="$1"; shift
++    log "${_verb}..."
++
++    local _compose_log
++    _compose_log=$(mktemp)
++
++    local _rc=0
++    docker compose --progress quiet "$@" >"$_compose_log" 2>&1 || _rc=$?
++
++    if (( _rc == 0 )); then
++        success "${_verb} — done"
++        rm -f "$_compose_log"
++        return 0
++    fi
++
++    log_error "${_verb} failed:"
++    grep -iE 'error|unhealthy|failed|dependency' "$_compose_log" \
++        | sed 's/^/  /' \
++        | head -20 \
++        || warn "(no error keywords matched in compose log)"
++    echo ""
++    log "Full compose output: $_compose_log"
++    return "$_rc"
++}
++
+ #=============================================================================
+ # Commands
+ #=============================================================================
+@@ -759,14 +813,10 @@ cmd_restart() {
+     read -ra flags <<< "$flags_str"
+ 
+     if [[ -z "$service" ]]; then
+-        log "Restarting all services..."
+-        docker compose "${flags[@]}" up -d
+-        success "All services restarted"
++        _compose_run_with_summary "Restarting all services" "${flags[@]}" up -d
+     else
+         service=$(resolve_service "$service")
+-        log "Restarting $service..."
+-        docker compose "${flags[@]}" up -d "$service"
+-        success "$service restarted"
++        _compose_run_with_summary "Restarting $service" "${flags[@]}" up -d "$service"
+     fi
+ }
+ 
+@@ -782,14 +832,10 @@ cmd_stop() {
+     read -ra flags <<< "$flags_str"
+ 
+     if [[ -z "$service" ]]; then
+-        log "Stopping all services..."
+-        docker compose "${flags[@]}" down
+-        success "All services stopped"
++        _compose_run_with_summary "Stopping all services" "${flags[@]}" down
+     else
+         service=$(resolve_service "$service")
+-        log "Stopping $service..."
+-        docker compose "${flags[@]}" stop "$service"
+-        success "$service stopped"
++        _compose_run_with_summary "Stopping $service" "${flags[@]}" stop "$service"
+     fi
+ }
+ 
+@@ -807,15 +853,11 @@ cmd_start() {
+     read -ra flags <<< "$flags_str"
+ 
+     if [[ -z "$service" ]]; then
+-        log "Starting all services..."
+-        docker compose "${flags[@]}" up -d
+-        success "All services started"
++        _compose_run_with_summary "Starting all services" "${flags[@]}" up -d
+     else
+         service=$(resolve_service "$service")
+         _run_hook "$service" "pre_start"
+-        log "Starting $service..."
+-        docker compose "${flags[@]}" up -d "$service"
+-        success "$service started"
++        _compose_run_with_summary "Starting $service" "${flags[@]}" up -d "$service"
+         _run_hook "$service" "post_start"
+     fi
+ }
+@@ -1021,13 +1063,11 @@ cmd_update() {
+         warn "dream-update.sh and dream-backup.sh not found; skipping pre-update snapshot."
+     fi
+ 
+-    log "Pulling latest images..."
+-    if ! docker compose "${flags[@]}" pull; then
++    if ! _compose_run_with_summary "Pulling latest images" "${flags[@]}" pull; then
+         error "Failed to pull latest images"
+     fi
+ 
+-    log "Recreating containers with new images..."
+-    if ! docker compose "${flags[@]}" up -d --force-recreate; then
++    if ! _compose_run_with_summary "Recreating containers with new images" "${flags[@]}" up -d --force-recreate; then
+         error "Failed to recreate containers. Run 'dream rollback' to restore previous state."
+     fi
+ 
+@@ -1087,6 +1127,42 @@ cmd_shell() {
+     docker exec -it "$container" /bin/bash || docker exec -it "$container" /bin/sh
+ }
+ 
++# File-scope helpers used by `dream config show` and `dream preset diff` to
++# mask secret values. `.env.schema.json` is the authoritative source; keys
++# marked `"secret": true` are treated as secrets. A keyword fallback covers
++# schema gaps (e.g. ANTHROPIC_API_KEY is currently secret:false) and the case
++# where the schema file or jq is unavailable. Callers must invoke
++# _cmd_config_load_secret_schema once (after check_install, so INSTALL_DIR is
++# set) before calling _cmd_config_is_secret.
++_cmd_config_secret_keys=()
++_cmd_config_schema_loaded=0
++
++_cmd_config_load_secret_schema() {
++    local _schema_path="$INSTALL_DIR/.env.schema.json"
++    _cmd_config_secret_keys=()
++    _cmd_config_schema_loaded=0
++    if [[ -f "$_schema_path" ]] && command -v jq >/dev/null 2>&1; then
++        mapfile -t _cmd_config_secret_keys < <(jq -r '.properties | to_entries[] | select(.value.secret == true) | .key' "$_schema_path" 2>/dev/null)
++        _cmd_config_schema_loaded=1
++    fi
++}
++
++_cmd_config_is_secret() {
++    local _k="$1" _s _kl
++    if (( _cmd_config_schema_loaded == 1 )); then
++        for _s in "${_cmd_config_secret_keys[@]}"; do
++            [[ "$_k" == "$_s" ]] && return 0
++        done
++        # Fall through to keyword match — defense in depth against schema gaps
++        # and against malformed schemas where jq returns zero secret keys.
++    fi
++    _kl="${_k,,}"
++    case "$_kl" in
++        *secret*|*password*|*pass*|*token*|*key*|*salt*|*bearer*) return 0 ;;
++    esac
++    return 1
++}
++
+ cmd_config() {
+     check_install
+ 
+@@ -1098,14 +1174,19 @@ cmd_config() {
+             echo "Install dir: $INSTALL_DIR"
+             echo ""
+             echo -e "${CYAN}.env contents:${NC}"
+-            grep -v "^#" "$INSTALL_DIR/.env" | grep -v "^$" | while read line; do
+-                # Hide sensitive values
+-                if echo "$line" | grep -qiE "(secret|pass|token|key)="; then
+-                    echo "  ${line%%=*}=***"
++
++            _cmd_config_load_secret_schema
++
++            local _line _key
++            while IFS= read -r _line; do
++                [[ -z "$_line" || "$_line" =~ ^[[:space:]]*# ]] && continue
++                _key="${_line%%=*}"
++                if _cmd_config_is_secret "$_key"; then
++                    echo "  ${_key}=***"
+                 else
+-                    echo "  $line"
++                    echo "  $_line"
+                 fi
+-            done
++            done < "$INSTALL_DIR/.env"
+             ;;
+         edit)
+             ${EDITOR:-nano} "$INSTALL_DIR/.env"
+@@ -1114,7 +1195,11 @@ cmd_config() {
+         validate)
+             cd "$INSTALL_DIR"
+             if [[ -x "$INSTALL_DIR/scripts/validate-env.sh" ]]; then
+-                "$INSTALL_DIR/scripts/validate-env.sh" "$INSTALL_DIR/.env" "$INSTALL_DIR/.env.schema.json"
++                # Invoke through "$BASH" (the currently-running shell, guaranteed
++                # Bash 4+ by the version check at the top of this file). The
++                # target script uses associative arrays (declare -A), which
++                # crash under macOS's system /bin/bash (3.2).
++                "$BASH" "$INSTALL_DIR/scripts/validate-env.sh" "$INSTALL_DIR/.env" "$INSTALL_DIR/.env.schema.json"
+             else
+                 warn "validate-env.sh not found at $INSTALL_DIR/scripts/validate-env.sh"
+                 warn "Make sure you're on a recent Dream Server release."
+@@ -1148,20 +1233,44 @@ cmd_chat() {
+     local _llm_port="${SERVICE_PORTS[llama-server]:-11434}"
+     _llm_port="${OLLAMA_PORT:-${LLAMA_SERVER_PORT:-$_llm_port}}"
+ 
+-    # Get model from llama-server if not specified
++    # Pre-flight reachability check.
++    local _probe
++    _probe=$(curl --silent --show-error --fail --max-time 3 \
++        "http://localhost:${_llm_port}/v1/models" 2>&1) || {
++        error "llama-server not reachable at http://localhost:${_llm_port} — is 'dream status' showing it healthy?"
++    }
++
+     if [[ -z "$model" ]]; then
+-        model=$(curl -s "http://localhost:${_llm_port}/v1/models" | jq -r '.data[0].id // "local"')
++        model=$(printf '%s' "$_probe" | jq -er '.data[0].id' 2>/dev/null || echo "local")
+     fi
+ 
+     log "Sending to $model..."
+ 
+-    # Use jq to safely construct JSON payload (prevents injection)
+-    local payload=$(jq -n --arg model "$model" --arg msg "$message" \
++    local payload
++    payload=$(jq -n --arg model "$model" --arg msg "$message" \
+         '{model: $model, messages: [{role: "user", content: $msg}], max_tokens: 500}')
+ 
+-    curl -s "http://localhost:${_llm_port}/v1/chat/completions" \
+-        -H "Content-Type: application/json" \
+-        -d "$payload" | jq -r '.choices[0].message.content // .error.message // "Error: no response"'
++    local _resp
++    # HTTP 4xx/5xx responses are delegated to the jq fallback below, which
++    # extracts .error.message cleanly. Only transport failures (DNS, refused,
++    # timeout) trip curl's non-zero exit here. Avoiding --fail / --fail-with-body
++    # also keeps compat with curl < 7.76 (Ubuntu 20.04, Debian 11, RHEL 8).
++    _resp=$(curl --silent --show-error --max-time 30 \
++        "http://localhost:${_llm_port}/v1/chat/completions" \
++        -H "Content-Type: application/json" -d "$payload" 2>&1) || {
++        error "LLM request failed: $_resp"
++    }
++
++    [[ -z "$_resp" ]] && error "LLM returned empty response"
++
++    local _content
++    _content=$(printf '%s' "$_resp" | jq -er '.choices[0].message.content') || {
++        local _err
++        _err=$(printf '%s' "$_resp" | jq -r '.error.message // "unknown error"' 2>/dev/null)
++        error "LLM error: ${_err:-unparseable response}"
++    }
++
++    printf '%s\n' "$_content"
+ }
+ 
+ cmd_benchmark() {
+@@ -1171,7 +1280,10 @@ cmd_benchmark() {
+     log "Running quick benchmark..."
+ 
+     local start=$(date +%s)
+-    local response=$(cmd_chat "Say exactly: Hello World" 2>/dev/null)
++    local response
++    if ! response=$(cmd_chat "Say exactly: Hello World" 2>&1); then
++        error "Benchmark failed: LLM unreachable or error — see 'dream chat' for details"
++    fi
+     local end=$(date +%s)
+ 
+     local duration=$(( end - start ))
+@@ -1462,7 +1574,7 @@ cmd_enable() {
+     fi
+ 
+     # Check inter-extension dependencies
+-    local deps="${SERVICE_DEPENDS[$service_id]}"
++    local deps="${SERVICE_DEPENDS[$service_id]:-}"
+     if [[ -n "$deps" ]]; then
+         local missing=()
+         for dep in $deps; do
+@@ -1520,6 +1632,7 @@ cmd_disable() {
+     # Check built-in extensions first, then dashboard-installed user extensions
+     local ext_dir="$INSTALL_DIR/extensions/services/$service_id"
+     [[ ! -d "$ext_dir" ]] && ext_dir="$INSTALL_DIR/data/user-extensions/$service_id"
++    [[ -d "$ext_dir" ]] || error "Unknown service: $input"
+     local cf="$ext_dir/compose.yaml"
+ 
+     # Check it's not a core service
+@@ -1892,7 +2005,7 @@ META
+ 
+             # Validate archive structure
+             local archive_name
+-            archive_name=$(tar tzf "$archive" 2>/dev/null | head -1 | cut -d/ -f1)
++            archive_name=$(tar tzf "$archive" 2>/dev/null | sed -n '1p' | cut -d/ -f1)
+             [[ -z "$archive_name" ]] && error "Invalid archive structure"
+ 
+             # Check if preset already exists
+@@ -1927,8 +2040,8 @@ META
+             ;;
+ 
+         diff|d)
+-            local preset1="$2"
+-            local preset2="$3"
++            local preset1="${2:-}"
++            local preset2="${3:-}"
+ 
+             # Validate arguments
+             if [[ -z "$preset1" ]] || [[ -z "$preset2" ]]; then
+@@ -1968,7 +2081,7 @@ META
+                 local all_sids=()
+                 for sid in "${!ext1[@]}"; do all_sids+=("$sid"); done
+                 for sid in "${!ext2[@]}"; do
+-                    [[ -z "${ext1[$sid]}" ]] && all_sids+=("$sid")
++                    [[ -z "${ext1[$sid]:-}" ]] && all_sids+=("$sid")
+                 done
+ 
+                 # Sort and compare
+@@ -1996,6 +2109,11 @@ META
+             # Compare environment variables
+             echo -e "${CYAN}━━━ Environment Variables ━━━${NC}"
+             if [[ -f "$dir1/env" ]] && [[ -f "$dir2/env" ]]; then
++                # Load secret schema so `_cmd_config_is_secret` below can consult
++                # .env.schema.json instead of the narrow regex the old version
++                # used (which missed _PASS, _SALT, email admin fields, etc.).
++                _cmd_config_load_secret_schema
++
+                 # Parse both env files
+                 declare -A env1 env2
+                 while IFS='=' read -r key value; do
+@@ -2013,21 +2131,21 @@ META
+                 local all_keys=()
+                 for key in "${!env1[@]}"; do all_keys+=("$key"); done
+                 for key in "${!env2[@]}"; do
+-                    [[ -z "${env1[$key]}" ]] && all_keys+=("$key")
++                    [[ -z "${env1[$key]:-}" ]] && all_keys+=("$key")
+                 done
+ 
+                 # Sort and compare (mask secrets)
+                 local has_diff=false
+                 for key in $(printf '%s\n' "${all_keys[@]}" | sort); do
+-                    local val1="${env1[$key]}"
+-                    local val2="${env2[$key]}"
++                    local val1="${env1[$key]:-}"
++                    local val2="${env2[$key]:-}"
+ 
+                     # Check if values differ BEFORE masking
+                     if [[ "$val1" != "$val2" ]]; then
+                         has_diff=true
+ 
+                         # Mask sensitive values for display
+-                        if [[ "$key" =~ (PASSWORD|SECRET|KEY|TOKEN|API) ]]; then
++                        if _cmd_config_is_secret "$key"; then
+                             [[ -n "$val1" ]] && val1="***"
+                             [[ -n "$val2" ]] && val2="***"
+                         fi
+@@ -2461,6 +2579,7 @@ cmd_agent() {
+                 tail -f "$log_file"
+             else
+                 warn "No log file at $log_file"
++                return 1
+             fi
+             ;;
+         *)
+@@ -2822,19 +2941,19 @@ _gpu_reassign() {
+ 
+     if ! command -v nvidia-smi &>/dev/null; then
+         warn "GPU reassign is only supported for NVIDIA. Use 'dream gpu status' for AMD."
+-        return
++        return 1
+     fi
+ 
+     if ! command -v jq &>/dev/null; then
+         warn "jq not found — required for GPU reassignment"
+-        return
++        return 1
+     fi
+ 
+     local topo_lib="$SCRIPT_DIR/installers/lib/nvidia-topo.sh"
+     local assign_script="$SCRIPT_DIR/scripts/assign_gpus.py"
+ 
+-    [[ -f "$topo_lib" ]] || { warn "Topology library not found: $topo_lib"; return; }
+-    [[ -f "$assign_script" ]] || { warn "Assignment script not found: $assign_script"; return; }
++    [[ -f "$topo_lib" ]] || { warn "Topology library not found: $topo_lib"; return 1; }
++    [[ -f "$assign_script" ]] || { warn "Assignment script not found: $assign_script"; return 1; }
+ 
+     # warn and err are already defined; source is safe
+     . "$topo_lib"
+diff --git a/dream-server/extensions/services/dashboard-api/routers/setup.py b/dream-server/extensions/services/dashboard-api/routers/setup.py
+index f7e82fb..3a2e326 100644
+--- a/dream-server/extensions/services/dashboard-api/routers/setup.py
++++ b/dream-server/extensions/services/dashboard-api/routers/setup.py
+@@ -123,6 +123,7 @@ async def run_setup_diagnostics(api_key: str = Depends(verify_api_key)):
+     if not script_path.exists():
+         async def error_stream():
+             yield "Diagnostic script not found. Running basic connectivity tests...\n"
++            all_ok = True
+             async with aiohttp.ClientSession() as session:
+                 services = [
+                     (cfg.get("name", sid), f"http://{cfg.get('host', sid)}:{cfg.get('port', 80)}{cfg.get('health', '/')}")
+@@ -131,11 +132,20 @@ async def run_setup_diagnostics(api_key: str = Depends(verify_api_key)):
+                 for name, url in services:
+                     try:
+                         async with session.get(url, timeout=5) as resp:
+-                            status = "\u2713" if resp.status == 200 else "\u2717"
+-                            yield f"{status} {name}: {resp.status}\n"
++                            if resp.status == 200:
++                                yield f"\u2713 {name}: {resp.status}\n"
++                            else:
++                                yield f"\u2717 {name}: {resp.status}\n"
++                                all_ok = False
+                     except (aiohttp.ClientError, asyncio.TimeoutError, OSError) as e:
+                         yield f"\u2717 {name}: {e}\n"
+-            yield "\nSetup complete!\n"
++                        all_ok = False
++            # Emit trailer + sentinel in a single chunk (see run_tests() for
++            # why separate yields drop the sentinel at the Starlette boundary).
++            trailer = "All tests passed!" if all_ok else "Some tests failed."
++            result = "PASS" if all_ok else "FAIL"
++            rc = 0 if all_ok else 1
++            yield f"\n{trailer}\n__DREAM_RESULT__:{result}:{rc}\n"
+         return StreamingResponse(error_stream(), media_type="text/plain")
+ 
+     async def run_tests():
+@@ -147,7 +157,16 @@ async def run_setup_diagnostics(api_key: str = Depends(verify_api_key)):
+             async for line in process.stdout:
+                 yield line.decode()
+             await process.wait()
+-            yield f"\n{'All tests passed!' if process.returncode == 0 else 'Some tests failed.'}\n"
++            # Emit the human-readable trailer AND the machine-readable sentinel
++            # as a SINGLE chunk. Starlette's StreamingResponse finalizes the
++            # HTTP stream as soon as the async generator exits; when trailer
++            # and sentinel are separate yields, the final sentinel bytes have
++            # been observed to never reach the client (the generator yields
++            # them but the transport drops the last chunk during close).
++            # Combining into one yield guarantees both land on the wire.
++            trailer = "All tests passed!" if process.returncode == 0 else "Some tests failed."
++            status = "PASS" if process.returncode == 0 else "FAIL"
++            yield f"\n{trailer}\n__DREAM_RESULT__:{status}:{process.returncode}\n"
+         finally:
+             if process.returncode is None:
+                 try:
+diff --git a/dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx b/dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx
+index bfe7f5d..8e80d29 100644
+--- a/dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx
++++ b/dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx
+@@ -1,7 +1,8 @@
+-import { useState, useEffect, useCallback } from 'react'
++import { useState, useEffect, useCallback, useRef } from 'react'
+ import { CheckCircle, Circle, ChevronRight, ChevronLeft, Mic, User, Settings, Play, Shield, Layers } from 'lucide-react'
+ import { PreFlightChecks } from './PreFlightChecks'
+ import { TemplatePicker } from './TemplatePicker'
++import { getTemplateStatus } from '../lib/templates'
+ 
+ export default function SetupWizard({ onComplete }) {
+   const [step, setStep] = useState(1)
+@@ -14,15 +15,53 @@ export default function SetupWizard({ onComplete }) {
+   const [testStatus, setTestStatus] = useState({ running: false, output: [], done: false, success: false })
+   const [preflightIssues, setPreflightIssues] = useState([])
+   const [templates, setTemplates] = useState([])
++  const [extensions, setExtensions] = useState([])
+   const totalSteps = 6
+ 
++  // Holds the AbortController for the currently in-flight /api/setup/test
++  // stream (if any). Aborting it tells the server to release the subprocess
++  // and async generator so a user who abandons the wizard mid-diagnostic
++  // doesn't leave the backend running curls for ~2 minutes.
++  const diagControllerRef = useRef(null)
++
+   useEffect(() => {
+-    fetch('/api/templates')
+-      .then(res => res.ok ? res.json() : { templates: [] })
+-      .then(data => setTemplates(data.templates || []))
+-      .catch(() => {})
++    return () => {
++      if (diagControllerRef.current) {
++        diagControllerRef.current.abort()
++      }
++    }
+   }, [])
+ 
++  // Fetches templates and extensions in parallel and applies their state
++  // updates only after BOTH have settled. React 18 auto-batches the two
++  // setState calls that land in the same async tick, so template cards
++  // don't flash "available" for ~200ms while extensions are still in-flight.
++  // Promise.allSettled lets one side fail without aborting the other.
++  const refreshTemplateData = useCallback(async () => {
++    const [tRes, eRes] = await Promise.allSettled([
++      fetch('/api/templates').then(r => r.ok ? r.json() : { templates: [] }),
++      fetch('/api/extensions/catalog').then(r => r.ok ? r.json() : { extensions: [] })
++    ])
++    if (tRes.status === 'fulfilled') {
++      setTemplates(tRes.value.templates || [])
++    } else {
++      console.error('Failed to load templates:', tRes.reason)
++    }
++    if (eRes.status === 'fulfilled') {
++      setExtensions(eRes.value.extensions || [])
++    } else {
++      console.error('Failed to load extensions:', eRes.reason)
++    }
++  }, [])
++
++  // Re-fetch on every navigation to Step 2: the user may have just applied
++  // a template on a previous visit, in which case extensions state is stale
++  // and the "applied" indicator would lie.
++  useEffect(() => {
++    if (step !== 2) return
++    refreshTemplateData()
++  }, [step, refreshTemplateData])
++
+   const voices = [
+     { id: 'af_heart', name: 'Heart', desc: 'Warm, friendly female' },
+     { id: 'af_bella', name: 'Bella', desc: 'Professional female' },
+@@ -41,25 +80,73 @@ export default function SetupWizard({ onComplete }) {
+   }, [])
+ 
+   const runDiagnostics = async () => {
++    // Cancel any in-flight diagnostic (re-running before previous completes).
++    if (diagControllerRef.current) {
++      diagControllerRef.current.abort()
++    }
++    const controller = new AbortController()
++    diagControllerRef.current = controller
++
+     setTestStatus({ running: true, output: ['Starting diagnostic tests...'], done: false, success: false })
+ 
+     try {
+-      const res = await fetch('/api/setup/test', { method: 'POST' })
++      const res = await fetch('/api/setup/test', { method: 'POST', signal: controller.signal })
+       const reader = res.body.getReader()
+       const decoder = new TextDecoder()
++      // The backend streams plain text. We split on newlines so each script
++      // line becomes its own <div>, and scan for a machine-readable sentinel
++      // (`__DREAM_RESULT__:PASS|FAIL:<returncode>`) to determine success.
++      let buffer = ''
++      let resultStatus = null // 'PASS' | 'FAIL' | null
++      const collected = [] // local mirror of displayed lines for fallback scan
++
++      const pushLine = (line) => {
++        const match = line.match(/^__DREAM_RESULT__:(PASS|FAIL):(-?\d+)$/)
++        if (match) {
++          resultStatus = match[1]
++          return // don't display the sentinel to the user
++        }
++        collected.push(line)
++        setTestStatus(prev => ({ ...prev, output: [...prev.output, line] }))
++      }
+ 
+       while (true) {
+         const { done, value } = await reader.read()
+         if (done) break
+ 
+-        const text = decoder.decode(value)
+-        setTestStatus(prev => ({ ...prev, output: [...prev.output, text] }))
++        buffer += decoder.decode(value, { stream: true })
++        const lines = buffer.split('\n')
++        buffer = lines.pop() // keep the trailing partial line for the next chunk
++        for (const line of lines) pushLine(line)
+       }
+ 
+-      setTestStatus(prev => ({ ...prev, running: false, done: true, success: true }))
+-      setConfig(c => ({ ...c, tested: true }))
++      // Flush any decoder tail plus any remaining unterminated line.
++      buffer += decoder.decode()
++      if (buffer) pushLine(buffer)
++
++      // Prefer the structured sentinel. Fall back to scanning accumulated
++      // output for the human-readable trailer if the sentinel is absent
++      // (older backends, truncated stream). Absence defaults to failure —
++      // we refuse to greenlight a user through a stream of unknown outcome.
++      const success = resultStatus !== null
++        ? resultStatus === 'PASS'
++        : collected.some(l => l.includes('All tests passed!'))
++
++      setTestStatus(prev => ({ ...prev, running: false, done: true, success }))
++      if (success) {
++        setConfig(c => ({ ...c, tested: true }))
++      }
+     } catch (err) {
++      // Aborted fetches throw AbortError. That's the user cancelling or the
++      // component unmounting — don't surface it as a user-visible error.
++      if (err.name === 'AbortError') {
++        return
++      }
+       setTestStatus(prev => ({ ...prev, running: false, done: true, success: false, output: [...prev.output, `Error: ${err.message}`] }))
++    } finally {
++      if (diagControllerRef.current === controller) {
++        diagControllerRef.current = null
++      }
+     }
+   }
+ 
+@@ -117,7 +204,11 @@ export default function SetupWizard({ onComplete }) {
+                 Pick a pre-configured set of services to get started quickly, or skip to customize later.
+               </p>
+               {templates.length > 0 ? (
+-                <TemplatePicker templates={templates} compact />
++                <TemplatePicker
++                  templates={templates.map(t => ({ ...t, _status: getTemplateStatus(t, extensions) }))}
++                  compact
++                  onApplied={refreshTemplateData}
++                />
+               ) : (
+                 <p className="text-sm text-theme-text-muted">No templates available.</p>
+               )}
+diff --git a/dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx b/dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx
+index a402e46..4cfd2ef 100644
+--- a/dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx
++++ b/dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx
+@@ -20,8 +20,9 @@ const fetchJson = async (url, options = {}) => {
+  * TemplatePicker — card grid of templates. Click shows preview.
+  *
+  * Templates carry a `_status` field set by the parent: 'available',
+- * 'in_progress', or 'has_errors'. ('applied' is filtered upstream.) The
+- * card renders differently per state and is only clickable in 'available'.
++ * 'in_progress', 'applied', or 'has_errors'. The card renders differently
++ * per state and is only clickable in 'available'. Callers that prefer to
++ * hide applied templates (Extensions page) can filter them out upstream.
+  */
+ export function TemplatePicker({ templates, onApplied, compact = false }) {
+   const [preview, setPreview] = useState(null)
+@@ -36,13 +37,16 @@ export function TemplatePicker({ templates, onApplied, compact = false }) {
+           const status = tmpl._status || 'available'
+           const inProgress = status === 'in_progress'
+           const hasErrors = status === 'has_errors'
+-          const disabled = inProgress || hasErrors
++          const isApplied = status === 'applied'
++          const disabled = inProgress || hasErrors || isApplied
+ 
+           const cardBase = 'text-left rounded-xl p-4 transition-all group border'
+           const cardByStatus = inProgress
+             ? 'bg-theme-card border-blue-500/30 cursor-not-allowed opacity-80'
+             : hasErrors
+             ? 'bg-red-500/5 border-red-500/30 cursor-not-allowed'
++            : isApplied
++            ? 'bg-green-500/5 border-green-500/30 cursor-not-allowed'
+             : 'bg-theme-card border-theme-border hover:border-theme-accent/40 hover:bg-theme-surface-hover'
+ 
+           return (
+@@ -54,12 +58,17 @@ export function TemplatePicker({ templates, onApplied, compact = false }) {
+               className={`${cardBase} ${cardByStatus}`}
+             >
+               <div className="flex items-center gap-3 mb-2">
+-                <div className={`p-2 rounded-lg ${hasErrors ? 'bg-red-500/10' : 'bg-theme-accent/10 group-hover:bg-theme-accent/20'} transition-colors`}>
++                <div className={`p-2 rounded-lg ${hasErrors ? 'bg-red-500/10' : isApplied ? 'bg-green-500/10' : 'bg-theme-accent/10 group-hover:bg-theme-accent/20'} transition-colors`}>
++                  {/* Status icons are decorative — the adjacent text label
++                      ("Installing…" / "Has errors" / "Applied") carries the
++                      semantic meaning, so hide icons from screen readers. */}
+                   {inProgress
+-                    ? <Loader2 size={18} className="animate-spin text-blue-400" />
++                    ? <Loader2 size={18} aria-hidden="true" className="animate-spin text-blue-400" />
+                     : hasErrors
+-                    ? <AlertTriangle size={18} className="text-red-400" />
+-                    : <Icon size={18} className="text-theme-accent-light" />}
++                    ? <AlertTriangle size={18} aria-hidden="true" className="text-red-400" />
++                    : isApplied
++                    ? <Check size={18} aria-hidden="true" className="text-green-400" />
++                    : <Icon size={18} aria-hidden="true" className="text-theme-accent-light" />}
+                 </div>
+                 <div>
+                   <h4 className="text-sm font-semibold text-theme-text">{tmpl.name}</h4>
+@@ -69,7 +78,10 @@ export function TemplatePicker({ templates, onApplied, compact = false }) {
+                   {hasErrors && (
+                     <span className="text-[10px] text-red-400 uppercase tracking-wider">Has errors</span>
+                   )}
+-                  {!inProgress && !hasErrors && tmpl.tier_minimum && (
++                  {isApplied && (
++                    <span className="text-[10px] text-green-400 uppercase tracking-wider">Applied</span>
++                  )}
++                  {!inProgress && !hasErrors && !isApplied && tmpl.tier_minimum && (
+                     <span className="text-[10px] text-theme-text-muted uppercase tracking-wider">
+                       {tmpl.tier_minimum}+
+                     </span>
+diff --git a/dream-server/extensions/services/dashboard/src/lib/templates.js b/dream-server/extensions/services/dashboard/src/lib/templates.js
+new file mode 100644
+index 0000000..981263b
+--- /dev/null
++++ b/dream-server/extensions/services/dashboard/src/lib/templates.js
+@@ -0,0 +1,29 @@
++// Shared template-status helpers. Kept in a dedicated module (rather than
++// re-exported from pages/Extensions.jsx) so components on the initial
++// first-run route — e.g. SetupWizard — don't pull the full Extensions page
++// into the main bundle and defeat its lazy-loading.
++
++// Services defined in docker-compose.base.yml — always running, not togglable via templates.
++export const BASE_COMPOSE_SERVICES = new Set(['llama-server', 'open-webui', 'dashboard', 'dashboard-api'])
++
++// Compute template status from catalog extensions data.
++// Returns one of: 'available', 'in_progress', 'applied', 'has_errors'
++// Precedence: has_errors > in_progress > applied > available
++export function getTemplateStatus(template, extensions) {
++  const services = template.services || []
++  const serviceStatus = {}
++  for (const svcId of services) {
++    if (BASE_COMPOSE_SERVICES.has(svcId)) {
++      serviceStatus[svcId] = 'enabled'
++      continue
++    }
++    const ext = extensions.find(e => e.id === svcId)
++    serviceStatus[svcId] = ext ? ext.status : undefined
++  }
++  const statuses = Object.values(serviceStatus)
++  if (statuses.some(s => s === 'error')) return 'has_errors'
++  if (statuses.some(s => s === 'installing' || s === 'setting_up')) return 'in_progress'
++  const allEnabled = statuses.every(s => s === 'enabled')
++  if (allEnabled) return 'applied'
++  return 'available'
++}
+diff --git a/dream-server/extensions/services/dashboard/src/pages/Extensions.jsx b/dream-server/extensions/services/dashboard/src/pages/Extensions.jsx
+index efa40cc..c358021 100644
+--- a/dream-server/extensions/services/dashboard/src/pages/Extensions.jsx
++++ b/dream-server/extensions/services/dashboard/src/pages/Extensions.jsx
+@@ -6,35 +6,14 @@ import {
+ import { useState, useEffect, useRef } from 'react'
+ import { DependencyBadges, DependencyConfirmDialog, DisableDependentWarning } from '../components/DependencyBadges'
+ import { TemplatePicker } from '../components/TemplatePicker'
++import { getTemplateStatus } from '../lib/templates'
+ 
+-// Services defined in docker-compose.base.yml — always running, not togglable via templates
+-const BASE_COMPOSE_SERVICES = new Set(['llama-server', 'open-webui', 'dashboard', 'dashboard-api'])
++// Re-export so existing importers of getTemplateStatus from this module keep working.
++export { getTemplateStatus }
+ 
+ // API/backend services with no user-facing web UI — show badge instead of port link.
+ const HEADLESS_EXTENSIONS = new Set(['embeddings', 'tts', 'whisper', 'privacy-shield'])
+ 
+-// Compute template status from catalog extensions data.
+-// Returns one of: 'available', 'in_progress', 'applied', 'has_errors'
+-// Precedence: has_errors > in_progress > applied > available
+-export function getTemplateStatus(template, extensions) {
+-  const services = template.services || []
+-  const serviceStatus = {}
+-  for (const svcId of services) {
+-    if (BASE_COMPOSE_SERVICES.has(svcId)) {
+-      serviceStatus[svcId] = 'enabled'
+-      continue
+-    }
+-    const ext = extensions.find(e => e.id === svcId)
+-    serviceStatus[svcId] = ext ? ext.status : undefined
+-  }
+-  const statuses = Object.values(serviceStatus)
+-  if (statuses.some(s => s === 'error')) return 'has_errors'
+-  if (statuses.some(s => s === 'installing' || s === 'setting_up')) return 'in_progress'
+-  const allEnabled = statuses.every(s => s === 'enabled')
+-  if (allEnabled) return 'applied'
+-  return 'available'
+-}
+-
+ // Auth: nginx injects "Authorization: Bearer ${DASHBOARD_API_KEY}" via
+ // proxy_set_header for all /api/ requests (see nginx.conf).  All fetches
+ // use relative URLs so they route through the nginx proxy which adds the
+diff --git a/dream-server/lib/service-registry.sh b/dream-server/lib/service-registry.sh
+index 71fd804..70a1271 100755
+--- a/dream-server/lib/service-registry.sh
++++ b/dream-server/lib/service-registry.sh
+@@ -228,10 +228,21 @@ sr_resolve_ports() {
+     fi
+ }
+ 
+-# Resolve a user-provided name to a compose service ID
++# Resolve a user-provided name to a compose service ID.
++#
++# Users copy container names (e.g. `dream-token-spy`) from `docker ps` and
++# expect them to work as arguments to `dream restart|stop|start|update`. The
++# registry loader names every container `dream-<sid>` (or the manifest's
++# explicit `container_name`, which by convention follows the same pattern),
++# so stripping a leading `dream-` recovers the alias key when the literal
++# input doesn't match an alias.
+ sr_resolve() {
+     sr_load
+     local input="$1"
++    if [[ -z "${SERVICE_ALIASES[$input]:-}" && "$input" == dream-* ]]; then
++        local _stripped="${input#dream-}"
++        [[ -n "${SERVICE_ALIASES[$_stripped]:-}" ]] && input="$_stripped"
++    fi
+     echo "${SERVICE_ALIASES[$input]:-$input}"
+ }
+ 
+diff --git a/dream-server/scripts/dream-test-functional.sh b/dream-server/scripts/dream-test-functional.sh
+index fe24d18..a3d91a0 100755
+--- a/dream-server/scripts/dream-test-functional.sh
++++ b/dream-server/scripts/dream-test-functional.sh
+@@ -45,12 +45,15 @@ TESTS_FAILED=0
+ 
+ pass() {
+     echo -e "${GREEN}✓${NC} $1"
+-    ((TESTS_PASSED++))
++    # Arithmetic expansion (not `((...))`) — the compound form returns
++    # exit 1 when the pre-increment value is 0, which would trip `set -e`
++    # on the first pass/fail and abort the script before any summary.
++    TESTS_PASSED=$((TESTS_PASSED + 1))
+ }
+ 
+ fail() {
+     echo -e "${RED}✗${NC} $1"
+-    ((TESTS_FAILED++))
++    TESTS_FAILED=$((TESTS_FAILED + 1))
+ }
+ 
+ warn() {
+@@ -62,8 +65,18 @@ test_llm_functional() {
+     echo ""
+     echo "> Testing LLM Functional Generation"
+ 
+-    local model_id
+-    model_id=$(curl -s --max-time 10 "$LLM_URL/v1/models" 2>/dev/null | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
++    # The grep-based extraction pipelines in this script may legitimately
++    # produce zero matches (LLM/TTS/embeddings/whisper offline or returning
++    # unexpected payload). Under `set -euo pipefail` such a no-match would
++    # abort the script before the `[[ -z ... ]]` guard below can treat it
++    # as a test failure. Using `if ! VAR=$(...)` keeps the set -e safety
++    # net engaged everywhere else; `set -e` is disabled only for the
++    # evaluation of the condition (per bash spec), so a failed pipeline
++    # leaves VAR empty and the explicit `fail` path below runs.
++    local model_id=""
++    if ! model_id=$(curl -s --max-time 10 "$LLM_URL/v1/models" 2>/dev/null | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4); then
++        model_id=""
++    fi
+     model_id="${model_id:-local}"
+ 
+     local prompt="What is 2+2? Answer with just the number."
+@@ -80,8 +93,10 @@ test_llm_functional() {
+         return 1
+     fi
+ 
+-    local content
+-    content=$(echo "$response" | grep -oE '"content":[[:space:]]*"[^"]+"' | head -1 | cut -d'"' -f4)
++    local content=""
++    if ! content=$(echo "$response" | grep -oE '"content":[[:space:]]*"[^"]+"' | head -1 | cut -d'"' -f4); then
++        content=""
++    fi
+ 
+     if [[ -z "$content" ]]; then
+         fail "LLM returned empty content"
+@@ -176,8 +191,10 @@ test_embeddings_functional() {
+     
+     # Check if response contains array of numbers
+     if echo "$response" | grep -qE '\[\s*-?[0-9]+\.[0-9]+'; then
+-        local vector_len
+-        vector_len=$(echo "$response" | grep -oE '-?[0-9]+\.[0-9]+' | wc -l)
++        local vector_len=0
++        if ! vector_len=$(echo "$response" | grep -oE '-?[0-9]+\.[0-9]+' | wc -l); then
++            vector_len=0
++        fi
+         pass "Embeddings generates vectors ($vector_len dimensions)"
+     else
+         fail "Embeddings did not return valid vectors"
+@@ -226,8 +243,10 @@ test_whisper_functional() {
+         return 1
+     fi
+     
+-    local transcription
+-    transcription=$(echo "$response" | grep -oE '"text":[[:space:]]*"[^"]+"' | head -1 | cut -d'"' -f4)
++    local transcription=""
++    if ! transcription=$(echo "$response" | grep -oE '"text":[[:space:]]*"[^"]+"' | head -1 | cut -d'"' -f4); then
++        transcription=""
++    fi
+     
+     if [[ -z "$transcription" ]]; then
+         fail "Whisper returned empty transcription"
+@@ -248,10 +267,19 @@ echo "  DREAM SERVER - FUNCTIONAL TESTS"
+ echo "  Tests actual functionality, not ports"
+ echo "========================================"
+ 
++# Each test returns 1 on failure via its internal `fail` call; we must not
++# let `set -e` short-circuit the remaining tests or skip the summary. The
++# TESTS_PASSED / TESTS_FAILED counters are updated inside pass/fail and
++# drive the final exit code below, so suspending strict mode for exactly
++# this block is the explicit expression of "errors here are accounted for."
++# (CLAUDE.md forbids `|| true` / silent swallow; this bounded toggle makes
++# the intent visible instead of hiding it behind a trailing `|| true`.)
++set +e
+ test_llm_functional
+ test_tts_functional
+ test_embeddings_functional
+ test_whisper_functional
++set -e
+ 
+ echo ""
+ echo "========================================"
+diff --git a/dream-server/scripts/validate-env.sh b/dream-server/scripts/validate-env.sh
+index db4d7f6..15d64d1 100755
+--- a/dream-server/scripts/validate-env.sh
++++ b/dream-server/scripts/validate-env.sh
+@@ -7,6 +7,19 @@
+ #  - Validate required keys, unknown keys, types, enums, and numeric ranges
+ #  - Fail deterministically with a single exit code for CI
+ 
++# Require Bash 4+ (associative arrays used below).
++# macOS ships Bash 3.2 due to licensing; the system /bin/bash will crash on
++# `declare -A`. When launched via dream-cli this is invoked through "$BASH",
++# but this guard protects direct invocations (e.g. /bin/bash validate-env.sh).
++if (( BASH_VERSINFO[0] < 4 )); then
++    echo "✗ validate-env.sh requires Bash 4+ (you have ${BASH_VERSION})" >&2
++    echo "  macOS ships Bash 3.2 — install a modern Bash:" >&2
++    echo "    brew install bash" >&2
++    echo "  Then re-run with the Homebrew bash, e.g.:" >&2
++    echo "    /opt/homebrew/bin/bash $0 $*" >&2
++    exit 1
++fi
++
+ set -euo pipefail
+ 
+ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+diff --git a/dream-server/tests/bats-tests/test-compose-summary-wrapper.bats b/dream-server/tests/bats-tests/test-compose-summary-wrapper.bats
+new file mode 100644
+index 0000000..e89155d
+--- /dev/null
++++ b/dream-server/tests/bats-tests/test-compose-summary-wrapper.bats
+@@ -0,0 +1,219 @@
++#!/usr/bin/env bats
++# ============================================================================
++# BATS tests for _compose_run_with_summary in dream-cli.
++# ============================================================================
++# Guards against re-breakage of PR #406 (compose wrapper surfaces a compact
++# summary on success, an error banner + grep'd keywords + log path on
++# failure, and propagates the compose exit code so `dream restart/stop/start`
++# aborts under `set -e`).
++#
++# Test strategy:
++#   - Extract _compose_run_with_summary + its helper (log/success/warn/
++#     log_error) text from dream-cli.
++#   - PATH-inject a `docker` stub that can be told to exit 0 / exit 1 with
++#     error-keyword output / exit 1 with no-keyword output.
++#   - Run the wrapper and assert on printed output + return code.
++
++load '../bats/bats-support/load'
++load '../bats/bats-assert/load'
++
++setup() {
++    export TMPDIR_TEST="$BATS_TEST_TMPDIR"
++    mkdir -p "$TMPDIR_TEST/bin"
++
++    # Color vars used by log/success/warn/log_error — stub to empty so
++    # assert_output matches plain strings without escape sequences.
++    export RED="" GREEN="" YELLOW="" BLUE="" CYAN="" NC=""
++
++    # Minimal logger helpers that match dream-cli's line 45–50 definitions.
++    # We redefine rather than extract because (a) they're trivial and (b)
++    # dream-cli's real definitions pull in color vars we've already stubbed.
++    log()       { echo "[dream] $1"; }
++    success()   { echo "✓ $1"; }
++    warn()      { echo "⚠ $1"; }
++    log_error() { echo "✗ $1" >&2; }
++    export -f log success warn log_error
++
++    # Extract _compose_run_with_summary from dream-cli.
++    local _cli="$BATS_TEST_DIRNAME/../../dream-cli"
++    eval "$(awk '/^_compose_run_with_summary\(\) \{/,/^\}$/' "$_cli")"
++
++    # docker stub — behavior driven by DOCKER_STUB_MODE env var:
++    #   success     → exit 0 with benign stdout
++    #   fail-keyword→ exit 1, stdout contains 'error', 'failed', 'unhealthy', 'dependency'
++    #   fail-nomatch→ exit 1, stdout has no error keywords
++    cat > "$TMPDIR_TEST/bin/docker" <<'STUB'
++#!/usr/bin/env bash
++echo "DOCKER_ARGS: $*" >> "$DOCKER_CALL_LOG"
++case "${DOCKER_STUB_MODE:-success}" in
++    success)
++        echo "Network dream-net created"
++        echo "Container dream-foo started"
++        exit 0
++        ;;
++    fail-keyword)
++        echo "Container dream-foo starting"
++        echo "Error response from daemon: service dream-foo failed to start"
++        echo "unhealthy container dream-bar"
++        echo "dependency dream-baz not ready"
++        exit 1
++        ;;
++    fail-nomatch)
++        echo "Container dream-foo starting"
++        echo "network busy (try again later)"
++        exit 1
++        ;;
++    *)
++        echo "unknown DOCKER_STUB_MODE: $DOCKER_STUB_MODE" >&2
++        exit 127
++        ;;
++esac
++STUB
++    chmod +x "$TMPDIR_TEST/bin/docker"
++    export PATH="$TMPDIR_TEST/bin:$PATH"
++    export DOCKER_CALL_LOG="$TMPDIR_TEST/docker.log"
++    : > "$DOCKER_CALL_LOG"
++}
++
++teardown() {
++    rm -rf "$TMPDIR_TEST/bin" "$TMPDIR_TEST/docker.log"
++}
++
++# ── success path ────────────────────────────────────────────────────────────
++
++@test "wrapper: success prints compact '<verb> — done' banner and returns 0" {
++    export DOCKER_STUB_MODE=success
++    run _compose_run_with_summary "Restarting all services" up -d
++    assert_success
++    assert_output --partial "Restarting all services..."
++    assert_output --partial "Restarting all services — done"
++}
++
++@test "wrapper: success removes the compose log tmpfile" {
++    export DOCKER_STUB_MODE=success
++    # Track how many mktemp-produced files exist before & after. We rely on
++    # $TMPDIR being the system tmp — the wrapper uses `mktemp` with no args.
++    local before=$(find /tmp -maxdepth 1 -name 'tmp.*' -type f 2>/dev/null | wc -l)
++    run _compose_run_with_summary "Starting all services" up -d
++    assert_success
++    local after=$(find /tmp -maxdepth 1 -name 'tmp.*' -type f 2>/dev/null | wc -l)
++    # Zero net new temp files (create + rm).
++    [ "$after" -le "$before" ]
++}
++
++@test "wrapper: success does NOT print error banner or log path" {
++    export DOCKER_STUB_MODE=success
++    run _compose_run_with_summary "Starting all services" up -d
++    assert_success
++    refute_output --partial "Full compose output:"
++    refute_output --partial "failed:"
++}
++
++# ── failure path, matching keywords (PR #406) ───────────────────────────────
++
++@test "wrapper: failure prints error banner, matched lines, and log path" {
++    export DOCKER_STUB_MODE=fail-keyword
++    run _compose_run_with_summary "Restarting service x" up -d x
++    assert_failure
++    assert_output --partial "Restarting service x failed:"
++    # At least one error-keyword line should be surfaced (indented two spaces).
++    assert_output --partial "Error response from daemon"
++    assert_output --partial "Full compose output:"
++}
++
++@test "wrapper: failure propagates the compose exit code (1)" {
++    export DOCKER_STUB_MODE=fail-keyword
++    run _compose_run_with_summary "Restarting" up -d
++    # docker stub exits 1; wrapper must return 1.
++    [ "$status" -eq 1 ]
++}
++
++@test "wrapper: failure preserves the compose log file (not auto-removed)" {
++    export DOCKER_STUB_MODE=fail-keyword
++    run _compose_run_with_summary "Restarting" up -d
++    assert_failure
++    # Extract the "Full compose output: /tmp/tmp.XXXXXX" path from output.
++    local log_line
++    log_line=$(printf '%s\n' "$output" | grep -E 'Full compose output:' | head -1)
++    [ -n "$log_line" ]
++    local log_path="${log_line##*: }"
++    [ -f "$log_path" ]
++    rm -f "$log_path"
++}
++
++# ── failure path, zero keyword matches (nounset/pipefail-hardening) ─────────
++
++# These two tests must execute the wrapper under `set -euo pipefail` because
++# the `|| warn "(no error keywords matched...)"` branch only fires when
++# grep's exit-1 propagates through the pipeline — and only pipefail makes
++# grep the pipeline's final exit code. dream-cli line 6 IS `set -euo pipefail`
++# in production; bats' setup() doesn't inherit that, so we set it explicitly
++# via the subshell.
++
++@test "wrapper: failure with no keyword match fires the warn fallback (under pipefail)" {
++    export DOCKER_STUB_MODE=fail-nomatch
++    # Re-extract the wrapper inside a pipefail-enabled subshell.
++    run bash -c '
++        set -euo pipefail
++        RED="" GREEN="" YELLOW="" BLUE="" CYAN="" NC=""
++        log()       { echo "[dream] $1"; }
++        success()   { echo "✓ $1"; }
++        warn()      { echo "⚠ $1"; }
++        log_error() { echo "✗ $1" >&2; }
++        eval "$(awk "/^_compose_run_with_summary\(\) \{/,/^\}$/" "'"$BATS_TEST_DIRNAME/../../dream-cli"'")"
++        _compose_run_with_summary "Stopping service y" down y
++    '
++    assert_failure
++    assert_output --partial "Stopping service y failed:"
++    assert_output --partial "(no error keywords matched in compose log)"
++    assert_output --partial "Full compose output:"
++}
++
++@test "wrapper: failure with no keyword match still propagates exit code" {
++    export DOCKER_STUB_MODE=fail-nomatch
++    run bash -c '
++        set -euo pipefail
++        RED="" GREEN="" YELLOW="" BLUE="" CYAN="" NC=""
++        log()       { echo "[dream] $1"; }
++        success()   { echo "✓ $1"; }
++        warn()      { echo "⚠ $1"; }
++        log_error() { echo "✗ $1" >&2; }
++        eval "$(awk "/^_compose_run_with_summary\(\) \{/,/^\}$/" "'"$BATS_TEST_DIRNAME/../../dream-cli"'")"
++        _compose_run_with_summary "Stopping" down
++    '
++    [ "$status" -eq 1 ]
++}
++
++# ── docker compose args passthrough ─────────────────────────────────────────
++
++@test "wrapper: all args after verb are passed to docker compose" {
++    export DOCKER_STUB_MODE=success
++    run _compose_run_with_summary "Up" -f extra.yml up -d my-service
++    assert_success
++    # Stub records its argv to DOCKER_CALL_LOG; first arg must be `compose`
++    # because the wrapper calls `docker compose <args>`.
++    run cat "$DOCKER_CALL_LOG"
++    assert_output --partial "DOCKER_ARGS: compose --progress quiet -f extra.yml up -d my-service"
++}
++
++# ── propagation into callers (cmd_restart/cmd_stop/cmd_start) ───────────────
++
++@test "wrapper: caller returns wrapper's non-zero exit (smoke)" {
++    export DOCKER_STUB_MODE=fail-keyword
++    # Simulate `cmd_restart`: wrapper is the last statement, so its exit
++    # code becomes the function's exit code.
++    _simulated_caller() {
++        _compose_run_with_summary "Restarting all services" up -d
++    }
++    run _simulated_caller
++    [ "$status" -eq 1 ]
++}
++
++@test "wrapper: caller returns 0 on success (smoke)" {
++    export DOCKER_STUB_MODE=success
++    _simulated_caller() {
++        _compose_run_with_summary "Restarting all services" up -d
++    }
++    run _simulated_caller
++    [ "$status" -eq 0 ]
++}
+diff --git a/dream-server/tests/bats-tests/test-config-masking.bats b/dream-server/tests/bats-tests/test-config-masking.bats
+new file mode 100644
+index 0000000..7551381
+--- /dev/null
++++ b/dream-server/tests/bats-tests/test-config-masking.bats
+@@ -0,0 +1,242 @@
++#!/usr/bin/env bats
++# ============================================================================
++# BATS tests for secret-masking helpers used by `dream config show` and
++# `dream preset diff`.
++# ============================================================================
++# Guards against re-breakage of:
++#   - PR #392: `dream config show` masked secrets from .env.schema.json
++#   - PR #431: `dream preset diff` reuses the same masking helpers instead
++#              of its old narrower regex
++#
++# Targets two file-scope helpers in dream-cli:
++#   _cmd_config_load_secret_schema  — loads jq-parsed secret key list
++#   _cmd_config_is_secret           — returns 0 if key is a secret
++#
++# Covered behavior:
++#   - schema-driven match for keys with `"secret": true`
++#   - keyword fallback (case-insensitive): secret|password|pass|token|key|
++#     salt|bearer — still fires even when schema is loaded
++#   - N8N_USER / LANGFUSE_INIT_USER_EMAIL (now schema-secret) stay masked
++#   - unknown non-secret keys (e.g. ENABLE_VOICE) render plaintext
++#   - missing schema → keyword fallback still works
++#   - malformed schema (invalid JSON) → keyword fallback still works
++
++load '../bats/bats-support/load'
++load '../bats/bats-assert/load'
++
++setup() {
++    export TMPDIR_TEST="$BATS_TEST_TMPDIR"
++
++    # Extract the two file-scope helpers from dream-cli without running the
++    # rest of the CLI (which would require a full install layout).
++    # 1) Top-level var initialisers (two lines immediately before the first fn)
++    # 2) _cmd_config_load_secret_schema body
++    # 3) _cmd_config_is_secret body
++    local _cli="$BATS_TEST_DIRNAME/../../dream-cli"
++    eval "$(grep -E '^_cmd_config_(secret_keys|schema_loaded)=' "$_cli")"
++    eval "$(awk '/^_cmd_config_load_secret_schema\(\) \{/,/^\}$/' "$_cli")"
++    eval "$(awk '/^_cmd_config_is_secret\(\) \{/,/^\}$/' "$_cli")"
++
++    # Baseline INSTALL_DIR pointing at a tmpdir; each test rewrites the
++    # schema to match its scenario.
++    export INSTALL_DIR="$TMPDIR_TEST/install"
++    mkdir -p "$INSTALL_DIR"
++}
++
++teardown() {
++    rm -rf "$TMPDIR_TEST/install"
++}
++
++# Skip tests that rely on the jq-parsed schema path. Keyword-fallback tests
++# run unconditionally — they don't need jq.
++_need_jq() {
++    command -v jq >/dev/null 2>&1 || skip "jq not available; schema-driven masking unreachable"
++}
++
++# Build a minimal .env.schema.json with the given list of secret keys.
++_write_schema() {
++    local schema="$INSTALL_DIR/.env.schema.json"
++    {
++        echo '{'
++        echo '  "properties": {'
++        local first=1
++        for key in "$@"; do
++            if (( first )); then first=0; else echo ','; fi
++            printf '    "%s": { "type": "string", "secret": true }' "$key"
++        done
++        # One always-plaintext key so the schema is non-empty when no secrets passed.
++        if (( first )); then
++            printf '    "ENABLE_VOICE": { "type": "string" }'
++        else
++            echo ','
++            printf '    "ENABLE_VOICE": { "type": "string" }'
++        fi
++        echo ''
++        echo '  }'
++        echo '}'
++    } > "$schema"
++}
++
++# ── schema-driven masking (dream config show, PR #392) ──────────────────────
++
++@test "config-masking: key marked secret:true in schema is masked" {
++    _need_jq
++    _write_schema "MY_CUSTOM_SECRET"
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "MY_CUSTOM_SECRET"
++    assert_success
++}
++
++@test "config-masking: unknown non-secret plain key renders plaintext" {
++    _need_jq
++    _write_schema "MY_CUSTOM_SECRET"
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "ENABLE_VOICE"
++    assert_failure
++}
++
++# ── keyword fallback (both code paths) ──────────────────────────────────────
++
++@test "config-masking: keyword fallback masks *secret* even if not in schema" {
++    _write_schema  # only plaintext in schema
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "SOME_SECRET_THING"
++    assert_success
++}
++
++@test "config-masking: keyword fallback masks *password*" {
++    _write_schema
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "ADMIN_PASSWORD"
++    assert_success
++}
++
++@test "config-masking: keyword fallback masks *pass* (short form)" {
++    _write_schema
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "DB_PASS"
++    assert_success
++}
++
++@test "config-masking: keyword fallback masks *token*" {
++    _write_schema
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "GITHUB_TOKEN"
++    assert_success
++}
++
++@test "config-masking: keyword fallback masks *key*" {
++    _write_schema
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "API_KEY"
++    assert_success
++}
++
++@test "config-masking: keyword fallback masks *salt*" {
++    _write_schema
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "AUTH_SALT"
++    assert_success
++}
++
++@test "config-masking: keyword fallback masks *bearer*" {
++    _write_schema
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "BEARER_HEADER"
++    assert_success
++}
++
++@test "config-masking: keyword fallback is case-insensitive" {
++    _write_schema
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "lowercase_password"
++    assert_success
++    run _cmd_config_is_secret "MixedCase_Token"
++    assert_success
++}
++
++# ── #431 / #994 — specific keys now flipped secret:true ─────────────────────
++
++@test "config-masking: N8N_USER stays masked (schema path)" {
++    # N8N_USER was flipped secret:true upstream. The keyword fallback does
++    # NOT cover *user*, so this must come from schema-driven masking.
++    _need_jq
++    _write_schema "N8N_USER"
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "N8N_USER"
++    assert_success
++}
++
++@test "config-masking: LANGFUSE_INIT_USER_EMAIL stays masked (schema path)" {
++    # Also not covered by keyword fallback; schema-driven only.
++    _need_jq
++    _write_schema "LANGFUSE_INIT_USER_EMAIL"
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "LANGFUSE_INIT_USER_EMAIL"
++    assert_success
++}
++
++# ── schema absence / malformation — keyword fallback still works ────────────
++
++@test "config-masking: missing schema file → keyword fallback still fires" {
++    # No schema written
++    rm -f "$INSTALL_DIR/.env.schema.json"
++    _cmd_config_load_secret_schema
++    # Schema not loaded → schema_loaded flag is 0, fallback is the only path.
++    run _cmd_config_is_secret "SOMETHING_SECRET"
++    assert_success
++    run _cmd_config_is_secret "SOMETHING_TOKEN"
++    assert_success
++}
++
++@test "config-masking: missing schema file → plain key not masked" {
++    rm -f "$INSTALL_DIR/.env.schema.json"
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "ENABLE_VOICE"
++    assert_failure
++}
++
++@test "config-masking: malformed schema (invalid JSON) → fallback still works" {
++    echo "{ this is not valid json" > "$INSTALL_DIR/.env.schema.json"
++    _cmd_config_load_secret_schema
++    # jq fails silently; schema_loaded=1 but secret_keys is empty, so
++    # only the keyword fallback path can fire. Fallback catches *secret*.
++    run _cmd_config_is_secret "CUSTOM_SECRET"
++    assert_success
++    run _cmd_config_is_secret "ENABLE_VOICE"
++    assert_failure
++}
++
++@test "config-masking: schema with zero secret keys → fallback still works" {
++    _need_jq
++    # Valid schema, but no properties have secret:true
++    cat > "$INSTALL_DIR/.env.schema.json" <<'JSON'
++{ "properties": { "ENABLE_VOICE": { "type": "string" } } }
++JSON
++    _cmd_config_load_secret_schema
++    run _cmd_config_is_secret "ANY_TOKEN"
++    assert_success
++    run _cmd_config_is_secret "ENABLE_VOICE"
++    assert_failure
++}
++
++# ── preset diff (PR #431) uses the SAME helpers ─────────────────────────────
++
++@test "config-masking: preset diff masking path is the same helper (smoke)" {
++    # `dream preset diff` calls _cmd_config_load_secret_schema + _cmd_config_is_secret
++    # on every differing key. This is the same contract as `dream config show`,
++    # so if the helpers work here, diff masking works. We assert that diff-
++    # relevant secret keys (keyword-matchable, so this works without jq too)
++    # mask correctly post-schema-load.
++    _write_schema "QDRANT_API_KEY" "WEBUI_SECRET" "LANGFUSE_SALT"
++    _cmd_config_load_secret_schema
++    # These all match via keyword fallback alone (key/secret/salt), so they
++    # verify the helper is callable and returns correct bool even if the
++    # tester lacks jq.
++    run _cmd_config_is_secret "QDRANT_API_KEY"
++    assert_success
++    run _cmd_config_is_secret "WEBUI_SECRET"
++    assert_success
++    run _cmd_config_is_secret "LANGFUSE_SALT"
++    assert_success
++}
+diff --git a/dream-server/tests/bats-tests/test-dream-cli-flags.bats b/dream-server/tests/bats-tests/test-dream-cli-flags.bats
+new file mode 100644
+index 0000000..a68714c
+--- /dev/null
++++ b/dream-server/tests/bats-tests/test-dream-cli-flags.bats
+@@ -0,0 +1,96 @@
++#!/usr/bin/env bats
++# ============================================================================
++# BATS tests for dream-cli's shell-flag hygiene.
++# ============================================================================
++# Guards against re-breakage of:
++#   - PR #410 / nounset audit:     line 6 must be `set -euo pipefail`
++#   - Pipefail SIGPIPE audit:      `sed -n '1p'` must be used (not `head -1`)
++#   - Nounset audit:               minimal-env invocations must not crash
++#                                  on undefined variables
++#
++# These are static-assertion tests (grep, sed) plus one subprocess invocation
++# under `env -i` to catch any bare `${FOO}` that sneaks back in.
++
++load '../bats/bats-support/load'
++load '../bats/bats-assert/load'
++
++setup() {
++    export CLI="$BATS_TEST_DIRNAME/../../dream-cli"
++}
++
++# ── line 6 shell-mode assertion (PR #410) ───────────────────────────────────
++
++@test "flags: line 6 is exactly 'set -euo pipefail'" {
++    run sed -n '6p' "$CLI"
++    assert_success
++    assert_output "set -euo pipefail"
++}
++
++@test "flags: no weaker shell-mode line exists anywhere in dream-cli" {
++    # If someone accidentally re-introduces `set -eo pipefail` (dropping
++    # nounset) or bare `set -e`, this catches it.
++    run grep -nE '^set -e[^u]' "$CLI"
++    # grep returning 1 means no match — that's what we want.
++    assert_failure
++}
++
++# ── sed -n '1p' replacement for `head -1` (pipefail SIGPIPE audit) ──────────
++
++@test "flags: no bare '| head -1' pipelines in dream-cli" {
++    # `| head -1` under `set -o pipefail` can SIGPIPE the upstream command
++    # and abort. Project-blessed replacement is `| sed -n '1p'`.
++    run grep -nE '\| head -1([^0-9]|$)' "$CLI"
++    assert_failure
++}
++
++@test "flags: sed -n '1p' idiom is present where bootstrap + preset code path needs it" {
++    # Just assert the idiom is used — the exact count can drift with
++    # refactors, but it must be >0 to prove the replacement happened.
++    run grep -cE "sed -n '1p'" "$CLI"
++    assert_success
++    [ "$output" -gt 0 ]
++}
++
++# ── nounset syntax: conditional var references use ${FOO:-default} ──────────
++
++@test "flags: conditional var references follow \${FOO:-default} form" {
++    # The nounset audit (PR #11) converted many bare `${VAR}` refs that
++    # fire only on optional/env-dependent paths to `${VAR:-}` / `${VAR:-default}`.
++    # Assert that the characteristic pattern is widely present; >20 occurrences
++    # confirm the audit changes are still in place.
++    run grep -cE '\$\{[A-Za-z_][A-Za-z_0-9]*:-' "$CLI"
++    assert_success
++    [ "$output" -gt 20 ]
++}
++
++# ── end-to-end: dream-cli doesn't crash on nounset with minimal env ─────────
++
++@test "flags: --version runs under minimal env without unbound-var crash" {
++    # Strip the environment down to the bare minimum. If dream-cli references
++    # any var without `:-` on the --version / --help code path, `set -u`
++    # aborts here and this test fails.
++    run env -i \
++        HOME="/tmp" \
++        PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Volumes/X/homebrew/bin" \
++        TERM="dumb" \
++        bash "$CLI" --version
++    # --version exits 0 or reports a help summary; either way it must not
++    # crash with "unbound variable".
++    refute_output --partial "unbound variable"
++}
++
++@test "flags: help runs under minimal env without unbound-var crash" {
++    run env -i \
++        HOME="/tmp" \
++        PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Volumes/X/homebrew/bin" \
++        TERM="dumb" \
++        bash "$CLI" help
++    refute_output --partial "unbound variable"
++}
++
++# ── script parses under bash -n ─────────────────────────────────────────────
++
++@test "flags: dream-cli passes bash -n (syntax check)" {
++    run bash -n "$CLI"
++    assert_success
++}
+diff --git a/dream-server/tests/bats-tests/test-functional-resilience.bats b/dream-server/tests/bats-tests/test-functional-resilience.bats
+new file mode 100644
+index 0000000..be42704
+--- /dev/null
++++ b/dream-server/tests/bats-tests/test-functional-resilience.bats
+@@ -0,0 +1,162 @@
++#!/usr/bin/env bats
++# ============================================================================
++# BATS tests for scripts/dream-test-functional.sh set -e resilience.
++# ============================================================================
++# Guards against re-breakage of PR #428:
++#   - Arithmetic expansion (TESTS_FAILED=$((TESTS_FAILED + 1))) must not
++#     trip `set -e` on the first increment when the counter is 0.
++#   - The summary line and the final exit code must be emitted even when
++#     every underlying functional test fails.
++#   - `set +e / -e` bounded around the test-function dispatch block lets
++#     all tests run to completion before the summary.
++#
++# Note: the sentinel `__DREAM_RESULT__` is emitted by the Python streaming
++# endpoint (routers/setup.py), not by this shell script directly. The shell
++# just needs to exit with the right code so the endpoint can report it.
++# Sentinel-delivery itself is covered by PR-2F's Python tests.
++
++load '../bats/bats-support/load'
++load '../bats/bats-assert/load'
++
++setup() {
++    export TMPDIR_TEST="$BATS_TEST_TMPDIR"
++    export SCRIPT_SRC="$BATS_TEST_DIRNAME/../../scripts/dream-test-functional.sh"
++}
++
++# Build a patched copy of the script with test_*_functional() overridden.
++# Uses a single marker-insert to stick overrides just before the bounded
++# `set +e` dispatch block, so the rest of the script (strict mode, counters,
++# summary, exit logic) runs exactly as in production.
++_patch_script() {
++    local mode="$1"  # all-fail | all-pass | mixed
++    local out="$TMPDIR_TEST/patched-${mode}.sh"
++    local overrides_file="$TMPDIR_TEST/overrides-${mode}.sh"
++
++    # Stub bodies for each mode. Every stub runs `pass` or `fail`, which
++    # exist in the original script; those mutate the real counters.
++    case "$mode" in
++        all-fail)
++            cat > "$overrides_file" <<'OV'
++test_llm_functional()        { fail "LLM (stubbed)"; return 1; }
++test_tts_functional()        { fail "TTS (stubbed)"; return 1; }
++test_embeddings_functional() { fail "Embeddings (stubbed)"; return 1; }
++test_whisper_functional()    { fail "Whisper (stubbed)"; return 1; }
++OV
++            ;;
++        all-pass)
++            cat > "$overrides_file" <<'OV'
++test_llm_functional()        { pass "LLM (stubbed)"; }
++test_tts_functional()        { pass "TTS (stubbed)"; }
++test_embeddings_functional() { pass "Embeddings (stubbed)"; }
++test_whisper_functional()    { pass "Whisper (stubbed)"; }
++OV
++            ;;
++        mixed)
++            cat > "$overrides_file" <<'OV'
++test_llm_functional()        { pass "LLM (stubbed)"; }
++test_tts_functional()        { fail "TTS (stubbed)"; return 1; }
++test_embeddings_functional() { pass "Embeddings (stubbed)"; }
++test_whisper_functional()    { fail "Whisper (stubbed)"; return 1; }
++OV
++            ;;
++    esac
++
++    # Insert overrides at the marker — the line immediately before the
++    # bounded `set +e` dispatch block. BSD+GNU awk portable.
++    awk -v ov_file="$overrides_file" '
++        BEGIN {
++            while ((getline line < ov_file) > 0) overrides = overrides line "\n"
++            close(ov_file)
++        }
++        /^# Each test returns 1 on failure/ && !inserted {
++            printf "%s", overrides
++            inserted = 1
++        }
++        { print }
++    ' "$SCRIPT_SRC" > "$out"
++
++    # Neutralize the service-registry source block — it hard-depends on a
++    # full install layout that does not exist in tmpdir. Strip surgically
++    # by matching the opening `if [[ -f "$_FT_DIR/lib/service-registry.sh"`
++    # to its closing `fi`. The `declare -A SERVICE_PORTS` line that follows
++    # keeps the URL default-expansions safe.
++    awk '
++        /^if \[\[ -f "\$_FT_DIR\/lib\/service-registry\.sh" \]\]; then/ { in_block = 1; next }
++        in_block && /^fi$/ { in_block = 0; next }
++        !in_block { print }
++    ' "$out" > "$out.tmp" && mv "$out.tmp" "$out"
++
++    chmod +x "$out"
++    echo "$out"
++}
++
++# ── all-fail path — the core regression (PR #428) ───────────────────────────
++
++@test "resilience: summary line prints even when every test fails" {
++    local script
++    script=$(_patch_script all-fail)
++    run bash "$script"
++    # Script must exit 1 on any failure.
++    [ "$status" -eq 1 ]
++    # Summary must still appear.
++    assert_output --partial "Results: 0 passed, 4 failed"
++    assert_output --partial "Some functional tests failed"
++}
++
++@test "resilience: first fail call does not trip set -e at counter=0" {
++    # The critical regression this guards against: `((TESTS_FAILED++))` under
++    # set -e aborts the script on the FIRST call because the pre-increment
++    # value is 0 and compound arithmetic returns that as exit code. With the
++    # PR #428 fix (`TESTS_FAILED=$((TESTS_FAILED+1))`), the assignment form
++    # always returns 0. If the first fail aborts the script, we'd see "0
++    # passed, 1 failed" (only the first test ran). Assert we reached all 4.
++    local script
++    script=$(_patch_script all-fail)
++    run bash "$script"
++    assert_output --partial "4 failed"
++}
++
++# ── all-pass path ───────────────────────────────────────────────────────────
++
++@test "resilience: all-pass exits 0 with full summary" {
++    local script
++    script=$(_patch_script all-pass)
++    run bash "$script"
++    assert_success
++    assert_output --partial "Results: 4 passed, 0 failed"
++    assert_output --partial "All functional tests passed"
++}
++
++# ── mixed path (regression guard for bounded set +e / -e) ───────────────────
++
++@test "resilience: mixed pass/fail still runs every test and prints summary" {
++    local script
++    script=$(_patch_script mixed)
++    run bash "$script"
++    [ "$status" -eq 1 ]
++    # All 4 test functions ran (2 pass, 2 fail).
++    assert_output --partial "Results: 2 passed, 2 failed"
++}
++
++# ── static assertions on the resilience idioms in the script itself ─────────
++
++@test "resilience: script uses arithmetic-expansion assignment (not ((++)))" {
++    # TESTS_FAILED=$((TESTS_FAILED+1)) — the set-e-safe form.
++    run grep -E 'TESTS_FAILED=\$\(\(TESTS_FAILED[[:space:]]*\+' "$SCRIPT_SRC"
++    assert_success
++    # And must NOT contain the dangerous ((TESTS_FAILED++)) form.
++    run grep -E '\(\(TESTS_FAILED\+\+\)\)' "$SCRIPT_SRC"
++    assert_failure
++}
++
++@test "resilience: script has bounded 'set +e' / 'set -e' around test dispatch" {
++    run grep -n "^set +e" "$SCRIPT_SRC"
++    assert_success
++    run grep -n "^set -e" "$SCRIPT_SRC"
++    assert_success
++}
++
++@test "resilience: TESTS_PASSED also uses the set-e-safe assignment form" {
++    run grep -E 'TESTS_PASSED=\$\(\(TESTS_PASSED[[:space:]]*\+' "$SCRIPT_SRC"
++    assert_success
++}
+diff --git a/dream-server/tests/bats-tests/test-sr-resolve.bats b/dream-server/tests/bats-tests/test-sr-resolve.bats
+new file mode 100644
+index 0000000..b147c5d
+--- /dev/null
++++ b/dream-server/tests/bats-tests/test-sr-resolve.bats
+@@ -0,0 +1,171 @@
++#!/usr/bin/env bats
++# ============================================================================
++# BATS tests for sr_resolve in lib/service-registry.sh.
++# ============================================================================
++# Guards against re-breakage of the `dream-<id>` prefix-strip added in
++# PR #406 (container names pasted from `docker ps` should resolve to their
++# service IDs), and of the broader alias-resolution contract.
++#
++# 8-case matrix:
++#   1. Exact ID               →  resolves to the same ID
++#   2. Known alias            →  resolves to canonical ID
++#   3. `dream-<id>` prefix    →  strips prefix, resolves to ID
++#   4. `dream-<alias>` prefix →  strips prefix, resolves through alias
++#   5. Unknown `dream-*`      →  passes through as-is (not our container)
++#   6. Unknown non-dream      →  passes through as-is (best-effort)
++#   7. Empty input            →  passes through empty
++#   8. Container that happens to start with `dream-` but isn't our
++#      convention → passes through as-is (no alias match after strip)
++#
++# We invoke the registry inside a fresh `bash -c` subshell per test because
++# `declare -A` at the top of service-registry.sh creates function-local
++# arrays when the file is sourced from within bats' setup() (which is a
++# shell function). A subshell sources at top level, populating the globals
++# sr_resolve then actually reads.
++
++load '../bats/bats-support/load'
++load '../bats/bats-assert/load'
++
++setup() {
++    export TMPDIR_TEST="$BATS_TEST_TMPDIR"
++    export FIXTURE_DIR="$TMPDIR_TEST/fixture"
++    export REGISTRY_PATH="$BATS_TEST_DIRNAME/../../lib/service-registry.sh"
++
++    # Fake EXTENSIONS_DIR so sr_load's Python loader has something to read.
++    mkdir -p "$FIXTURE_DIR/extensions/services"
++
++    # Service A — id "alpha", aliases [a, al]
++    mkdir -p "$FIXTURE_DIR/extensions/services/alpha"
++    cat > "$FIXTURE_DIR/extensions/services/alpha/manifest.yaml" <<'YAML'
++schema_version: dream.services.v1
++service:
++  id: alpha
++  name: Alpha Service
++  aliases: [a, al]
++  container_name: dream-alpha
++  category: core
++YAML
++
++    # Service B — id "bravo", aliases [b]
++    mkdir -p "$FIXTURE_DIR/extensions/services/bravo"
++    cat > "$FIXTURE_DIR/extensions/services/bravo/manifest.yaml" <<'YAML'
++schema_version: dream.services.v1
++service:
++  id: bravo
++  name: Bravo Service
++  aliases: [b]
++  container_name: dream-bravo
++  category: recommended
++YAML
++
++    command -v python3 >/dev/null 2>&1 || skip "python3 not available"
++    python3 -c "import yaml" 2>/dev/null || skip "PyYAML not available"
++}
++
++# Resolve `$1` using a freshly-loaded registry against the fixture.
++# Runs in a subshell so `declare -A` lines in service-registry.sh create
++# true globals (not function-locals under bats' setup()).
++# stderr is suppressed so we only assert on stdout — empty input legitimately
++# triggers "bad array index" diagnostics from bash for SERVICE_ALIASES[""]
++# which are not part of the contract we're pinning.
++_sr() {
++    bash -c '
++        SCRIPT_DIR="'"$FIXTURE_DIR"'"
++        export SCRIPT_DIR
++        . "'"$REGISTRY_PATH"'"
++        sr_resolve "$1" 2>/dev/null
++    ' _ "$1"
++}
++
++# ── the 8-case matrix ───────────────────────────────────────────────────────
++
++@test "sr_resolve: case 1 — exact ID resolves to same ID" {
++    run _sr "alpha"
++    assert_success
++    assert_output "alpha"
++}
++
++@test "sr_resolve: case 2 — known alias resolves to canonical ID" {
++    run _sr "a"
++    assert_success
++    assert_output "alpha"
++
++    run _sr "al"
++    assert_success
++    assert_output "alpha"
++
++    run _sr "b"
++    assert_success
++    assert_output "bravo"
++}
++
++@test "sr_resolve: case 3 — dream-<id> prefix strips and resolves" {
++    # This is the PR-10 / #406 regression point: users copy container names
++    # from `docker ps` (e.g. `dream-alpha`) and expect `dream restart` to
++    # accept them.
++    run _sr "dream-alpha"
++    assert_success
++    assert_output "alpha"
++}
++
++@test "sr_resolve: case 4 — dream-<alias> prefix strips and resolves through alias" {
++    run _sr "dream-a"
++    assert_success
++    assert_output "alpha"
++
++    run _sr "dream-b"
++    assert_success
++    assert_output "bravo"
++}
++
++@test "sr_resolve: case 5 — unknown dream-* passes through as-is" {
++    # Container that starts with `dream-` but whose stripped form isn't a
++    # known alias: return the input verbatim (best-effort; compose will
++    # fail later with a clear error).
++    run _sr "dream-unknown-service"
++    assert_success
++    assert_output "dream-unknown-service"
++}
++
++@test "sr_resolve: case 6 — unknown non-dream passes through as-is" {
++    run _sr "not-a-service"
++    assert_success
++    assert_output "not-a-service"
++}
++
++@test "sr_resolve: case 7 — empty input returns empty" {
++    run _sr ""
++    assert_success
++    # Empty input hits SERVICE_ALIASES[""] (unset) and falls back to echoing
++    # the input (also empty). No crash, no stderr.
++    assert_output ""
++}
++
++@test "sr_resolve: case 8 — dream-* where strip doesn't match any alias passes through" {
++    # Container name-like string that isn't from our extensions and whose
++    # stripped form doesn't collide with any known alias.
++    run _sr "dream-some-other-project-container"
++    assert_success
++    assert_output "dream-some-other-project-container"
++}
++
++# ── additional correctness guards ───────────────────────────────────────────
++
++@test "sr_resolve: does NOT strip dream- when the full input is already a known alias" {
++    # The resolver checks SERVICE_ALIASES[input] first, only stripping if
++    # missing. We prove the ordering holds by asserting plain `bravo` still
++    # resolves even though `dream-bravo` is its container name.
++    run _sr "bravo"
++    assert_success
++    assert_output "bravo"
++}
++
++@test "sr_resolve: idempotent — resolving twice yields same result" {
++    run _sr "dream-a"
++    assert_success
++    [ "$output" = "alpha" ]
++
++    run _sr "$output"
++    assert_success
++    [ "$output" = "alpha" ]
++}
+diff --git a/dream-server/tests/test-validate-env.sh b/dream-server/tests/test-validate-env.sh
+index eb85d9b..6eb5eb9 100755
+--- a/dream-server/tests/test-validate-env.sh
++++ b/dream-server/tests/test-validate-env.sh
+@@ -15,6 +15,15 @@ set -euo pipefail
+ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+ 
++# validate-env.sh uses associative arrays (declare -A), which require Bash 4+.
++# Its shebang is #!/bin/bash, and macOS ships /bin/bash 3.2 — invoking by raw
++# path there hits the Bash-4+ guard and exits 1 before any validation runs.
++# Invoke through "$BASH" (the shell running this test) so the interpreter is
++# guaranteed to be whatever bash launched us (typically Homebrew bash on
++# macOS, /bin/bash 4+ on Linux/WSL2). Fall back to $PATH bash if $BASH is
++# unset (e.g. when the test is launched from a non-bash shell).
++VALIDATE_ENV_BASH="${BASH:-$(command -v bash)}"
++
+ GREEN='\033[0;32m'
+ RED='\033[0;31m'
+ NC='\033[0m'
+@@ -56,7 +65,7 @@ trap 'rm -rf "$TMP_DIR"' EXIT
+ 
+ # 2. Missing .env → exit 3
+ set +e
+-"$ROOT_DIR/scripts/validate-env.sh" "$TMP_DIR/nonexistent.env" "$ROOT_DIR/.env.schema.json" >/dev/null 2>&1
++"$VALIDATE_ENV_BASH" "$ROOT_DIR/scripts/validate-env.sh" "$TMP_DIR/nonexistent.env" "$ROOT_DIR/.env.schema.json" >/dev/null 2>&1
+ r=$?
+ set -e
+ if [[ $r -eq 3 ]]; then
+@@ -68,7 +77,7 @@ fi
+ # 3. Missing schema → exit 3
+ touch "$TMP_DIR/empty.env"
+ set +e
+-"$ROOT_DIR/scripts/validate-env.sh" "$TMP_DIR/empty.env" "$TMP_DIR/nonexistent.json" >/dev/null 2>&1
++"$VALIDATE_ENV_BASH" "$ROOT_DIR/scripts/validate-env.sh" "$TMP_DIR/empty.env" "$TMP_DIR/nonexistent.json" >/dev/null 2>&1
+ r=$?
+ set -e
+ if [[ $r -eq 3 ]]; then
+@@ -88,7 +97,7 @@ LITELLM_KEY=testkey
+ OPENCLAW_TOKEN=testtoken
+ EOF
+ set +e
+-"$ROOT_DIR/scripts/validate-env.sh" "$TMP_DIR/valid.env" "$ROOT_DIR/.env.schema.json" >/dev/null 2>&1
++"$VALIDATE_ENV_BASH" "$ROOT_DIR/scripts/validate-env.sh" "$TMP_DIR/valid.env" "$ROOT_DIR/.env.schema.json" >/dev/null 2>&1
+ r=$?
+ set -e
+ if [[ $r -eq 0 ]]; then
+@@ -106,7 +115,7 @@ N8N_PASS=testpass
+ LITELLM_KEY=testkey
+ EOF
+ set +e
+-out=$("$ROOT_DIR/scripts/validate-env.sh" "$TMP_DIR/missing.env" "$ROOT_DIR/.env.schema.json" 2>&1)
++out=$("$VALIDATE_ENV_BASH" "$ROOT_DIR/scripts/validate-env.sh" "$TMP_DIR/missing.env" "$ROOT_DIR/.env.schema.json" 2>&1)
+ r=$?
+ set -e
+ if [[ $r -eq 2 ]]; then
+@@ -131,7 +140,7 @@ OPENCLAW_TOKEN=testtoken
+ UNKNOWN_KEY=value
+ EOF
+ set +e
+-"$ROOT_DIR/scripts/validate-env.sh" "$TMP_DIR/unknown.env" "$ROOT_DIR/.env.schema.json" >/dev/null 2>&1
++"$VALIDATE_ENV_BASH" "$ROOT_DIR/scripts/validate-env.sh" "$TMP_DIR/unknown.env" "$ROOT_DIR/.env.schema.json" >/dev/null 2>&1
+ r=$?
+ set -e
+ if [[ $r -eq 2 ]]; then

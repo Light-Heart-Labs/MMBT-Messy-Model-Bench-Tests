@@ -1,0 +1,887 @@
+diff --git a/README.md b/README.md
+index 73c9b22..21a5ca0 100644
+--- a/README.md
++++ b/README.md
+@@ -185,7 +185,7 @@ The installer detects your GPU and picks the optimal model automatically. No man
+ | Unified RAM | Model | Example Hardware |
+ |-------------|-------|-----------------|
+ | < 16 GB | Qwen3.5 2B (Q4_K_M) | M1/M2 base (8GB) |
+-| 16–24 GB | Qwen3.5 4B (Q4_K_M) | M4 Mac Mini (16GB) |
++| 16–24 GB | Qwen3.5 9B (Q4_K_M) | M4 Mac Mini (16GB) |
+ | 32 GB | Qwen3.5 9B (Q4_K_M) | M4 Pro Mac Mini, M3 Max MacBook Pro |
+ | 48 GB | Qwen3 30B-A3B (MoE, Q4_K_M) | M4 Pro (48GB), M2 Max (48GB) |
+ | 64+ GB | Qwen3 30B-A3B (MoE, Q4_K_M) | M2 Ultra Mac Studio, M4 Max (64GB+) |
+diff --git a/dream-server/.env.example b/dream-server/.env.example
+index 038b684..fd2cd60 100644
+--- a/dream-server/.env.example
++++ b/dream-server/.env.example
+@@ -138,8 +138,8 @@ WEBUI_PORT=3000            # Open WebUI (external → internal 8080)
+ # Host Agent bind address (leave empty for platform-aware default).
+ # macOS/Windows: defaults to 127.0.0.1 (Docker Desktop routes via loopback).
+ # Linux: auto-detects Docker bridge gateway IP (e.g. 172.17.0.1) so containers
+-#   can reach the agent while LAN devices cannot.  Falls back to 0.0.0.0 if
+-#   detection fails.  Set explicitly to override (e.g. 127.0.0.1 for no Docker).
++#   can reach the agent while LAN devices cannot.  Falls back to 127.0.0.1 if
++#   detection fails.  Set explicitly to override.
+ # DREAM_AGENT_BIND=
+ 
+ # Dashboard API key (generate: openssl rand -hex 32)
+@@ -255,6 +255,9 @@ LANGFUSE_INIT_USER_PASSWORD=   # auto-generated during install
+ # llama-server memory limit (Docker)
+ # LLAMA_SERVER_MEMORY_LIMIT=64G
+ 
++# llama-server CPU core limit (macOS/CPU-only mode — static default 8.0)
++# Tune this to control how many CPU cores llama-server may use.
++# LLAMA_CPU_LIMIT=8.0
+ #=== DreamForge (Local Agentic Coding) ===
+ # DREAMFORGE_IMAGE=ghcr.io/light-heart-labs/dreamforge:v0.1.0
+ # DREAMFORGE_PORT=3010
+diff --git a/dream-server/.env.schema.json b/dream-server/.env.schema.json
+index c25a2d8..fe93278 100644
+--- a/dream-server/.env.schema.json
++++ b/dream-server/.env.schema.json
+@@ -573,7 +573,7 @@
+     },
+     "DREAM_AGENT_BIND": {
+       "type": "string",
+-      "description": "Bind address for the Dream Host Agent HTTP server. Defaults to 127.0.0.1 on macOS/Windows, Docker bridge gateway IP on Linux (falls back to 0.0.0.0).",
++      "description": "Bind address for the Dream Host Agent HTTP server. Defaults to 127.0.0.1 on macOS/Windows, Docker bridge gateway IP on Linux (falls back to 127.0.0.1).",
+       "default": ""
+     },
+     "DREAM_TIER": {
+diff --git a/dream-server/QUICKSTART.md b/dream-server/QUICKSTART.md
+index b7dfcd6..003462c 100644
+--- a/dream-server/QUICKSTART.md
++++ b/dream-server/QUICKSTART.md
+@@ -33,10 +33,10 @@ The installer will:
+      - SH_LARGE (90GB+): qwen3-coder-next (80B MoE), 128K context
+      - SH_COMPACT (64-89GB): qwen3-30b-a3b (30B MoE), 128K context
+    - **NVIDIA (discrete GPU)**:
+-     - Tier 1 (Entry): <12GB VRAM → qwen2.5-7b-instruct (GGUF Q4_K_M), 16K context
+-     - Tier 2 (Prosumer): 12-20GB VRAM → qwen2.5-14b-instruct (GGUF Q4_K_M), 16K context
+-     - Tier 3 (Pro): 20-40GB VRAM → qwen2.5-32b-instruct (GGUF Q4_K_M), 32K context
+-     - Tier 4 (Enterprise): 40GB+ VRAM → qwen2.5-72b-instruct (GGUF Q4_K_M), 32K context
++     - Tier 1 (Entry): <12GB VRAM → qwen3.5-9b (GGUF Q4_K_M), 16K context
++     - Tier 2 (Prosumer): 12-20GB VRAM → qwen3.5-9b (GGUF Q4_K_M), 32K context
++     - Tier 3 (Pro): 20-40GB VRAM → qwen3-30b-a3b (GGUF Q4_K_M), 32K context
++     - Tier 4 (Enterprise): 40GB+ VRAM → qwen3-30b-a3b (GGUF Q4_K_M), 128K context
+ 2. Check Docker and GPU toolkit (NVIDIA Container Toolkit or ROCm devices)
+ 3. Ask which optional components to enable (voice, workflows, RAG)
+ 4. Generate secure passwords and configuration
+@@ -100,7 +100,7 @@ Visit: **http://localhost:3000**
+ curl http://localhost:8080/v1/chat/completions \
+   -H "Content-Type: application/json" \
+   -d '{
+-    "model": "qwen2.5-32b-instruct",
++    "model": "qwen3-30b-a3b",
+     "messages": [{"role": "user", "content": "Hello!"}]
+   }'
+ ```
+@@ -132,10 +132,10 @@ The installer auto-detects your GPU and selects the optimal configuration:
+ 
+ | Tier | VRAM | Model | Example GPUs |
+ |------|------|-------|--------------|
+-| 1 (Entry) | <12GB | Qwen2.5-7B | RTX 3080, RTX 4070 |
+-| 2 (Prosumer) | 12-20GB | Qwen2.5-14B (GGUF Q4_K_M) | RTX 3090, RTX 4080 |
+-| 3 (Pro) | 20-40GB | Qwen2.5-32B (GGUF Q4_K_M) | RTX 4090, A6000 |
+-| 4 (Enterprise) | 40GB+ | Qwen2.5-72B (GGUF Q4_K_M) | A100, H100 |
++| 1 (Entry) | <12GB | qwen3.5-9b (GGUF Q4_K_M) | RTX 3080, RTX 4070 |
++| 2 (Prosumer) | 12-20GB | qwen3.5-9b (GGUF Q4_K_M) | RTX 3090, RTX 4080 |
++| 3 (Pro) | 20-40GB | qwen3-30b-a3b (GGUF Q4_K_M) | RTX 4090, A6000 |
++| 4 (Enterprise) | 40GB+ | qwen3-30b-a3b (GGUF Q4_K_M) | A100, H100 |
+ 
+ To check what tier you'd get without installing:
+ 
+@@ -156,7 +156,7 @@ CTX_SIZE=4096  # or even 2048
+ 
+ Or switch to a smaller model:
+ ```
+-LLM_MODEL=qwen2.5-7b-instruct
++LLM_MODEL=qwen3.5-9b
+ ```
+ 
+ ### AMD: llama-server crash loop
+diff --git a/dream-server/README.md b/dream-server/README.md
+index bbd86f7..05934de 100644
+--- a/dream-server/README.md
++++ b/dream-server/README.md
+@@ -130,10 +130,10 @@ Both tiers use `qwen2.5:7b` as a bootstrap model for instant startup. The full m
+ | Tier | VRAM | Model | Quant | Context | Example GPUs |
+ |------|------|-------|-------|---------|--------------|
+ | NV_ULTRA | 90GB+ | qwen3-coder-next | GGUF Q4_K_M | 128K | Multi-GPU A100/H100 |
+-| 1 (Entry) | <12GB | qwen2.5-7b-instruct | GGUF Q4_K_M | 16K | RTX 3080, RTX 4070 |
+-| 2 (Prosumer) | 12-20GB | qwen2.5-14b-instruct | GGUF Q4_K_M | 16K | RTX 3090, RTX 4080 |
+-| 3 (Pro) | 20-40GB | qwen2.5-32b-instruct | GGUF Q4_K_M | 32K | RTX 4090, A6000 |
+-| 4 (Enterprise) | 40GB+ | qwen2.5-72b-instruct | GGUF Q4_K_M | 32K | A100, H100, multi-GPU |
++| 1 (Entry) | <12GB | qwen3.5-9b | GGUF Q4_K_M | 16K | RTX 3080, RTX 4070 |
++| 2 (Prosumer) | 12-20GB | qwen3.5-9b | GGUF Q4_K_M | 32K | RTX 3090, RTX 4080 |
++| 3 (Pro) | 20-40GB | qwen3-30b-a3b | GGUF Q4_K_M | 32K | RTX 4090, A6000 |
++| 4 (Enterprise) | 40GB+ | qwen3-30b-a3b | GGUF Q4_K_M | 128K | A100, H100, multi-GPU |
+ 
+ ### Apple Silicon (Unified Memory, Metal)
+ 
+@@ -142,7 +142,7 @@ Both tiers use `qwen2.5:7b` as a bootstrap model for instant startup. The full m
+ | 1 (Entry) | 8–24GB | qwen3.5-9b | GGUF Q4_K_M | 16K | M1/M2 base, M4 Mac Mini (16GB) |
+ | 2 (Prosumer) | 32GB | qwen3.5-9b | GGUF Q4_K_M | 32K | M4 Pro Mac Mini, M3 Max MacBook Pro |
+ | 3 (Pro) | 48GB | qwen3-30b-a3b | GGUF Q4_K_M | 32K | M4 Pro (48GB), M2 Max (48GB) |
+-| 4 (Enterprise) | 64GB+ | qwen3-30b-a3b (30B MoE) | GGUF Q4_K_M | 131K | M2 Ultra Mac Studio, M4 Max (64GB+) |
++| 4 (Enterprise) | 64GB+ | qwen3-30b-a3b (30B MoE) | GGUF Q4_K_M | 128K | M2 Ultra Mac Studio, M4 Max (64GB+) |
+ 
+ Override with: `./install.sh --tier 3`
+ 
+@@ -188,7 +188,7 @@ See [docs/HARDWARE-GUIDE.md](docs/HARDWARE-GUIDE.md) for buying recommendations.
+ ┌─────────────────────▼───────────────────────────┐
+ │               llama-server (CUDA)               │
+ │            (localhost:8080/v1/...)               │
+-│            qwen2.5-32b-instruct                 │
++│            qwen3-30b-a3b                        │
+ └─────────────────────────────────────────────────┘
+          │                              │
+ ┌────────▼────────┐            ┌───────▼────────┐
+@@ -244,7 +244,7 @@ The installer generates `.env` automatically. Key settings:
+ 
+ ```bash
+ # NVIDIA
+-LLM_MODEL=qwen2.5-32b-instruct            # Model (auto-set by installer)
++LLM_MODEL=qwen3-30b-a3b                   # Model (auto-set by installer)
+ CTX_SIZE=32768                             # Context window
+ 
+ # AMD Strix Halo
+diff --git a/dream-server/SECURITY.md b/dream-server/SECURITY.md
+index 875f3c6..2e552de 100644
+--- a/dream-server/SECURITY.md
++++ b/dream-server/SECURITY.md
+@@ -77,6 +77,30 @@ sudo ufw allow from 192.168.0.0/24 to any port 3001  # Dashboard
+ sudo ufw allow from 192.168.0.0/24 to any port 8080  # LLM API
+ ```
+ 
++### Host Agent Network Binding
++
++The host agent (`bin/dream-host-agent.py`) has its own bind address, separate from the Docker services above. It is controlled by `DREAM_AGENT_BIND` in `.env`:
++
++| Platform | Default | Behavior |
++|----------|---------|----------|
++| macOS / Windows | `127.0.0.1` | Docker Desktop routes container traffic via loopback — loopback is sufficient |
++| Linux | auto-detected | Detects the Docker bridge gateway IP (e.g. `172.17.0.1`) so containers can reach the agent; LAN devices cannot. Falls back to `127.0.0.1` if detection fails. |
++
++To override the default, set `DREAM_AGENT_BIND` in `.env`:
++
++```bash
++# Restrict to loopback only (e.g. no-Docker Linux or extra hardening)
++DREAM_AGENT_BIND=127.0.0.1
++
++# Bind to Docker bridge only (explicit Linux default)
++DREAM_AGENT_BIND=172.17.0.1
++
++# Bind to all interfaces — exposes the host agent API on LAN (not recommended)
++DREAM_AGENT_BIND=0.0.0.0
++```
++
++> **Note:** If you bind to `0.0.0.0`, ensure `DREAM_AGENT_KEY` is set in `.env` — it protects the extension management endpoints with Bearer token authentication.
++
+ ### Exposing to Internet (Not Recommended)
+ 
+ If you must expose publicly, use a reverse proxy with TLS:
+diff --git a/dream-server/bin/dream-host-agent.py b/dream-server/bin/dream-host-agent.py
+index 21fc764..d4e578f 100755
+--- a/dream-server/bin/dream-host-agent.py
++++ b/dream-server/bin/dream-host-agent.py
+@@ -1942,7 +1942,7 @@ def _launch_native_llama_server(env_path: Path, llama_bin: Path, llama_log: Path
+     with open(llama_log, "a") as log_f:
+         proc = subprocess.Popen(
+             [str(llama_bin),
+-             "--host", "0.0.0.0", "--port", "8080",
++             "--host", "127.0.0.1", "--port", "8080",
+              "--model", str(model_path),
+              "--ctx-size", ctx_size,
+              "--n-gpu-layers", "999",
+@@ -2231,22 +2231,22 @@ def main():
+     # macOS/Windows: 127.0.0.1 (Docker Desktop routes host.docker.internal to loopback)
+     # Linux: Docker bridge gateway IP (containers reach via host-gateway,
+     #   LAN devices cannot — the bridge is a virtual interface).
+-    #   Falls back to 0.0.0.0 if detection fails.
++    #   Falls back to 127.0.0.1 if detection fails.
+     bind_addr = env.get("DREAM_AGENT_BIND", "")
+     bind_from_env = bool(bind_addr)
+     if not bind_addr:
+         if platform.system() in ("Darwin", "Windows"):
+             bind_addr = "127.0.0.1"
+         else:
+-            bind_addr = _detect_docker_bridge_gateway() or "0.0.0.0"
++            bind_addr = _detect_docker_bridge_gateway() or "127.0.0.1"
+ 
+     server = ThreadedHTTPServer((bind_addr, port), AgentHandler)
+     signal.signal(signal.SIGTERM, lambda *_: server.shutdown())
+     logger.info("Dream Host Agent v%s listening on %s:%d", VERSION, bind_addr, port)
+-    if bind_addr == "0.0.0.0" and not bind_from_env:
++    if bind_addr == "127.0.0.1" and not bind_from_env and platform.system() not in ("Darwin", "Windows"):
+         logger.warning(
+-            "Agent is listening on all interfaces (bridge detection failed). "
+-            "Set DREAM_AGENT_BIND=<bridge-ip> in .env to restrict."
++            "Docker bridge detection failed, using loopback (127.0.0.1). "
++            "Containers may not reach the agent. Set DREAM_AGENT_BIND=<bridge-ip> in .env."
+         )
+     logger.info("Install dir: %s | GPU: %s | Tier: %s", INSTALL_DIR, GPU_BACKEND, TIER)
+     try:
+diff --git a/dream-server/docs/FAQ.md b/dream-server/docs/FAQ.md
+index 11b9eb1..6c035ce 100644
+--- a/dream-server/docs/FAQ.md
++++ b/dream-server/docs/FAQ.md
+@@ -195,10 +195,102 @@ Options:
+ ### How do I get updates?
+ 
+ ```bash
+-./dream-cli update
++dream update
+ ```
+ 
+-That's it. Updates are optional — you control when to apply them.
++Updates are optional — you control when to apply them.
++
++**Preview changes without applying:**
++```bash
++dream update --dry-run
++```
++
++**Skip version-compatibility confirmation:**
++```bash
++dream update --force
++```
++
++`dream update` automatically creates a pre-update snapshot before pulling new images, then verifies all services are healthy afterward. If something goes wrong, run:
++
++```bash
++dream rollback
++```
++
++This restores configuration from the pre-update snapshot and restarts services.
++
++---
++
++### How do I back up and restore my data?
++
++**Create a backup** (saves user data and config to `.backups/`):
++```bash
++dream backup
++```
++
++**Create a compressed backup:**
++```bash
++dream backup -c
++```
++
++**List existing backups:**
++```bash
++dream backup -l
++```
++
++**Verify a backup's integrity:**
++```bash
++dream backup verify <backup_id>
++```
++
++**Restore from a backup** (interactive — lets you choose from available backups):
++```bash
++dream restore
++```
++
++**Restore a specific backup by ID:**
++```bash
++dream restore <backup_id>
++```
++
++**Rollback after a failed update** (restores the pre-update snapshot):
++```bash
++dream rollback
++```
++
++`dream update` always creates a pre-update snapshot, so `dream rollback` is available immediately after any update attempt.
++
++---
++
++### What are service templates?
++
++Templates are curated presets that enable a group of extensions suited to a specific use case — for example, a creative-studio setup (image generation + voice) or a research workflow (RAG + web search + agents).
++
++**List available templates:**
++```bash
++dream template list
++```
++
++**Preview what a template will change before applying:**
++```bash
++dream template preview <template-id>
++```
++
++**Apply a template (enables the template's services):**
++```bash
++dream template apply <template-id>
++```
++
++Applying a template only enables services — it doesn't disable anything you've already set up.
++
++---
++
++### Can I chat while models are downloading?
++
++Yes. During install, a small bootstrap model (~1.5GB, Qwen 3.5 2B) downloads first so you can start chatting within a couple of minutes. The full tier-appropriate model downloads in the background.
++
++When the full model finishes, the system swaps it in automatically — you don't need to do anything. `dream status` shows the current bootstrap state if a swap is still in progress.
++
++---
+ 
+ ### Where do I get help?
+ 
+diff --git a/dream-server/docs/HOST-AGENT-API.md b/dream-server/docs/HOST-AGENT-API.md
+index 804d499..bb716ed 100644
+--- a/dream-server/docs/HOST-AGENT-API.md
++++ b/dream-server/docs/HOST-AGENT-API.md
+@@ -12,6 +12,7 @@ The Dashboard API runs inside a Docker container and cannot directly run `docker
+ |----------|-----------|
+ | Linux | systemd user service (`scripts/systemd/dream-host-agent.service`) |
+ | macOS | Started by the installer (`installers/macos/install-macos.sh`) |
++| Windows | Started by the installer (`installers/windows/phases/07-devtools.ps1`, managed via `dream.ps1`) |
+ 
+ The agent is started during installation (phase 07 on Linux) and binds to `127.0.0.1` only — it is not accessible from the network.
+ 
+diff --git a/dream-server/docs/MODE-SWITCH.md b/dream-server/docs/MODE-SWITCH.md
+index 9e07f77..f112030 100644
+--- a/dream-server/docs/MODE-SWITCH.md
++++ b/dream-server/docs/MODE-SWITCH.md
+@@ -27,7 +27,7 @@ dream restart
+ 
+ ## How It Works
+ 
+-One env var (`LLM_API_URL`) controls where all services send LLM requests. Three modes set this automatically:
++One env var (`LLM_API_URL`) controls where all services send LLM requests. Three modes are user-selectable via `dream mode`; a fourth (`lemonade`) is auto-configured by the installer on AMD hardware — see [Lemonade Mode](#lemonade-mode-amd--auto-configured) below.
+ 
+ | Mode | `LLM_API_URL` | `DREAM_MODE` | LiteLLM config |
+ |------|---------------|--------------|-----------------|
+@@ -88,13 +88,28 @@ Local llama-server as primary, cloud APIs as fallback via LiteLLM.
+ dream mode hybrid
+ ```
+ 
++### Lemonade Mode (AMD — auto-configured)
++
++**Not user-switchable.** This mode is automatically set by the installer on AMD hardware. `dream mode` does not accept `lemonade` as an argument — only the installer sets it.
++
++All LLM traffic routes through the LiteLLM proxy, which delegates to the Lemonade SDK (`lemonade-server`). The dashboard API uses a distinct `/api/v1` URL prefix in this mode (instead of `/v1`).
++
++| Aspect | Details |
++|--------|---------|
++| **LLM** | Lemonade SDK via LiteLLM proxy |
++| **Cost** | $0 (local inference) |
++| **Requires** | AMD GPU (auto-detected at install time) |
++| **Set by** | Installer (Phase 06), not `dream mode` |
++
++For AMD Strix Halo performance tuning (GRUB, kernel module, sysctl settings), see [`config/system-tuning/README.md`](../config/system-tuning/README.md).
++
+ ---
+ 
+ ## .env Variables
+ 
+ | Variable | Default | Description |
+ |----------|---------|-------------|
+-| `DREAM_MODE` | `local` | Active mode: `local`, `cloud`, or `hybrid` |
++| `DREAM_MODE` | `local` | Active mode: `local`, `cloud`, or `hybrid`; `lemonade` is auto-set on AMD (not user-switchable) |
+ | `LLM_API_URL` | `http://llama-server:8080` | Where services send LLM requests |
+ | `ANTHROPIC_API_KEY` | *(empty)* | Anthropic API key (cloud/hybrid) |
+ | `OPENAI_API_KEY` | *(empty)* | OpenAI API key (cloud/hybrid) |
+@@ -177,14 +192,14 @@ User -> Open WebUI -> LiteLLM -> llama-server (local) -> Response
+ 
+ ## Mode Comparison
+ 
+-| Feature | Local | Cloud | Hybrid |
+-|---------|-------|-------|--------|
+-| Internet required | No | Yes | Yes (for fallback) |
+-| API keys required | No | Yes | Recommended |
+-| GPU required | Yes | No | Yes |
+-| Response quality | Good | Best | Best of both |
+-| Cost | $0 | $$$ | $0 or $$$ |
+-| Privacy | 100% local | Data to cloud | Local unless fallback |
++| Feature | Local | Cloud | Hybrid | Lemonade (AMD) |
++|---------|-------|-------|--------|----------------|
++| Internet required | No | Yes | Yes (for fallback) | No |
++| API keys required | No | Yes | Recommended | No |
++| GPU required | Yes | No | Yes | Yes (AMD) |
++| Response quality | Good | Best | Best of both | Good |
++| Cost | $0 | $$$ | $0 or $$$ | $0 |
++| Privacy | 100% local | Data to cloud | Local unless fallback | 100% local |
+ 
+ ---
+ 
+diff --git a/dream-server/docs/POST-INSTALL-CHECKLIST.md b/dream-server/docs/POST-INSTALL-CHECKLIST.md
+index 4530c33..a23a7ca 100644
+--- a/dream-server/docs/POST-INSTALL-CHECKLIST.md
++++ b/dream-server/docs/POST-INSTALL-CHECKLIST.md
+@@ -1,21 +1,56 @@
+-# Dream Server Post-Install Checklist
+-
+-## llama-server
+-- [ ] Verify llama-server is running
+-- [ ] Check llama-server logs for any errors
+-- [ ] Test basic functionality of llama-server
+-
+-## Whisper
+-- [ ] Verify Whisper is installed
+-- [ ] Check Whisper logs for any errors
+-- [ ] Test Whisper transcription with sample audio
+-
+-## TTS
+-- [ ] Verify TTS is installed
+-- [ ] Check TTS logs for any errors
+-- [ ] Test TTS with sample text
+-
+-## OpenClaw
+-- [ ] Verify OpenClaw is running
+-- [ ] Check OpenClaw logs for any errors
+-- [ ] Test basic functionality of OpenClaw
++# Dream Server — Post-Install Checklist
++
++Run these checks after installation to confirm everything is working.
++
++---
++
++## 1. Overall health
++
++```bash
++dream status
++```
++
++Shows container status, service health checks, and GPU metrics in one view. All enabled services should report **healthy**. If any show as not responding, check the logs (step 6 below).
++
++## 2. LLM response test
++
++```bash
++dream chat "Hello, are you working?"
++```
++
++You should receive a text response within a few seconds. If you see an error, check `dream logs llm`.
++
++## 3. Web interface
++
++Open your browser and navigate to the address shown at the end of installation (default: `http://localhost:3000`). The Open WebUI chat interface should load and let you send a message.
++
++## 4. GPU verification
++
++**NVIDIA** — GPU utilisation, VRAM, and temperature appear automatically in `dream status`.
++
++**AMD:**
++```bash
++rocm-smi
++```
++
++**Apple Silicon** — GPU is used automatically; no separate check needed.
++
++## 5. Check enabled services
++
++```bash
++dream list
++```
++
++Core services (llama-server, open-webui, dashboard) should be shown as running. Optional services selected during install should also appear.
++
++## 6. Diagnose a failing service
++
++```bash
++dream logs <service>     # e.g. dream logs llm
++```
++
++Replace `<service>` with the name from `dream list`. Common aliases: `llm` for llama-server, `stt` for Whisper, `tts` for Kokoro.
++
++---
++
++If a service fails its health check after reviewing logs, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+diff --git a/dream-server/docs/SUPPORT-MATRIX.md b/dream-server/docs/SUPPORT-MATRIX.md
+index 6c0f970..41293f1 100644
+--- a/dream-server/docs/SUPPORT-MATRIX.md
++++ b/dream-server/docs/SUPPORT-MATRIX.md
+@@ -78,3 +78,4 @@ Last updated: 2026-03-17
+ ## See also
+ 
+ - [LINUX-PORTABILITY.md](LINUX-PORTABILITY.md) — Linux installer edge cases, `.env` validation, extension manifests.
++- [config/system-tuning/README.md](../config/system-tuning/README.md) — Performance tuning for AMD Strix Halo (GRUB, modprobe, sysctl, CPU governor settings).
+diff --git a/dream-server/docs/WINDOWS-QUICKSTART.md b/dream-server/docs/WINDOWS-QUICKSTART.md
+index e7649dc..6446496 100644
+--- a/dream-server/docs/WINDOWS-QUICKSTART.md
++++ b/dream-server/docs/WINDOWS-QUICKSTART.md
+@@ -1,104 +1,76 @@
+ # Dream Server Windows Quickstart
+ 
+-> **Status: Coming Soon — Preflight Checks Only (target: end of March 2026)**
+->
+-> The Windows installer currently runs **system diagnostics and preflight checks only** — it verifies WSL2, Docker Desktop, and GPU readiness but **does not yet produce a running AI stack.** Full Windows runtime support is in active development.
+->
+-> **For a working setup today, use Linux.** See the [Support Matrix](SUPPORT-MATRIX.md) for current platform status.
++## Getting Started
+ 
+----
++Dream Server is fully supported on Windows 10 2004+ and Windows 11 (NVIDIA and AMD). The installer detects your GPU, selects the right model, downloads it, starts all Docker services, and creates a Desktop shortcut.
+ 
+-## What Works Today
++**Prerequisites:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) with WSL2 backend enabled. NVIDIA GPU recommended (CPU-only works with smaller models). 4GB+ RAM minimum, 16GB+ recommended.
+ 
+-The Windows installer (`install.ps1`) checks your system readiness and generates a preflight report:
++Open **PowerShell as Administrator** and run:
+ 
+ ```powershell
+-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Light-Heart-Labs/DreamServer/v2.1.0/install.ps1" -OutFile install.ps1; .\install.ps1
++Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
++git clone https://github.com/Light-Heart-Labs/DreamServer.git
++cd DreamServer
++.\install.ps1
+ ```
+ 
+-**Prerequisites:** Windows 10 2004+ or Windows 11. NVIDIA GPU recommended but not required (CPU-only works with smaller models). 4GB+ RAM minimum, 16GB+ recommended.
+-
+-This will verify:
+-- WSL2 is installed and set to version 2
+-- Docker Desktop is running with WSL2 backend
+-- Docker CLI is available inside your WSL distro
+-- NVIDIA GPU is visible from both Windows and WSL
+-
+-The preflight report is saved to `%TEMP%\dream-server-windows-preflight.json`.
+-
+----
+-
+-## What's Coming
+-
+-When full Windows support ships (target: end of March 2026), the installer will:
+-
+-1. **Check your system** — WSL2, Docker Desktop, NVIDIA GPU
+-2. **Auto-fix issues** — enable WSL2, prompt for Docker install
+-3. **Detect GPU** — pick right model tier automatically
+-4. **Download model** — 7B to 72B based on your VRAM (~10-40GB)
+-5. **Start services** — llama-server, Open WebUI, search, database
++The installer will:
++- Detect your GPU (NVIDIA or AMD) and pick the right model tier
++- Download the AI model for your hardware (~1.5GB bootstrap, full model in background)
++- Start all Docker services
++- Run health checks and create a Desktop shortcut
+ 
+-**Estimated time (when available):** 10-30 minutes depending on download speed.
++**First-run time:** 10-30 minutes depending on download speed. Bootstrap mode starts chatting in under 2 minutes while the full model downloads in background.
+ 
+ ---
+ 
+-## Planned: Quick Commands (not yet functional)
++## Quick Commands
+ 
+-The following commands describe the intended Windows experience once full support ships:
++Manage Dream Server using `dream.ps1` from your install directory:
+ 
+ ```powershell
+-# Start after install
+-cd $env:LOCALAPPDATA\DreamServer
+-docker compose up -d
+-
+-# Stop
+-docker compose down
+-
+-# View logs
+-docker compose logs -f
+-
+-# Check status
+-docker compose ps
+-
+-# Update
+-docker compose pull && docker compose up -d
++cd $env:USERPROFILE\dream-server
++
++.\dream.ps1 status              # Health checks + GPU status
++.\dream.ps1 start               # Start all services
++.\dream.ps1 stop                # Stop all services
++.\dream.ps1 restart             # Restart all services
++.\dream.ps1 logs llama-server   # Tail logs (any service name)
++.\dream.ps1 update              # Pull latest images and restart
++.\dream.ps1 report              # Generate diagnostics bundle
+ ```
+ 
+ ---
+ 
+-## Planned: Open the UI
++## Open the UI
+ 
+-Visit **http://localhost:3000** (once full runtime support is available).
++Visit **http://localhost:3000** — the chat interface is ready after the installer completes.
+ 
+ First user becomes admin. Start chatting immediately.
+ 
+ ---
+ 
+-## Planned: Bootstrap Mode (Faster Start)
++## Bootstrap Mode (Faster Start)
+ 
+-Start with a tiny 1.5B model, upgrade later:
+-
+-```powershell
+-.\install.ps1 -Bootstrap
+-```
+-
+-Chat in 2 minutes while full model downloads in background.
++The installer automatically uses bootstrap mode when applicable — a small model (~1.5 GB) downloads first so you can start chatting within 2 minutes, while the full model downloads in the background. No extra flags needed.
+ 
+ ---
+ 
+-## Planned: Installer Flags
+-
+-These flags describe the intended installer interface once full support ships:
++## Installer Flags
+ 
+ | Flag | What It Does |
+ |------|--------------|
+-| `-Bootstrap` | Quick start with small model |
+ | `-Tier 2` | Force specific tier (1-4) |
+ | `-Voice` | Enable Whisper + TTS |
+ | `-Workflows` | Enable n8n automation |
+ | `-Rag` | Enable Qdrant vector DB |
++| `-OpenClaw` | Enable OpenClaw agent framework |
++| `-Comfyui` | Enable ComfyUI image generation |
++| `-Langfuse` | Enable Langfuse LLM observability |
+ | `-All` | Everything enabled |
+-| `-Diagnose` | Check system only |
++| `-Cloud` | Use cloud LLM provider instead of local |
++| `-DryRun` | Simulate install without making changes |
+ 
+ ---
+ 
+@@ -178,4 +150,4 @@ docker compose up -d
+ 
+ ---
+ 
+-*Last updated: 2026-03-04*
++*Last updated: 2026-04-16*
+diff --git a/dream-server/extensions/CATALOG.md b/dream-server/extensions/CATALOG.md
+index 1fbc852..c97a017 100644
+--- a/dream-server/extensions/CATALOG.md
++++ b/dream-server/extensions/CATALOG.md
+@@ -25,6 +25,7 @@ For adding or authoring extensions, see [EXTENSIONS.md](../docs/EXTENSIONS.md) a
+ | embeddings      | TEI (Embeddings)        | optional   | 8090        | amd, nvidia    | Text embeddings for RAG. |
+ | privacy-shield  | Privacy Shield           | optional   | 8085        | amd, nvidia    | PII detection and protection. |
+ | opencode        | OpenCode (IDE)           | optional   | 3003        | amd, nvidia    | In-browser IDE integration. |
++| langfuse        | Langfuse (LLM Observability) | optional | 3006      | amd, nvidia    | LLM tracing, evaluations, and prompt management. |
+ 
+ ## Categories
+ 
+@@ -68,6 +69,7 @@ extensions/services/
+   token-spy/manifest.yaml
+   privacy-shield/manifest.yaml
+   opencode/manifest.yaml
++  langfuse/manifest.yaml
+ ```
+ 
+ Each directory typically also has a `compose.yaml` (and optional overlay like `compose.nvidia.yaml`). The resolver `scripts/resolve-compose-stack.sh` builds the full compose command from enabled extensions and the selected GPU backend.
+diff --git a/dream-server/extensions/services/langfuse/README.md b/dream-server/extensions/services/langfuse/README.md
+new file mode 100644
+index 0000000..74e7eda
+--- /dev/null
++++ b/dream-server/extensions/services/langfuse/README.md
+@@ -0,0 +1,116 @@
++# Langfuse
++
++LLM observability and tracing platform for Dream Server
++
++## Overview
++
++Langfuse is an open-source LLM observability platform that captures traces, evaluations, and prompt versions for every call routed through LiteLLM. It runs at `http://localhost:3006` and is pre-integrated with LiteLLM — when Langfuse is enabled, the compose overlay automatically injects the project credentials into LiteLLM so traces appear without any manual configuration.
++
++Langfuse ships **disabled by default**. Enable it during install with `--langfuse` or at any time with:
++
++```bash
++dream enable langfuse
++```
++
++## Features
++
++- **Full request tracing**: Captures input, output, latency, token counts, and model for every LLM call
++- **Evaluations**: Score traces manually or programmatically to track quality over time
++- **Prompt management**: Version and A/B test prompt templates from the UI
++- **LiteLLM integration**: Traces appear automatically — no SDK changes required
++- **Dashboard integration**: Observability feature managed from the Dream Server dashboard
++- **Isolated storage**: Dedicated PostgreSQL, ClickHouse, Redis, and MinIO services — no shared state with other extensions
++
++## Configuration
++
++Environment variables (set in `.env`, auto-generated by the installer):
++
++| Variable | Default | Description |
++|----------|---------|-------------|
++| `LANGFUSE_PORT` | `3006` | External port for the Langfuse web UI |
++| `LANGFUSE_ENABLED` | `false` | Enables LiteLLM tracing callback when set to `true` |
++| `LANGFUSE_INIT_USER_EMAIL` | `admin@dreamserver.local` | Initial admin email address |
++| `LANGFUSE_INIT_USER_PASSWORD` | *(generated)* | Initial admin password |
++| `LANGFUSE_PROJECT_PUBLIC_KEY` | *(generated)* | Project public key — passed to LiteLLM automatically |
++| `LANGFUSE_PROJECT_SECRET_KEY` | *(generated)* | Project secret key — passed to LiteLLM automatically |
++| `LANGFUSE_DB_PASSWORD` | *(generated)* | PostgreSQL database password |
++| `LANGFUSE_CLICKHOUSE_PASSWORD` | *(generated)* | ClickHouse password |
++| `LANGFUSE_REDIS_PASSWORD` | *(generated)* | Redis password |
++| `LANGFUSE_MINIO_ACCESS_KEY` | *(generated)* | MinIO access key for event uploads |
++| `LANGFUSE_MINIO_SECRET_KEY` | *(generated)* | MinIO secret key for event uploads |
++| `LANGFUSE_NEXTAUTH_SECRET` | *(generated)* | Session signing secret |
++| `LANGFUSE_SALT` | *(generated)* | Password hashing salt |
++| `LANGFUSE_ENCRYPTION_KEY` | *(generated)* | Encryption key for stored credentials |
++
++All secrets are generated by `./install.sh` and stored in `.env`. After changing `LANGFUSE_INIT_USER_EMAIL` or `LANGFUSE_INIT_USER_PASSWORD`, recreate the Langfuse web container to apply the new credentials:
++
++```bash
++docker compose up -d --force-recreate langfuse
++```
++
++## Data Persistence
++
++| Path (host) | Mounted at (container) | Contents |
++|-------------|------------------------|----------|
++| `data/langfuse/postgres/` | `/var/lib/postgresql/data` | Trace metadata, projects, and user data |
++| `data/langfuse/clickhouse/` | `/var/lib/clickhouse` | Event data and analytics storage |
++| `data/langfuse/redis/` | `/data` | Queue and caching |
++| `data/langfuse/minio/` | `/data` | Event upload bucket (`langfuse-events`) |
++
++## LiteLLM Integration
++
++When Langfuse is enabled, the `compose.yaml` overlay merges the following into the LiteLLM service:
++
++```yaml
++environment:
++  LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PROJECT_PUBLIC_KEY}
++  LANGFUSE_SECRET_KEY: ${LANGFUSE_PROJECT_SECRET_KEY}
++  LANGFUSE_HOST: http://langfuse:3000
++  LANGFUSE_TRACING_ENABLED: ${LANGFUSE_ENABLED}
++```
++
++No LiteLLM config changes are needed — tracing activates automatically when `LANGFUSE_ENABLED=true` is in `.env`.
++
++## Services
++
++Langfuse runs six containers, all on the isolated `langfuse-internal` network:
++
++| Container | Image | Role |
++|-----------|-------|------|
++| `dream-langfuse-web` | `langfuse/langfuse:3.159.0` | Web UI and API (port 3006) |
++| `dream-langfuse-worker` | `langfuse/langfuse-worker:3.159.0` | Async event processing |
++| `dream-langfuse-postgres` | `postgres:17.9-alpine` | Relational store |
++| `dream-langfuse-clickhouse` | `clickhouse/clickhouse-server:26.2.4.23` | Analytics store |
++| `dream-langfuse-redis` | `redis:7.4.8-alpine` | Job queue |
++| `dream-langfuse-minio` | `minio/minio` | Object store for event uploads |
++
++## Files
++
++- `compose.yaml.disabled` — Service definition (renamed to `compose.yaml` when enabled)
++- `manifest.yaml` — Service metadata and feature definitions
++
++## Troubleshooting
++
++**Service not starting:**
++```bash
++docker compose ps langfuse langfuse-worker langfuse-postgres langfuse-clickhouse langfuse-redis langfuse-minio
++docker compose logs langfuse
++```
++
++All six services must be healthy before the web UI starts. ClickHouse has a 90-second start period — allow extra time on first launch.
++
++**Cannot log in:**
++- Verify `LANGFUSE_INIT_USER_EMAIL` and `LANGFUSE_INIT_USER_PASSWORD` are set in `.env`
++- Credentials are seeded on first start. To reset, remove `data/langfuse/postgres/` and recreate all Langfuse containers.
++
++**No traces appearing in the UI:**
++- Confirm `LANGFUSE_ENABLED=true` in `.env`
++- Restart LiteLLM after enabling: `docker compose up -d --force-recreate litellm`
++- Check LiteLLM logs for callback errors: `docker compose logs litellm | grep -i langfuse`
++
++**High memory usage:**
++- ClickHouse is the largest consumer; default limit is 2 GB. Adjust under `deploy.resources.limits` in the compose file.
++
++## License
++
++Part of Dream Server — Local AI Infrastructure
+diff --git a/dream-server/installers/macos/dream-macos.sh b/dream-server/installers/macos/dream-macos.sh
+index 18b908f..d620479 100755
+--- a/dream-server/installers/macos/dream-macos.sh
++++ b/dream-server/installers/macos/dream-macos.sh
+@@ -282,7 +282,7 @@ start_native_llama() {
+     esac
+ 
+     "$LLAMA_SERVER_BIN" \
+-        --host 0.0.0.0 --port 8080 \
++        --host 127.0.0.1 --port 8080 \
+         --model "$model_path" \
+         --ctx-size "$ctx_size" \
+         --n-gpu-layers 999 \
+diff --git a/dream-server/installers/macos/install-macos.sh b/dream-server/installers/macos/install-macos.sh
+index dbec031..7834b59 100755
+--- a/dream-server/installers/macos/install-macos.sh
++++ b/dream-server/installers/macos/install-macos.sh
+@@ -663,7 +663,7 @@ else
+         esac
+ 
+         "$LLAMA_SERVER_BIN" \
+-            --host 0.0.0.0 --port 8080 \
++            --host 127.0.0.1 --port 8080 \
+             --model "$MODEL_FULL_PATH" \
+             --ctx-size "$MAX_CONTEXT" \
+             --n-gpu-layers 999 \
+diff --git a/dream-server/installers/windows/dream.ps1 b/dream-server/installers/windows/dream.ps1
+index 70bba32..43cb230 100644
+--- a/dream-server/installers/windows/dream.ps1
++++ b/dream-server/installers/windows/dream.ps1
+@@ -305,7 +305,7 @@ function Start-NativeInferenceServer {
+         $lemonadeArgs = @(
+             "serve",
+             "--port", "$($script:LEMONADE_PORT)",
+-            "--host", "0.0.0.0",
++            "--host", "127.0.0.1",
+             "--no-tray",
+             "--llamacpp", "vulkan",
+             "--extra-models-dir", $modelsDir
+@@ -347,7 +347,7 @@ function Start-NativeInferenceServer {
+ 
+         $llamaArgs = @(
+             "--model", $modelPath,
+-            "--host", "0.0.0.0",
++            "--host", "127.0.0.1",
+             "--port", "8080",
+             "--n-gpu-layers", "999",
+             "--ctx-size", $ctxSize
+diff --git a/dream-server/installers/windows/install-windows.ps1 b/dream-server/installers/windows/install-windows.ps1
+index c605371..7c042a7 100644
+--- a/dream-server/installers/windows/install-windows.ps1
++++ b/dream-server/installers/windows/install-windows.ps1
+@@ -331,7 +331,7 @@ if ($dryRun) {
+                 $lemonadeArgs = @(
+                     "serve",
+                     "--port", "$($script:LEMONADE_PORT)",
+-                    "--host", "0.0.0.0",
++                    "--host", "127.0.0.1",
+                     "--no-tray",
+                     "--llamacpp", "vulkan",
+                     "--extra-models-dir", $modelsDir
+@@ -414,7 +414,7 @@ if ($dryRun) {
+                 $modelFullPath = Join-Path (Join-Path $installDir "data\models") $tierConfig.GgufFile
+                 $llamaArgs = @(
+                     "--model", $modelFullPath,
+-                    "--host", "0.0.0.0",
++                    "--host", "127.0.0.1",
+                     "--port", "8080",
+                     "--n-gpu-layers", "999",
+                     "--ctx-size", "$($tierConfig.MaxContext)"
+diff --git a/dream-server/scripts/bootstrap-upgrade.sh b/dream-server/scripts/bootstrap-upgrade.sh
+index 63193a1..55d3984 100644
+--- a/dream-server/scripts/bootstrap-upgrade.sh
++++ b/dream-server/scripts/bootstrap-upgrade.sh
+@@ -566,7 +566,7 @@ elif [[ -f "$INSTALL_DIR/data/.llama-server.pid" ]]; then
+             # Relaunch with new model
+             log "Starting native llama-server with ${_gguf_file}..."
+             "$LLAMA_SERVER_BIN" \
+-                --host 0.0.0.0 --port 8080 \
++                --host 127.0.0.1 --port 8080 \
+                 --model "$_model_path" \
+                 --ctx-size "$_ctx_size" \
+                 --n-gpu-layers 999 \
+@@ -598,7 +598,7 @@ elif [[ -f "$INSTALL_DIR/data/.llama-server.pid" ]]; then
+                 fi
+                 if [[ -n "${_old_model_path:-}" && -f "$_old_model_path" ]]; then
+                     "$LLAMA_SERVER_BIN" \
+-                        --host 0.0.0.0 --port 8080 \
++                        --host 127.0.0.1 --port 8080 \
+                         --model "$_old_model_path" \
+                         --ctx-size "$_ctx_size" \
+                         --n-gpu-layers 999 \

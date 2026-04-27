@@ -1,0 +1,13 @@
+diff --git a/dream-server/dream-cli b/dream-server/dream-cli
+index 6e160f6..f7d4c24 100755
+--- a/dream-server/dream-cli
++++ b/dream-server/dream-cli
+@@ -2866,7 +2866,7 @@ _gpu_reassign() {
+     # Write topology to tmpfile and run assignment
+     local tmpdir
+     tmpdir=$(mktemp -d)
+-    trap 'rm -rf "$tmpdir"' RETURN
++    trap "rm -rf '$tmpdir'" RETURN
+     echo "$topo_json" > "$tmpdir/topo.json"
+ 
+     local enabled_services="${ENABLED_SERVICES:-llama_server,whisper,comfyui,embeddings}"

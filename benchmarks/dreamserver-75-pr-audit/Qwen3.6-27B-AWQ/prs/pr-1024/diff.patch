@@ -1,0 +1,110 @@
+diff --git a/dream-server/scripts/dream-preflight.sh b/dream-server/scripts/dream-preflight.sh
+index a1c6ca4..da12134 100755
+--- a/dream-server/scripts/dream-preflight.sh
++++ b/dream-server/scripts/dream-preflight.sh
+@@ -22,6 +22,8 @@ if [[ -x "$SCRIPT_DIR/scripts/resolve-compose-stack.sh" ]]; then
+     COMPOSE_FLAGS=$("$SCRIPT_DIR/scripts/resolve-compose-stack.sh" \
+         --script-dir "$SCRIPT_DIR" --tier "${TIER:-1}" --gpu-backend "${GPU_BACKEND:-nvidia}")
+ fi
++# Split COMPOSE_FLAGS into an array so paths with spaces survive expansion
++read -ra COMPOSE_FLAGS_ARR <<< "$COMPOSE_FLAGS"
+ 
+ # Colors
+ RED='\033[0;31m'
+@@ -53,7 +55,7 @@ fi
+ 
+ # Check containers are up
+ echo -n "Core containers... "
+-if docker compose $COMPOSE_FLAGS ps | grep -q "$LLM_CONTAINER"; then
++if docker compose "${COMPOSE_FLAGS_ARR[@]}" ps | grep -q "$LLM_CONTAINER"; then
+     echo -e "${GREEN}✓ running${NC}"
+ else
+     echo -e "${RED}✗ not running${NC}"
+@@ -94,7 +96,7 @@ fi
+ for sid in "${SERVICE_IDS[@]}"; do
+     [[ "${SERVICE_CATEGORIES[$sid]}" == "core" ]] && continue
+     container="${SERVICE_CONTAINERS[$sid]}"
+-    docker compose $COMPOSE_FLAGS ps 2>/dev/null | grep -q "$container" || continue
++    docker compose "${COMPOSE_FLAGS_ARR[@]}" ps 2>/dev/null | grep -q "$container" || continue
+ 
+     port="${SERVICE_PORTS[$sid]:-0}"
+     health="${SERVICE_HEALTH[$sid]:-/}"
+diff --git a/dream-server/scripts/validate-compose-stack.sh b/dream-server/scripts/validate-compose-stack.sh
+index 2526dce..0fe898e 100755
+--- a/dream-server/scripts/validate-compose-stack.sh
++++ b/dream-server/scripts/validate-compose-stack.sh
+@@ -39,11 +39,14 @@ if [[ -z "$COMPOSE_FLAGS" ]]; then
+ fi
+ 
+ # Build env-file flag if provided (allows compose to resolve required variable references)
+-ENV_FILE_FLAG=""
++ENV_FILE_FLAG_ARR=()
+ if [[ -n "$ENV_FILE" && -f "$ENV_FILE" ]]; then
+-    ENV_FILE_FLAG="--env-file $ENV_FILE"
++    ENV_FILE_FLAG_ARR=(--env-file "$ENV_FILE")
+ fi
+ 
++# Split COMPOSE_FLAGS into an array so paths with spaces survive expansion
++read -ra COMPOSE_FLAGS_ARR <<< "$COMPOSE_FLAGS"
++
+ # Check if docker/docker compose is available
+ if command -v docker &>/dev/null && docker compose version &>/dev/null; then
+     DOCKER_COMPOSE_CMD="docker compose"
+@@ -67,7 +70,7 @@ fi
+ # - Circular dependencies
+ # - Invalid environment variable references
+ validation_output=$(mktemp)
+-if $DOCKER_COMPOSE_CMD $ENV_FILE_FLAG $COMPOSE_FLAGS config > "$validation_output" 2>&1; then
++if $DOCKER_COMPOSE_CMD "${ENV_FILE_FLAG_ARR[@]}" "${COMPOSE_FLAGS_ARR[@]}" config > "$validation_output" 2>&1; then
+     if ! $QUIET; then
+         echo "Compose stack validation passed"
+         # Show summary of services
+diff --git a/dream-server/scripts/validate.sh b/dream-server/scripts/validate.sh
+index cb163aa..00c2f5a 100755
+--- a/dream-server/scripts/validate.sh
++++ b/dream-server/scripts/validate.sh
+@@ -35,6 +35,8 @@ if [[ -x "$PROJECT_DIR/scripts/resolve-compose-stack.sh" ]]; then
+     COMPOSE_FLAGS=$("$PROJECT_DIR/scripts/resolve-compose-stack.sh" \
+         --script-dir "$PROJECT_DIR" --tier "${TIER:-1}" --gpu-backend "${GPU_BACKEND:-nvidia}")
+ fi
++# Split COMPOSE_FLAGS into an array so paths with spaces survive expansion
++read -ra COMPOSE_FLAGS_ARR <<< "$COMPOSE_FLAGS"
+ 
+ echo ""
+ echo "╔═══════════════════════════════════════════╗"
+@@ -61,8 +63,24 @@ check() {
+ 
+ echo "1. Container Status"
+ echo "───────────────────"
+-check "llama-server running" "docker compose $COMPOSE_FLAGS ps llama-server 2>/dev/null | grep -qE 'Up|running'"
+-check "Open WebUI running" "docker compose $COMPOSE_FLAGS ps open-webui 2>/dev/null | grep -qE 'Up|running'"
++# Compose-flag checks use array expansion directly (check() runs via bash -c
++# which can't preserve array boundaries across string handoff)
++printf "  %-30s " "llama-server running..."
++if docker compose "${COMPOSE_FLAGS_ARR[@]}" ps llama-server 2>/dev/null | grep -qE 'Up|running'; then
++    echo -e "${GREEN}✓ PASS${NC}"
++    ((PASSED++))
++else
++    echo -e "${RED}✗ FAIL${NC}"
++    ((FAILED++))
++fi
++printf "  %-30s " "Open WebUI running..."
++if docker compose "${COMPOSE_FLAGS_ARR[@]}" ps open-webui 2>/dev/null | grep -qE 'Up|running'; then
++    echo -e "${GREEN}✓ PASS${NC}"
++    ((PASSED++))
++else
++    echo -e "${RED}✗ FAIL${NC}"
++    ((FAILED++))
++fi
+ 
+ echo ""
+ echo "2. Health Endpoints"
+@@ -118,7 +136,7 @@ for sid in "${SERVICE_IDS[@]}"; do
+     [[ -z "$_health" || "$_port" == "0" ]] && continue
+ 
+     # Check if container is running
+-    if docker compose $COMPOSE_FLAGS ps "$sid" 2>/dev/null | grep -qE "Up|running"; then
++    if docker compose "${COMPOSE_FLAGS_ARR[@]}" ps "$sid" 2>/dev/null | grep -qE "Up|running"; then
+         check "$_name" "curl -sf --max-time 10 http://localhost:${_port}${_health}"
+     else
+         printf "  %-30s ${YELLOW}○ SKIP (not enabled)${NC}\n" "$_name..."

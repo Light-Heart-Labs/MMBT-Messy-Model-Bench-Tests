@@ -1,0 +1,65 @@
+diff --git a/dream-server/installers/windows/install-windows.ps1 b/dream-server/installers/windows/install-windows.ps1
+index c605371..0262b28 100644
+--- a/dream-server/installers/windows/install-windows.ps1
++++ b/dream-server/installers/windows/install-windows.ps1
+@@ -165,7 +165,7 @@ Write-DreamBanner
+ #  Phase 03 → $enableVoice, $enableWorkflows, $enableRag, $enableOpenClaw, $openClawConfig
+ #  Phase 04 → $requirementsMet
+ #  Phase 05 → $dockerComposeCmd
+-#  Phase 06 → $envResult (EnvPath, SearxngSecret, OpenclawToken, DashboardKey)
++#  Phase 06 → $envResult (SearxngSecret, OpenclawToken)
+ #  Phase 07 → (no output -- tools installed to $env:USERPROFILE)
+ 
+ . (Join-Path $PhasesDir "01-preflight.ps1")
+diff --git a/dream-server/installers/windows/lib/env-generator.ps1 b/dream-server/installers/windows/lib/env-generator.ps1
+index b4a58e3..d10fa65 100644
+--- a/dream-server/installers/windows/lib/env-generator.ps1
++++ b/dream-server/installers/windows/lib/env-generator.ps1
+@@ -354,10 +354,8 @@ LANGFUSE_INIT_USER_PASSWORD=$langfuseInitUserPassword
+     }
+ 
+     return @{
+-        EnvPath        = $envPath
+         SearxngSecret  = $searxngSecret
+         OpenclawToken  = $openclawToken
+-        DashboardKey   = $dashboardApiKey
+     }
+ }
+ 
+diff --git a/dream-server/installers/windows/phases/06-directories.ps1 b/dream-server/installers/windows/phases/06-directories.ps1
+index be8654e..681fcb6 100644
+--- a/dream-server/installers/windows/phases/06-directories.ps1
++++ b/dream-server/installers/windows/phases/06-directories.ps1
+@@ -16,7 +16,7 @@
+ #   $openClawConfig            -- from phase 03
+ #
+ # Writes:
+-#   $envResult  -- hashtable: EnvPath, SearxngSecret, OpenclawToken, DashboardKey
++#   $envResult  -- hashtable: SearxngSecret, OpenclawToken
+ #
+ # Modder notes:
+ #   Add new directories to $_dirs array below.
+@@ -38,10 +38,8 @@ if ($dryRun) {
+     }
+     # Signal to later phases: no envResult in dry-run mode
+     $envResult = @{
+-        EnvPath       = Join-Path $installDir ".env"
+         SearxngSecret = "(dry-run-placeholder)"
+         OpenclawToken = "(dry-run-placeholder)"
+-        DashboardKey  = "(dry-run-placeholder)"
+     }
+     return
+ }
+diff --git a/dream-server/installers/windows/phases/07-devtools.ps1 b/dream-server/installers/windows/phases/07-devtools.ps1
+index f062ad9..b108f3d 100644
+--- a/dream-server/installers/windows/phases/07-devtools.ps1
++++ b/dream-server/installers/windows/phases/07-devtools.ps1
+@@ -10,7 +10,7 @@
+ #   $dryRun, $cloudMode         -- from orchestrator context
+ #   $installDir                 -- from orchestrator context
+ #   $tierConfig                 -- from phase 02 (LlmModel, MaxContext, GgufFile)
+-#   $envResult                  -- from phase 06 (OpenclawToken, DashboardKey)
++#   $envResult                  -- from phase 06 (OpenclawToken)
+ #   $script:OPENCODE_*          -- from lib/constants.ps1
+ #
+ # Writes:

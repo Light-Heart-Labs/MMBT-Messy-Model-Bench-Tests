@@ -1,0 +1,622 @@
+diff --git a/dream-server/bin/dream-host-agent.py b/dream-server/bin/dream-host-agent.py
+index 21fc764..a2a51e5 100755
+--- a/dream-server/bin/dream-host-agent.py
++++ b/dream-server/bin/dream-host-agent.py
+@@ -15,6 +15,7 @@ import signal
+ import subprocess
+ import sys
+ import threading
++import time
+ from datetime import datetime, timezone
+ from http.server import HTTPServer, BaseHTTPRequestHandler
+ from pathlib import Path
+@@ -167,7 +168,9 @@ def resolve_compose_flags() -> list:
+ 
+ def _precreate_data_dirs(service_id: str):
+     """Pre-create data directories for an extension with correct ownership."""
+-    ext_dir = USER_EXTENSIONS_DIR / service_id
++    ext_dir = _find_ext_dir(service_id)
++    if ext_dir is None:
++        return
+     compose_path = ext_dir / "compose.yaml"
+     if not compose_path.exists():
+         return
+@@ -200,7 +203,13 @@ def _precreate_data_dirs(service_id: str):
+             continue
+         for vol in volumes:
+             vol_str = str(vol).split(":")[0]
+-            if vol_str.startswith("./data/") or vol_str.startswith("data/"):
++            # Accept any relative bind-mount source (e.g. "./data/state",
++            # "./upload", "config/stuff"). Skip named volumes (no "/") and
++            # absolute paths ("/etc/..."). Docker Compose v2 resolves relative
++            # bind paths against the project directory (the first -f file's
++            # parent = INSTALL_DIR), not the individual fragment's directory,
++            # so anchor on INSTALL_DIR to match where Compose actually mounts.
++            if vol_str and not vol_str.startswith("/") and "/" in vol_str:
+                 dir_path = (INSTALL_DIR / vol_str.lstrip("./")).resolve()
+                 try:
+                     dir_path.relative_to(INSTALL_DIR.resolve())
+@@ -320,6 +329,113 @@ def _write_progress(service_id: str, status: str, phase_label: str = "",
+     os.rename(str(tmp_file), str(progress_file))
+ 
+ 
++def _read_progress_status(service_id: str) -> str | None:
++    """Return the ``status`` field of the progress file, or None if absent/unreadable.
++
++    Used by the enable-retry path to detect a prior failed install so the
++    host agent can re-run the post_install hook instead of silently calling
++    ``docker compose up`` against a half-configured service.
++    """
++    progress_file = DATA_DIR / "extension-progress" / f"{service_id}.json"
++    if not progress_file.exists():
++        return None
++    try:
++        data = json.loads(progress_file.read_text(encoding="utf-8"))
++    except (json.JSONDecodeError, OSError):
++        return None
++    status = data.get("status")
++    return status if isinstance(status, str) else None
++
++
++def _enable_retry_work(service_id: str) -> None:
++    """Re-run post_install hook (if declared) then start the service.
++
++    Writes progress transitions (``starting`` → ``setup_hook`` → ``started``/
++    ``error``) so the dashboard UI can poll the state of an enable-retry.
++    """
++    try:
++        _write_progress(service_id, "starting", "Retrying after failure...")
++
++        ext_dir = _find_ext_dir(service_id)
++        if ext_dir is None:
++            _write_progress(service_id, "error", "Retry failed",
++                            error=f"Extension directory not found for {service_id}")
++            return
++
++        # Re-run the post_install hook when declared. Setup hooks are
++        # expected to be idempotent (check-then-create for secrets,
++        # env vars, data dirs) so re-running repopulates anything an
++        # earlier failed install may have left unset.
++        hook_path = _resolve_hook(ext_dir, "post_install")
++        if hook_path:
++            _write_progress(service_id, "setup_hook", "Running setup...")
++            manifest = _read_manifest(ext_dir)
++            service_def = manifest.get("service", {}) if manifest else {}
++            if not isinstance(service_def, dict):
++                service_def = {}
++            # Minimal allowlist env — mirror _handle_install (L1129-1138)
++            # to keep host-agent secrets out of extension scripts.
++            hook_env = {
++                "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
++                "HOME": os.environ.get("HOME", ""),
++                "SERVICE_ID": service_id,
++                "SERVICE_PORT": str(service_def.get("port", 0)),
++                "SERVICE_DATA_DIR": str(DATA_DIR / service_id),
++                "DREAM_VERSION": DREAM_VERSION,
++                "GPU_BACKEND": GPU_BACKEND,
++                "HOOK_NAME": "post_install",
++            }
++            try:
++                hook_result = subprocess.run(
++                    ["bash", str(hook_path), str(INSTALL_DIR), GPU_BACKEND],
++                    cwd=str(ext_dir), env=hook_env,
++                    capture_output=True, text=True,
++                    timeout=SUBPROCESS_TIMEOUT_START,
++                )
++            except subprocess.TimeoutExpired:
++                _write_progress(service_id, "error", "Setup failed",
++                                error=f"post_install hook timed out ({SUBPROCESS_TIMEOUT_START}s)")
++                return
++            if hook_result.returncode != 0:
++                _write_progress(service_id, "error", "Setup failed",
++                                error=(hook_result.stderr or "")[:500])
++                return
++
++        _write_progress(service_id, "starting", "Starting container...")
++        ok, err = docker_compose_action(service_id, "start")
++        if not ok:
++            _write_progress(service_id, "error", "Start failed", error=err)
++            return
++        _write_progress(service_id, "started", "Service started")
++    except (RuntimeError, OSError, subprocess.SubprocessError) as exc:
++        logger.exception("Enable-retry failed for %s", service_id)
++        _write_progress(service_id, "error", "Retry failed",
++                        error=str(exc)[:500])
++
++
++def _start_enable_retry(handler, service_id: str, lock: threading.Lock) -> None:
++    """Dispatch the enable-retry worker on a daemon thread.
++
++    The caller must hold ``lock``; the thread releases it on exit. Sends
++    the 202 response before spawning the thread so the HTTP request
++    returns promptly (hook + compose start can take minutes).
++    """
++    def _thread_target() -> None:
++        try:
++            _enable_retry_work(service_id)
++        finally:
++            lock.release()
++
++    try:
++        json_response(handler, 202, {"status": "retrying",
++                                     "service_id": service_id,
++                                     "action": "start"})
++        threading.Thread(target=_thread_target, daemon=True).start()
++    except Exception:
++        lock.release()
++        raise
++
++
+ def json_response(handler, code: int, body: dict):
+     payload = json.dumps(body).encode("utf-8")
+     handler.send_response(code)
+@@ -790,6 +906,17 @@ class AgentHandler(BaseHTTPRequestHandler):
+         if not lock.acquire(blocking=False):
+             json_response(self, 409, {"error": f"Operation already in progress for {service_id}"})
+             return
++
++        # Enable-retry path: if a prior install left progress status=error,
++        # "start" must re-run the post_install hook (if declared) and write
++        # progress updates — otherwise the UI stays stuck on the old error and
++        # env vars populated by the hook never get regenerated. Hook + start
++        # can take minutes, so mirror _handle_install's 202-accept-then-thread
++        # pattern. Non-retry start/stop keeps the existing synchronous path.
++        if action == "start" and _read_progress_status(service_id) == "error":
++            _start_enable_retry(self, service_id, lock)
++            return
++
+         try:
+             ok, err = docker_compose_action(service_id, action)
+         except RuntimeError as exc:
+@@ -1100,10 +1227,15 @@ class AgentHandler(BaseHTTPRequestHandler):
+             try:
+                 flags = resolve_compose_flags()
+ 
++                ext_dir = _find_ext_dir(service_id)
++                if ext_dir is None:
++                    _write_progress(service_id, "error", "Installation failed",
++                                    error=f"Extension directory not found for {service_id}")
++                    return
++
+                 # Step 1: Setup hook (if requested)
+                 if run_setup_hook:
+                     _write_progress(service_id, "setup_hook", "Running setup...")
+-                    ext_dir = USER_EXTENSIONS_DIR / service_id
+                     hook_path = _resolve_hook(ext_dir, "post_install")
+                     if hook_path:
+                         # Minimal allowlist env — mirror _execute_hook (L856-866)
+@@ -1157,6 +1289,43 @@ class AgentHandler(BaseHTTPRequestHandler):
+                                     error=start_result.stderr[:500])
+                     return
+ 
++                # Poll for running state; compose `up -d` returns 0 even for
++                # Created/Exited/Restarting containers, so a 0 exit is not
++                # conclusive proof the service actually started.
++                install_manifest = _read_manifest(ext_dir)
++                install_service_def = install_manifest.get("service", {}) if install_manifest else {}
++                if not isinstance(install_service_def, dict):
++                    install_service_def = {}
++                container_name = install_service_def.get("container_name") or f"dream-{service_id}"
++
++                deadline = time.monotonic() + 15
++                state: str | None = None
++                state_error = ""
++                while time.monotonic() < deadline:
++                    try:
++                        inspect_result = subprocess.run(
++                            ["docker", "inspect", "--format",
++                             "{{.State.Status}}|{{.State.Error}}", container_name],
++                            capture_output=True, text=True, timeout=5,
++                        )
++                    except subprocess.TimeoutExpired:
++                        inspect_result = None
++                    if inspect_result is not None and inspect_result.returncode == 0:
++                        parts = inspect_result.stdout.strip().split("|", 1)
++                        state = parts[0] if parts else ""
++                        state_error = parts[1] if len(parts) > 1 else ""
++                        if state == "running":
++                            break
++                    time.sleep(1)
++
++                if state != "running":
++                    msg = f"Container did not reach running state within 15s (state={state or 'unknown'})"
++                    if state_error:
++                        msg += f": {state_error}"
++                    _write_progress(service_id, "error", "Installation failed",
++                                    error=msg)
++                    return
++
+                 # Step 4: Success
+                 _write_progress(service_id, "started", "Service started")
+ 
+diff --git a/dream-server/extensions/services/dashboard-api/routers/extensions.py b/dream-server/extensions/services/dashboard-api/routers/extensions.py
+index 4e4e355..be4742d 100644
+--- a/dream-server/extensions/services/dashboard-api/routers/extensions.py
++++ b/dream-server/extensions/services/dashboard-api/routers/extensions.py
+@@ -476,7 +476,12 @@ _AGENT_LOG_TIMEOUT = 30  # seconds — log fetches should be fast
+ 
+ 
+ def _call_agent(action: str, service_id: str) -> bool:
+-    """Call host agent to start/stop a service. Returns True on success."""
++    """Call host agent to start/stop a service. Returns True on success.
++
++    Accepts both 200 (synchronous completion) and 202 (host agent kicked off a
++    background retry — caller should let the dashboard's progress poll surface
++    the eventual outcome). Mirrors _call_agent_install's contract.
++    """
+     url = f"{AGENT_URL}/v1/extension/{action}"
+     headers = {
+         "Content-Type": "application/json",
+@@ -486,7 +491,7 @@ def _call_agent(action: str, service_id: str) -> bool:
+     req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+     try:
+         with urllib.request.urlopen(req, timeout=_AGENT_TIMEOUT) as resp:
+-            return resp.status == 200
++            return resp.status in (200, 202)
+     except Exception:
+         logger.warning("Host agent unreachable at %s — fallback to restart_required", AGENT_URL)
+         return False
+diff --git a/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py b/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py
+index fef1430..18f8884 100644
+--- a/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py
++++ b/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py
+@@ -3,6 +3,7 @@
+ import importlib.util
+ import io
+ import json
++import subprocess
+ import sys
+ from pathlib import Path, PurePosixPath
+ 
+@@ -490,3 +491,351 @@ class TestHandleModelDownloadCancel:
+         assert handler.parse_response()["status"] == "cancelling"
+         assert _mod._model_download_cancel.is_set() is True
+         assert proc.killed is True
++
++
++# --- _precreate_data_dirs + install flow (PR 2A regressions) ---
++#
++# Defect 1/2: _run_install and _precreate_data_dirs must use _find_ext_dir()
++# so built-in extensions (under EXTENSIONS_DIR) are found — the old
++# USER_EXTENSIONS_DIR-only path silently no-op'd for every built-in.
++#
++# Defect 3: _precreate_data_dirs must create dirs for any relative bind
++# source (not just "./data/..."), so extensions with "./upload:/..." style
++# mounts also get their dirs pre-created. Anchored on INSTALL_DIR because
++# Docker Compose v2 resolves relative bind paths against the project
++# directory (the first -f file's parent = INSTALL_DIR), not against the
++# individual fragment's directory.
++#
++# Defect 5: _handle_install must verify the container reached "running"
++# state before reporting success — compose `up -d` returns 0 even for
++# Created/Exited/Restarting containers.
++
++
++class TestPrecreateDataDirs:
++
++    def _write_compose(self, ext_dir: Path, volumes: list[str]):
++        vol_yaml = "\n".join(f"      - {v}" for v in volumes)
++        ext_dir.mkdir(parents=True, exist_ok=True)
++        (ext_dir / "compose.yaml").write_text(
++            "services:\n"
++            "  svc:\n"
++            "    image: test:latest\n"
++            "    volumes:\n" + vol_yaml + "\n",
++            encoding="utf-8",
++        )
++
++    def test_creates_dirs_for_builtin_ext_via_find_ext_dir(self, tmp_path, monkeypatch):
++        """Defect 1/2: built-in extensions resolved via _find_ext_dir, not USER_EXTENSIONS_DIR."""
++        pytest.importorskip("yaml")
++        builtin_root = tmp_path / "builtin"
++        user_root = tmp_path / "user"
++        install_dir = tmp_path / "install"
++        builtin_root.mkdir()
++        user_root.mkdir()
++        install_dir.mkdir()
++        ext_dir = builtin_root / "svc-b"
++        self._write_compose(ext_dir, ["./data/state:/state"])
++
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", builtin_root)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++
++        _mod._precreate_data_dirs("svc-b")
++
++        # Dir lives under INSTALL_DIR (the Compose project directory),
++        # NOT under ext_dir — matching where Compose actually mounts.
++        assert (install_dir / "data" / "state").is_dir()
++        assert not (ext_dir / "data" / "state").exists()
++
++    def test_creates_dirs_for_non_data_prefix(self, tmp_path, monkeypatch):
++        """Defect 3: relative bind sources outside './data/' must still be created."""
++        pytest.importorskip("yaml")
++        user_root = tmp_path / "user"
++        builtin_root = tmp_path / "builtin"
++        install_dir = tmp_path / "install"
++        user_root.mkdir()
++        builtin_root.mkdir()
++        install_dir.mkdir()
++        ext_dir = user_root / "svc-u"
++        self._write_compose(ext_dir, ["./upload:/upload", "./data/state:/state"])
++
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", builtin_root)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++
++        _mod._precreate_data_dirs("svc-u")
++
++        # Both non-"./data/" and "./data/..." mounts must materialise under
++        # INSTALL_DIR (the Compose project directory).
++        assert (install_dir / "upload").is_dir()
++        assert (install_dir / "data" / "state").is_dir()
++
++    def test_skips_named_volumes(self, tmp_path, monkeypatch):
++        """Named volumes (no '/') must not trigger filesystem creation."""
++        pytest.importorskip("yaml")
++        user_root = tmp_path / "user"
++        builtin_root = tmp_path / "builtin"
++        install_dir = tmp_path / "install"
++        user_root.mkdir()
++        builtin_root.mkdir()
++        install_dir.mkdir()
++        ext_dir = user_root / "svc-n"
++        self._write_compose(ext_dir, ["named_vol:/var/lib/data"])
++
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", builtin_root)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++
++        _mod._precreate_data_dirs("svc-n")
++
++        # Named volume must not materialize as a directory anywhere we own.
++        assert not (ext_dir / "named_vol").exists()
++        assert not (install_dir / "named_vol").exists()
++
++
++class TestInstallRunningStateVerification:
++    """Defect 5: `_handle_install` must poll container state before reporting success."""
++
++    def _install_source(self):
++        import inspect
++        return inspect.getsource(_mod.AgentHandler._handle_install)
++
++    def test_install_uses_find_ext_dir(self):
++        """Defect 1: _run_install resolves ext_dir via _find_ext_dir, not USER_EXTENSIONS_DIR."""
++        src = self._install_source()
++        assert "_find_ext_dir(service_id)" in src
++        assert "USER_EXTENSIONS_DIR / service_id" not in src
++
++    def test_install_polls_docker_inspect_state(self):
++        """State-poll loop must run `docker inspect` and check running state."""
++        src = self._install_source()
++        assert "docker" in src and "inspect" in src
++        assert "{{.State.Status}}" in src
++        assert 'state == "running"' in src
++
++    def test_install_writes_error_when_state_not_running(self):
++        """Failed state-poll must surface as progress error, not 'started'."""
++        src = self._install_source()
++        # The error path must come before (or instead of) the success write.
++        assert "did not reach running state within 15s" in src
++        # Error path uses the existing _write_progress("error", ...) API.
++        assert '_write_progress(service_id, "error"' in src
++
++
++# --- Enable-retry (PR 3A regression) ---
++#
++# When /v1/extension/start is called against a service whose extension-progress
++# file shows status=error (prior failed install), the host agent must:
++#   * re-run the post_install hook if declared (env vars populated by the hook
++#     may be missing from the previous failure),
++#   * write progress transitions (starting → setup_hook → started/error) so the
++#     dashboard UI updates instead of displaying the stale error, and
++#   * fall back to the existing synchronous compose path for any service that
++#     isn't in an error state.
++#
++# Pre-fix, _handle_extension hit docker_compose_action directly without writing
++# progress or re-running the hook, leaving the UI permanently stuck.
++
++
++class _ImmediateThread:
++    """Run thread targets synchronously so tests can assert on results."""
++    def __init__(self, target=None, daemon=None, **kwargs):
++        self._target = target
++
++    def start(self):
++        self._target()
++
++
++class TestEnableRetry:
++
++    def _write_manifest(self, ext_dir: Path, with_hook: bool = True):
++        ext_dir.mkdir(parents=True, exist_ok=True)
++        if with_hook:
++            hook = ext_dir / "setup.sh"
++            hook.write_text("#!/bin/bash\nexit 0\n", encoding="utf-8")
++            hook.chmod(0o755)
++            (ext_dir / "manifest.yaml").write_text(
++                "service:\n"
++                "  port: 1234\n"
++                "  hooks:\n"
++                "    post_install: setup.sh\n",
++                encoding="utf-8",
++            )
++        else:
++            (ext_dir / "manifest.yaml").write_text(
++                "service:\n  port: 1234\n",
++                encoding="utf-8",
++            )
++
++    def _write_progress_file(self, data_dir: Path, service_id: str, status: str):
++        progress_dir = data_dir / "extension-progress"
++        progress_dir.mkdir(parents=True, exist_ok=True)
++        (progress_dir / f"{service_id}.json").write_text(
++            json.dumps({"service_id": service_id, "status": status}),
++            encoding="utf-8",
++        )
++
++    def _progress(self, data_dir: Path, service_id: str):
++        pf = data_dir / "extension-progress" / f"{service_id}.json"
++        if not pf.exists():
++            return None
++        return json.loads(pf.read_text(encoding="utf-8"))
++
++    def _body(self, service_id: str) -> bytes:
++        return json.dumps({"service_id": service_id}).encode("utf-8")
++
++    @pytest.fixture
++    def retry_env(self, tmp_path, monkeypatch):
++        pytest.importorskip("yaml")
++        install_dir = tmp_path / "install"
++        install_dir.mkdir()
++        data_dir = tmp_path / "data"
++        data_dir.mkdir()
++        builtin_root = tmp_path / "builtin"
++        user_root = tmp_path / "user"
++        builtin_root.mkdir()
++        user_root.mkdir()
++
++        monkeypatch.setattr(_mod, "INSTALL_DIR", install_dir)
++        monkeypatch.setattr(_mod, "DATA_DIR", data_dir)
++        monkeypatch.setattr(_mod, "EXTENSIONS_DIR", builtin_root)
++        monkeypatch.setattr(_mod, "USER_EXTENSIONS_DIR", user_root)
++        monkeypatch.setattr(_mod, "AGENT_API_KEY", "test-key")
++
++        # Drop the per-service lock so retries across tests don't deadlock.
++        _mod._service_locks.pop("fakesvc", None)
++
++        # Force threading.Thread to run targets synchronously so the assertions
++        # below execute after the retry worker completes.
++        monkeypatch.setattr(_mod.threading, "Thread", _ImmediateThread)
++
++        return install_dir, data_dir, builtin_root, user_root
++
++    def test_retry_after_error_runs_hook_and_writes_started(self, retry_env, monkeypatch):
++        _, data_dir, builtin_root, _ = retry_env
++        ext_dir = builtin_root / "fakesvc"
++        self._write_manifest(ext_dir, with_hook=True)
++        self._write_progress_file(data_dir, "fakesvc", "error")
++
++        hook_cmds = []
++
++        def fake_run(cmd, *args, **kwargs):
++            hook_cmds.append(cmd)
++            return subprocess.CompletedProcess(args=cmd, returncode=0,
++                                               stdout="", stderr="")
++
++        monkeypatch.setattr(_mod.subprocess, "run", fake_run)
++
++        compose_calls = []
++
++        def fake_compose(sid, action):
++            compose_calls.append((sid, action))
++            return True, ""
++
++        monkeypatch.setattr(_mod, "docker_compose_action", fake_compose)
++
++        handler = _FakeHandler(self._body("fakesvc"))
++        _mod.AgentHandler._handle_extension(handler, "start")
++
++        assert handler.response_code == 202
++        assert handler.parse_response()["status"] == "retrying"
++        # post_install hook was invoked via bash against setup.sh
++        assert any(
++            len(c) >= 2 and c[0] == "bash" and c[1].endswith("setup.sh")
++            for c in hook_cmds
++        ), f"expected setup.sh bash invocation, saw {hook_cmds}"
++        # docker compose start was called after the hook
++        assert ("fakesvc", "start") in compose_calls
++        # Progress landed on 'started'
++        progress = self._progress(data_dir, "fakesvc")
++        assert progress is not None
++        assert progress["status"] == "started"
++
++    def test_retry_hook_failure_writes_error_and_skips_compose(self, retry_env, monkeypatch):
++        _, data_dir, builtin_root, _ = retry_env
++        ext_dir = builtin_root / "fakesvc"
++        self._write_manifest(ext_dir, with_hook=True)
++        self._write_progress_file(data_dir, "fakesvc", "error")
++
++        def fake_run(cmd, *args, **kwargs):
++            return subprocess.CompletedProcess(args=cmd, returncode=1,
++                                               stdout="", stderr="hook boom")
++
++        monkeypatch.setattr(_mod.subprocess, "run", fake_run)
++
++        compose_calls = []
++        monkeypatch.setattr(
++            _mod, "docker_compose_action",
++            lambda sid, act: (compose_calls.append((sid, act)) or (True, "")),
++        )
++
++        handler = _FakeHandler(self._body("fakesvc"))
++        _mod.AgentHandler._handle_extension(handler, "start")
++
++        assert handler.response_code == 202
++        progress = self._progress(data_dir, "fakesvc")
++        assert progress is not None
++        assert progress["status"] == "error"
++        assert "hook boom" in (progress["error"] or "")
++        # Hook failure must NOT proceed to compose start
++        assert compose_calls == []
++
++    def test_no_progress_file_uses_sync_path_without_progress_write(self, retry_env, monkeypatch):
++        _, data_dir, builtin_root, _ = retry_env
++        ext_dir = builtin_root / "fakesvc"
++        self._write_manifest(ext_dir, with_hook=True)
++        # Deliberately no progress file.
++
++        hook_cmds = []
++
++        def fake_run(cmd, *args, **kwargs):
++            hook_cmds.append(cmd)
++            return subprocess.CompletedProcess(args=cmd, returncode=0,
++                                               stdout="", stderr="")
++
++        monkeypatch.setattr(_mod.subprocess, "run", fake_run)
++        monkeypatch.setattr(_mod, "docker_compose_action",
++                            lambda sid, act: (True, ""))
++
++        handler = _FakeHandler(self._body("fakesvc"))
++        _mod.AgentHandler._handle_extension(handler, "start")
++
++        # Synchronous success → 200, not 202
++        assert handler.response_code == 200
++        assert handler.parse_response()["status"] == "ok"
++        # Sync path must not re-run the hook
++        assert not any(
++            len(c) >= 2 and c[0] == "bash" and c[1].endswith("setup.sh")
++            for c in hook_cmds
++        )
++        # Sync path must not write a progress file
++        assert self._progress(data_dir, "fakesvc") is None
++
++    def test_progress_status_started_uses_sync_path(self, retry_env, monkeypatch):
++        _, data_dir, builtin_root, _ = retry_env
++        ext_dir = builtin_root / "fakesvc"
++        self._write_manifest(ext_dir, with_hook=True)
++        self._write_progress_file(data_dir, "fakesvc", "started")
++
++        hook_cmds = []
++
++        def fake_run(cmd, *args, **kwargs):
++            hook_cmds.append(cmd)
++            return subprocess.CompletedProcess(args=cmd, returncode=0,
++                                               stdout="", stderr="")
++
++        monkeypatch.setattr(_mod.subprocess, "run", fake_run)
++        monkeypatch.setattr(_mod, "docker_compose_action",
++                            lambda sid, act: (True, ""))
++
++        handler = _FakeHandler(self._body("fakesvc"))
++        _mod.AgentHandler._handle_extension(handler, "start")
++
++        assert handler.response_code == 200
++        # Sync path must not re-run the hook
++        assert not any(
++            len(c) >= 2 and c[0] == "bash" and c[1].endswith("setup.sh")
++            for c in hook_cmds
++        )
++        # Progress must be unchanged
++        assert self._progress(data_dir, "fakesvc")["status"] == "started"

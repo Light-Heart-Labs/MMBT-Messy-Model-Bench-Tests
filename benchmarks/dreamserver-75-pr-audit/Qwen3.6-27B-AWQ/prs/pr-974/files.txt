@@ -1,0 +1,10 @@
+dream-server/installers/windows/dream.ps1
+dream-server/installers/windows/install-windows.ps1
+dream-server/installers/windows/lib/install-report.ps1
+dream-server/installers/windows/lib/llm-endpoint.ps1
+dream-server/installers/windows/lib/opencode-config.ps1
+dream-server/installers/windows/phases/07-devtools.ps1
+dream-server/scripts/bootstrap-upgrade.sh
+dream-server/scripts/update-windows-opencode-config.ps1
+dream-server/tests/test-windows-opencode-config.sh
+dream-server/tests/test-windows-report-command.sh

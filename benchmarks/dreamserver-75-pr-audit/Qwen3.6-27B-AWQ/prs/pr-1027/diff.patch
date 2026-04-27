@@ -1,0 +1,458 @@
+diff --git a/dream-server/Makefile b/dream-server/Makefile
+index 50d5081..c10998c 100644
+--- a/dream-server/Makefile
++++ b/dream-server/Makefile
+@@ -33,6 +33,9 @@ test: ## Run unit and contract tests
+ 	@echo "=== Overlay/plist contracts ==="
+ 	@bash tests/contracts/test-overlay-map-coherence.sh
+ 	@bash tests/contracts/test-plist-log-paths.sh
++	@echo ""
++	@echo "=== Bind address sweep ==="
++	@bash tests/test-bind-address-sweep.sh
+ 
+ bats: ## Run BATS unit tests for shell libraries
+ 	@echo "=== BATS unit tests ==="
+diff --git a/dream-server/tests/test-bind-address-sweep.sh b/dream-server/tests/test-bind-address-sweep.sh
+new file mode 100755
+index 0000000..95e91c6
+--- /dev/null
++++ b/dream-server/tests/test-bind-address-sweep.sh
+@@ -0,0 +1,49 @@
++#!/bin/bash
++# ============================================================================
++# Test: community extensions port-binding sweep
++# ============================================================================
++# Regression guard for PR #964 follow-up: every community extension compose
++# file under resources/dev/extensions-library/services/ must bind its host
++# ports via ${BIND_ADDRESS:-127.0.0.1} — never a bare "127.0.0.1:" literal.
++# A hard-coded 127.0.0.1 defeats the --lan / dashboard opt-in that flips
++# BIND_ADDRESS to 0.0.0.0.
++#
++# Scope: ports: list entries only. healthcheck: blocks reference 127.0.0.1
++# as container-internal loopback and are excluded.
++#
++# Usage: bash tests/test-bind-address-sweep.sh
++# ============================================================================
++
++set -euo pipefail
++
++SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
++ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
++REPO_ROOT="$(cd "$ROOT_DIR/.." && pwd)"
++
++EXT_DIR="$REPO_ROOT/resources/dev/extensions-library/services"
++
++GREEN='\033[0;32m'
++RED='\033[0;31m'
++NC='\033[0m'
++
++if [[ ! -d "$EXT_DIR" ]]; then
++    echo -e "  ${RED}FAIL${NC} community extensions directory missing: $EXT_DIR"
++    exit 1
++fi
++
++# Match lines that start a ports entry with a literal 127.0.0.1, quoted or not.
++# Healthcheck URLs live on `test:` lines and never start with `- "127.0.0.1:`
++# or `- 127.0.0.1:`, so this pattern is specific to ports: entries.
++OFFENDERS="$(grep -REn '^\s*-\s*"?127\.0\.0\.1:' "$EXT_DIR" --include='compose.yaml' || true)"
++
++if [[ -n "$OFFENDERS" ]]; then
++    echo -e "  ${RED}FAIL${NC} community extensions still bind to literal 127.0.0.1 in ports:"
++    echo "$OFFENDERS"
++    echo ""
++    echo "  Use the BIND_ADDRESS pattern instead, e.g.:"
++    echo '    - "${BIND_ADDRESS:-127.0.0.1}:${EXT_PORT:-NNNN}:NNNN"'
++    exit 1
++fi
++
++echo -e "  ${GREEN}PASS${NC} no literal 127.0.0.1 ports bindings in community extensions"
++exit 0
+diff --git a/resources/dev/extensions-library/services/anythingllm/compose.yaml b/resources/dev/extensions-library/services/anythingllm/compose.yaml
+index 77742d9..c1b3af1 100644
+--- a/resources/dev/extensions-library/services/anythingllm/compose.yaml
++++ b/resources/dev/extensions-library/services/anythingllm/compose.yaml
+@@ -24,7 +24,7 @@ services:
+     volumes:
+       - ./data/anythingllm:/app/server/storage:rw
+     ports:
+-      - "127.0.0.1:${ANYTHINGLLM_PORT:-7800}:3001"
++      - "${BIND_ADDRESS:-127.0.0.1}:${ANYTHINGLLM_PORT:-7800}:3001"
+     healthcheck:
+       test: ["CMD", "curl", "-sf", "http://127.0.0.1:3001/api/health"]
+       interval: 30s
+diff --git a/resources/dev/extensions-library/services/audiocraft/compose.yaml b/resources/dev/extensions-library/services/audiocraft/compose.yaml
+index 892a92f..6f398a2 100644
+--- a/resources/dev/extensions-library/services/audiocraft/compose.yaml
++++ b/resources/dev/extensions-library/services/audiocraft/compose.yaml
+@@ -14,7 +14,7 @@ services:
+       - ./data/audiocraft:/app/outputs:rw
+       - ./data/audiocraft/models:/root/.cache/audiocraft:rw
+     ports:
+-      - "127.0.0.1:${AUDIOCRAFT_PORT:-7863}:7860"
++      - "${BIND_ADDRESS:-127.0.0.1}:${AUDIOCRAFT_PORT:-7863}:7860"
+     healthcheck:
+       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:7860/"]
+       interval: 30s
+diff --git a/resources/dev/extensions-library/services/bark/compose.yaml b/resources/dev/extensions-library/services/bark/compose.yaml
+index 4c2f3f8..deadd91 100644
+--- a/resources/dev/extensions-library/services/bark/compose.yaml
++++ b/resources/dev/extensions-library/services/bark/compose.yaml
+@@ -8,7 +8,7 @@ services:
+     security_opt:
+       - no-new-privileges:true
+     ports:
+-      - "127.0.0.1:${BARK_PORT:-9200}:9200"
++      - "${BIND_ADDRESS:-127.0.0.1}:${BARK_PORT:-9200}:9200"
+     environment:
+       # Use small models (faster, less VRAM) — set to false for full quality
+       - SUNO_USE_SMALL_MODELS=${BARK_USE_SMALL_MODELS:-false}
+diff --git a/resources/dev/extensions-library/services/baserow/compose.yaml b/resources/dev/extensions-library/services/baserow/compose.yaml
+index fe297cd..3fe81a8 100644
+--- a/resources/dev/extensions-library/services/baserow/compose.yaml
++++ b/resources/dev/extensions-library/services/baserow/compose.yaml
+@@ -35,7 +35,7 @@ services:
+     volumes:
+       - ./data/baserow:/baserow/data:rw
+     ports:
+-      - "127.0.0.1:${BASEROW_PORT:-3007}:80"
++      - "${BIND_ADDRESS:-127.0.0.1}:${BASEROW_PORT:-3007}:80"
+     networks:
+       - dream-network
+     healthcheck:
+diff --git a/resources/dev/extensions-library/services/chromadb/compose.yaml b/resources/dev/extensions-library/services/chromadb/compose.yaml
+index e5e6912..e218ea2 100644
+--- a/resources/dev/extensions-library/services/chromadb/compose.yaml
++++ b/resources/dev/extensions-library/services/chromadb/compose.yaml
+@@ -3,7 +3,7 @@ services:
+     image: chromadb/chroma:1.5.3
+     container_name: dream-chromadb
+     ports:
+-      - "127.0.0.1:${CHROMADB_PORT:-8000}:8000"
++      - "${BIND_ADDRESS:-127.0.0.1}:${CHROMADB_PORT:-8000}:8000"
+     volumes:
+       - ./data/chromadb:/chromadb
+     environment:
+diff --git a/resources/dev/extensions-library/services/continue/compose.yaml b/resources/dev/extensions-library/services/continue/compose.yaml
+index 725c63d..66ac82e 100644
+--- a/resources/dev/extensions-library/services/continue/compose.yaml
++++ b/resources/dev/extensions-library/services/continue/compose.yaml
+@@ -25,7 +25,7 @@ services:
+       - ./config/continue/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+       - ./config/continue/entrypoint.sh:/docker-entrypoint.d/50-continue-init.sh:ro
+     ports:
+-      - "127.0.0.1:${CONTINUE_PORT:-8890}:8080"
++      - "${BIND_ADDRESS:-127.0.0.1}:${CONTINUE_PORT:-8890}:8080"
+     networks:
+       - dream-network
+     healthcheck:
+diff --git a/resources/dev/extensions-library/services/crewai/compose.yaml b/resources/dev/extensions-library/services/crewai/compose.yaml
+index d4f07fa..83fa2ad 100644
+--- a/resources/dev/extensions-library/services/crewai/compose.yaml
++++ b/resources/dev/extensions-library/services/crewai/compose.yaml
+@@ -40,7 +40,7 @@ services:
+       # App data (SQLite DB, crew configs, history) lives under /app in the container
+       - ./data/crewai:/app:rw
+     ports:
+-      - "127.0.0.1:${CREWAI_PORT:-8501}:8501"
++      - "${BIND_ADDRESS:-127.0.0.1}:${CREWAI_PORT:-8501}:8501"
+     healthcheck:
+       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/')"]
+       interval: 30s
+diff --git a/resources/dev/extensions-library/services/flowise/compose.yaml b/resources/dev/extensions-library/services/flowise/compose.yaml
+index 45e99e2..66799de 100644
+--- a/resources/dev/extensions-library/services/flowise/compose.yaml
++++ b/resources/dev/extensions-library/services/flowise/compose.yaml
+@@ -20,7 +20,7 @@ services:
+     volumes:
+       - ./data/flowise:/root/.flowise:rw
+     ports:
+-      - "127.0.0.1:${FLOWISE_PORT:-7801}:3000"
++      - "${BIND_ADDRESS:-127.0.0.1}:${FLOWISE_PORT:-7801}:3000"
+     healthcheck:
+       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/api/v1/ping"]
+       interval: 30s
+diff --git a/resources/dev/extensions-library/services/forge/compose.yaml b/resources/dev/extensions-library/services/forge/compose.yaml
+index 025c9f9..11ce773 100644
+--- a/resources/dev/extensions-library/services/forge/compose.yaml
++++ b/resources/dev/extensions-library/services/forge/compose.yaml
+@@ -13,7 +13,7 @@ services:
+       - ./data/forge/models:/opt/stable-diffusion-webui-forge/models:rw
+       - ./data/forge/outputs:/opt/stable-diffusion-webui-forge/outputs:rw
+     ports:
+-      - "127.0.0.1:${FORGE_PORT:-7861}:7861"
++      - "${BIND_ADDRESS:-127.0.0.1}:${FORGE_PORT:-7861}:7861"
+     healthcheck:
+       test: ["CMD", "curl", "-f", "http://127.0.0.1:7861/"]
+       interval: 30s
+diff --git a/resources/dev/extensions-library/services/frigate/compose.yaml b/resources/dev/extensions-library/services/frigate/compose.yaml
+index c80ef31..5b8ee7c 100644
+--- a/resources/dev/extensions-library/services/frigate/compose.yaml
++++ b/resources/dev/extensions-library/services/frigate/compose.yaml
+@@ -7,10 +7,10 @@ services:
+       - no-new-privileges:true
+     shm_size: "128mb"
+     ports:
+-      - "127.0.0.1:${FRIGATE_PORT:-8971}:5000"
+-      - "127.0.0.1:${FRIGATE_RTSP_PORT:-8554}:8554"
+-      - "127.0.0.1:${FRIGATE_WEBRTC_PORT:-8555}:8555/tcp"
+-      - "127.0.0.1:${FRIGATE_WEBRTC_PORT:-8555}:8555/udp"
++      - "${BIND_ADDRESS:-127.0.0.1}:${FRIGATE_PORT:-8971}:5000"
++      - "${BIND_ADDRESS:-127.0.0.1}:${FRIGATE_RTSP_PORT:-8554}:8554"
++      - "${BIND_ADDRESS:-127.0.0.1}:${FRIGATE_WEBRTC_PORT:-8555}:8555/tcp"
++      - "${BIND_ADDRESS:-127.0.0.1}:${FRIGATE_WEBRTC_PORT:-8555}:8555/udp"
+     environment:
+       - FRIGATE_RTSP_PASSWORD=${FRIGATE_RTSP_PASSWORD:?FRIGATE_RTSP_PASSWORD must be set}
+     volumes:
+diff --git a/resources/dev/extensions-library/services/gitea/compose.yaml b/resources/dev/extensions-library/services/gitea/compose.yaml
+index edbe196..e85d756 100644
+--- a/resources/dev/extensions-library/services/gitea/compose.yaml
++++ b/resources/dev/extensions-library/services/gitea/compose.yaml
+@@ -25,8 +25,8 @@ services:
+     volumes:
+       - ./data/gitea:/var/lib/gitea:rw
+     ports:
+-      - "127.0.0.1:${GITEA_PORT:-7830}:3000"
+-      - "127.0.0.1:${GITEA_SSH_PORT:-2222}:2222"
++      - "${BIND_ADDRESS:-127.0.0.1}:${GITEA_PORT:-7830}:3000"
++      - "${BIND_ADDRESS:-127.0.0.1}:${GITEA_SSH_PORT:-2222}:2222"
+     healthcheck:
+       test: ["CMD", "curl", "-sf", "http://127.0.0.1:3000/api/healthz"]
+       interval: 30s
+diff --git a/resources/dev/extensions-library/services/immich/compose.yaml b/resources/dev/extensions-library/services/immich/compose.yaml
+index 7faea64..fe48c7f 100644
+--- a/resources/dev/extensions-library/services/immich/compose.yaml
++++ b/resources/dev/extensions-library/services/immich/compose.yaml
+@@ -3,7 +3,7 @@ services:
+     image: ghcr.io/immich-app/immich-server:v1.131.3
+     container_name: dream-immich
+     ports:
+-      - "127.0.0.1:${IMMICH_PORT:-2283}:2283"
++      - "${BIND_ADDRESS:-127.0.0.1}:${IMMICH_PORT:-2283}:2283"
+     volumes:
+       - ./data/immich/upload:/usr/src/app/upload
+       - ./data/immich/backup:/usr/src/app/backup
+diff --git a/resources/dev/extensions-library/services/invokeai/compose.yaml b/resources/dev/extensions-library/services/invokeai/compose.yaml
+index bcaac92..dcf97b4 100644
+--- a/resources/dev/extensions-library/services/invokeai/compose.yaml
++++ b/resources/dev/extensions-library/services/invokeai/compose.yaml
+@@ -10,7 +10,7 @@ services:
+     volumes:
+       - ./data/invokeai:/invokeai:rw
+     ports:
+-      - "127.0.0.1:${INVOKEAI_PORT:-9090}:9090"
++      - "${BIND_ADDRESS:-127.0.0.1}:${INVOKEAI_PORT:-9090}:9090"
+     healthcheck:
+       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9090/health')"]
+       interval: 30s
+diff --git a/resources/dev/extensions-library/services/jupyter/compose.yaml b/resources/dev/extensions-library/services/jupyter/compose.yaml
+index a0d654d..6d48319 100644
+--- a/resources/dev/extensions-library/services/jupyter/compose.yaml
++++ b/resources/dev/extensions-library/services/jupyter/compose.yaml
+@@ -3,7 +3,7 @@ services:
+     image: jupyter/scipy-notebook:python-3.11
+     container_name: dream-jupyter
+     ports:
+-      - "127.0.0.1:${JUPYTER_PORT:-8889}:8888"
++      - "${BIND_ADDRESS:-127.0.0.1}:${JUPYTER_PORT:-8889}:8888"
+     volumes:
+       - ./data/jupyter/workspace:/home/jovyan/work
+       - ./data/jupyter/notebooks:/home/jovyan/notebooks
+diff --git a/resources/dev/extensions-library/services/label-studio/compose.yaml b/resources/dev/extensions-library/services/label-studio/compose.yaml
+index ed6b070..7e7f8ff 100644
+--- a/resources/dev/extensions-library/services/label-studio/compose.yaml
++++ b/resources/dev/extensions-library/services/label-studio/compose.yaml
+@@ -17,7 +17,7 @@ services:
+       - ./media:/label-studio/media:rw
+       - ./www:/label-studio/www:rw
+     ports:
+-      - "127.0.0.1:${LABEL_STUDIO_PORT:-8086}:8080"
++      - "${BIND_ADDRESS:-127.0.0.1}:${LABEL_STUDIO_PORT:-8086}:8080"
+     healthcheck:
+       test: ["CMD", "curl", "-sf", "http://127.0.0.1:8080/health"]
+       interval: 30s
+diff --git a/resources/dev/extensions-library/services/langflow/compose.yaml b/resources/dev/extensions-library/services/langflow/compose.yaml
+index bb663d0..356d4d9 100644
+--- a/resources/dev/extensions-library/services/langflow/compose.yaml
++++ b/resources/dev/extensions-library/services/langflow/compose.yaml
+@@ -12,7 +12,7 @@ services:
+     volumes:
+       - ./data/langflow:/app/data
+     ports:
+-      - "127.0.0.1:${LANGFLOW_PORT:-7802}:7860"
++      - "${BIND_ADDRESS:-127.0.0.1}:${LANGFLOW_PORT:-7802}:7860"
+     healthcheck:
+       test: ["CMD", "curl", "-f", "http://127.0.0.1:7860/health"]
+       interval: 30s
+diff --git a/resources/dev/extensions-library/services/librechat/compose.yaml b/resources/dev/extensions-library/services/librechat/compose.yaml
+index e034e07..bcaece0 100644
+--- a/resources/dev/extensions-library/services/librechat/compose.yaml
++++ b/resources/dev/extensions-library/services/librechat/compose.yaml
+@@ -55,7 +55,7 @@ services:
+       - ./data/librechat/logs:/app/api/logs:rw
+       - ./data/librechat/uploads:/app/uploads:rw
+     ports:
+-      - "127.0.0.1:${LIBRECHAT_PORT:-3080}:3080"
++      - "${BIND_ADDRESS:-127.0.0.1}:${LIBRECHAT_PORT:-3080}:3080"
+     depends_on:
+       librechat-mongodb:
+         condition: service_healthy
+diff --git a/resources/dev/extensions-library/services/localai/compose.yaml b/resources/dev/extensions-library/services/localai/compose.yaml
+index 9fe2f8c..281910b 100644
+--- a/resources/dev/extensions-library/services/localai/compose.yaml
++++ b/resources/dev/extensions-library/services/localai/compose.yaml
+@@ -5,7 +5,7 @@ services:
+     networks:
+       - dream-network
+     ports:
+-      - "127.0.0.1:${LOCALAI_EXTERNAL_PORT:-7803}:8080"
++      - "${BIND_ADDRESS:-127.0.0.1}:${LOCALAI_EXTERNAL_PORT:-7803}:8080"
+     volumes:
+       - ./data/localai/models:/models
+       - ./data/localai/builds:/builds
+diff --git a/resources/dev/extensions-library/services/milvus/compose.yaml b/resources/dev/extensions-library/services/milvus/compose.yaml
+index 62c95b9..893e8a5 100644
+--- a/resources/dev/extensions-library/services/milvus/compose.yaml
++++ b/resources/dev/extensions-library/services/milvus/compose.yaml
+@@ -3,7 +3,7 @@ services:
+     image: milvusdb/milvus:v2.4.5
+     container_name: dream-milvus
+     ports:
+-      - "127.0.0.1:${MILVUS_PORT:-19530}:19530"
++      - "${BIND_ADDRESS:-127.0.0.1}:${MILVUS_PORT:-19530}:19530"
+     volumes:
+       - ./data/milvus:/var/lib/milvus
+     environment:
+diff --git a/resources/dev/extensions-library/services/ollama/compose.yaml b/resources/dev/extensions-library/services/ollama/compose.yaml
+index afeac7c..ced704e 100644
+--- a/resources/dev/extensions-library/services/ollama/compose.yaml
++++ b/resources/dev/extensions-library/services/ollama/compose.yaml
+@@ -6,7 +6,7 @@ services:
+     security_opt:
+       - no-new-privileges:true
+     ports:
+-      - "127.0.0.1:${EXT_OLLAMA_PORT:-7804}:11434"
++      - "${BIND_ADDRESS:-127.0.0.1}:${EXT_OLLAMA_PORT:-7804}:11434"
+     volumes:
+       - ./data/ollama:/root/.ollama
+     environment:
+diff --git a/resources/dev/extensions-library/services/open-interpreter/compose.yaml b/resources/dev/extensions-library/services/open-interpreter/compose.yaml
+index 3201c68..9d3f42c 100644
+--- a/resources/dev/extensions-library/services/open-interpreter/compose.yaml
++++ b/resources/dev/extensions-library/services/open-interpreter/compose.yaml
+@@ -15,7 +15,7 @@ services:
+     volumes:
+       - ./data/open-interpreter:/app/data:rw
+     ports:
+-      - "127.0.0.1:${OPEN_INTERPRETER_PORT:-7805}:8080"
++      - "${BIND_ADDRESS:-127.0.0.1}:${OPEN_INTERPRETER_PORT:-7805}:8080"
+     working_dir: /app
+     command: ["python", "server.py"]
+     healthcheck:
+diff --git a/resources/dev/extensions-library/services/paperless-ngx/compose.yaml b/resources/dev/extensions-library/services/paperless-ngx/compose.yaml
+index 23937a5..9933cc0 100644
+--- a/resources/dev/extensions-library/services/paperless-ngx/compose.yaml
++++ b/resources/dev/extensions-library/services/paperless-ngx/compose.yaml
+@@ -18,7 +18,7 @@ services:
+       - ./data/paperless/export:/usr/src/paperless/export
+       - ./data/paperless/media:/usr/src/paperless/media
+     ports:
+-      - "127.0.0.1:${PAPERLESS_PORT:-7807}:8000"
++      - "${BIND_ADDRESS:-127.0.0.1}:${PAPERLESS_PORT:-7807}:8000"
+     healthcheck:
+       test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/accounts/login/"]
+       interval: 30s
+diff --git a/resources/dev/extensions-library/services/piper-audio/compose.yaml b/resources/dev/extensions-library/services/piper-audio/compose.yaml
+index c60127d..b891bba 100644
+--- a/resources/dev/extensions-library/services/piper-audio/compose.yaml
++++ b/resources/dev/extensions-library/services/piper-audio/compose.yaml
+@@ -3,7 +3,7 @@ services:
+     image: lscr.io/linuxserver/piper:1.6.3
+     container_name: dream-piper-audio
+     ports:
+-      - "127.0.0.1:${PIPER_PORT:-10200}:10200"
++      - "${BIND_ADDRESS:-127.0.0.1}:${PIPER_PORT:-10200}:10200"
+     volumes:
+       - ./data/piper:/config/piper
+     environment:
+diff --git a/resources/dev/extensions-library/services/privacy-shield/compose.yaml b/resources/dev/extensions-library/services/privacy-shield/compose.yaml
+index 83202d4..0dd4d85 100644
+--- a/resources/dev/extensions-library/services/privacy-shield/compose.yaml
++++ b/resources/dev/extensions-library/services/privacy-shield/compose.yaml
+@@ -19,7 +19,7 @@ services:
+     volumes:
+       - ./data/privacy-shield:/data
+     ports:
+-      - "127.0.0.1:${SHIELD_PORT:-7808}:8085"
++      - "${BIND_ADDRESS:-127.0.0.1}:${SHIELD_PORT:-7808}:8085"
+     deploy:
+       resources:
+         limits:
+diff --git a/resources/dev/extensions-library/services/rvc/compose.yaml b/resources/dev/extensions-library/services/rvc/compose.yaml
+index c834894..8b7be0a 100644
+--- a/resources/dev/extensions-library/services/rvc/compose.yaml
++++ b/resources/dev/extensions-library/services/rvc/compose.yaml
+@@ -3,7 +3,7 @@ services:
+     image: aladdin1234/rvc-webui:0.1@sha256:7f8b4ca826d31d0ea50c56327d9fbfd1dacead37064a5f9745738b728a6271be
+     container_name: dream-rvc
+     ports:
+-      - "127.0.0.1:${RVC_PORT:-7809}:7865"
++      - "${BIND_ADDRESS:-127.0.0.1}:${RVC_PORT:-7809}:7865"
+     volumes:
+       - ./data/rvc/weights:/app/assets/weights
+       - ./data/rvc/opt:/app/opt
+diff --git a/resources/dev/extensions-library/services/sillytavern/compose.yaml b/resources/dev/extensions-library/services/sillytavern/compose.yaml
+index 8e8f2a9..d9d25ce 100644
+--- a/resources/dev/extensions-library/services/sillytavern/compose.yaml
++++ b/resources/dev/extensions-library/services/sillytavern/compose.yaml
+@@ -11,7 +11,7 @@ services:
+       - ./config/sillytavern:/home/node/app/config:rw
+       - ./data/sillytavern:/home/node/app/data:rw
+     ports:
+-      - "127.0.0.1:${SILLYTAVERN_PORT:-8001}:8000"
++      - "${BIND_ADDRESS:-127.0.0.1}:${SILLYTAVERN_PORT:-8001}:8000"
+     healthcheck:
+       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8000/"]
+       interval: 30s
+diff --git a/resources/dev/extensions-library/services/text-generation-webui/compose.yaml b/resources/dev/extensions-library/services/text-generation-webui/compose.yaml
+index a6b6230..843f368 100644
+--- a/resources/dev/extensions-library/services/text-generation-webui/compose.yaml
++++ b/resources/dev/extensions-library/services/text-generation-webui/compose.yaml
+@@ -8,8 +8,8 @@ services:
+     security_opt:
+       - no-new-privileges:true
+     ports:
+-      - "127.0.0.1:${TEXT_GEN_WEBUI_PORT:-7862}:7860"
+-      - "127.0.0.1:${TEXT_GEN_WEBUI_API_PORT:-5001}:5001"  # OpenAI-compatible API
++      - "${BIND_ADDRESS:-127.0.0.1}:${TEXT_GEN_WEBUI_PORT:-7862}:7860"
++      - "${BIND_ADDRESS:-127.0.0.1}:${TEXT_GEN_WEBUI_API_PORT:-5001}:5001"  # OpenAI-compatible API
+     environment:
+       - EXTRA_LAUNCH_ARGS=--api --listen --listen-port 7860 --api-port ${TEXT_GEN_WEBUI_API_PORT:-5001} --extensions openai
+     volumes:
+diff --git a/resources/dev/extensions-library/services/weaviate/compose.yaml b/resources/dev/extensions-library/services/weaviate/compose.yaml
+index c89402f..a2a058a 100644
+--- a/resources/dev/extensions-library/services/weaviate/compose.yaml
++++ b/resources/dev/extensions-library/services/weaviate/compose.yaml
+@@ -18,8 +18,8 @@ services:
+     volumes:
+       - ./data/weaviate:/var/lib/weaviate
+     ports:
+-      - "127.0.0.1:${WEAVIATE_PORT:-7811}:8080"
+-      - "127.0.0.1:${WEAVIATE_GRPC_PORT:-50051}:50051"
++      - "${BIND_ADDRESS:-127.0.0.1}:${WEAVIATE_PORT:-7811}:8080"
++      - "${BIND_ADDRESS:-127.0.0.1}:${WEAVIATE_GRPC_PORT:-50051}:50051"
+     healthcheck:
+       test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/v1/.well-known/ready"]
+       interval: 30s
+diff --git a/resources/dev/extensions-library/services/xtts/compose.yaml b/resources/dev/extensions-library/services/xtts/compose.yaml
+index cb29fca..bcc9233 100644
+--- a/resources/dev/extensions-library/services/xtts/compose.yaml
++++ b/resources/dev/extensions-library/services/xtts/compose.yaml
+@@ -3,7 +3,7 @@ services:
+     image: daswer123/xtts-api-server@sha256:491e0a198fc56c46d3dbb300ab993d29cc699813ea8fd1c6ee77aa80ab133e3e
+     container_name: dream-xtts
+     ports:
+-      - "127.0.0.1:${XTTS_PORT:-8100}:80"
++      - "${BIND_ADDRESS:-127.0.0.1}:${XTTS_PORT:-8100}:80"
+     volumes:
+       - ./data/xtts:/app/tts_models
+     environment:
