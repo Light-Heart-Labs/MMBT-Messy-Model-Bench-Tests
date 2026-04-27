@@ -1,0 +1,7 @@
+{
+  "primary": "api-error",
+  "sub_labels": [],
+  "notes": "Strict-done ablation v3: same flags as v1. Outcome: 0 DONE_REJECTED events fired (consistent with v1, v2). But the failure mode shifted \u2014 instead of model_stopped, the run hit the per-response max_tokens cap (180K) at iter 53 after 63 min wall and 194K total completion tokens. A single inference call generated 180K tokens, almost certainly a runaway thinking trace before any output. Net for the strict-done question: still 0 DONE_REJECTED, still no verdict.md, still no path to scaffold-fixes-it.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

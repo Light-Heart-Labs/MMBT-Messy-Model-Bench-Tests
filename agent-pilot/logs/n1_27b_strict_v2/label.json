@@ -1,0 +1,7 @@
+{
+  "primary": "partial-no-spec-output",
+  "sub_labels": [],
+  "notes": "Strict-done ablation v2: same flags as v1. Outcome: 0 DONE_REJECTED events fired. model_stopped at iter 54 (7 min), 2 files written (summary.md + tool-log.md), 0 commits. Confirms v1's pattern \u2014 strict-done validation never gets exercised.",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}

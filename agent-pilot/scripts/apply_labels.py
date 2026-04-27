@@ -112,6 +112,23 @@ LABELS = {
         [],
         "28 iters of legitimate investigation (cloned repo, ran pytest on both branches, grep'd for AMD), then a 25-second thinking turn (4,368 reasoning tokens) emitted no tool calls and stopped. Zero artifacts written, zero commits.",
     ),
+
+    # N=1 task — 27B strict-done ablation (Fix 1 from the MMBT feedback round)
+    "n1_27b_strict_v1": (
+        "partial-no-spec-output",
+        [],
+        "Strict-done ablation v1: --require-files verdict.md,summary.md,README.md --require-git-tag. Outcome: 0 DONE_REJECTED events fired during the run — model never even attempted to call done(). Result is identical-shape failure to baseline n1_27b_v{1,2,3}: model_stopped at iter 65, 4 files written (research/notes.md + research/questions.md + tests/results.md + test_pr_1057_changes.py), 0 commits, no verdict.md. Strict-done validation never got to do its job because the failure isn't 'calls done() too early' — it's 'never calls done() at all.'",
+    ),
+    "n1_27b_strict_v2": (
+        "partial-no-spec-output",
+        [],
+        "Strict-done ablation v2: same flags as v1. Outcome: 0 DONE_REJECTED events fired. model_stopped at iter 54 (7 min), 2 files written (summary.md + tool-log.md), 0 commits. Confirms v1's pattern — strict-done validation never gets exercised.",
+    ),
+    "n1_27b_strict_v3": (
+        "api-error",
+        [],
+        "Strict-done ablation v3: same flags as v1. Outcome: 0 DONE_REJECTED events fired (consistent with v1, v2). But the failure mode shifted — instead of model_stopped, the run hit the per-response max_tokens cap (180K) at iter 53 after 63 min wall and 194K total completion tokens. A single inference call generated 180K tokens, almost certainly a runaway thinking trace before any output. Net for the strict-done question: still 0 DONE_REJECTED, still no verdict.md, still no path to scaffold-fixes-it.",
+    ),
 }
 
 

@@ -1,0 +1,7 @@
+{
+  "primary": "partial-no-spec-output",
+  "sub_labels": [],
+  "notes": "Strict-done ablation v1: --require-files verdict.md,summary.md,README.md --require-git-tag. Outcome: 0 DONE_REJECTED events fired during the run \u2014 model never even attempted to call done(). Result is identical-shape failure to baseline n1_27b_v{1,2,3}: model_stopped at iter 65, 4 files written (research/notes.md + research/questions.md + tests/results.md + test_pr_1057_changes.py), 0 commits, no verdict.md. Strict-done validation never got to do its job because the failure isn't 'calls done() too early' \u2014 it's 'never calls done() at all.'",
+  "labeler": "human",
+  "labeled_at": "2026-04-27T20:30:00Z"
+}
