@@ -74,7 +74,7 @@ Flags rationale:
 
 ### Qwen3.6-35B-A3B AWQ (MoE 35B/3B, thinking-mode)
 
-> Not yet deployed. This is the swap candidate for GPU0 when we want to compare against Coder-Next on the same GPU.
+> Swap candidate for GPU0 (alternates with Coder-Next). Used in the 2026-04-26 grid (1/6 across memo+board) and the 2026-04-27 PR-audit family. Disqualified from the daily-driver comparison after a floor failure at N=1 PR audit (`n1_35ba3b_v1`: zero artifacts written in 28 iters before model_stopped) — kept here for replay.
 
 ```bash
 docker rm -f vllm-coder-next   # free GPU0 first
@@ -128,9 +128,10 @@ Flags rationale: only the FP8 build ships the MTP heads (`mtp.safetensors` in th
 
 Recorded in every receipt under `inference_request_defaults`. Current values:
 
-- `temperature`: 0.0 (deterministic)
-- `max_tokens` per request: dynamically computed as `min(64000, max_model_len - last_prompt_tokens - 14000)` to leave headroom for prompt growth as conversation history accumulates
-- `max_model_len`: 262144
+- `temperature`: configurable per-run via `--temperature` (default 0.0). Receipts reflect the actual value used. 0.3-0.5 is recommended for agentic tasks (see HARNESS-CHANGELOG `--temperature` entry for the determinism trap that motivated making it configurable).
+- `max_tokens` per request: dynamically computed as `min(180000, max_model_len - last_prompt_tokens - 14000)` to leave headroom for prompt growth as conversation history accumulates. Floor is 2048.
+- `max_model_len`: 262144 (the Qwen3.x family's native context)
+- `seed`: 42 on every request (kept for replay reproducibility; harmless at non-zero temperature)
 - `stream`: false (we capture full responses; streaming would help for live progress but complicates token accounting)
 - `tool_choice`: "auto"
 - `tools`: `bash`, `write_file`, `read_file`, `done`
@@ -144,11 +145,13 @@ docker build -t bench-sandbox:latest /home/michael/bench/agent-pilot/
 ```
 
 Contents (see `agent-pilot/Dockerfile`):
-- python 3.11-slim
-- system tools: git, curl, jq, poppler-utils (PDF extraction), unzip, build-essential
-- python libs: requests, beautifulsoup4, lxml, pandas, numpy, openpyxl, yfinance, sec-edgar-downloader, markdown, reportlab
+- python 3.11-slim base
+- system tools: git, curl, jq, poppler-utils (PDF extraction), unzip, build-essential, graphviz, font packages, cairo/pango (for python-pptx + reportlab rendering)
+- `gh` CLI (from cli.github.com's apt repo) — for tasks that read GitHub PRs/issues
+- `docker` CLI (static binary from download.docker.com) — talks to the host daemon when `--docker-socket` is passed
+- python libs: requests, beautifulsoup4, lxml, pandas, numpy, openpyxl, yfinance, sec-edgar-downloader, markdown, reportlab, python-pptx, matplotlib, plotly, kaleido, Pillow, graphviz, pytest, pytest-cov, ruff
 
-The image digest at run time is in each receipt under `sandbox.image_id`.
+The image digest at run time is in each receipt under `sandbox.image_id`. Per-run sandbox config (whether `--docker-socket`, `--gpus`, `--gh-token`, `--input-mount` were passed) lands in `sandbox.runtime`.
 
 ## Auditing a past run
 
