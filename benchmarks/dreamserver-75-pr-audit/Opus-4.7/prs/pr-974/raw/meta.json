@@ -1,0 +1,24 @@
+{
+  "additions": 3,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nUse `$DOCKER_CMD` instead of bare `docker` for DreamForge restart in bootstrap-upgrade.sh.\n\n## Why\nLine 464 used bare `docker` while the rest of the file correctly uses `$DOCKER_CMD`. On Linux systems requiring sudo for Docker, the restart silently failed with a permission error absorbed by the `|| log` fallback.\n\n## How\nSingle-line substitution: `docker restart` \u2192 `$DOCKER_CMD restart`.\n\n## Testing\n- shellcheck clean\n- Verified no other bare docker command invocations remain in the file\n- All other Docker commands in the file already use `$DOCKER_CMD`\n\n## Platform Impact\n- **macOS:** Not affected (native llama-server, no bootstrap)\n- **Linux:** Fixed \u2014 DreamForge restart now works with sudo docker\n- **Windows/WSL2:** Not affected (Docker Desktop)",
+  "changedFiles": 1,
+  "createdAt": "2026-04-17T12:14:28Z",
+  "deletions": 3,
+  "headRefName": "fix/bootstrap-bare-docker",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 974,
+  "reviewDecision": "CHANGES_REQUESTED",
+  "title": "fix(bootstrap): use $DOCKER_CMD for DreamForge restart",
+  "updatedAt": "2026-04-24T12:39:10Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/974"
+}

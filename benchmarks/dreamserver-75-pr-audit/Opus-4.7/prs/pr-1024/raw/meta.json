@@ -1,0 +1,24 @@
+{
+  "additions": 31,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nConvert `$COMPOSE_FLAGS` (and `$ENV_FILE_FLAG`) from unquoted string expansion to bash array expansion in three operational scripts: `validate.sh`, `dream-preflight.sh`, and `validate-compose-stack.sh`.\n\n## Why\nAll three scripts passed `$COMPOSE_FLAGS` unquoted to `docker compose`, producing SC2086 shellcheck warnings and leaving flag values subject to glob expansion (filename generation) before reaching the command. No structural mechanism prevented a flag value containing wildcard characters from being mangled silently.\n\n## How\nIn each script, immediately after `COMPOSE_FLAGS` is populated from `resolve-compose-stack.sh`, add:\n```bash\nread -ra COMPOSE_FLAGS_ARR <<< \"$COMPOSE_FLAGS\"\n```\nThen replace every `docker compose $COMPOSE_FLAGS \u2026` site with `docker compose \"${COMPOSE_FLAGS_ARR[@]}\" \u2026`.\n\nIn `validate-compose-stack.sh`, `ENV_FILE_FLAG` (previously a bare string) is also converted to an array: `ENV_FILE_FLAG_ARR=(--env-file \"$ENV_FILE\")`.\n\nIn `validate.sh`, two call sites (L64/65) previously routed through `check()`, which executes its argument via `bash -c \"$cmd\"` \u2014 array boundaries are lost across that string handoff. Those two checks are inlined as direct `if/grep` pipelines so array expansion applies correctly. The `check()` function and all its other callers are untouched.\n\n## Testing\n- Automated: `bash -n` clean on all three files; 4 SC2086 shellcheck warnings eliminated; all 45 preflight tests pass.\n- Manual: Run `dream-server/scripts/validate.sh` and `dream-server/scripts/dream-preflight.sh` against a running stack on Linux (NVIDIA/AMD) and macOS (Apple Silicon); confirm output is identical to pre-patch. Run `dream-server/scripts/validate-compose-stack.sh` with and without `--env-file`; confirm compose config validation passes.\n\n## Scope clarification \u2014 what this does NOT fix\n`resolve-compose-stack.sh` emits **relative** paths (relative to `SCRIPT_DIR`) \u2014 it never produces absolute paths. All consumers `cd \"$INSTALL_DIR\"` (properly quoted) before invoking compose. As a result, install directories containing spaces do not appear in `COMPOSE_FLAGS` as absolute path components in the current code. This PR does not change that behaviour; it is shellcheck hardening and convention alignment only.\n\n## Known Considerations\n- Four similar unquoted `$COMPOSE_FLAGS` sites remain in `tests/integration-test.sh`. Those are test-only, execute in CI under sanitized paths, and are left as a candidate follow-up.\n- The `check()` interface refactor is intentionally deferred \u2014 converting it would require changing its argument contract and touching unrelated callers.\n\n## Platform Impact\n- macOS: Not affected negatively \u2014 bash 5+ (Homebrew) is available; behaviour is identical.\n- Linux: Primary target (NVIDIA/AMD) \u2014 glob risk eliminated; functional behaviour unchanged.\n- Windows: Not affected \u2014 these scripts are not executed by the Windows (PowerShell) installer.\n",
+  "changedFiles": 3,
+  "createdAt": "2026-04-24T16:18:33Z",
+  "deletions": 8,
+  "headRefName": "fix/compose-flags-array-expansion",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1024,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "refactor(scripts): array-expand COMPOSE_FLAGS for SC2086 + glob safety",
+  "updatedAt": "2026-04-24T16:18:33Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1024"
+}

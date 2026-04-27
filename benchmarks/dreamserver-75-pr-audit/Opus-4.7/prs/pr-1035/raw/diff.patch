@@ -1,0 +1,198 @@
+diff --git a/dream-server/bin/dream-host-agent.py b/dream-server/bin/dream-host-agent.py
+index 21fc7642..690cc580 100755
+--- a/dream-server/bin/dream-host-agent.py
++++ b/dream-server/bin/dream-host-agent.py
+@@ -269,6 +269,29 @@ def docker_compose_recreate(service_ids: list[str]) -> tuple:
+         return False, f"Docker compose operation timed out ({SUBPROCESS_TIMEOUT_START}s)"
+ 
+ 
++def _post_install_core_recreate(service_id: str) -> None:
++    """Force-recreate core services whose env was overridden by ``service_id``'s
++    compose.yaml overlay.
++
++    ``docker compose up -d --no-deps <ext>`` (how _handle_install starts the
++    extension) will not pick up overlay changes targeting already-running core
++    services. openclaw's compose.yaml appends an OPENAI_API_BASE_URLS entry to
++    open-webui; without this post-install recreate that overlay is silently
++    ignored until the next core restart.
++
++    Failure is logged and swallowed — the extension itself is already running;
++    the overlay will apply on the next manual restart of the core service.
++    """
++    if service_id != "openclaw":
++        return
++    ok, err = docker_compose_recreate(["open-webui"])
++    if not ok:
++        logger.warning(
++            "Post-install recreate of open-webui failed after openclaw install: %s",
++            err,
++        )
++
++
+ def _parse_mem_value(s: str) -> float:
+     """Parse Docker memory string like '256MiB' or '4GiB' to MB."""
+     s = s.strip()
+@@ -1160,6 +1183,18 @@ class AgentHandler(BaseHTTPRequestHandler):
+                 # Step 4: Success
+                 _write_progress(service_id, "started", "Service started")
+ 
++                # Step 5: Post-install core recreate (best-effort, non-fatal).
++                # Some extensions (e.g. openclaw) add overlay env to already-
++                # running core services; `up -d --no-deps <ext>` won't apply
++                # those changes. Failure here must not fail the install.
++                try:
++                    _post_install_core_recreate(service_id)
++                except Exception:
++                    logger.exception(
++                        "Post-install core recreate raised for %s (ignored)",
++                        service_id,
++                    )
++
+             except subprocess.TimeoutExpired:
+                 _write_progress(service_id, "error", "Installation failed",
+                                 error=f"timed out ({SUBPROCESS_TIMEOUT_START}s)")
+diff --git a/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py b/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py
+index fef1430b..72fcdaeb 100644
+--- a/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py
++++ b/dream-server/extensions/services/dashboard-api/tests/test_host_agent.py
+@@ -22,6 +22,7 @@ _to_bash_path = _mod._to_bash_path
+ resolve_compose_flags = _mod.resolve_compose_flags
+ validate_core_recreate_ids = _mod.validate_core_recreate_ids
+ invalidate_compose_cache = _mod.invalidate_compose_cache
++_post_install_core_recreate = _mod._post_install_core_recreate
+ 
+ 
+ # --- _parse_mem_value ---
+@@ -284,6 +285,83 @@ class TestInstallHookEnvAllowlist:
+         )
+ 
+ 
++# --- _post_install_core_recreate ---
++#
++# openclaw's compose.yaml adds OPENAI_API_BASE_URLS to open-webui as an overlay;
++# `docker compose up -d --no-deps openclaw` (used by _handle_install) won't
++# pick up overlay changes targeting already-running core services. Hence the
++# post-install recreate of open-webui whenever openclaw is installed.
++
++
++class TestPostInstallCoreRecreate:
++
++    def test_openclaw_triggers_open_webui_recreate(self, monkeypatch):
++        calls = []
++
++        def _fake_recreate(ids):
++            calls.append(list(ids))
++            return True, ""
++
++        monkeypatch.setattr(_mod, "docker_compose_recreate", _fake_recreate)
++        _post_install_core_recreate("openclaw")
++        assert calls == [["open-webui"]]
++
++    def test_non_openclaw_service_is_noop(self, monkeypatch):
++        calls = []
++
++        def _fake_recreate(ids):
++            calls.append(list(ids))
++            return True, ""
++
++        monkeypatch.setattr(_mod, "docker_compose_recreate", _fake_recreate)
++        for svc in ("litellm", "n8n", "perplexica", "whisper", "comfyui"):
++            _post_install_core_recreate(svc)
++        assert calls == []
++
++    def test_recreate_failure_is_swallowed(self, monkeypatch):
++        """Install must not fail if the post-install recreate errors — openclaw
++        is already running; the overlay just won't take effect until a manual
++        core restart."""
++
++        def _fake_recreate(_ids):
++            return False, "docker compose exploded"
++
++        monkeypatch.setattr(_mod, "docker_compose_recreate", _fake_recreate)
++        # Must not raise
++        _post_install_core_recreate("openclaw")
++
++
++class TestRunInstallCallsPostInstallRecreate:
++    """Source-level check that the install closure calls
++    _post_install_core_recreate after the "started" progress write.
++
++    The dynamic flow runs in a daemon thread + nested closure, which makes
++    runtime mocking fragile (see TestInstallHookEnvAllowlist for the same
++    reasoning). Source-level assertion is sufficient to lock the wiring."""
++
++    def _install_source(self):
++        import inspect
++        return inspect.getsource(_mod.AgentHandler._handle_install)
++
++    def test_install_calls_post_install_core_recreate(self):
++        src = self._install_source()
++        assert "_post_install_core_recreate(service_id)" in src, (
++            "_run_install must invoke _post_install_core_recreate(service_id) "
++            "after emitting the 'started' progress record"
++        )
++
++    def test_recreate_is_after_started_progress_write(self):
++        src = self._install_source()
++        started_idx = src.find('"started"')
++        recreate_idx = src.find("_post_install_core_recreate(")
++        assert started_idx != -1, "expected 'started' progress write in _handle_install"
++        assert recreate_idx != -1, "expected _post_install_core_recreate call in _handle_install"
++        assert started_idx < recreate_idx, (
++            "_post_install_core_recreate must run AFTER the 'started' progress "
++            "write so the client sees success even if the recreate fails"
++        )
++
++
+ # --- _handle_env_update ---
+ 
+ 
+diff --git a/dream-server/extensions/services/openclaw/README.md b/dream-server/extensions/services/openclaw/README.md
+index 96316d28..5f5338f1 100644
+--- a/dream-server/extensions/services/openclaw/README.md
++++ b/dream-server/extensions/services/openclaw/README.md
+@@ -44,7 +44,6 @@ Environment variables (set in `.env`):
+ |-----------|---------------|---------|
+ | `./config/openclaw` | `/config` (read-only) | Gateway config files and token injection script |
+ | `./data/openclaw` | `/data` | Agent task state and persistent data |
+-| `./data/openclaw/home` | `/home/node/.openclaw` | OpenClaw user home directory |
+ | `./config/openclaw/workspace` | `/home/node/.openclaw/workspace` | Agent workspace directory |
+ 
+ ## Architecture
+diff --git a/dream-server/extensions/services/openclaw/compose.yaml b/dream-server/extensions/services/openclaw/compose.yaml
+index 6b06dfcd..5c8fb914 100644
+--- a/dream-server/extensions/services/openclaw/compose.yaml
++++ b/dream-server/extensions/services/openclaw/compose.yaml
+@@ -24,7 +24,6 @@ services:
+     volumes:
+       - ./config/openclaw:/config:ro
+       - ./data/openclaw:/data
+-      - openclaw-home:/home/node/.openclaw
+       - ./config/openclaw/workspace:/home/node/.openclaw/workspace
+     ports:
+       - "${BIND_ADDRESS:-127.0.0.1}:${OPENCLAW_PORT:-7860}:18789"
+@@ -57,6 +56,3 @@ services:
+     environment:
+       - OPENAI_API_BASE_URLS=${LLM_API_URL:-http://llama-server:8080}/v1;http://openclaw:18790/v1
+       - OPENAI_API_KEYS=;${OPENCLAW_TOKEN:-}
+-
+-volumes:
+-  openclaw-home:
+diff --git a/dream-server/installers/phases/06-directories.sh b/dream-server/installers/phases/06-directories.sh
+index 251a4271..32507967 100755
+--- a/dream-server/installers/phases/06-directories.sh
++++ b/dream-server/installers/phases/06-directories.sh
+@@ -149,9 +149,10 @@ Fix with: sudo chown -R \$(id -u):\$(id -g) $INSTALL_DIR/config $INSTALL_DIR/dat
+         log "Installed OpenClaw config: $OPENCLAW_CONFIG -> openclaw.json (model: $OPENCLAW_MODEL)"
+         # Generate OPENCLAW_TOKEN (used by compose env and inject-token.js)
+         OPENCLAW_TOKEN=$(openssl rand -hex 24 2>/dev/null || head -c 24 /dev/urandom | xxd -p)
+-        # Note: OpenClaw home dir uses a named Docker volume (openclaw-home).
+-        # inject-token.js patches the runtime config at container startup,
+-        # so we don't seed files into the volume from the installer.
++        # Note: inject-token.js regenerates /home/node/.openclaw/openclaw.json
++        # on every container start — that path lives in the container's ephemeral
++        # overlay, so no installer seeding is needed. Only workspace/ is persisted,
++        # via the bind mount at ./config/openclaw/workspace (see below).
+         # Create workspace directory (must exist before Docker Compose,
+         # otherwise Docker auto-creates it as root and the container can't write to it)
+         mkdir -p "$INSTALL_DIR/config/openclaw/workspace/memory"

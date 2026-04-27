@@ -1,0 +1,24 @@
+{
+  "additions": 51,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\n\nEnable `set -u` (nounset) in `dream-cli` on top of the existing `set -eo pipefail` foundation. Audit every variable read; add `${VAR:-}` guards to six legitimately-conditional sites (missing positional args for `preset diff`, sparse associative-array lookups when comparing preset ext/env maps, registry lookups for service dirs without valid manifests). All other variables in the file are unconditionally set before use; no guard added elsewhere.\n\n## Why\n\nNounset catches typos in variable names at runtime instead of silently expanding to empty strings. The audit also surfaced three pre-existing latent bugs that `set -u` would have caught immediately:\n\n- `preset diff`: bare `$2` / `$3` crashed with no args.\n- `preset diff`: `ext1[$key]` / `env1[$key]` associative-array reads crashed partway through comparison when a key exists only in the other preset.\n- `enable <svc>`: bare `SERVICE_DEPENDS[$service_id]` crashed for service directories that exist on disk but have no valid manifest (edge case: user-extensions with malformed manifest).\n\n## How\n\nSingle commit (tip `bea96fe2`; the original `a7bd6cac` was rebased onto this PR's parent branch `fix/dream-cli-pipefail-exit-codes` after that branch's commits were adjusted during review \u2014 PR-11's nounset audit content is unchanged, only the base commits it sits on have updated SHAs).\n\nAudited by running every read-only subcommand end-to-end in a fake `INSTALL_DIR` and against a live install: `help`, `version`, `list`, `status`, `status-json`, `config show`, `gpu {status|topology|validate|assignment}`, `model {current|list}`, `mode`, `stt {current|status}`, `preset {list|save|load|delete|export|import|diff}`, `agent status`, `doctor --json`, `template {list|preview}`, `audit`, `chat` (against down backend), `benchmark`, `enable`/`disable`/`purge` (against both valid-service and unknown paths). Also verified with minimal environment (`env -i PATH HOME BASH INSTALL_DIR dream-cli ...`) to catch implicit `TERM`/`USER`/`LANG` assumptions.\n\n## Testing\n\n- End-to-end coverage of ~25 read-only dream-cli subcommands on the operator's integration branch.\n- Minimal-environment verification via `env -i`.\n- Operator's integration-branch test battery: green.\n\n## Scope Note\n\nDepends on the `set -eo pipefail` foundation from `fix/dream-cli-pipefail-exit-codes` \u2014 this branch's base commits are that PR's three commits (rebased onto the review-adjusted tips). Intended to merge after that PR lands.\n\n## Platform Impact\n\n- **macOS / Linux / Windows (WSL2):** identical. Portable Bash 4+ parameter expansion. No platform branching. No variables that are set on one OS but not another were found during the audit \u2014 all guarded reads guard against missing registry entries or unprovided positional args, neither of which is platform-specific.\n\n\n---\n\n## \ud83d\udccb Chain status (operator's reminder \u2014 apr-25)\n\nThis PR is the **last link in the `dream-cli` strict-mode chain**:\n\n```\n#1008 (READY) \u2500\u2500\u25b6 #998 (DRAFT) \u2500\u2500\u25b6 #1002 (this \u2014 DRAFT)\n```\n\n**Before this PR can be promoted:**\n- #1008 must merge first (.env grep-pipeline guards).\n- #998 must merge next (`set -eo pipefail` + exit-code contract \u2014 the foundation `-u` builds on).\n\n**This PR currently shares 6+ identical hunks with #998** (line 6 set-line, identical `cmd_chat`/`cmd_benchmark`/`cmd_disable`/`cmd_agent`/`_gpu_reassign` rewrites, `sed -n '1p'` swaps). Merging in parallel = textual conflict.\n\n**After #998 merges, the operator must:**\n1. Rebase this branch onto post-#998 main. The shared hunks drop out automatically (already in main).\n2. What remains is the unique `-u` work: the extra flag at line 6, plus `:-` empty-string default guards in `cmd_preset`, `cmd_enable`, etc.\n3. Promote this PR from DRAFT \u2192 ready (`gh pr ready 1002`).\n\nKept DRAFT until then as a mechanical safeguard \u2014 cannot merge before #998.\n",
+  "changedFiles": 1,
+  "createdAt": "2026-04-23T19:50:55Z",
+  "deletions": 22,
+  "headRefName": "refactor/dream-cli-nounset-audit",
+  "isDraft": true,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1002,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "refactor(dream-cli): enable set -u and add guards for conditional variables",
+  "updatedAt": "2026-04-25T13:23:43Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1002"
+}

@@ -1,0 +1,24 @@
+{
+  "additions": 100,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nWire Apple Silicon GPU detection into `/api/gpu/detailed` so the endpoint returns real data instead of a 503 on macOS.\n\n## Why\n`_get_raw_gpus` in `routers/gpu.py` only had a branch for `amd`, then fell through to NVIDIA/AMD sysfs probing \u2014 both return `None` on macOS, yielding an empty list. The existing `get_gpu_info_apple()` call (already used by `/api/features`) was never consulted, so every call to `/api/gpu/detailed` on Apple Silicon returned `503 No GPU data available`.\n\n## How\n- `routers/gpu.py`: import `get_gpu_info_apple` alphabetically into the existing `from gpu import (...)` block; add private helper `_apple_info_to_individual(info: GPUInfo) -> IndividualGPU` that wraps the aggregate `GPUInfo` into a single `IndividualGPU` with `index=0` and `uuid=\"apple-unified-0\"` (\u22658 chars, satisfies `GPUCard.jsx .slice(-8)` key requirement); add `\"apple\"` as the first branch in `_get_raw_gpus`, returning `[_apple_info_to_individual(info)]` or `None` if detection fails (propagates to the existing 503 path).\n- `tests/test_gpu_detailed.py`: new fixture `_sample_apple_gpu_info()`; 3 new tests covering single-entry return, `None`-propagation, and full endpoint 200 response with Apple aggregate data.\n\n## Testing\n- Automated: `pytest tests/test_gpu_detailed.py -k \"not history\"` \u2014 19/19 pass; ruff clean.\n- Manual: On Apple Silicon Mac, `curl -H \"Authorization: Bearer $DASHBOARD_API_KEY\" http://localhost:$DASHBOARD_API_PORT/api/gpu/detailed` should return HTTP 200 with a single-entry `gpus` array (chip name, VRAM, utilization 0, temperature 0, power_w null).\n\n## Known Considerations\n- Apple GPU utilization and temperature are hard-zero in this implementation \u2014 IOKit metrics are not accessible from Python in this context. A future PR could expose them via `powermetrics` or direct IOKit bindings. Out of scope here.\n- `power_w` is `None` on Apple; the dashboard already handles this gracefully.\n\n## Platform Impact\n- **macOS (Apple Silicon):** Fixed \u2014 `/api/gpu/detailed` now returns 200 with GPU data.\n- **Linux (NVIDIA/AMD):** Not affected \u2014 new branch is gated on exact string `\"apple\"`; existing NVIDIA/AMD paths unchanged.\n- **Windows (WSL2):** Not affected \u2014 same as Linux; Apple branch never executes.\n",
+  "changedFiles": 2,
+  "createdAt": "2026-04-24T16:18:37Z",
+  "deletions": 0,
+  "headRefName": "fix/gpu-detailed-apple-silicon",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1025,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dashboard-api): wire Apple Silicon into /api/gpu/detailed",
+  "updatedAt": "2026-04-24T16:18:37Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1025"
+}

@@ -1,0 +1,4 @@
+ dream-server/scripts/dream-preflight.sh        |  6 ++++--
+ dream-server/scripts/validate-compose-stack.sh |  9 ++++++---
+ dream-server/scripts/validate.sh               | 24 +++++++++++++++++++++---
+ 3 files changed, 31 insertions(+), 8 deletions(-)

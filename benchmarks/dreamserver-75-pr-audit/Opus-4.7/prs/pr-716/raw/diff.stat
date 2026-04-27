@@ -1,0 +1,4 @@
+ .../services/frigate/compose.yaml                  |  2 +-
+ .../services/open-interpreter/compose.yaml         |  2 +-
+ .../dev/extensions-library/validate-compose.sh     | 27 ++++++++++++++++++++--
+ 3 files changed, 27 insertions(+), 4 deletions(-)

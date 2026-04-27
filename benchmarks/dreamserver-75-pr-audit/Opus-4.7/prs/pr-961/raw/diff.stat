@@ -1,0 +1,31 @@
+ README.md                                          |   87 ++
+ dream-mobile.sh                                    |   38 +
+ dream-server/.gitignore                            |    1 +
+ dream-server/README.md                             |   59 +-
+ dream-server/docs/IOS-ASHELL-SHORTCUTS.md          |   62 +
+ dream-server/docs/IOS-ASHELL-WASM-RUNTIME.md       |   84 +
+ dream-server/docs/MOBILE-SHELL-QUICKSTART.md       |  154 ++
+ dream-server/docs/PLATFORM-TRUTH-TABLE.md          |    8 +-
+ dream-server/docs/SUPPORT-MATRIX.md                |   10 +-
+ dream-server/dream-mobile.sh                       |  341 ++++
+ dream-server/install.sh                            |   38 +-
+ dream-server/installers/common.sh                  |   27 +-
+ dream-server/installers/dispatch.sh                |    3 +
+ .../installers/mobile/android-local-server.py      | 1645 ++++++++++++++++++++
+ .../installers/mobile/android-local-ui/app.css     | 1027 ++++++++++++
+ .../installers/mobile/android-local-ui/app.js      |  880 +++++++++++
+ .../installers/mobile/android-local-ui/index.html  |  372 +++++
+ .../mobile/build-ios-ashell-wasm-runtime.sh        |  261 ++++
+ .../installers/mobile/build-ios-ashell-wasm-sdk.sh |  203 +++
+ dream-server/installers/mobile/install-mobile.sh   |  415 +++++
+ dream-server/installers/mobile/ios-ashell-cli.sh   |  113 ++
+ .../installers/mobile/ios-ashell-install.sh        |  313 ++++
+ .../mobile/ios-wasm-runner/CMakeLists.txt          |   45 +
+ .../mobile/ios-wasm-runner/__cpp_exception.S       |   10 +
+ .../mobile/ios-wasm-runner/dlfcn_stubs.cpp         |   22 +
+ .../installers/mobile/ios-wasm-runner/main.cpp     |  587 +++++++
+ .../mobile-runtime/ios-ashell/bin/llama-cli.wasm   |  Bin 0 -> 7641585 bytes
+ dream-server/tests/bats-tests/dispatch.bats        |   60 +
+ dream-server/tests/smoke/mobile-dispatch.sh        |   22 +
+ install.sh                                         |   30 +-
+ 30 files changed, 6891 insertions(+), 26 deletions(-)

@@ -1,0 +1,298 @@
+{
+  "dream-server/dream-cli": [
+    1000,
+    1002,
+    1006,
+    1007,
+    1008,
+    1011,
+    1016,
+    1018,
+    1020,
+    750,
+    993,
+    994,
+    997,
+    998,
+    999
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/setup.py": [
+    1003,
+    1015,
+    1018,
+    1019
+  ],
+  "dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx": [
+    1003,
+    1015,
+    1018,
+    1019
+  ],
+  "dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx": [
+    1003,
+    1015,
+    1018,
+    1019
+  ],
+  "dream-server/extensions/services/dashboard/src/lib/templates.js": [
+    1003,
+    1015,
+    1018,
+    1019
+  ],
+  "dream-server/extensions/services/dashboard/src/pages/Extensions.jsx": [
+    1003,
+    1015,
+    1018,
+    1019,
+    1037,
+    1038
+  ],
+  "dream-server/scripts/dream-test-functional.sh": [
+    1003,
+    1011,
+    1015,
+    1018,
+    1019
+  ],
+  "dream-server/scripts/resolve-compose-stack.sh": [
+    1004,
+    1029,
+    1051,
+    750
+  ],
+  "dream-server/installers/macos/install-macos.sh": [
+    1005,
+    1017,
+    1026,
+    1050,
+    988
+  ],
+  "dream-server/.env.schema.json": [
+    1010,
+    1017,
+    1018,
+    750,
+    988,
+    994
+  ],
+  "dream-server/installers/phases/03-features.sh": [
+    1011,
+    1043,
+    750
+  ],
+  "dream-server/scripts/pre-download.sh": [
+    1011,
+    1023
+  ],
+  "dream-server/scripts/validate-env.sh": [
+    1011,
+    1018,
+    994
+  ],
+  "dream-server/installers/windows/install-windows.ps1": [
+    1012,
+    1017,
+    1026,
+    988,
+    996
+  ],
+  "dream-server/installers/windows/lib/env-generator.ps1": [
+    1012,
+    996
+  ],
+  "dream-server/installers/windows/phases/06-directories.ps1": [
+    1012,
+    996
+  ],
+  "dream-server/installers/windows/phases/07-devtools.ps1": [
+    1012,
+    996
+  ],
+  "dream-server/.env.example": [
+    1013,
+    1017,
+    750,
+    973,
+    988,
+    992
+  ],
+  "dream-server/installers/macos/lib/env-generator.sh": [
+    1013,
+    1023,
+    1048
+  ],
+  "dream-server/lib/service-registry.sh": [
+    1016,
+    1018
+  ],
+  "dream-server/scripts/dream-doctor.sh": [
+    1016,
+    1020,
+    999
+  ],
+  "README.md": [
+    1017,
+    961,
+    973
+  ],
+  "dream-server/QUICKSTART.md": [
+    1017,
+    973
+  ],
+  "dream-server/README.md": [
+    1017,
+    961,
+    973
+  ],
+  "dream-server/SECURITY.md": [
+    1017,
+    973
+  ],
+  "dream-server/bin/dream-host-agent.py": [
+    1017,
+    1021,
+    1030,
+    1035,
+    1039,
+    1040,
+    1045,
+    1050,
+    1057,
+    988
+  ],
+  "dream-server/docs/FAQ.md": [
+    1017,
+    973
+  ],
+  "dream-server/docs/HOST-AGENT-API.md": [
+    1017,
+    973
+  ],
+  "dream-server/docs/MODE-SWITCH.md": [
+    1017,
+    973
+  ],
+  "dream-server/docs/POST-INSTALL-CHECKLIST.md": [
+    1017,
+    973
+  ],
+  "dream-server/docs/SUPPORT-MATRIX.md": [
+    1017,
+    961,
+    973
+  ],
+  "dream-server/docs/WINDOWS-QUICKSTART.md": [
+    1017,
+    973
+  ],
+  "dream-server/extensions/CATALOG.md": [
+    1017,
+    973
+  ],
+  "dream-server/extensions/services/langfuse/README.md": [
+    1017,
+    973
+  ],
+  "dream-server/installers/macos/dream-macos.sh": [
+    1017,
+    1023,
+    988
+  ],
+  "dream-server/installers/windows/dream.ps1": [
+    1017,
+    988
+  ],
+  "dream-server/scripts/bootstrap-upgrade.sh": [
+    1017,
+    974,
+    988
+  ],
+  "dream-server/tests/test-validate-env.sh": [
+    1018,
+    994
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_host_agent.py": [
+    1021,
+    1030,
+    1035,
+    1039,
+    1040,
+    1045
+  ],
+  "dream-server/extensions/services/dashboard-api/routers/extensions.py": [
+    1022,
+    1037,
+    1038,
+    1039,
+    1044,
+    1045,
+    1054,
+    1056
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_extensions.py": [
+    1022,
+    1037,
+    1038,
+    1044,
+    1045,
+    1056
+  ],
+  "dream-server/scripts/dream-preflight.sh": [
+    1023,
+    1024
+  ],
+  "dream-server/tests/contracts/test-installer-contracts.sh": [
+    1026,
+    750
+  ],
+  "resources/dev/extensions-library/services/anythingllm/compose.yaml": [
+    1027,
+    1032
+  ],
+  "resources/dev/extensions-library/services/frigate/compose.yaml": [
+    1027,
+    716
+  ],
+  "resources/dev/extensions-library/services/jupyter/compose.yaml": [
+    1027,
+    1033,
+    1049
+  ],
+  "resources/dev/extensions-library/services/librechat/compose.yaml": [
+    1027,
+    1033
+  ],
+  "resources/dev/extensions-library/services/localai/compose.yaml": [
+    1027,
+    1032
+  ],
+  "resources/dev/extensions-library/services/milvus/compose.yaml": [
+    1027,
+    1034
+  ],
+  "resources/dev/extensions-library/services/open-interpreter/compose.yaml": [
+    1027,
+    716
+  ],
+  "resources/dev/extensions-library/services/piper-audio/compose.yaml": [
+    1027,
+    1034
+  ],
+  "resources/dev/extensions-library/services/privacy-shield/compose.yaml": [
+    1027,
+    1036
+  ],
+  "dream-server/installers/phases/06-directories.sh": [
+    1035,
+    750
+  ],
+  "dream-server/extensions/services/dashboard-api/tests/test_routers.py": [
+    351,
+    364
+  ],
+  ".github/workflows/claude-review.yml": [
+    990,
+    991
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "additions": 43,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nAdds Bash 4+ guards to five scripts that use `declare -A` without one, and routes two `dream config validate` subprocesses through `\"$BASH\"` so they inherit dream-cli's modern bash interpreter.\n\nFiles touched (6):\n- `dream-server/scripts/pre-download.sh` \u2014 Pattern A guard (bare `exit 1`)\n- `dream-server/scripts/dream-test-functional.sh` \u2014 Pattern A guard + drop dead `2>/dev/null || true` fallback on `declare -A SERVICE_PORTS`\n- `dream-server/scripts/validate-env.sh` \u2014 Pattern A guard\n- `dream-server/lib/progress.sh` \u2014 Pattern B guard (`return 1 2>/dev/null || exit 1`)\n- `dream-server/installers/phases/03-features.sh` \u2014 Pattern B guard\n- `dream-server/dream-cli` \u2014 prefix validate-env.sh and validate-manifests.sh subprocess execs with `\"$BASH\"`\n\nGuard style mirrors `dream-cli:8-14` (Pattern A, standalone scripts) and `lib/service-registry.sh:18-24` (Pattern B, sourced libraries).\n\n## Why\nOn macOS, system `/bin/bash` is 3.2.57, which does not support associative arrays. Two user-facing problems:\n\n1. Invoking any of these scripts directly under system bash (e.g. `./scripts/pre-download.sh --tier 3` from FAQ.md) produced a cryptic `declare -A: invalid option` crash with no actionable hint.\n2. Even when dream-cli itself was launched under a modern Homebrew bash (its own Bash 4+ guard passes), it invoked `scripts/validate-env.sh` via shebang \u2014 which re-resolves to `/bin/bash` 3.2 regardless of the parent interpreter. `dream config validate` was silently non-functional on macOS for users without bash in PATH.\n\nGuards turn (1) into a friendly error with a `brew install bash` hint. The `\"$BASH\"` prefix makes (2) work by inheriting the parent interpreter.\n\n## How\n- Guard block placed after the file header/purpose comments but before `set -euo pipefail` and before the first `declare -A`. Pattern B uses `return 1 2>/dev/null || exit 1` so sourced-vs-exec'd-direct both behave correctly.\n- `dream-cli:1117` and `:1125`: `\"$INSTALL_DIR/scripts/<script>.sh\" ...` \u2192 `\"$BASH\" \"$INSTALL_DIR/scripts/<script>.sh\" ...`. `$BASH` is bash's own path to its interpreter; since dream-cli guards at line 9 require Bash 4+, `$BASH` is guaranteed to point at a modern bash when this code runs.\n\n## Testing\n- [x] `bash -n` syntax check \u2014 all 6 files pass\n- [x] `shellcheck` \u2014 per-file warning counts identical between upstream/main and PR (no new diagnostics). SC2317 on Pattern B `exit 1` is accepted baseline, identical to `service-registry.sh:23`.\n- [x] `make lint` \u2014 clean\n- [x] Pre-commit (gitleaks / private-key / large-file) \u2014 clean\n- [x] **Live macOS test on Bash 3.2.57**: each script exits with \"ERROR: ... requires Bash 4.0+ (you have 3.2.57)\" when run under `/bin/bash`. Pattern B sourced-path correctly propagates non-zero `$?` to the caller without aborting the parent shell.\n- [x] Pattern B error-text wording aligned to `lib/service-registry.sh:20` (\"Install a modern version\") for consistency.\n\n## Platform Impact\n- **macOS** (primary target): `dream config validate` now works without requiring the user to manually invoke via `/opt/homebrew/bin/bash`. Direct invocations of the 5 scripts under system bash produce a clean error message instead of a cryptic crash.\n- **Linux**: no impact (Bash 5+ everywhere; guards never fire).\n- **Windows WSL2**: no impact (Bash 5+ in WSL2; guards never fire).",
+  "changedFiles": 6,
+  "createdAt": "2026-04-23T22:23:59Z",
+  "deletions": 3,
+  "headRefName": "chore/bash32-declare-a-audit",
+  "isDraft": true,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1011,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "chore(bash32): guard declare -A callers + route dream-cli validate through $BASH",
+  "updatedAt": "2026-04-23T22:28:37Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1011"
+}

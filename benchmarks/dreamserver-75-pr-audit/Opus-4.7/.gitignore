@@ -1,0 +1,16 @@
+# Per-PR test artifacts that are reproducible from scripts; keep summaries only
+prs/pr-*/tests/raw/
+testing/cache/
+
+# Local environment
+.venv/
+__pycache__/
+*.pyc
+
+# Editor
+.vscode/
+.idea/
+
+# Don't commit large auto-generated raw data dumps; keep distilled JSONs that we curate
+*.tmp
+*.bak

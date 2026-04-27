@@ -1,0 +1,3 @@
+ dream-server/installers/lib/compose-select.sh |  7 ----
+ dream-server/scripts/resolve-compose-stack.sh | 46 +++++++++++++++++++++++++++
+ 2 files changed, 46 insertions(+), 7 deletions(-)

@@ -1,0 +1,24 @@
+{
+  "additions": 35,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nThree macOS-only install-time defects, each in a distinct file.\n\n## Why / How\n\n### 1. `DIM` color variable missing from macOS constants\n`installers/macos/lib/ui.sh:180` referenced `\\${DIM}` in the final\nsummary banner, but the macOS `lib/constants.sh` did not define it\n(the shared `installers/lib/constants.sh` defines it at line 52, but\nthe macOS installer does not source that file). Under `set -u` the\ninstaller crashed at the very last line \u2014 a scary UX on an install\nthat otherwise succeeded. Added `DIM='\\033[2;37m'` to the macOS\nconstants, matching the shared palette.\n\n### 2. `busybox:latest` pinned\n`installers/macos/docker-compose.macos.yml` used `busybox:latest` for\nboth the `replicas: 0` placeholder and the active\n`llama-server-ready` sidecar. The active sidecar runs a `wget`\npolling loop that depends on busybox applet semantics \u2014 `:latest` is\na reproducibility risk. Pinned both references to `busybox:1.36.1`,\nmatching the explicit-pin pattern used elsewhere in the compose tree.\n\n### 3. Phase-6 healthcheck loop rewrite\nThe installer's own HTTP poll (`MAX_ATTEMPTS=30`, 60s total) often\nemitted false `not responding after 30 attempts` warnings on cold\nfirst installs because image pull + first-run DB migrations + Docker\nDesktop container startup can exceed 60s.\n\nReplaced with `docker inspect --format '{{.State.Health.Status}}'`\nfor Docker services (`dream-webui`, `dream-whisper`, `dream-n8n`)\nso the container's own healthcheck drives the gate. Host-native\nservices (llama-server, OpenCode) keep the HTTP fallback.\n\nAlso in this commit:\n- `MAX_ATTEMPTS=90` (180s total) comfortably accommodates Open\n  WebUI's `start_period: 60s` + image pull time.\n- All `HEALTH_URLS` entries changed from `localhost` to `127.0.0.1`\n  per project convention (avoids IPv6 `::1` resolution quirks).\n- Error semantics preserved \u2014 still a `warn` + `ALL_HEALTHY=false`\n  on timeout, no `exit` (forgiving happy-path behavior retained).\n\n## Testing\n- `bash -n` passes on all three files.\n- `shellcheck` diff against base: zero new warnings.\n- `docker manifest inspect busybox:1.36.1` confirms pullability.\n- Busybox 1.36.x includes the `wget` applets the sidecar needs.\n\n## Platform Impact\n- macOS Apple Silicon: all three defects fixed.\n- Linux / Windows: zero touch \u2014 files are under `installers/macos/`\n  only.\n\n## Manual test for reviewers\nOn macOS Apple Silicon:\n1. Fresh `install-macos.sh --force` \u2192 no `DIM: unbound variable`\n   crash at the final summary banner; no false\n   `Chat UI (Open WebUI): not responding after 30 attempts`.\n2. `docker inspect dream-llama-ready | jq -r '.[0].Config.Image'`\n   \u2192 `busybox:1.36.1`.",
+  "changedFiles": 3,
+  "createdAt": "2026-04-23T21:21:14Z",
+  "deletions": 17,
+  "headRefName": "fix/macos-install-polish",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1005,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(macos): install-time polish \u2014 DIM constant, busybox pin, healthcheck rewrite",
+  "updatedAt": "2026-04-23T21:21:14Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1005"
+}

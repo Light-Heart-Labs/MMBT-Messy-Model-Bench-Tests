@@ -1,0 +1,5 @@
+ dream-server/.env.schema.json           |  6 ++-
+ dream-server/dream-cli                  | 66 +++++++++++++++++++++++++++++----
+ dream-server/scripts/validate-env.sh    | 13 +++++++
+ dream-server/tests/test-validate-env.sh | 19 +++++++---
+ 4 files changed, 89 insertions(+), 15 deletions(-)

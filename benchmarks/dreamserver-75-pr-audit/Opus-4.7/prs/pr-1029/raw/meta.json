@@ -1,0 +1,24 @@
+{
+  "additions": 46,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nTwo resolver fixes bundled:\n1. Stop appending `docker-compose.override.yml` twice to `COMPOSE_FLAGS`.\n2. Apply the same `gpu_backends` filter to user-installed extensions that built-in extensions already receive.\n\n## Why\n**Defect 1:** `installers/lib/compose-select.sh` called the resolver (which appends `docker-compose.override.yml` internally) and then appended it again at the bash layer. Docker merges the file twice \u2014 idempotent for scalars but a foot-gun for anchors / `extends:` / list-merge semantics.\n\n**Defect 2:** `scripts/resolve-compose-stack.sh` read the manifest and filtered by `gpu_backends` for built-in extensions but included every `data/user-extensions/*/compose.yaml` unconditionally. A user-library extension declaring `gpu_backends: [nvidia]` would be merged on AMD/Apple and fail at container start \u2014 or worse, block any `depends_on` chain.\n\n## How\n- **compose-select.sh:** delete the now-redundant `if [[ -f ... override.yml ]]` block after `load_env_from_output`.\n- **resolve-compose-stack.sh (inline Python):** mirror the built-in loop's filter verbatim into the user-extension loop. Same manifest lookup order (`.yaml` -> `.yml` -> `.json`), same `schema_version == \"dream.services.v1\"` gate, same `gpu_backends` default `[\"amd\",\"nvidia\"]`, same `\"all\"`/`\"none\"` sentinels, same narrow yaml/json/structure exception dispatch honouring `skip_broken`.\n\nThe intentional scope limit: user-extension loop still hardcodes `compose.yaml` and does not apply `compose.local.yaml` / `compose.multigpu.yaml` overlays \u2014 those gaps pre-dated this PR and are left for a separate follow-up to keep blast radius small.\n\n## Testing\n- `bash -n`, `shellcheck` (zero net-new warnings), `python3 -m py_compile` on the extracted heredoc \u2014 all pass.\n- `make lint` \u2014 passes.\n- `tests/test-tier-map.sh` \u2014 82/0.\n- Functional:\n  - Override dedup: old code emits 2x `override.yml`, new code emits 1x.\n  - `gpu_backends: [nvidia]` user-ext filtered out on AMD, included on NVIDIA.\n  - `gpu_backends: [all]` included on every backend.\n  - Missing manifest -> skipped (matches built-in).\n\n## Review\nCritique Guardian APPROVED (no required changes).\n\n## Platform Impact\n- **macOS / Linux / Windows (WSL2):** user-ext filter is pure Python using `pathlib`; no BSD/GNU divergence. compose-select.sh change is Linux-installer-only (matches file's scope).\n",
+  "changedFiles": 2,
+  "createdAt": "2026-04-24T17:47:09Z",
+  "deletions": 7,
+  "headRefName": "fix/compose-resolver-dedup-gpu-filter",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1029,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(resolver): dedupe override.yml; apply gpu_backends filter to user-extensions",
+  "updatedAt": "2026-04-24T17:47:09Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1029"
+}

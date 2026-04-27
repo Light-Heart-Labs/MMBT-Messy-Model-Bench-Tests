@@ -1,0 +1,24 @@
+{
+  "additions": 102,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nFixes three async-hygiene defects in `routers/extensions.py`: blocking urllib calls on the event-loop thread, over-broad `except Exception` catches that swallow programmer errors, and a fire-and-forget executor future that silently discards cleanup failures.\n\n## Why\n- `extension_logs` and `extensions_catalog` called `urllib.urlopen` directly on the async event loop. The Console modal polls every 2 s with a 30 s agent timeout, so a single slow host-agent response could block the entire dashboard-api event loop for up to 30 s.\n- `_call_agent`, `_call_agent_invalidate_compose_cache`, and `_call_agent_compose_rename` caught `except Exception`, meaning `AttributeError`, `TypeError`, and other programmer bugs were silently swallowed and logged as \"host agent unreachable\" \u2014 masking real bugs.\n- `_cleanup_stale_progress` was dispatched via `run_in_executor(None, ...)` with the returned Future immediately discarded, so any unhandled exception inside the cleanup only produced an opaque \"Future exception was never retrieved\" warning in stderr with no context.\n\n## How\n- Extracted `_fetch_agent_logs(url, headers, data, timeout) -> str` \u2014 a plain synchronous function that can be safely offloaded via `asyncio.to_thread`.\n- `extension_logs`: replaced inline `urllib.urlopen` block with `await asyncio.to_thread(_fetch_agent_logs, ...)`, matching the existing `asyncio.to_thread` pattern already used in `main.py`'s `api_settings_env_save`.\n- `extensions_catalog`: replaced direct `_check_agent_health()` call with `await asyncio.to_thread(_check_agent_health)`.\n- `_call_agent`, `_call_agent_invalidate_compose_cache`, `_call_agent_compose_rename`, `_check_agent_health`: narrowed `except Exception` \u2192 `except (urllib.error.URLError, urllib.error.HTTPError, OSError, TimeoutError)`. Non-network exceptions now propagate with a full stack trace instead of a misleading warning.\n- `extensions_catalog`: retained the `run_in_executor` Future in `_cleanup_future` and attached `_log_cleanup_error` as a `done_callback` to log any exception at ERROR level with full context.\n\n## Testing\n- **Automated:** pytest 140/140 pass (137 pre-existing + 3 new); ruff clean.\n- **New tests (`tests/test_extensions.py`):**\n  - `test_call_agent_returns_false_on_urlerror` \u2014 network errors return `False` and log a warning.\n  - `test_call_agent_reraises_non_network_errors` \u2014 `AttributeError` propagates (behaviour change from old broad catch).\n  - `test_catalog_logs_when_cleanup_future_fails` \u2014 cleanup RuntimeError is logged at ERROR level, catalog endpoint still returns 200.\n- **Manual:** Start dashboard-api with a non-responsive host agent; verify `/api/extensions/catalog` and `/api/extensions/{id}/logs` return promptly without blocking other requests.\n\n## Platform Impact\n- **macOS:** Affected \u2014 dashboard-api runs in Docker on all platforms; async event-loop fix is platform-neutral.\n- **Linux:** Affected \u2014 same fix applies to NVIDIA/AMD deployments.\n- **Windows (WSL2):** Affected \u2014 same.\n\n## Known Considerations\nNon-blocking follow-ups:\n1. Add symmetric tests for `_call_agent_invalidate_compose_cache` and `_call_agent_compose_rename` (the other two narrowed helpers).\n2. Hoist `_log_cleanup_error` out of the `extensions_catalog` function body to module level for reuse.\n3. Audit remaining `except Exception:` blocks in `main.py`.\n",
+  "changedFiles": 2,
+  "createdAt": "2026-04-24T16:17:24Z",
+  "deletions": 12,
+  "headRefName": "fix/extensions-async-hygiene",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1022,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dashboard-api): async hygiene in routers/extensions.py",
+  "updatedAt": "2026-04-24T16:17:24Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1022"
+}

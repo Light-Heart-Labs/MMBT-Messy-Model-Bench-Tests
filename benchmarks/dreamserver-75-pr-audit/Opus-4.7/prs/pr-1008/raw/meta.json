@@ -1,0 +1,24 @@
+{
+  "additions": 7,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nSeven `grep \"^KEY=\" .env | cut | tr` pipelines in `dream-cli` would\nexit 1 when the key is absent. Under `set -eo pipefail` those\npipelines would kill the script before the downstream defensive\nchecks (`[[ -n ... ]]`, `${var:-(not set)}`) can handle the\nempty-on-miss case the surrounding code was written for.\n\n## Why\nThe surrounding code treats missing keys as benign (empty string,\n\"not set\" default, fallthrough to defaults). That contract held\npre-pipefail because a grep miss yielded an empty pipeline output\nwith exit 0. Post-pipefail, a grep miss propagates exit 1, and\nbecause these pipelines are assigned with bare `VAR=$(...)` (not\n`local VAR=$(...)`, which would mask the exit status), `set -e`\nkills the script mid-flow.\n\n## How\nAppended `|| true` to each of the seven pipelines:\n\n| line | function                | key read             |\n| ---- | ----------------------- | -------------------- |\n| 254  | `_check_version_compat` | `DREAM_VERSION`      |\n| 836  | `cmd_dry_run`           | `DREAM_VERSION`      |\n| 849  | `cmd_dry_run`           | `DASHBOARD_API_KEY`  |\n| 938  | `cmd_dry_run` loop      | model-related keys   |\n| 953  | `cmd_dry_run` loop (2)  | model-related keys   |\n| 1434 | `cmd_enable`            | `GPU_BACKEND`        |\n| 1781 | `cmd_preset`            | `DREAM_MODE`         |\n\nLine 254 additionally swaps `| head -1` for `| sed -n '1p'` \u2014\nSIGPIPE-safe under pipefail, portable across BSD and GNU sed.\n\nLine 1434 additionally picks up a missing `2>/dev/null` for\nconsistency with the other six sites.\n\nSix other `grep \"^KEY=\"` pipelines in the file (around lines 2082,\n2084\u20132086, 2163\u20132164) use the single-line `local VAR=$(...)` form,\nwhich masks the pipeline exit status (a `local` command always\nexits 0 regardless of RHS) \u2014 those sites are already safe and are\nintentionally out of scope.\n\n## Testing\n- `bash -n` passes.\n- `shellcheck` diff against base: zero new warnings.\n- Behavior confirmed under `set -eo pipefail`:\n  - `grep '^NOPE=' file | cut -d= -f2 | tr -d '[:space:]' || true` \u2192 `rc=0`, empty value (missing key).\n  - `grep '^FOO=' file  | cut -d= -f2 | tr -d '[:space:]' || true` \u2192 `rc=0`, value returned (present key).\n- `sed -n '1p'` works identically on BSD (macOS) and GNU (Linux)\n  sed; no platform hazard.\n\n## Merge order (important)\nThis refactor is **preventive** on upstream/main today: `dream-cli`\nis on `set -e` only, so a grep miss in any of these pipelines is\nsilently absorbed. It becomes load-bearing the moment #998\n(`fix/dream-cli-pipefail-exit-codes`, enables `set -o pipefail`)\nmerges \u2014 without this fix in place, `dream update`, `dream\nrollback`, `dream enable`, `dream preset`, and `dream dry-run` can\nabort mid-flow on installs that predate (or manually-edited-out) a\ngiven .env key.\n\n**Recommended ordering:** merge this PR in the same batch as\n#998, or land this first. If #998 merges alone, users on upstream\nhit the regression immediately.\n\n## Platform Impact\n- macOS / Linux / Windows WSL2: POSIX `grep`, `cut`, `tr`, `sed -n '1p'` all behave identically. Zero platform risk.\n\n\n---\n\n## \ud83d\udccb Chain status (operator's reminder \u2014 apr-25)\n\nThis PR is the **head of a `dream-cli` strict-mode chain**:\n\n```\n#1008 (this) \u2500\u2500READY\u2500\u2500\u25b6 #998 \u2500\u2500DRAFT\u2500\u25b6 #1002 \u2500\u2500DRAFT\n                              \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u25b6 #1018 \u2500\u2500DRAFT\n```\n\n**After this PR merges, the next operator step is:**\n1. Promote #998 from DRAFT \u2192 ready (`gh pr ready 998`).\n2. Maintainer merges #998.\n3. Operator rebases #1002 onto post-#998 main (shared hunks drop out automatically) \u2192 promote #1002.\n4. Operator does the same for #1018 (after its other 4 deps land \u2014 #994, #1003, #1016, plus #998 itself).\n\n#998 / #1002 / #1018 are kept in DRAFT as a mechanical safeguard so they cannot merge before this one.\n",
+  "changedFiles": 1,
+  "createdAt": "2026-04-23T21:22:03Z",
+  "deletions": 7,
+  "headRefName": "refactor/dream-cli-post-pipefail-hygiene",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1008,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "refactor(dream-cli): guard .env grep pipelines against pipefail kill on missing keys",
+  "updatedAt": "2026-04-25T13:23:17Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1008"
+}

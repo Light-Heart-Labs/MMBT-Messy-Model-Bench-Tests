@@ -1,0 +1,24 @@
+{
+  "additions": 376,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nSystematic audit of the last 50 merged PRs against all existing documentation revealed stale, contradictory, and missing docs. This PR fixes them:\n\n- **WINDOWS-QUICKSTART.md**: Remove \"Coming Soon \u2014 Preflight Checks Only\" language (Windows has been fully supported since March 2026). Add real install flow, verified `dream.ps1` commands, and accurate installer flags\n- **MODE-SWITCH.md**: Add lemonade mode section \u2014 auto-configured on AMD hardware, not user-switchable via `dream mode`\n- **QUICKSTART.md / README.md**: Update all stale Qwen2.5 model names to Qwen3.5/Qwen3 matching current `tier-map.sh`\n- **POST-INSTALL-CHECKLIST.md**: Rewrite 22-line skeleton (unchecked boxes, no commands) with real verification steps\n- **SECURITY.md**: Add `DREAM_AGENT_BIND` / LAN access documentation with platform defaults\n- **FAQ.md**: Add backup/restore, service templates, bootstrap fast-start, and expanded update/rollback docs\n- **HOST-AGENT-API.md**: Add Windows platform note (host agent not yet available)\n- **Langfuse README.md**: New service README (ports, env vars, volumes, troubleshooting)\n- **CATALOG.md**: Add missing Langfuse entry\n- **.env.example**: Document `LLAMA_CPU_LIMIT` for macOS/CPU-only mode\n- **SUPPORT-MATRIX.md**: Link to AMD system-tuning guide\n- **Root README.md**: Fix Apple Silicon \"4B\" \u2192 \"9B\" for 16-24GB tier\n\nEvery claim was verified against source code by an Opus-level critique pass (tier-map.sh, dream-cli, install-windows.ps1, dream.ps1, dream-host-agent.py, compose files, manifests).\n\n## Test plan\n\n- [ ] Verify markdown renders correctly on GitHub (tables, code blocks, links)\n- [ ] Spot-check model names in QUICKSTART.md tier tables against `installers/lib/tier-map.sh`\n- [ ] Verify `docs/MODE-SWITCH.md` lemonade section matches `installers/phases/06-directories.sh` behavior\n- [ ] Verify `WINDOWS-QUICKSTART.md` installer flags match `install-windows.ps1` param block\n- [ ] Confirm `extensions/services/langfuse/README.md` ports match `manifest.yaml`\n- [ ] Confirm no broken relative links in changed files\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)",
+  "changedFiles": 13,
+  "createdAt": "2026-04-16T15:36:33Z",
+  "deletions": 115,
+  "headRefName": "docs/sync-documentation-with-codebase",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 973,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "docs: sync documentation with codebase after 50+ merged PRs",
+  "updatedAt": "2026-04-22T10:54:55Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/973"
+}

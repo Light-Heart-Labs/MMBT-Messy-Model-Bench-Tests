@@ -1,0 +1,210 @@
+diff --git a/dream-server/.env.example b/dream-server/.env.example
+index 038b6840..ea8ce104 100644
+--- a/dream-server/.env.example
++++ b/dream-server/.env.example
+@@ -138,8 +138,8 @@ WEBUI_PORT=3000            # Open WebUI (external → internal 8080)
+ # Host Agent bind address (leave empty for platform-aware default).
+ # macOS/Windows: defaults to 127.0.0.1 (Docker Desktop routes via loopback).
+ # Linux: auto-detects Docker bridge gateway IP (e.g. 172.17.0.1) so containers
+-#   can reach the agent while LAN devices cannot.  Falls back to 0.0.0.0 if
+-#   detection fails.  Set explicitly to override (e.g. 127.0.0.1 for no Docker).
++#   can reach the agent while LAN devices cannot.  Falls back to 127.0.0.1 if
++#   detection fails.  Set explicitly to override.
+ # DREAM_AGENT_BIND=
+ 
+ # Dashboard API key (generate: openssl rand -hex 32)
+diff --git a/dream-server/.env.schema.json b/dream-server/.env.schema.json
+index c25a2d85..fe932783 100644
+--- a/dream-server/.env.schema.json
++++ b/dream-server/.env.schema.json
+@@ -573,7 +573,7 @@
+     },
+     "DREAM_AGENT_BIND": {
+       "type": "string",
+-      "description": "Bind address for the Dream Host Agent HTTP server. Defaults to 127.0.0.1 on macOS/Windows, Docker bridge gateway IP on Linux (falls back to 0.0.0.0).",
++      "description": "Bind address for the Dream Host Agent HTTP server. Defaults to 127.0.0.1 on macOS/Windows, Docker bridge gateway IP on Linux (falls back to 127.0.0.1).",
+       "default": ""
+     },
+     "DREAM_TIER": {
+diff --git a/dream-server/bin/dream-host-agent.py b/dream-server/bin/dream-host-agent.py
+index 21fc7642..d4c21190 100755
+--- a/dream-server/bin/dream-host-agent.py
++++ b/dream-server/bin/dream-host-agent.py
+@@ -1939,10 +1939,12 @@ def _launch_native_llama_server(env_path: Path, llama_bin: Path, llama_log: Path
+     model_path = INSTALL_DIR / "data" / "models" / gguf_file
+     reasoning = env.get("LLAMA_REASONING", "off")
+     reasoning_fmt = {"off": "none", "on": "deepseek"}.get(reasoning, reasoning)
++    # Honour the unified BIND_ADDRESS knob (PR #964); empty/missing → loopback.
++    bind_addr = env.get("BIND_ADDRESS", "").strip() or "127.0.0.1"
+     with open(llama_log, "a") as log_f:
+         proc = subprocess.Popen(
+             [str(llama_bin),
+-             "--host", "0.0.0.0", "--port", "8080",
++             "--host", bind_addr, "--port", "8080",
+              "--model", str(model_path),
+              "--ctx-size", ctx_size,
+              "--n-gpu-layers", "999",
+@@ -2231,22 +2233,22 @@ def main():
+     # macOS/Windows: 127.0.0.1 (Docker Desktop routes host.docker.internal to loopback)
+     # Linux: Docker bridge gateway IP (containers reach via host-gateway,
+     #   LAN devices cannot — the bridge is a virtual interface).
+-    #   Falls back to 0.0.0.0 if detection fails.
++    #   Falls back to 127.0.0.1 if detection fails.
+     bind_addr = env.get("DREAM_AGENT_BIND", "")
+     bind_from_env = bool(bind_addr)
+     if not bind_addr:
+         if platform.system() in ("Darwin", "Windows"):
+             bind_addr = "127.0.0.1"
+         else:
+-            bind_addr = _detect_docker_bridge_gateway() or "0.0.0.0"
++            bind_addr = _detect_docker_bridge_gateway() or "127.0.0.1"
+ 
+     server = ThreadedHTTPServer((bind_addr, port), AgentHandler)
+     signal.signal(signal.SIGTERM, lambda *_: server.shutdown())
+     logger.info("Dream Host Agent v%s listening on %s:%d", VERSION, bind_addr, port)
+-    if bind_addr == "0.0.0.0" and not bind_from_env:
++    if bind_addr == "127.0.0.1" and not bind_from_env and platform.system() not in ("Darwin", "Windows"):
+         logger.warning(
+-            "Agent is listening on all interfaces (bridge detection failed). "
+-            "Set DREAM_AGENT_BIND=<bridge-ip> in .env to restrict."
++            "Docker bridge detection failed, using loopback (127.0.0.1). "
++            "Containers may not reach the agent. Set DREAM_AGENT_BIND=<bridge-ip> in .env."
+         )
+     logger.info("Install dir: %s | GPU: %s | Tier: %s", INSTALL_DIR, GPU_BACKEND, TIER)
+     try:
+diff --git a/dream-server/installers/macos/dream-macos.sh b/dream-server/installers/macos/dream-macos.sh
+index 18b908f3..57bdab2d 100755
+--- a/dream-server/installers/macos/dream-macos.sh
++++ b/dream-server/installers/macos/dream-macos.sh
+@@ -282,7 +282,7 @@ start_native_llama() {
+     esac
+ 
+     "$LLAMA_SERVER_BIN" \
+-        --host 0.0.0.0 --port 8080 \
++        --host "${ENV_BIND_ADDRESS:-127.0.0.1}" --port 8080 \
+         --model "$model_path" \
+         --ctx-size "$ctx_size" \
+         --n-gpu-layers 999 \
+diff --git a/dream-server/installers/macos/install-macos.sh b/dream-server/installers/macos/install-macos.sh
+index dbec0311..3dbec2ef 100755
+--- a/dream-server/installers/macos/install-macos.sh
++++ b/dream-server/installers/macos/install-macos.sh
+@@ -662,8 +662,14 @@ else
+             *)    _reasoning_fmt="$_reasoning" ;;
+         esac
+ 
++        # Honour the unified BIND_ADDRESS knob (PR #964) so --lan / dashboard
++        # toggle / manual edit reach the native llama-server too. Falls back
++        # to loopback when unset (default-secure).
++        _bind=$(grep '^BIND_ADDRESS=' "$INSTALL_DIR/.env" 2>/dev/null | cut -d= -f2 | tr -d '"' || echo "")
++        [[ -z "$_bind" ]] && _bind="127.0.0.1"
++
+         "$LLAMA_SERVER_BIN" \
+-            --host 0.0.0.0 --port 8080 \
++            --host "$_bind" --port 8080 \
+             --model "$MODEL_FULL_PATH" \
+             --ctx-size "$MAX_CONTEXT" \
+             --n-gpu-layers 999 \
+diff --git a/dream-server/installers/windows/dream.ps1 b/dream-server/installers/windows/dream.ps1
+index 3702ac6a..7cb38841 100644
+--- a/dream-server/installers/windows/dream.ps1
++++ b/dream-server/installers/windows/dream.ps1
+@@ -312,12 +312,16 @@ function Start-NativeInferenceServer {
+     $backend = Get-NativeInferenceBackend
+     $envVars = Read-DreamEnv
+ 
++    # Honour the unified BIND_ADDRESS knob (PR #964); empty/missing → loopback.
++    $bindAddr = $envVars["BIND_ADDRESS"]
++    if ([string]::IsNullOrWhiteSpace($bindAddr)) { $bindAddr = "127.0.0.1" }
++
+     if ($backend -eq "lemonade") {
+         $modelsDir = Join-Path (Join-Path $InstallDir "data") "models"
+         $lemonadeArgs = @(
+             "serve",
+             "--port", "$($script:LEMONADE_PORT)",
+-            "--host", "0.0.0.0",
++            "--host", $bindAddr,
+             "--no-tray",
+             "--llamacpp", "vulkan",
+             "--extra-models-dir", $modelsDir
+@@ -359,7 +363,7 @@ function Start-NativeInferenceServer {
+ 
+         $llamaArgs = @(
+             "--model", $modelPath,
+-            "--host", "0.0.0.0",
++            "--host", $bindAddr,
+             "--port", "8080",
+             "--n-gpu-layers", "999",
+             "--ctx-size", $ctxSize
+diff --git a/dream-server/installers/windows/install-windows.ps1 b/dream-server/installers/windows/install-windows.ps1
+index fbc54062..9d1f8237 100644
+--- a/dream-server/installers/windows/install-windows.ps1
++++ b/dream-server/installers/windows/install-windows.ps1
+@@ -259,6 +259,20 @@ if ($dryRun) {
+                 }
+             }
+ 
++            # Honour the unified BIND_ADDRESS knob (PR #964) for native servers.
++            # Phase 06 has already written BIND_ADDRESS to .env (0.0.0.0 with -Lan,
++            # 127.0.0.1 otherwise). Read once and reuse for both Lemonade and
++            # llama.cpp launches below. Empty/missing → loopback.
++            $_envPath = Join-Path $installDir ".env"
++            $bindAddr = "127.0.0.1"
++            if (Test-Path $_envPath) {
++                $_envText = Get-Content $_envPath -Raw
++                if ($_envText -match "(?m)^BIND_ADDRESS=(.*)$") {
++                    $_match = $Matches[1].Trim().Trim('"').Trim("'")
++                    if (-not [string]::IsNullOrWhiteSpace($_match)) { $bindAddr = $_match }
++                }
++            }
++
+             if ($useLemonade) {
+                 # ── Start Lemonade server ──
+                 # --extra-models-dir: Lemonade auto-discovers GGUF files in this directory
+@@ -270,7 +284,7 @@ if ($dryRun) {
+                 $lemonadeArgs = @(
+                     "serve",
+                     "--port", "$($script:LEMONADE_PORT)",
+-                    "--host", "0.0.0.0",
++                    "--host", $bindAddr,
+                     "--no-tray",
+                     "--llamacpp", "vulkan",
+                     "--extra-models-dir", $modelsDir
+@@ -353,7 +367,7 @@ if ($dryRun) {
+                 $modelFullPath = Join-Path (Join-Path $installDir "data\models") $tierConfig.GgufFile
+                 $llamaArgs = @(
+                     "--model", $modelFullPath,
+-                    "--host", "0.0.0.0",
++                    "--host", $bindAddr,
+                     "--port", "8080",
+                     "--n-gpu-layers", "999",
+                     "--ctx-size", "$($tierConfig.MaxContext)"
+diff --git a/dream-server/scripts/bootstrap-upgrade.sh b/dream-server/scripts/bootstrap-upgrade.sh
+index 0904ac2a..56bd13cf 100644
+--- a/dream-server/scripts/bootstrap-upgrade.sh
++++ b/dream-server/scripts/bootstrap-upgrade.sh
+@@ -533,10 +533,14 @@ elif [[ -f "$INSTALL_DIR/data/.llama-server.pid" ]]; then
+                 *)    _reasoning_fmt="$_reasoning" ;;
+             esac
+ 
++            # Honour the unified BIND_ADDRESS knob (PR #964); empty/missing → loopback.
++            _bind=$(grep '^BIND_ADDRESS=' "$ENV_FILE" 2>/dev/null | cut -d= -f2 | tr -d '"' || echo "")
++            [[ -z "$_bind" ]] && _bind="127.0.0.1"
++
+             # Relaunch with new model
+             log "Starting native llama-server with ${_gguf_file}..."
+             "$LLAMA_SERVER_BIN" \
+-                --host 0.0.0.0 --port 8080 \
++                --host "$_bind" --port 8080 \
+                 --model "$_model_path" \
+                 --ctx-size "$_ctx_size" \
+                 --n-gpu-layers 999 \
+@@ -568,7 +572,7 @@ elif [[ -f "$INSTALL_DIR/data/.llama-server.pid" ]]; then
+                 fi
+                 if [[ -n "${_old_model_path:-}" && -f "$_old_model_path" ]]; then
+                     "$LLAMA_SERVER_BIN" \
+-                        --host 0.0.0.0 --port 8080 \
++                        --host "$_bind" --port 8080 \
+                         --model "$_old_model_path" \
+                         --ctx-size "$_ctx_size" \
+                         --n-gpu-layers 999 \

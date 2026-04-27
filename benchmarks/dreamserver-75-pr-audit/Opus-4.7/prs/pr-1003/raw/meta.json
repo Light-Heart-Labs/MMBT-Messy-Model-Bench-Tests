@@ -1,0 +1,24 @@
+{
+  "additions": 215,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\n\nThree substantive fixes for the dashboard's Setup Wizard, plus correctness fixes for the diagnostic shell script:\n\n1. **Machine-readable `__DREAM_RESULT__:PASS|FAIL:<rc>` sentinel** on `/api/setup/test` (both `run_tests` happy path and `error_stream` fallback). The wizard no longer greenlights users through onboarding on a failed diagnostic.\n2. **Setup Wizard JSX hardening** \u2014 `AbortController` for mid-wizard cancellation, `Promise.allSettled` for race-free template/extension fetches, step-guarded `useEffect` re-fetch on back-nav, `console.error` on previously-silent catches, `aria-hidden` on decorative template-status icons.\n3. **Template applied-status indicator** lifted from `pages/Extensions.jsx` into `src/lib/templates.js` so the wizard can show per-template \"applied\" state without pulling the Extensions page into the initial bundle.\n4. **`scripts/dream-test-functional.sh` `set -euo pipefail` discipline** \u2014 replace `((VAR++))` arithmetic-compound (returns 1 when pre-incr is 0) with `$((VAR + 1))` expansion; use `if ! VAR=$(...)` pattern for grep-pipelines that may legitimately produce no match; bounded `set +e/set -e` block around the test-function-dispatch so a single failing test doesn't abort the runner.\n\n## Why\n\nThe wizard previously enabled \"Complete Setup\" as soon as the test stream ended, regardless of exit code \u2014 greenlighting users with broken backends. Concurrent issues in the diagnostic shell script caused it to exit after the first test under `set -e`, so the Python streaming generator's trailer and sentinel never reached the HTTP client anyway. Separately, the Python generator yielded trailer and sentinel as two separate `yield` statements; Starlette's `StreamingResponse` was dropping the final chunk during stream finalization, so even when the shell script ran to completion the sentinel never arrived at the client.\n\nClient-side: silent `.catch(() => {})` swallowed template and extension load errors. No `AbortController` meant abandoned wizard sessions kept the server-side subprocess running for 2+ minutes per visit. A race between template and extension fetches caused template status cards to briefly flash \"available\" before correcting to \"applied.\"\n\n## How\n\nTwo commits:\n\n- `1ba7c78f` \u2014 backend sentinel. `run_tests` emits trailer + sentinel as a **single combined `yield`** (works around Starlette's observed end-of-stream final-chunk drop). `error_stream` fallback now tracks `all_ok` across connectivity checks and emits a result-dependent trailer + sentinel. Shell-script trap fixes in `dream-test-functional.sh`.\n- `57f2783a` \u2014 template applied-status lifted to `src/lib/templates.js` + wizard enrichment + `AbortController` + `Promise.allSettled` + step-guarded `useEffect` + `aria-hidden` on decorative icons + non-silent catches (`console.error` with context).\n\n## Testing\n\n- **Live HTTP byte-inspection** of `/api/setup/test` confirms `__DREAM_RESULT__:FAIL:1\\n` now arrives on the wire; previously absent.\n- Shell script runs to completion inside the `dream-dashboard-api` container with all 4 test functions + summary + correct exit code.\n- Round-1 review: Critique Guardian approved. Round-2 adversarial audit by dashboard-verifier: shell + Python claims verified, JSX claims verified (`AbortController` wiring, `Promise.allSettled`, step-guarded `useEffect`, `aria-hidden` actually applied, sentinel parser handles 745-byte response correctly).\n\n## Known Considerations\n\n- The `dream-dashboard-api` Docker image bakes `routers/setup.py` at build time (uvicorn `WORKDIR=/app`). This PR's Python changes require an image rebuild to take effect on existing installs. A separate follow-up will address the installer's `docker compose up` flow to force-rebuild locally-built images.\n- `TemplatePicker.jsx:140` has a pre-existing `res.json().catch(() => ({}))` silent swallow unrelated to this PR's touched scope; tracked as a separate follow-up.\n\n## Platform Impact\n\n- **macOS / Linux / Windows (WSL2):** all identical. Backend is Python inside Docker; JSX is browser-side. Shell script is POSIX-compatible Bash 4+.\n",
+  "changedFiles": 6,
+  "createdAt": "2026-04-23T19:50:59Z",
+  "deletions": 57,
+  "headRefName": "fix/dashboard-setup-wizard",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1003,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dashboard,dashboard-api): sentinel-based setup wizard success detection",
+  "updatedAt": "2026-04-23T19:50:59Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1003"
+}

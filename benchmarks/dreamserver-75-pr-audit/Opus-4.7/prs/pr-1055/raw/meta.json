@@ -1,0 +1,24 @@
+{
+  "additions": 159,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nDocument how to iterate on the dashboard-api FastAPI backend without your changes silently no-op'ing \u2014 and explain why the obvious bind-mount and \\`--reload\\` overlay alternatives weren't shipped.\n\nTwo files:\n- New: \\`dream-server/docs/DASHBOARD-API-DEVELOPMENT.md\\` \u2014 full guide (~140 lines).\n- Updated: \\`dream-server/CONTRIBUTING.md\\` \u2014 short pointer to the new doc, slipped into the existing Getting Started link list and a brief inline summary.\n\n## Why\nThe dashboard-api Dockerfile bakes the Python source into \\`/app/\\` at image build, and uvicorn imports from there. The compose service mounts \\`./extensions:/dream-server/extensions:ro\\` \u2014 but that mount exists for manifest and config discovery, not for Python imports. Editing files under \\`extensions/services/dashboard-api/\\` on the host therefore does **not** reload the running container; changes silently no-op until the image is rebuilt. Multiple contributors have hit this trap (and lost time tracking down why their change \"did nothing\"), so the gap is worth a focused doc rather than another retread.\n\n## How\nPure documentation. No code, Dockerfile, compose, or installer change.\n\nThe guide:\n1. States the trap up front (TL;DR + a \"The Trap\" section).\n2. Recommends running uvicorn natively on the host with \\`--reload\\`, leveraging the existing \\`host.docker.internal:host-gateway\\` wiring on the dashboard-api compose service so the rest of the stack continues to talk to the host-side process.\n3. Documents \\`docker cp\\` as a stop-gap until the next image rebuild.\n4. Explains why **Option B** (bind-mount the source as the working directory) was not shipped \u2014 \\`__pycache__\\` writes, standalone-image breakage, dual prod/dev image divergence.\n5. Explains why **Option C** (uvicorn \\`--reload\\` via a dev compose overlay) was not shipped \u2014 uvicorn launched from \\`WORKDIR /app\\` re-imports baked code regardless of \\`--reload-dir\\`; making it actually work would also require overriding \\`WORKDIR\\` (or wrapping the command), at which point you're effectively re-implementing Option B with extra steps.\n6. Cross-platform notes \u2014 macOS / Linux / WSL2 (with the \\`/mnt/c/...\\` inotify caveat).\n\nThe doc references structural patterns (\\`WORKDIR /app\\`, \\`COPY ... ./\\`, \\`CMD uvicorn ...\\`) rather than specific line numbers, so it doesn't rot when the Dockerfile shifts.\n\n## Testing\n- markdownlint not installed locally, skipped.\n- Internal links resolve (verified \\`docs/EXTENSIONS.md\\`, \\`docs/HOST-AGENT-API.md\\` exist).\n- Technical accuracy cross-checked against the actual \\`Dockerfile\\` and \\`docker-compose.base.yml\\` \u2014 \\`WORKDIR\\`, COPY commands, CMD shape, \\`extra_hosts\\`, volumes block all match.\n- No emojis, all code blocks language-tagged, single H1, no TODO/FIXME.\n- \\`cut -d= -f2-\\` in the env-extraction example uses the range form (not \\`-f2\\`) so values containing \\`=\\` aren't truncated.\n- Both \\`DASHBOARD_API_KEY\\` and \\`DREAM_AGENT_KEY\\` shown in the example so a copy-paster running native uvicorn doesn't immediately hit 401 from the host agent (since #979, the two keys are independent).\n\n## Review\nNone required from external reviewers \u2014 observable on read. Local CG approved with the warnings above already addressed before submission.\n\n## Known considerations\n\\`CONTRIBUTING.md\\` is currently rebased frequently (open PR #973 may overwrite the link list and prose). If that lands first, this PR will need a small rebase touching only the link-list section and the new \"Dashboard API development\" subsection \u2014 no semantic conflict.\n\n## Platform impact\n- **macOS**: Recommended workflow (native uvicorn) works without caveats. Documentation is platform-aware.\n- **Linux**: Same. inotify is reliable on the WSL2 filesystem.\n- **Windows/WSL2**: Documentation includes the standard caveat to keep the repo on the WSL2 filesystem (\\`~/...\\`) rather than \\`/mnt/c/...\\` for uvicorn's watchfiles to behave.",
+  "changedFiles": 2,
+  "createdAt": "2026-04-26T18:36:04Z",
+  "deletions": 0,
+  "headRefName": "docs/dashboard-api-development-workflow",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1055,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "docs(dashboard-api): add development workflow guide for the bake-vs-bind-mount trap",
+  "updatedAt": "2026-04-26T18:36:04Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1055"
+}

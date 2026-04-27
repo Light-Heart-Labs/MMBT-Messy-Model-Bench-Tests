@@ -1,0 +1,7 @@
+ .../dev/extensions-library/services/anythingllm/compose.yaml |  3 +++
+ .../extensions-library/services/continue/compose.amd.yaml    | 11 +++++++++++
+ .../extensions-library/services/continue/compose.apple.yaml  | 12 ++++++++++++
+ .../extensions-library/services/continue/compose.cpu.yaml    | 11 +++++++++++
+ .../extensions-library/services/continue/compose.nvidia.yaml | 11 +++++++++++
+ .../dev/extensions-library/services/localai/compose.yaml     |  3 +++
+ 6 files changed, 51 insertions(+)

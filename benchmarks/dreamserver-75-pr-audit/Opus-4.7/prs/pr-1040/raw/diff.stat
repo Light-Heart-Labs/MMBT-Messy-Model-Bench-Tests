@@ -1,0 +1,6 @@
+ dream-server/bin/dream-host-agent.py               |  57 ++++++-
+ .../dashboard-api/tests/test_host_agent.py         | 129 ++++++++++++++++
+ .../services/langfuse/hooks/post_install.sh        | 121 +++++++++++++++
+ .../extensions/services/langfuse/manifest.yaml     |   1 +
+ .../tests/reproducers/langfuse-uid-check.sh        | 168 +++++++++++++++++++++
+ 5 files changed, 473 insertions(+), 3 deletions(-)

@@ -1,0 +1,24 @@
+{
+  "additions": 46,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\n\nThree improvements to `dream shell <service>`:\n\n1. **Pre-validate the service ID against the registry** before any Docker call, so `dream shell bogus-service` fails fast with \"Unknown service\" instead of emitting mismatched Docker errors.\n2. **Docker daemon preflight** \u2014 distinguish \"daemon down\" from \"container stopped\" so the error message reflects the actual cause. Uses `perl -e 'alarm 3; exec \"docker\", \"info\"'` for a portable 3-second timeout (`timeout` isn't on stock macOS).\n3. **Probe for `/bin/bash`** via `docker exec <c> test -x /bin/bash` before choosing the shell, so the `/bin/sh` fallback only fires on images that genuinely lack bash (instead of firing on any exec failure).\n\n## Why\n\nThe original code printed an optimistic \"Opening shell...\" log, then Docker emitted \"No such container\" twice \u2014 once for `/bin/bash` and once for the fallback \u2014 before exiting. Misleading UX. The existing container-running check (`docker ps`) also returns non-zero when the daemon itself is down, so users whose Docker Desktop wasn't running saw \"Container X is not running\" and tried `dream start` (which also failed), creating a confusing loop.\n\n`docker info` can hang for 20+ seconds when Docker Desktop is mid-boot (socket exists, daemon not yet accepting RPCs); the `perl alarm` wrapper gives a portable 3-second timeout.\n\n## How\n\nTwo commits:\n\n- `14c3d869` \u2014 service ID validation, container-running check, `/bin/bash` probe before fallback.\n- `ca08b830` \u2014 call `sr_load` directly in `cmd_shell` so `SERVICE_IDS` is populated in the outer shell (the previous revision relied on a subshell `$(...)` populating the array, which was lost on return). Adds the Docker daemon preflight with `perl alarm`.\n\n## Testing\n\n- Sandbox: `perl -e 'alarm 3; exec \"docker\", \"info\"'` returns rc=0 on a healthy daemon, rc=142 on a 10s sleep with 3s alarm.\n- `dream shell bogus-service` \u2192 \"Unknown service: bogus-service\" (previously Docker errors).\n- `dream shell llama-server` with Docker stopped \u2192 \"Docker is not running (or not responding within 3s)\" (previously \"Container X is not running\").\n- Round-1 review: Critique Guardian approved. Round-2 adversarial audit: verified.\n\n## Platform Impact\n\n- **macOS / Linux / Windows (WSL2):** identical CLI path. `perl alarm` semantics identical across platforms (perl ships with macOS \u2265 10.5 and every supported Linux/WSL2 distro). No BSD/GNU userland differences.\n",
+  "changedFiles": 1,
+  "createdAt": "2026-04-23T19:50:35Z",
+  "deletions": 2,
+  "headRefName": "fix/dream-shell-pre-validation",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 997,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dream-cli): pre-validate 'dream shell' service + Docker daemon preflight",
+  "updatedAt": "2026-04-23T19:50:35Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/997"
+}

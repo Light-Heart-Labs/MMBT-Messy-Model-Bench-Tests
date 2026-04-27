@@ -1,0 +1,24 @@
+{
+  "additions": 1,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nAdd `HOSTNAME=0.0.0.0` to the perplexica service environment so Next.js 16 binds the loopback interface inside the container.\n\n## Why\nThe pinned `itzcrazykns1337/perplexica:slim-latest` image ships **Next.js 16.0.7**. Next 16 changed the standalone-server bind behaviour: it reads `process.env.HOSTNAME` (defaulting to the container's hostname / Docker bridge IP) and listens *only* on that interface. The healthcheck at `extensions/services/perplexica/compose.yaml:29` probes `http://127.0.0.1:3000/`, which always returns `ECONNREFUSED` because nothing is bound to loopback. The container ends up permanently `(unhealthy)` even though it serves traffic correctly via the bridge IP.\n\nThis is a real binding mismatch, not a probe mistake \u2014 commit `67a57973` (PR #977) intentionally moved the healthcheck to `127.0.0.1` to match the project-wide convention; the convention is correct, the upstream image's bind default is what's incompatible.\n\n## How\nSingle-line addition to `extensions/services/perplexica/compose.yaml`:\n```yaml\n      - HOSTNAME=0.0.0.0\n```\nPlaced after the existing `OPENAI_API_KEY` line in the env list (list-form `- KEY=VALUE`, matching `n8n/compose.yaml` and `searxng/compose.yaml` style).\n\nThe host-side `${BIND_ADDRESS:-127.0.0.1}:${PERPLEXICA_PORT:-3004}:3000` mapping is untouched, so the loopback default for host-side LAN exposure is preserved (LAN mode still requires the operator to opt in via `--lan` / dashboard / `BIND_ADDRESS=0.0.0.0` in `.env`).\n\n## Testing\n- `python3 -c \"import yaml; yaml.safe_load(open('.../perplexica/compose.yaml'))\"` \u2192 PASS\n- `docker compose -f docker-compose.base.yml -f extensions/services/searxng/compose.yaml -f extensions/services/perplexica/compose.yaml config -q` \u2192 exit 0 (with the standard env stubs)\n- gitleaks pre-commit \u2192 PASS\n- No automated test exists for compose-level Next.js binding behaviour; the Compose healthcheck IS the regression test (once the container reaches `(healthy)`, the bind is confirmed).\n\nManual (operator on macOS dev install):\n1. `dream restart perplexica`\n2. After ~60s: `docker ps --filter name=dream-perplexica --format '{{.Status}}'` \u2192 `Up X minutes (healthy)`\n3. `docker exec dream-perplexica node -e \"require('http').get('http://127.0.0.1:3000/',r=>console.log(r.statusCode))\"` \u2192 `200`\n4. `docker logs dream-perplexica | grep \"Local:\"` \u2192 Next.js banner reports `http://0.0.0.0:3000` (no longer container hostname)\n5. `curl -s http://localhost:3004/ | head -c 100` \u2192 returns HTML (host-side loopback access still works)\n\n## Review\nCritique Guardian APPROVED. No required changes.\n\n## Platform Impact\n| Platform | Impact |\n|---|---|\n| macOS (Apple Silicon, Docker Desktop) | Healthcheck transitions to `(healthy)`. Otherwise unchanged. |\n| Linux (NVIDIA / AMD, native Docker) | Same. Container-internal change. |\n| Windows / WSL2 (Docker Desktop) | Same. Container-internal change. |\n",
+  "changedFiles": 1,
+  "createdAt": "2026-04-26T17:24:33Z",
+  "deletions": 0,
+  "headRefName": "fix/perplexica-hostname-binding",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1046,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(perplexica): bind Next.js 16 to 0.0.0.0 inside container",
+  "updatedAt": "2026-04-26T17:24:33Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1046"
+}

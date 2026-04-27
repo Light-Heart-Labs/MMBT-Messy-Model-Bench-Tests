@@ -1,0 +1,326 @@
+diff --git a/dream-server/dream-cli b/dream-server/dream-cli
+index 6e160f64..b1b6a419 100755
+--- a/dream-server/dream-cli
++++ b/dream-server/dream-cli
+@@ -510,6 +510,68 @@ get_compose_flags() {
+     fi
+ }
+ 
++# Run `docker compose <args...>` with a compact summary on success and a
++# surfaced error banner on failure.
++#
++# Usage:  _compose_run_with_summary <verb> <compose_args...>
++#   <verb>           Human-readable gerund phrase, e.g. "Restarting all services"
++#   <compose_args>   Everything that goes after `docker compose`, including
++#                    any `-f` flags resolved by get_compose_flags.
++#
++# Behavior:
++#   - Runs `docker compose --progress quiet <compose_args>`, capturing
++#     stdout+stderr to a mktemp log file.
++#   - On success: prints "<verb> — done" and removes the log file.
++#   - On failure: prints an error banner, surfaces up to 20 lines matching
++#                 /error|unhealthy|failed|dependency/, preserves the full
++#                 log file for inspection, and returns the compose exit
++#                 code so the caller (under `set -e`) aborts with it.
++#
++# The summary grep pipeline can legitimately produce zero matches if the
++# failing compose output has no error-keyword hits. `upstream/main` today
++# runs under `set -e` only (no `pipefail`), so grep's exit 1 is absorbed
++# by the pipeline's final-stage exit and the function continues to the
++# log-path surface below. When pipefail is eventually adopted (sibling
++# nounset/exit-code audit change), grep's no-match or a SIGPIPE from
++# `head -20` on >20 matches would abort this function before the caller
++# sees the compose log path or the compose exit code. `|| warn "..."`
++# is the project-blessed form (per CLAUDE.md) for "tolerate this specific
++# non-match and log why the summary is empty" — it costs nothing today
++# and keeps the function correct under future pipefail.
++_compose_run_with_summary() {
++    local _verb="$1"; shift
++    log "${_verb}..."
++
++    local _compose_log
++    _compose_log=$(mktemp)
++    trap 'rm -f "$_compose_log"' INT TERM
++
++    local _rc=0
++    docker compose --progress quiet "$@" >"$_compose_log" 2>&1 || _rc=$?
++
++    if (( _rc == 0 )); then
++        success "${_verb} — done"
++        rm -f "$_compose_log"
++        trap - INT TERM
++        return 0
++    fi
++
++    log_error "${_verb} failed:"
++    local _surfaced
++    _surfaced=$(grep -iE 'error|unhealthy|failed|dependency' "$_compose_log" \
++        | sed 's/^/  /' \
++        | head -20 || true)
++    if [[ -n "$_surfaced" ]]; then
++        printf '%s\n' "$_surfaced"
++    else
++        warn "(no error keywords matched in compose log)"
++    fi
++    echo ""
++    log "Full compose output: $_compose_log"
++    trap - INT TERM
++    return "$_rc"
++}
++
+ #=============================================================================
+ # Commands
+ #=============================================================================
+@@ -701,7 +763,26 @@ cmd_status_json() {
+ 
+     # GPU summary (optional)
+     local gpu_summary_json="null"
+-    if command -v nvidia-smi >/dev/null 2>&1; then
++    if [[ "${GPU_BACKEND:-}" == "apple" ]]; then
++        # Apple Silicon: integrated GPU with unified memory. Surface the same
++        # fields as `dream gpu status` so consumers of status-json can render
++        # non-null GPU info on macOS.
++        local _chip _total_mem_gb _gpu_cores
++        _chip="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || echo 'Apple Silicon')"
++        _total_mem_gb=$(( $(sysctl -n hw.memsize 2>/dev/null || echo 0) / 1024 / 1024 / 1024 ))
++        if command -v jq >/dev/null 2>&1; then
++            _gpu_cores=$(system_profiler SPDisplaysDataType -json 2>/dev/null \
++                | jq -r '.SPDisplaysDataType[0].sppci_cores // "?"' 2>/dev/null)
++        else
++            _gpu_cores="?"
++        fi
++        gpu_summary_json=$(jq -n \
++            --arg backend "apple" \
++            --arg chip "$_chip" \
++            --argjson unified_memory_gb "$_total_mem_gb" \
++            --argjson gpu_cores "$([[ "$_gpu_cores" =~ ^[0-9]+$ ]] && printf '%s' "$_gpu_cores" || printf 'null')" \
++            '{backend: $backend, chip: $chip, unified_memory_gb: $unified_memory_gb, gpu_cores: $gpu_cores}')
++    elif command -v nvidia-smi >/dev/null 2>&1; then
+         # Represent each GPU line as raw strings in an array
+         gpu_summary_json=$(nvidia-smi --query-gpu=name,utilization.gpu,memory.used,memory.total,temperature.gpu \
+             --format=csv,noheader,nounits 2>/dev/null | jq -R -s 'split("\n") | map(select(length > 0))')
+@@ -759,14 +840,10 @@ cmd_restart() {
+     read -ra flags <<< "$flags_str"
+ 
+     if [[ -z "$service" ]]; then
+-        log "Restarting all services..."
+-        docker compose "${flags[@]}" up -d
+-        success "All services restarted"
++        _compose_run_with_summary "Restarting all services" "${flags[@]}" up -d
+     else
+         service=$(resolve_service "$service")
+-        log "Restarting $service..."
+-        docker compose "${flags[@]}" up -d "$service"
+-        success "$service restarted"
++        _compose_run_with_summary "Restarting $service" "${flags[@]}" up -d "$service"
+     fi
+ }
+ 
+@@ -782,14 +859,10 @@ cmd_stop() {
+     read -ra flags <<< "$flags_str"
+ 
+     if [[ -z "$service" ]]; then
+-        log "Stopping all services..."
+-        docker compose "${flags[@]}" down
+-        success "All services stopped"
++        _compose_run_with_summary "Stopping all services" "${flags[@]}" down
+     else
+         service=$(resolve_service "$service")
+-        log "Stopping $service..."
+-        docker compose "${flags[@]}" stop "$service"
+-        success "$service stopped"
++        _compose_run_with_summary "Stopping $service" "${flags[@]}" stop "$service"
+     fi
+ }
+ 
+@@ -807,15 +880,11 @@ cmd_start() {
+     read -ra flags <<< "$flags_str"
+ 
+     if [[ -z "$service" ]]; then
+-        log "Starting all services..."
+-        docker compose "${flags[@]}" up -d
+-        success "All services started"
++        _compose_run_with_summary "Starting all services" "${flags[@]}" up -d
+     else
+         service=$(resolve_service "$service")
+         _run_hook "$service" "pre_start"
+-        log "Starting $service..."
+-        docker compose "${flags[@]}" up -d "$service"
+-        success "$service started"
++        _compose_run_with_summary "Starting $service" "${flags[@]}" up -d "$service"
+         _run_hook "$service" "post_start"
+     fi
+ }
+@@ -1021,13 +1090,11 @@ cmd_update() {
+         warn "dream-update.sh and dream-backup.sh not found; skipping pre-update snapshot."
+     fi
+ 
+-    log "Pulling latest images..."
+-    if ! docker compose "${flags[@]}" pull; then
++    if ! _compose_run_with_summary "Pulling latest images" "${flags[@]}" pull; then
+         error "Failed to pull latest images"
+     fi
+ 
+-    log "Recreating containers with new images..."
+-    if ! docker compose "${flags[@]}" up -d --force-recreate; then
++    if ! _compose_run_with_summary "Recreating containers with new images" "${flags[@]}" up -d --force-recreate; then
+         error "Failed to recreate containers. Run 'dream rollback' to restore previous state."
+     fi
+ 
+@@ -2477,11 +2544,15 @@ _gpu_status() {
+     check_install
+     load_env
+ 
+-    local gpu_count
+-    gpu_count=$(nvidia-smi --list-gpus 2>/dev/null | wc -l | tr -d ' ') || gpu_count=0
+-
+-    echo -e "${BLUE}━━━ GPU Status (${gpu_count} GPU$([ "$gpu_count" -ne 1 ] && echo s)) ━━━${NC}"
+-    echo ""
++    if [[ "${GPU_BACKEND:-}" == "apple" ]]; then
++        echo -e "${BLUE}━━━ GPU Status (1 integrated GPU) ━━━${NC}"
++        echo ""
++    else
++        local gpu_count
++        gpu_count=$(nvidia-smi --list-gpus 2>/dev/null | wc -l | tr -d ' ') || gpu_count=0
++        echo -e "${BLUE}━━━ GPU Status (${gpu_count} GPU$([ "$gpu_count" -ne 1 ] && echo s)) ━━━${NC}"
++        echo ""
++    fi
+ 
+     if [[ "${GPU_BACKEND:-nvidia}" == "nvidia" ]] && command -v nvidia-smi &>/dev/null && [ "$gpu_count" -gt 0 ]; then
+         local output
+@@ -2571,6 +2642,21 @@ _gpu_status() {
+             card=$(basename "$(dirname "$card_dir")")
+             echo "  $card  $name  $(awk "BEGIN{printf \"%.1f / %.1f GB\", $vram_used/1073741824, $vram_total/1073741824}")  ${busy}%"
+         done
++    elif [[ "${GPU_BACKEND:-}" == "apple" ]]; then
++        local _chip _total_mem_gb _gpu_cores
++        _chip="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || echo 'Apple Silicon')"
++        _total_mem_gb=$(( $(sysctl -n hw.memsize 2>/dev/null || echo 0) / 1024 / 1024 / 1024 ))
++        if command -v jq >/dev/null 2>&1; then
++            _gpu_cores=$(system_profiler SPDisplaysDataType -json 2>/dev/null \
++                | jq -r '.SPDisplaysDataType[0].sppci_cores // "?"' 2>/dev/null)
++        else
++            _gpu_cores="?"
++        fi
++        echo ""
++        echo "  Chip:             $_chip"
++        echo "  Unified memory:   ${_total_mem_gb} GB"
++        echo "  GPU cores:        $_gpu_cores"
++        echo "  (Apple Silicon integrated GPU — unified memory shared with CPU)"
+     else
+         warn "GPU status unavailable: nvidia-smi not found and GPU_BACKEND is not amd"
+     fi
+@@ -2595,6 +2681,11 @@ _gpu_topology() {
+         return
+     fi
+ 
++    if [[ "${GPU_BACKEND:-}" == "apple" ]]; then
++        echo "  Single integrated GPU (Apple Silicon, unified memory) — no multi-GPU topology to display."
++        return 0
++    fi
++
+     if ! command -v nvidia-smi &>/dev/null; then
+         warn "nvidia-smi not found — topology unavailable"
+         return
+@@ -2731,6 +2822,16 @@ _gpu_validate() {
+     echo -e "${BLUE}━━━ GPU Validate ━━━${NC}"
+     echo ""
+ 
++    # Apple Silicon is a single integrated GPU with unified memory —
++    # GPU_COUNT / multi-GPU assignment / split-mode checks do not apply.
++    # Report a clean skip rather than emitting false-positive failures.
++    if [[ "${GPU_BACKEND:-}" == "apple" ]]; then
++        echo "  Apple Silicon: single integrated GPU (unified memory) — no multi-GPU validation needed."
++        echo ""
++        echo "  Result: 0 check(s) passed, 0 failed"
++        return 0
++    fi
++
+     local pass=0 fail=0
+ 
+     # Check 1: GPU_COUNT matches actual
+@@ -2820,6 +2921,11 @@ _gpu_reassign() {
+     echo -e "${BLUE}━━━ GPU Reassign ━━━${NC}"
+     echo ""
+ 
++    if [[ "${GPU_BACKEND:-}" == "apple" ]]; then
++        warn "GPU reassignment is not applicable on Apple Silicon (single integrated GPU)."
++        return 1
++    fi
++
+     if ! command -v nvidia-smi &>/dev/null; then
+         warn "GPU reassign is only supported for NVIDIA. Use 'dream gpu status' for AMD."
+         return
+diff --git a/dream-server/lib/service-registry.sh b/dream-server/lib/service-registry.sh
+index 71fd8049..70a12715 100755
+--- a/dream-server/lib/service-registry.sh
++++ b/dream-server/lib/service-registry.sh
+@@ -228,10 +228,21 @@ sr_resolve_ports() {
+     fi
+ }
+ 
+-# Resolve a user-provided name to a compose service ID
++# Resolve a user-provided name to a compose service ID.
++#
++# Users copy container names (e.g. `dream-token-spy`) from `docker ps` and
++# expect them to work as arguments to `dream restart|stop|start|update`. The
++# registry loader names every container `dream-<sid>` (or the manifest's
++# explicit `container_name`, which by convention follows the same pattern),
++# so stripping a leading `dream-` recovers the alias key when the literal
++# input doesn't match an alias.
+ sr_resolve() {
+     sr_load
+     local input="$1"
++    if [[ -z "${SERVICE_ALIASES[$input]:-}" && "$input" == dream-* ]]; then
++        local _stripped="${input#dream-}"
++        [[ -n "${SERVICE_ALIASES[$_stripped]:-}" ]] && input="$_stripped"
++    fi
+     echo "${SERVICE_ALIASES[$input]:-$input}"
+ }
+ 
+diff --git a/dream-server/scripts/dream-doctor.sh b/dream-server/scripts/dream-doctor.sh
+index a00f2c8b..bffa110a 100755
+--- a/dream-server/scripts/dream-doctor.sh
++++ b/dream-server/scripts/dream-doctor.sh
+@@ -57,8 +57,21 @@ sr_resolve_ports
+ _DASHBOARD_PORT="${SERVICE_PORTS[dashboard]:-3001}"
+ _WEBUI_PORT="${SERVICE_PORTS[open-webui]:-3000}"
+ 
+-RAM_GB="$(grep MemTotal /proc/meminfo 2>/dev/null | awk '{print int($2/1024/1024)}' || echo 0)"
+-DISK_GB="$(df -BG "$HOME" 2>/dev/null | tail -1 | awk '{gsub(/G/,"",$4); print int($4)}' || echo 0)"
++# RAM: platform-branch. /proc/meminfo does not exist on macOS; use sysctl.
++if [[ "$(uname -s)" == "Darwin" ]]; then
++    RAM_BYTES="$(sysctl -n hw.memsize 2>/dev/null || echo 0)"
++    RAM_GB=$(( RAM_BYTES / 1024 / 1024 / 1024 ))
++else
++    RAM_GB="$(grep MemTotal /proc/meminfo 2>/dev/null | awk '{print int($2/1024/1024)}' || echo 0)"
++fi
++# Installer-recorded fallback: if detection returned 0 and .env has HOST_RAM_GB, trust that.
++if (( RAM_GB == 0 )) && [[ -f "$ROOT_DIR/.env" ]]; then
++    _env_ram=$(grep '^HOST_RAM_GB=' "$ROOT_DIR/.env" | cut -d= -f2 | tr -d '"' || true)
++    [[ -n "${_env_ram:-}" ]] && RAM_GB="$_env_ram"
++fi
++
++# Disk: POSIX df -k — works on BSD and GNU identically (df -BG is GNU-only).
++DISK_GB="$(df -k "$HOME" 2>/dev/null | tail -1 | awk '{print int($4/1024/1024)}' || echo 0)"
+ 
+ if [[ -x "$SCRIPT_DIR/scripts/build-capability-profile.sh" ]]; then
+     CAP_ENV="$("$SCRIPT_DIR/scripts/build-capability-profile.sh" --output "$CAP_FILE" --env)"
+@@ -187,8 +200,15 @@ collect_extension_diagnostics() {
+             fi
+         fi
+ 
+-        # Check GPU backend compatibility (only if SERVICE_GPU_BACKENDS array exists from PR #357)
+-        if declare -p SERVICE_GPU_BACKENDS &>/dev/null; then
++        # Check GPU backend compatibility (only if SERVICE_GPU_BACKENDS array exists from PR #357).
++        # dashboard-api uses GPU_BACKEND=nvidia internally on macOS (see
++        # installers/macos/docker-compose.macos.yml) so service manifests are
++        # discovered. doctor/preflight path doesn't have that workaround, so the
++        # raw gpu_backends check produces false positives for CPU-only services
++        # declaring gpu_backends: [amd, nvidia]. Skip the check on apple — if a
++        # service genuinely needs GPU and isn't available on Apple, it's a
++        # manifest-level concern, not a runtime doctor warning.
++        if [[ "$backend" != "apple" ]] && declare -p SERVICE_GPU_BACKENDS &>/dev/null; then
+             local gpu_backends="${SERVICE_GPU_BACKENDS[$sid]:-}"
+             if [[ -n "$gpu_backends" && ! " $gpu_backends " =~ " $backend " ]]; then
+                 issues+=("gpu_backend_incompatible")

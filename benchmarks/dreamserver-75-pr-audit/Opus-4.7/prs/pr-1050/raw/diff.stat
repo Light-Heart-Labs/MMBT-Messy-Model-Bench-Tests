@@ -1,0 +1,6 @@
+ dream-server/bin/dream-host-agent.py               |  74 ++++++++++++++-
+ dream-server/installers/macos/install-macos.sh     |  34 +++++++
+ dream-server/installers/macos/lib/preflight-fs.sh  | 100 +++++++++++++++++++++
+ dream-server/installers/phases/01-preflight.sh     |  67 ++++++++++++++
+ .../installers/windows/phases/01-preflight.ps1     |  77 ++++++++++++++++
+ 5 files changed, 351 insertions(+), 1 deletion(-)

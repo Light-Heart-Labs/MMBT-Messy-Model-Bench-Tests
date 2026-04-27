@@ -1,0 +1,24 @@
+{
+  "additions": 2,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nTwo confirmed community-extension healthcheck fixes. Scope was shrunk during runtime verification \u2014 the chromadb defect from the original issue was empirically disproven.\n\n## Why\n- **piper-audio:** `timeout: 30s` equal to `interval: 30s` left zero idle time between probes if a probe ran to timeout, producing CPU / log noise. The inner `nc -w 1` probe self-terminates in ~1s; the Docker-layer timeout ceiling just needs to accommodate the probe.\n- **milvus:** manifest declares `health_port: 9091` and `health: /healthz`. The compose healthcheck (running *inside* the container) works fine, but the port was never published to the host, so any external probe \u2014 operator debug, LAN monitoring, future host-side tooling \u2014 got connection refused on `127.0.0.1:9091`.\n- **chromadb:** original issue speculated that the `bash /dev/tcp` + `[[ ]]` probe assumed bash in what might be an Alpine/busybox image. Runtime verification on `chromadb/chroma:1.5.3` (exact tag pinned in the compose) found full GNU bash 5.2.37 with working `/dev/tcp`; wget, curl, nc, python3 are ALL absent \u2014 the existing probe is actually the best available tool for that image. No change needed.\n\n## How\n1. `piper-audio/compose.yaml:34` \u2014 `timeout: 30s` -> `timeout: 10s`.\n2. `milvus/compose.yaml` \u2014 append `\"${BIND_ADDRESS:-127.0.0.1}:9091:9091\"` to the `ports:` list. Using the `${BIND_ADDRESS:-127.0.0.1}` pattern keeps the new line consistent with the upcoming BIND_ADDRESS sweep on the existing 19530 line (no merge conflict).\n\n## Testing\n- YAML parse on both files \u2014 OK.\n- `docker compose config` for both \u2014 quiet exit.\n- Merged config for milvus confirms BOTH 19530 AND 9091 appear in the `ports:` list.\n- `make lint` + pre-commit \u2014 clean.\n\n## Review\nCritique Guardian: APPROVED (no required changes).\n- chromadb drop justified: compose pins `chromadb/chroma:1.5.3` exactly \u2014 same image verifier tested.\n- CG flagged a separate latent bug (tracked as follow-up): `dashboard-api` user-extension health polling at `user_extensions.py:83-89` does not extract `health_port` from manifest (unlike `config.py:136` for built-ins), so dashboard-api probes milvus on port 19530 (gRPC) instead of 9091. Publishing 9091 here doesn't fix that; it's a separate issue.\n\n## Platform Impact\n- **macOS / Linux / Windows (WSL2):** Docker healthcheck timeout and port publication are engine-level and platform-neutral.\n",
+  "changedFiles": 2,
+  "createdAt": "2026-04-24T17:47:35Z",
+  "deletions": 1,
+  "headRefName": "fix/community-healthcheck-reliability",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1034,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(extensions): piper-audio healthcheck timeout gap; publish milvus health port",
+  "updatedAt": "2026-04-24T17:47:35Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1034"
+}

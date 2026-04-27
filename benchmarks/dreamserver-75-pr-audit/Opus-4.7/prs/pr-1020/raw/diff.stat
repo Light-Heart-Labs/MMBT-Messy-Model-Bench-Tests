@@ -1,0 +1,5 @@
+ dream-server/dream-cli                            |  56 +++-
+ dream-server/scripts/dream-doctor.sh              |  28 +-
+ dream-server/tests/contracts/test-dream-doctor.sh | 138 ++++++++++
+ dream-server/tests/test-gpu-apple.sh              | 321 ++++++++++++++++++++++
+ 4 files changed, 538 insertions(+), 5 deletions(-)

@@ -1,0 +1,24 @@
+{
+  "additions": 51,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nMirror manifest-level `depends_on` into Docker Compose for three community extensions that were racing their dependencies on first start.\n\n## Why\n- `anythingllm` declared `depends_on: [ollama]` in manifest but not compose -> anythingllm's first MongoDB/Ollama call could fire before Ollama had loaded its model.\n- `localai` declared `depends_on: [llama-server]` similarly.\n- `continue` declared `depends_on: [llama-server]` similarly, BUT `continue` runs on Apple Silicon too, where `llama-server` has `replicas: 0` (native host process, not a container). A naive base `depends_on: llama-server: condition: service_healthy` would additively merge on macOS and deadlock continue waiting on a 0-replica service's health.\n\n## How\n- For `anythingllm` / `localai` (gpu_backends exclude apple): add `depends_on` directly to the base `compose.yaml`.\n- For `continue` (gpu_backends include apple): leave the base lean and add per-backend overlays the resolver already picks up:\n  - `compose.{nvidia,amd,cpu}.yaml` -> `depends_on: llama-server`\n  - `compose.apple.yaml` -> `depends_on: llama-server-ready`\n\nThe `llama-server-ready` sidecar is the established macOS pattern (already used by `open-webui` in `installers/macos/docker-compose.macos.yml`).\n\n`scripts/resolve-compose-stack.sh` at line 234 already globs `compose.{gpu_backend}.yaml` for user-installed extensions, so the new overlays are picked up automatically \u2014 no resolver changes needed.\n\n## Testing\n- YAML parse on all 6 touched files \u2014 OK.\n- Per-backend merge verify via `docker compose config`:\n  - nvidia/amd/cpu -> `continue.depends_on: {llama-server: service_healthy}`\n  - apple -> `continue.depends_on: {llama-server-ready: service_healthy}`\n  - No cross-contamination. Apple never inherits the 0-replica `llama-server` dep \u2014 deadlock condition eliminated.\n- `make lint` + pre-commit \u2014 clean.\n\n## Review\nCritique Guardian: APPROVED (no required changes). Verified auto-dep enable flow (`routers/extensions.py:_get_missing_deps_transitive`) so hard-fail of missing `ollama` on anythingllm enable is prevented by the dashboard-api install path.\n\n## Platform Impact\n- **macOS (Apple Silicon):** continue uses `llama-server-ready` sidecar; no contact with 0-replica `llama-server`. Other two extensions excluded by gpu_backends.\n- **Linux (NVIDIA/AMD/CPU):** all three extensions gain a service_healthy gate on their documented dependency.\n- **Windows (WSL2):** same as Linux.\n",
+  "changedFiles": 6,
+  "createdAt": "2026-04-24T17:47:28Z",
+  "deletions": 0,
+  "headRefName": "fix/community-depends-on-mirror",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1032,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(extensions): mirror manifest depends_on in anythingllm / localai / continue",
+  "updatedAt": "2026-04-24T17:47:28Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1032"
+}

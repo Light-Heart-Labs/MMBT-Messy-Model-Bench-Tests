@@ -1,0 +1,34 @@
+ .github/workflows/validate-compose.yml             |  79 ++++
+ dream-server/.env.example                          |  15 +-
+ dream-server/.env.schema.json                      |  43 +-
+ dream-server/config/gpu-database.json              | 160 +++++++
+ dream-server/docker-compose.multigpu-amd.yml       |  48 ++
+ ...igpu.yml => docker-compose.multigpu-nvidia.yml} |   0
+ dream-server/dream-cli                             | 334 ++++++++++++--
+ .../services/comfyui/compose.multigpu-amd.yaml     |   9 +
+ ....multigpu.yaml => compose.multigpu-nvidia.yaml} |   0
+ .../extensions/services/dashboard-api/gpu.py       |  65 ++-
+ .../services/dashboard-api/tests/test_gpu_amd.py   | 431 ++++++++++++++++++
+ .../services/embeddings/compose.multigpu-amd.yaml  |  12 +
+ ....multigpu.yaml => compose.multigpu-nvidia.yaml} |   0
+ .../services/whisper/compose.multigpu-amd.yaml     |  12 +
+ ....multigpu.yaml => compose.multigpu-nvidia.yaml} |   0
+ dream-server/installers/lib/amd-topo.sh            | 460 ++++++++++++++++++++
+ dream-server/installers/lib/detection.sh           |  97 +++--
+ dream-server/installers/phases/02-detection.sh     |  27 ++
+ dream-server/installers/phases/03-features.sh      |  20 +-
+ dream-server/installers/phases/06-directories.sh   |   9 +
+ dream-server/installers/phases/10-amd-tuning.sh    |  63 ++-
+ dream-server/scripts/assign_gpus.py                |  48 +-
+ dream-server/scripts/classify-hardware.sh          |  32 +-
+ dream-server/scripts/resolve-compose-stack.sh      |   8 +-
+ dream-server/tests/bats-tests/amd-topo.bats        | 484 +++++++++++++++++++++
+ dream-server/tests/bats-tests/docker-phase.bats    |   2 +-
+ .../tests/contracts/test-installer-contracts.sh    |  86 ++++
+ .../fixtures/amd/amd_smi_topology_2gpu_pcie.json   |  46 ++
+ .../fixtures/amd/amd_smi_topology_4gpu_xgmi.json   | 234 ++++++++++
+ .../amd/rocm_smi_productname_4gpu_mi300x.txt       |  42 ++
+ .../fixtures/amd/rocm_smi_showtopo_2gpu_pcie.txt   |  24 +
+ .../fixtures/amd/rocm_smi_showtopo_4gpu_xgmi.txt   |  34 ++
+ dream-server/tests/test-amd-topo.sh                | 313 +++++++++++++
+ 33 files changed, 3092 insertions(+), 145 deletions(-)

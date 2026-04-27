@@ -1,0 +1,24 @@
+{
+  "additions": 217,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## \u26a0\ufe0f Draft \u2014 depends on #1003 merging first\n\nThis PR is stacked on `fix/dashboard-setup-wizard` (#1003) because `lib/templates.js` (the target of the #409 fix) doesn't exist on `upstream/main` yet \u2014 it's created by #1003. Once #1003 merges, I'll rebase on `main` and the PR diff will collapse to exactly the 2-line change shown below under \"Our delta\".\n\n## What\nTwo small defensive fixes in template-related dashboard code:\n\n- **#409 \u2014 `lib/templates.js` `getTemplateStatus`**: add early-return `if (services.length === 0) return 'available'` guarding against `[].every(s => s === 'enabled')` returning true (vacuous truth). Without this, templates with `services: []` get misclassified as `'applied'` \u2014 silently hidden from the Extensions page (filter drops 'applied') and rendered as a disabled green \"Applied\" card in the setup wizard added by #1003.\n- **#434 \u2014 `TemplatePicker.jsx` `handleApply`**: replace `const data = await res.json().catch(() => ({}))` with `const data = await res.json()`. The silent `.catch(() => ({}))` swallowed malformed server responses and fabricated an empty data object \u2192 UI showed a fake \"already active\" state. The outer `try/catch` at line 159 already sets `setError('Failed to apply template')` \u2014 letting parse errors bubble there gives users a visible error state.\n\n## Our delta (post-#1003-rebase view)\nTwo files, two lines:\n- `dashboard/src/lib/templates.js`: `+ if (services.length === 0) return 'available'`\n- `dashboard/src/components/TemplatePicker.jsx`: `- const data = await res.json().catch(() => ({}))` \u2192 `+ const data = await res.json()`\n\n## Testing\n- [x] Verified outer `catch (err) { setError(...) }` at TemplatePicker.jsx:159 shows a user-visible error path\n- [x] Vacuous-truth early-return placed BEFORE the `.every()` check \u2014 empty-services templates now correctly return `'available'`\n- [x] Pre-commit hooks clean\n- [ ] Unit tests for these two code paths \u2014 filing as a fork follow-up issue (not blocking)\n\n## Platform Impact\n- **All three platforms**: browser-side React/JS; dashboard is served via nginx, same behavior on macOS/Linux/Windows (WSL2).",
+  "changedFiles": 6,
+  "createdAt": "2026-04-23T23:40:02Z",
+  "deletions": 58,
+  "headRefName": "fix/dashboard-template-picker-defensive",
+  "isDraft": true,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1015,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dashboard): template picker defensive fixes (handleApply + vacuous-truth)",
+  "updatedAt": "2026-04-23T23:40:02Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1015"
+}

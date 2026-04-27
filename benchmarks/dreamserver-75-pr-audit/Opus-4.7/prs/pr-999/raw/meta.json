@@ -1,0 +1,24 @@
+{
+  "additions": 79,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\n\n`dream gpu` subcommands and `dream status --json` produce intent-appropriate output on Apple Silicon macOS instead of generic \"nvidia-smi not found\" warnings or return paths that treat an integrated GPU as a misconfiguration. `dream doctor` correctly reads RAM via `sysctl` (not `/proc/meminfo`) and disk via POSIX `df -k` (not GNU `df -BG`) on macOS, and skips the GPU-backend-compat check when `GPU_BACKEND=apple` (was emitting ~18 false-positive autofix hints per run).\n\n## Why\n\nApple Silicon hosts have a unified-memory GPU that's neither NVIDIA nor AMD but is still functional (MLX, Metal). Existing GPU subcommands treated every non-discrete-GPU host as broken. Separately, `dream doctor` on macOS silently produced 0 GB for RAM and disk because `/proc/meminfo` doesn't exist and `df -BG` is GNU-only \u2014 so the report advised users they had no memory.\n\n## How\n\nTwo commits:\n\n- `f60df964` \u2014 `dream doctor`: branches on `uname -s`, uses `sysctl hw.memsize` for RAM on Darwin, `df -k` (POSIX) for disk on every platform. Adds `.env` `HOST_RAM_GB` fallback. Skips `gpu_backend` compatibility check when backend is `apple`.\n- `98b05249` \u2014 `cmd_gpu`'s status / topology / validate / reassign / status-json paths each get an explicit `GPU_BACKEND=apple` branch. Reports chip, unified memory, GPU core count via `sysctl` and `system_profiler`.\n\nAll new code is gated on `GPU_BACKEND=apple`, so Linux/Windows NVIDIA/AMD behavior is unchanged.\n\n## Testing\n\n- `dream gpu status` on Apple M-series: prints chip, unified memory, GPU core count (previously warned about nvidia-smi).\n- `dream doctor` on Apple Silicon: no more per-service false-positive \"incompatible with GPU backend\" messages (was ~18).\n- `dream status --json` on Apple: `.gpu` is populated with `{backend, chip, unified_memory_gb, gpu_cores}` (previously `null`).\n- Operator's integration-branch test battery: green.\n\n## Platform Impact\n\n- **Apple Silicon macOS:** primary fix target \u2014 correct GPU info surfacing + doctor RAM/disk accuracy.\n- **Intel macOS:** doctor's `df -k` fix applies (GNU `df -BG` was broken everywhere-non-Linux); other Apple branches don't trigger.\n- **Linux NVIDIA / AMD:** unchanged \u2014 no `GPU_BACKEND=apple` branching affects these paths.\n- **Windows (WSL2):** unchanged.\n",
+  "changedFiles": 2,
+  "createdAt": "2026-04-23T19:50:43Z",
+  "deletions": 5,
+  "headRefName": "fix/dream-cli-apple-silicon-coverage",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 999,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "feat(dream-cli): Apple Silicon coverage for gpu subcommands and doctor",
+  "updatedAt": "2026-04-23T19:50:43Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/999"
+}

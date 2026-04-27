@@ -1,0 +1,7 @@
+ .../services/dashboard-api/routers/setup.py        |  27 ++++-
+ .../dashboard/src/components/SetupWizard.jsx       | 113 +++++++++++++++++++--
+ .../dashboard/src/components/TemplatePicker.jsx    |  28 +++--
+ .../services/dashboard/src/lib/templates.js        |  29 ++++++
+ .../services/dashboard/src/pages/Extensions.jsx    |  27 +----
+ dream-server/scripts/dream-test-functional.sh      |  48 +++++++--
+ 6 files changed, 215 insertions(+), 57 deletions(-)

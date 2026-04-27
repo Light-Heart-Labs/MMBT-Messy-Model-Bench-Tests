@@ -1,0 +1,24 @@
+{
+  "additions": 89,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\n\nFour related hardenings to `dream config` and its helpers:\n\n1. **Schema-driven masking in `dream config show`** \u2014 replace the narrow keyword regex (which missed `_PASSWORD`, `_SALT`, `_PASS` suffixed fields) with `.env.schema.json`-driven detection.\n2. **Bash 4+ invocation** \u2014 `dream config validate` now invokes `validate-env.sh` through `\"$BASH\"`, and the target script adds its own Bash-4 guard. Fixes a macOS-only crash under `/bin/bash` 3.2.\n3. **Belt-and-suspenders fallback** \u2014 after a schema-miss under `_schema_loaded=1`, fall through to the keyword match instead of returning \"not secret.\" Covers schema gaps and malformed schemas.\n4. **Helper promoted to file-scope + reused by `dream preset diff`** \u2014 `_cmd_config_is_secret` was nested inside `cmd_config show`, so `dream preset diff` still used the original narrow regex and leaked `N8N_PASS`, `LANGFUSE_SALT`, and admin email fields in plaintext. Helper is now file-scope; both commands use it. `N8N_USER` and `LANGFUSE_INIT_USER_EMAIL` are also marked `secret: true` in `.env.schema.json`.\n\n## Why\n\nThe narrow regex `(SECRET|PASS|KEY|TOKEN)=` missed suffix-form names like `LANGFUSE_DB_PASSWORD`, `LANGFUSE_SALT`, `OPENCODE_SERVER_PASSWORD`, etc. `dream config validate` crashed on every fresh macOS install because `validate-env.sh` uses `declare -A` (Bash 4+ only) but was invoked through `/bin/bash` 3.2. And `dream preset diff` was a forgotten sibling code path.\n\n## How\n\nFour commits, each self-contained:\n\n- `a9e87239` \u2014 schema-driven masking in `cmd_config show` (introduces `_cmd_config_is_secret` nested helper).\n- `6e0190fd` \u2014 Bash 4+ gate + `\"$BASH\"` invocation path.\n- `19e46b69` \u2014 fallback-masking hardening (`*bearer*` added to keyword fallback) + test-harness fix for macOS.\n- `92369941` \u2014 schema-miss falls through to keywords + helper promoted to file-scope + `dream preset diff` now uses the helper + `N8N_USER` / `LANGFUSE_INIT_USER_EMAIL` marked `secret: true`.\n\n## Testing\n\n- `dream config show` on live install: previously-leaking fields (`N8N_PASS`, `LANGFUSE_SALT`, `LANGFUSE_DB_PASSWORD`, `OPENCODE_SERVER_PASSWORD`, etc.) now show `***`.\n- `dream config validate` on macOS: previously crashed with `declare: -A: invalid option`; now succeeds.\n- `dream preset save a; <edit .env>; dream preset save b; dream preset diff a b`: secrets now masked.\n- Isolated sandbox of the helper: 7/7 test keys correctly classified (known-secret and known-plain).\n- `tests/test-validate-env.sh`: green on macOS and Linux.\n- Round-1 review: Critique Guardian approved. Round-2 adversarial audit: verified.\n\n## Known Considerations\n\nA small number of operational keys (`TOKEN_SPY_PORT`, `TOKEN_SPY_URL`, `LANGFUSE_PROJECT_PUBLIC_KEY`) remain over-masked by the keyword fallback. This is intentional: `dream config show` should default to over-masking; raw values remain accessible via `cat .env`. The keyword-fallback set (`*secret*|*password*|*pass*|*token*|*key*|*salt*|*bearer*`) was tuned to avoid false positives on `AUTHOR_NAME`-style keys.\n\n## Platform Impact\n\n- **macOS:** primary fix target for the validate-env crash. All four hardenings apply.\n- **Linux / WSL2:** fixes apply identically; no platform branching.\n- **Windows:** runs through WSL2; same behavior as Linux.\n",
+  "changedFiles": 4,
+  "createdAt": "2026-04-23T19:50:24Z",
+  "deletions": 15,
+  "headRefName": "fix/dream-cli-config-security-macos",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 994,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(dream-cli): schema-driven secret masking + macOS Bash 4 validation",
+  "updatedAt": "2026-04-23T19:50:24Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/994"
+}

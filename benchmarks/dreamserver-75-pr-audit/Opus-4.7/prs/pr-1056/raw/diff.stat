@@ -1,0 +1,5 @@
+ .../extensions/services/dashboard-api/helpers.py   | 22 +++++++-
+ .../services/dashboard-api/routers/extensions.py   | 57 ++++++++++++++++---
+ .../dashboard-api/tests/test_extensions.py         | 66 ++++++++++++++++++++++
+ .../services/dashboard-api/user_extensions.py      |  5 ++
+ 4 files changed, 138 insertions(+), 12 deletions(-)

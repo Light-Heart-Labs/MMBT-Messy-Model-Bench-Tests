@@ -1,0 +1,24 @@
+{
+  "additions": 1,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nReplace backticks with single quotes at `installers/macos/lib/env-generator.sh:262` so the comment is no longer evaluated as a command substitution by the heredoc.\n\n## Why\nThe .env-generation heredoc terminator at line 181 is `<< ENVEOF` \u2014 **unquoted**. That means Bash performs both variable expansion AND command substitution on the heredoc body. Variable expansion is intentional (lines 182\u2013276 contain dozens of legitimate `${TIER_NAME}`, `$(if ... then ... fi)`, `${webui_secret}` references \u2014 quoting the terminator would break the entire heredoc).\n\nThe accidental side-effect: any literal backticks in the heredoc body are also evaluated. Line 262 contained:\n```\n# post-install: `dream enable langfuse`.\n```\nWhich Bash interpreted as `` `dream enable langfuse` ``. The `dream` CLI is not yet on PATH at install time, so the install log emitted `dream: command not found` AND the empty result of the failed substitution was written into `.env`, silently truncating the comment to `# post-install: .` (the words `dream enable langfuse` disappear entirely).\n\n## How\nSingle-character-class change at line 262:\n```\n- # post-install: `dream enable langfuse`.\n+ # post-install: 'dream enable langfuse'.\n```\n\nSingle quotes match the in-file convention at line 245 (`# here and run 'dream-macos.sh restart' to use a different model.`).\n\n**Verified clean elsewhere:**\n- `installers/phases/06-directories.sh:216` has the identical comment text but is OUTSIDE any heredoc \u2192 backticks inert there. No companion fix required.\n- Linux installer uses different env-generation path. Clean.\n- Windows installer uses PowerShell where backticks are line-continuation, not command substitution. Clean.\n\n## Testing\n- `bash -n installers/macos/lib/env-generator.sh` \u2192 PASS\n- `shellcheck` \u2192 SC2006 (which previously flagged the backtick) is now eliminated, providing independent validation that the fix is complete\n- Heredoc terminator confirmed still `<< ENVEOF` (variable expansion preserved)\n- Zero backticks remain in the heredoc body\n- gitleaks pre-commit \u2192 PASS\n\nManual (operator on macOS):\n1. Run a fresh install (or `DRY_RUN=1` invocation)\n2. Confirm install log around env-generation phase shows NO `dream: command not found` warning\n3. After install: `cat $INSTALL_DIR/.env | grep -A0 \"post-install\"` \u2192 comment reads `# post-install: 'dream enable langfuse'.` (not the previously-truncated `# post-install: .`)\n\n## Review\nCritique Guardian APPROVED. No required changes.\n\nCG noted (optional follow-up): a pre-commit / CI guard against future authors re-introducing backticks inside unquoted installer heredocs would be a useful regression shield. Filed as fork issue #509 for separate work.\n\n## Platform Impact\n| Platform | Impact |\n|---|---|\n| macOS | This is the fix \u2014 install log no longer noisy, generated `.env` comment now intact. |\n| Linux | Unaffected (file is macOS-only; equivalent comment on Linux is outside any heredoc). |\n| Windows / WSL2 | Unaffected (file is macOS-only; PowerShell backticks have different semantics anyway). |\n",
+  "changedFiles": 1,
+  "createdAt": "2026-04-26T17:24:43Z",
+  "deletions": 1,
+  "headRefName": "fix/macos-env-generator-backtick",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1048,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(macos): replace backticks with single quotes in env-generator comment",
+  "updatedAt": "2026-04-26T17:24:43Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1048"
+}

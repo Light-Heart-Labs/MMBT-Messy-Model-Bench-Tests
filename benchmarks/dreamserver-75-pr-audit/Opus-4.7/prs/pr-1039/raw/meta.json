@@ -1,0 +1,24 @@
+{
+  "additions": 528,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "> **DRAFT: must merge AFTER #1030.** This branch is based on `fix/host-agent-install-flow` (#1030) and depends on `_find_ext_dir` for built-in hook discovery. Promote to ready-for-review after #1030 merges.\n\n## Summary\nClicking **Enable** on an extension whose install left `{\"status\":\"error\"}` in its progress file silently took a different path from the original install: `docker compose up` without re-running the `post_install` hook and without writing the progress file. UI stayed stuck on the old error; extensions that failed because a hook didn't write required env vars failed again on retry for the same root cause.\n\n## How\nWhen `_handle_extension(\"start\")` sees an error-status progress file, it now delegates to a daemon-thread retry path that:\n\n1. Responds **202** with `{\"status\": \"retrying\"}` immediately (matches `_handle_install`'s 202-then-poll shape).\n2. Writes `{\"status\": \"starting\"}` transitionally.\n3. Re-runs the `post_install` hook if declared, with the **same argv / cwd / env allowlist** as `_handle_install` (no secrets leak \u2014 PATH, HOME, SERVICE_ID, SERVICE_PORT, SERVICE_DATA_DIR, DREAM_VERSION, GPU_BACKEND, HOOK_NAME only).\n4. On hook success \u2192 `docker compose up`; writes `{\"status\": \"started\"}` or `{\"status\": \"error\"}` with compose stderr.\n5. On hook failure \u2192 writes `{\"status\": \"error\"}` with hook stderr; compose not called.\n\n**Non-retry paths** (stop, start-without-error, start-with-no-progress-file) preserve the existing synchronous `docker_compose_action` behavior. The `_service_locks[service_id]` is acquired before the progress check, so double-click Enable is still 409-safe.\n\n## Platform Impact\n- **macOS / Linux / Windows-WSL2**: identical. Pure Python stdlib (subprocess/threading/json). No platform branches.\n\n## Testing\n- `pytest tests/test_host_agent.py` \u2192 48 passed (44 pre-existing + 4 new).\n- 12 unrelated pre-existing failures (asyncio/Py3.14 compat) unchanged from base branch \u2014 verified via stash-and-baseline.\n- ruff + `make lint` clean.\n- New `TestEnableRetry` tests cover: retry + hook success, retry + hook failure (compose skipped), no progress file (sync path), progress status=started (sync path).\n\nManual reproducer:\n1. Install an extension with a `post_install` hook that writes env vars. Delete one of those env vars from `.env` manually to corrupt the post-install state.\n2. Dashboard shows the extension in `error` state (write the progress file directly if needed).\n3. Click **Enable** \u2192 `POST /v1/extension/start` returns 202. Dashboard polls progress: `starting \u2192 setup_hook \u2192 starting \u2192 started`. Missing env vars are repopulated by the re-run hook; container starts clean.\n\n## Known gaps (filed as fork follow-ups)\n- Hook execution duplicated between install and retry paths (~25 lines). Shared helper would unify env allowlist + timeout handling.\n- 4 additional edge-case tests (no hook declared, corrupted JSON, mid-install statuses, lock-already-held) worth pinning.\n\n\ud83e\udd16 Generated with [Claude Code](https://claude.com/claude-code)",
+  "changedFiles": 3,
+  "createdAt": "2026-04-24T19:54:42Z",
+  "deletions": 5,
+  "headRefName": "fix/host-agent-enable-retry",
+  "isDraft": true,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1039,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(host-agent): retry install failure through the hook + progress path",
+  "updatedAt": "2026-04-25T12:33:24Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1039"
+}

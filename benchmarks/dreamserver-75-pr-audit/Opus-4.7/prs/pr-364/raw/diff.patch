@@ -1,0 +1,715 @@
+diff --git a/dream-server/extensions/services/dashboard-api/README.md b/dream-server/extensions/services/dashboard-api/README.md
+index 595021be..601718cb 100644
+--- a/dream-server/extensions/services/dashboard-api/README.md
++++ b/dream-server/extensions/services/dashboard-api/README.md
+@@ -21,6 +21,8 @@ It runs at `http://localhost:3002` and is the single backend used by the React d
+ - **Privacy Shield control**: Enable/disable container, fetch PII scrubbing statistics
+ - **Version checking**: GitHub releases integration for update notifications
+ - **Storage reporting**: Breakdown of disk usage by models, vector DB, and total data
++- **Voice runtime APIs**: Voice service health, persisted voice preferences, and LiveKit token minting
++- **Feature diagnostics**: Lightweight `/api/test/*` endpoints for setup/success validation flows
+ 
+ ## Configuration
+ 
+@@ -69,6 +71,25 @@ Environment variables (set in `.env`):
+ | `GET` | `/api/service-tokens` | Yes | Service auth tokens (e.g. OpenClaw) |
+ | `GET` | `/api/external-links` | Yes | Sidebar links from service manifests |
+ | `GET` | `/api/storage` | Yes | Storage breakdown (models, vector DB, total) |
++| `GET` | `/api/settings` | Yes | Dynamic settings payload (version, install date, tier, uptime, storage) |
++
++### Voice Runtime
++
++| Method | Path | Auth | Description |
++|--------|------|------|-------------|
++| `GET` | `/api/voice/settings` | Yes | Read persisted voice preferences |
++| `POST` | `/api/voice/settings` | Yes | Save voice preferences |
++| `GET` | `/api/voice/status` | Yes | Voice pipeline health (STT, TTS, LiveKit) |
++| `POST` | `/api/voice/token` | Yes | Mint short-lived LiveKit access token |
++
++### Diagnostics
++
++| Method | Path | Auth | Description |
++|--------|------|------|-------------|
++| `GET` | `/api/test/llm` | Yes | LLM service diagnostic |
++| `GET` | `/api/test/voice` | Yes | Voice pipeline diagnostic |
++| `GET` | `/api/test/rag` | Yes | RAG dependency diagnostic (Qdrant + LLM) |
++| `GET` | `/api/test/workflows` | Yes | n8n workflow service diagnostic |
+ 
+ ### Workflows (n8n integration)
+ 
+diff --git a/dream-server/extensions/services/dashboard-api/main.py b/dream-server/extensions/services/dashboard-api/main.py
+index b4c537b5..968a6724 100644
+--- a/dream-server/extensions/services/dashboard-api/main.py
++++ b/dream-server/extensions/services/dashboard-api/main.py
+@@ -76,7 +76,7 @@ _STATUS_CACHE_TTL = 2.0
+ _STORAGE_CACHE_TTL = 30.0
+ 
+ # --- Router imports ---
+-from routers import workflows, features, setup, updates, agents, privacy
++from routers import workflows, features, setup, updates, agents, privacy, runtime
+ 
+ logger = logging.getLogger(__name__)
+ 
+@@ -125,6 +125,7 @@ app.include_router(setup.router)
+ app.include_router(updates.router)
+ app.include_router(agents.router)
+ app.include_router(privacy.router)
++app.include_router(runtime.router)
+ 
+ 
+ # ================================================================
+diff --git a/dream-server/extensions/services/dashboard-api/routers/runtime.py b/dream-server/extensions/services/dashboard-api/routers/runtime.py
+new file mode 100644
+index 00000000..9eb6e9e5
+--- /dev/null
++++ b/dream-server/extensions/services/dashboard-api/routers/runtime.py
+@@ -0,0 +1,353 @@
++"""Runtime settings, voice, and diagnostic test endpoints."""
++
++from __future__ import annotations
++
++import asyncio
++import base64
++import hashlib
++import hmac
++import json
++import logging
++import os
++import time
++from datetime import datetime, timezone
++from pathlib import Path
++from urllib.parse import urlparse
++
++import aiohttp
++from fastapi import APIRouter, Depends, HTTPException
++from pydantic import BaseModel, Field
++
++from config import DATA_DIR, INSTALL_DIR, SERVICES
++from gpu import get_gpu_info
++from helpers import check_service_health, get_disk_usage, get_uptime
++from security import verify_api_key
++
++logger = logging.getLogger(__name__)
++router = APIRouter(tags=["runtime"])
++
++_CONFIG_DIR = Path(DATA_DIR) / "config"
++_VOICE_SETTINGS_FILE = _CONFIG_DIR / "voice-settings.json"
++_SETUP_COMPLETE_FILE = _CONFIG_DIR / "setup-complete.json"
++_VERSION_FILE = Path(INSTALL_DIR) / ".version"
++
++_DEFAULT_VOICE_SETTINGS: dict[str, object] = {
++    "voice": "default",
++    "speed": 1.0,
++    "wakeWord": False,
++}
++
++
++class VoiceSettingsUpdate(BaseModel):
++    """Patch payload for voice preferences."""
++
++    voice: str | None = Field(default=None, min_length=1, max_length=64, pattern=r"^[A-Za-z0-9._-]+$")
++    speed: float | None = Field(default=None, ge=0.5, le=2.0)
++    wakeWord: bool | None = None
++
++
++class VoiceTokenRequest(BaseModel):
++    """Request payload for minting a LiveKit access token."""
++
++    identity: str = Field(default="dashboard-user", min_length=3, max_length=128, pattern=r"^[A-Za-z0-9._-]+$")
++    room: str = Field(default="dream-voice", min_length=1, max_length=128, pattern=r"^[A-Za-z0-9._-]+$")
++    ttlSeconds: int = Field(default=3600, ge=60, le=86400)
++
++
++def _now_iso() -> str:
++    return datetime.now(timezone.utc).isoformat()
++
++
++def _format_human_date(dt: datetime) -> str:
++    return dt.astimezone(timezone.utc).strftime("%b %d, %Y")
++
++
++def _parse_datetime(value: str | None) -> datetime | None:
++    if not value:
++        return None
++    try:
++        normalized = value.replace("Z", "+00:00")
++        return datetime.fromisoformat(normalized)
++    except ValueError:
++        return None
++
++
++def _read_json(path: Path) -> dict:
++    if not path.exists():
++        return {}
++    try:
++        payload = json.loads(path.read_text())
++        return payload if isinstance(payload, dict) else {}
++    except (OSError, json.JSONDecodeError):
++        return {}
++
++
++def _atomic_write_json(path: Path, payload: dict) -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    tmp_path = path.with_suffix(path.suffix + ".tmp")
++    tmp_path.write_text(json.dumps(payload, indent=2))
++    tmp_path.replace(path)
++
++
++def _resolve_install_date() -> datetime:
++    setup = _read_json(_SETUP_COMPLETE_FILE)
++    setup_date = _parse_datetime(setup.get("completed_at"))
++    if setup_date:
++        return setup_date
++
++    try:
++        created = datetime.fromtimestamp(Path(INSTALL_DIR).stat().st_mtime, tz=timezone.utc)
++        return created
++    except OSError:
++        return datetime.now(timezone.utc)
++
++
++def _resolve_tier() -> str:
++    gpu_info = get_gpu_info()
++    if not gpu_info:
++        return "Unknown"
++
++    vram_gb = gpu_info.memory_total_mb / 1024
++    if gpu_info.memory_type == "unified" and gpu_info.gpu_backend == "amd":
++        return "Strix Halo 90+" if vram_gb >= 90 else "Strix Halo Compact"
++    if vram_gb >= 80:
++        return "Professional"
++    if vram_gb >= 24:
++        return "Prosumer"
++    if vram_gb >= 16:
++        return "Standard"
++    if vram_gb >= 8:
++        return "Entry"
++    return "Minimal"
++
++
++def _format_uptime(seconds: int) -> str:
++    if seconds < 60:
++        return f"{seconds}s"
++    minutes, sec = divmod(seconds, 60)
++    hours, minutes = divmod(minutes, 60)
++    days, hours = divmod(hours, 24)
++    if days > 0:
++        return f"{days}d {hours}h"
++    if hours > 0:
++        return f"{hours}h {minutes}m"
++    return f"{minutes}m {sec}s"
++
++
++def _sanitize_voice_settings(raw: dict) -> dict[str, object]:
++    settings = dict(_DEFAULT_VOICE_SETTINGS)
++
++    voice = raw.get("voice")
++    if isinstance(voice, str) and voice:
++        settings["voice"] = voice
++
++    speed = raw.get("speed")
++    if isinstance(speed, (int, float)) and 0.5 <= float(speed) <= 2.0:
++        settings["speed"] = round(float(speed), 2)
++
++    wake_word = raw.get("wakeWord")
++    if isinstance(wake_word, bool):
++        settings["wakeWord"] = wake_word
++
++    return settings
++
++
++def _load_voice_settings() -> dict[str, object]:
++    return _sanitize_voice_settings(_read_json(_VOICE_SETTINGS_FILE))
++
++
++def _build_livekit_http_url() -> str:
++    ws_url = os.environ.get("LIVEKIT_URL", "ws://livekit:7880")
++    parsed = urlparse(ws_url)
++    host = parsed.netloc or parsed.path or "livekit:7880"
++    scheme = "https" if parsed.scheme in ("wss", "https") else "http"
++    return f"{scheme}://{host}"
++
++
++async def _check_livekit() -> dict:
++    url = _build_livekit_http_url()
++    checked_at = _now_iso()
++    try:
++        timeout = aiohttp.ClientTimeout(total=3)
++        async with aiohttp.ClientSession(timeout=timeout) as session:
++            start = time.monotonic()
++            async with session.get(url) as resp:
++                elapsed_ms = round((time.monotonic() - start) * 1000, 1)
++                status = "healthy" if resp.status < 500 else "unhealthy"
++                return {
++                    "id": "livekit",
++                    "name": "LiveKit",
++                    "status": status,
++                    "responseTimeMs": elapsed_ms,
++                    "checkedAt": checked_at,
++                    "url": url,
++                }
++    except Exception as exc:
++        logger.debug("LiveKit probe failed: %s", exc)
++        return {
++            "id": "livekit",
++            "name": "LiveKit",
++            "status": "down",
++            "responseTimeMs": None,
++            "checkedAt": checked_at,
++            "url": url,
++            "error": str(exc),
++        }
++
++
++async def _check_service(service_id: str, label: str) -> dict:
++    cfg = SERVICES.get(service_id)
++    checked_at = _now_iso()
++    if not cfg:
++        return {
++            "id": service_id,
++            "name": label,
++            "status": "not_configured",
++            "responseTimeMs": None,
++            "checkedAt": checked_at,
++            "url": None,
++        }
++
++    status = await check_service_health(service_id, cfg)
++    return {
++        "id": status.id,
++        "name": status.name,
++        "status": status.status,
++        "responseTimeMs": status.response_time_ms,
++        "checkedAt": checked_at,
++        "url": f"http://{cfg.get('host', 'localhost')}:{cfg.get('port', 0)}{cfg.get('health', '/')}",
++    }
++
++
++def _b64url(data: bytes) -> str:
++    return base64.urlsafe_b64encode(data).decode("ascii").rstrip("=")
++
++
++def _encode_hs256_jwt(payload: dict, secret: str) -> str:
++    header = {"alg": "HS256", "typ": "JWT"}
++    header_json = json.dumps(header, separators=(",", ":"), sort_keys=True).encode("utf-8")
++    payload_json = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
++    signing_input = f"{_b64url(header_json)}.{_b64url(payload_json)}"
++    signature = hmac.new(secret.encode("utf-8"), signing_input.encode("ascii"), hashlib.sha256).digest()
++    return f"{signing_input}.{_b64url(signature)}"
++
++
++@router.get("/api/settings", dependencies=[Depends(verify_api_key)])
++async def api_settings():
++    """Return dynamic settings data for the dashboard settings page."""
++    disk = get_disk_usage()
++    version = _VERSION_FILE.read_text().strip() if _VERSION_FILE.exists() else "2.0.0"
++    uptime_seconds = get_uptime()
++
++    return {
++        "version": version,
++        "installDate": _format_human_date(_resolve_install_date()),
++        "tier": _resolve_tier(),
++        "uptime": _format_uptime(uptime_seconds),
++        "uptimeSeconds": uptime_seconds,
++        "storage": {
++            "path": disk.path,
++            "usedGb": disk.used_gb,
++            "totalGb": disk.total_gb,
++            "percent": disk.percent,
++        },
++        "generatedAt": _now_iso(),
++    }
++
++
++@router.get("/api/voice/settings", dependencies=[Depends(verify_api_key)])
++async def get_voice_settings():
++    """Load persisted voice settings."""
++    return _load_voice_settings()
++
++
++@router.post("/api/voice/settings", dependencies=[Depends(verify_api_key)])
++async def save_voice_settings(request: VoiceSettingsUpdate):
++    """Persist voice settings and return the saved document."""
++    current = _load_voice_settings()
++    patch = request.model_dump(exclude_none=True)
++    merged = _sanitize_voice_settings({**current, **patch})
++
++    payload = {
++        **merged,
++        "updatedAt": _now_iso(),
++    }
++    _atomic_write_json(_VOICE_SETTINGS_FILE, payload)
++
++    return {"success": True, "settings": merged}
++
++
++@router.get("/api/voice/status", dependencies=[Depends(verify_api_key)])
++async def voice_status():
++    """Health summary for the voice pipeline."""
++    stt_status, tts_status, livekit_status = await asyncio.gather(
++        _check_service("whisper", "Whisper (STT)"),
++        _check_service("tts", "Kokoro (TTS)"),
++        _check_livekit(),
++    )
++    statuses = {"stt": stt_status, "tts": tts_status, "livekit": livekit_status}
++    available = all(s.get("status") == "healthy" for s in statuses.values())
++
++    return {
++        "available": available,
++        "services": statuses,
++        "message": "Voice services ready" if available else "One or more voice services are unavailable",
++        "checkedAt": _now_iso(),
++    }
++
++
++@router.post("/api/voice/token", dependencies=[Depends(verify_api_key)])
++async def voice_token(request: VoiceTokenRequest):
++    """Generate a LiveKit access token for dashboard voice sessions."""
++    api_key = os.environ.get("LIVEKIT_API_KEY", "")
++    api_secret = os.environ.get("LIVEKIT_API_SECRET", "")
++    if not api_key or not api_secret:
++        raise HTTPException(status_code=503, detail="LiveKit credentials are not configured")
++
++    now = int(time.time())
++    payload = {
++        "iss": api_key,
++        "sub": request.identity,
++        "nbf": now - 10,
++        "exp": now + request.ttlSeconds,
++        "video": {
++            "roomJoin": True,
++            "room": request.room,
++            "canPublish": True,
++            "canSubscribe": True,
++        },
++    }
++
++    token = _encode_hs256_jwt(payload, api_secret)
++    return {
++        "token": token,
++        "room": request.room,
++        "url": os.environ.get("LIVEKIT_URL", "ws://localhost:7880"),
++        "expiresAt": datetime.fromtimestamp(now + request.ttlSeconds, tz=timezone.utc).isoformat(),
++    }
++
++
++@router.get("/api/test/{test_id}", dependencies=[Depends(verify_api_key)])
++async def run_feature_test(test_id: str):
++    """Run lightweight feature diagnostics used by setup/success screens."""
++    if test_id == "llm":
++        status = await _check_service("llama-server", "llama-server")
++        ok = status["status"] == "healthy"
++        return {"success": ok, "feature": "llm", "service": status}
++
++    if test_id == "voice":
++        voice = await voice_status()
++        return {"success": voice["available"], "feature": "voice", "details": voice}
++
++    if test_id == "rag":
++        qdrant_status = await _check_service("qdrant", "Qdrant")
++        llm_status = await _check_service("llama-server", "llama-server")
++        ok = qdrant_status["status"] == "healthy" and llm_status["status"] == "healthy"
++        return {"success": ok, "feature": "rag", "services": {"qdrant": qdrant_status, "llm": llm_status}}
++
++    if test_id == "workflows":
++        status = await _check_service("n8n", "n8n")
++        ok = status["status"] == "healthy"
++        return {"success": ok, "feature": "workflows", "service": status}
++
++    raise HTTPException(status_code=404, detail=f"Unknown test target: {test_id}")
+diff --git a/dream-server/extensions/services/dashboard-api/tests/test_routers.py b/dream-server/extensions/services/dashboard-api/tests/test_routers.py
+index 53e732db..111cce21 100644
+--- a/dream-server/extensions/services/dashboard-api/tests/test_routers.py
++++ b/dream-server/extensions/services/dashboard-api/tests/test_routers.py
+@@ -2,6 +2,9 @@
+ 
+ from __future__ import annotations
+ 
++import json
++from pathlib import Path
++from types import SimpleNamespace
+ from unittest.mock import AsyncMock, MagicMock, patch
+ 
+ 
+@@ -274,189 +277,133 @@ def test_privacy_shield_status_with_mock(test_client):
+ 
+ 
+ # ---------------------------------------------------------------------------
+-# Core API Endpoints
++# Runtime router (settings + voice + diagnostics)
+ # ---------------------------------------------------------------------------
+ 
+ 
+-def test_api_status_authenticated(test_client):
+-    """GET /api/status with auth → 200, returns full system status."""
+-    resp = test_client.get("/api/status", headers=test_client.auth_headers)
+-    assert resp.status_code == 200
+-    data = resp.json()
+-    assert "gpu" in data
+-    assert "services" in data
+-    assert "model" in data
+-    assert "bootstrap" in data
+-    assert "uptime" in data
+-    assert "version" in data
+-    assert "tier" in data
+-    assert "cpu" in data
+-    assert "ram" in data
+-    assert "inference" in data
+-
+-
+-def test_api_storage_authenticated(test_client):
+-    """GET /api/storage with auth → 200, returns storage breakdown."""
+-    resp = test_client.get("/api/storage", headers=test_client.auth_headers)
+-    assert resp.status_code == 200
+-    data = resp.json()
+-    assert "models" in data
+-    assert "vector_db" in data
+-    assert "total_data" in data
+-    assert "disk" in data
+-    assert "gb" in data["models"]
+-    assert "percent" in data["models"]
++def test_api_settings_returns_expected_shape(test_client, tmp_path, monkeypatch):
++    """GET /api/settings returns dynamic values and storage summary."""
++    import routers.runtime as runtime_router
+ 
++    version_file = tmp_path / ".version"
++    version_file.write_text("2.6.4")
+ 
+-def test_api_external_links_authenticated(test_client):
+-    """GET /api/external-links with auth → 200, returns sidebar links."""
+-    resp = test_client.get("/api/external-links", headers=test_client.auth_headers)
+-    assert resp.status_code == 200
+-    data = resp.json()
+-    assert isinstance(data, list)
+-    for link in data:
+-        assert "id" in link
+-        assert "label" in link
+-        assert "port" in link
+-        assert "icon" in link
++    setup_file = tmp_path / "setup-complete.json"
++    setup_file.write_text(json.dumps({"completed_at": "2026-03-10T10:11:12Z"}))
+ 
++    monkeypatch.setattr(runtime_router, "_VERSION_FILE", version_file)
++    monkeypatch.setattr(runtime_router, "_SETUP_COMPLETE_FILE", setup_file)
++    monkeypatch.setattr(runtime_router, "get_disk_usage", lambda: SimpleNamespace(path="/tmp", used_gb=10.5, total_gb=200.0, percent=5.3))
++    monkeypatch.setattr(runtime_router, "get_uptime", lambda: 3723)
++    monkeypatch.setattr(runtime_router, "_resolve_tier", lambda: "Prosumer")
+ 
+-def test_api_service_tokens_authenticated(test_client):
+-    """GET /api/service-tokens with auth → 200, returns service tokens."""
+-    resp = test_client.get("/api/service-tokens", headers=test_client.auth_headers)
++    resp = test_client.get("/api/settings", headers=test_client.auth_headers)
+     assert resp.status_code == 200
+     data = resp.json()
+-    assert isinstance(data, dict)
++    assert data["version"] == "2.6.4"
++    assert data["installDate"] == "Mar 10, 2026"
++    assert data["tier"] == "Prosumer"
++    assert data["uptime"] == "1h 2m"
++    assert data["storage"]["path"] == "/tmp"
++    assert data["storage"]["percent"] == 5.3
++    assert "generatedAt" in data
+ 
+ 
+-# ---------------------------------------------------------------------------
+-# Agents router
+-# ---------------------------------------------------------------------------
++def test_voice_settings_defaults_then_save_roundtrip(test_client, tmp_path, monkeypatch):
++    """GET returns defaults; POST persists voice settings; GET returns persisted values."""
++    import routers.runtime as runtime_router
+ 
++    settings_file = tmp_path / "voice-settings.json"
++    monkeypatch.setattr(runtime_router, "_VOICE_SETTINGS_FILE", settings_file)
+ 
+-def test_agents_metrics_authenticated(test_client):
+-    """GET /api/agents/metrics with auth → 200, returns agent metrics with seeded data."""
+-    from agent_monitor import agent_metrics, throughput
++    get_default = test_client.get("/api/voice/settings", headers=test_client.auth_headers)
++    assert get_default.status_code == 200
++    assert get_default.json() == {"voice": "default", "speed": 1.0, "wakeWord": False}
+ 
+-    # Seed non-default values to test actual aggregation
+-    agent_metrics.session_count = 5
+-    agent_metrics.tokens_per_second = 123.45
+-    throughput.add_sample(100.0)
+-    throughput.add_sample(150.0)
+-
+-    resp = test_client.get("/api/agents/metrics", headers=test_client.auth_headers)
+-    assert resp.status_code == 200
+-    data = resp.json()
+-    assert "agent" in data
+-    assert "cluster" in data
+-    assert "throughput" in data
++    save_resp = test_client.post(
++        "/api/voice/settings",
++        json={"voice": "jenny", "speed": 1.3, "wakeWord": True},
++        headers=test_client.auth_headers,
++    )
++    assert save_resp.status_code == 200
++    assert save_resp.json()["success"] is True
++    assert settings_file.exists()
+ 
+-    # Verify seeded values are reflected in response
+-    assert data["agent"]["session_count"] == 5
+-    assert data["agent"]["tokens_per_second"] == 123.45
+-    assert data["throughput"]["current"] == 150.0
+-    assert data["throughput"]["peak"] == 150.0
++    get_saved = test_client.get("/api/voice/settings", headers=test_client.auth_headers)
++    assert get_saved.status_code == 200
++    assert get_saved.json() == {"voice": "jenny", "speed": 1.3, "wakeWord": True}
+ 
+ 
+-def test_agents_cluster_authenticated(test_client):
+-    """GET /api/agents/cluster with auth → 200, returns cluster status with mocked data."""
++def test_voice_status_aggregates_service_health(test_client, monkeypatch):
++    """GET /api/voice/status reports stt, tts, and livekit health plus available=true."""
++    import routers.runtime as runtime_router
+ 
+-    async def _fake_subprocess(*args, **kwargs):
+-        """Mock subprocess that returns a 2-node cluster with 1 healthy node."""
+-        proc = MagicMock()
+-        cluster_response = b'{"nodes": [{"id": "node1", "healthy": true}, {"id": "node2", "healthy": false}]}'
+-        proc.communicate = AsyncMock(return_value=(cluster_response, b""))
+-        proc.returncode = 0
+-        return proc
++    stt = {"id": "whisper", "name": "Whisper (STT)", "status": "healthy", "responseTimeMs": 12.1, "checkedAt": "x", "url": "http://whisper:8000/health"}
++    tts = {"id": "tts", "name": "Kokoro (TTS)", "status": "healthy", "responseTimeMs": 14.9, "checkedAt": "x", "url": "http://tts:8880/health"}
++    livekit = {"id": "livekit", "name": "LiveKit", "status": "healthy", "responseTimeMs": 9.0, "checkedAt": "x", "url": "http://livekit:7880"}
+ 
+-    with patch("asyncio.create_subprocess_exec", side_effect=_fake_subprocess):
+-        resp = test_client.get("/api/agents/cluster", headers=test_client.auth_headers)
++    monkeypatch.setattr(runtime_router, "_check_service", AsyncMock(side_effect=[stt, tts]))
++    monkeypatch.setattr(runtime_router, "_check_livekit", AsyncMock(return_value=livekit))
+ 
++    resp = test_client.get("/api/voice/status", headers=test_client.auth_headers)
+     assert resp.status_code == 200
+     data = resp.json()
+-    assert "nodes" in data
+-    assert "total_gpus" in data
+-    assert "active_gpus" in data
+-    assert "failover_ready" in data
++    assert data["available"] is True
++    assert data["services"]["stt"]["status"] == "healthy"
++    assert data["services"]["tts"]["status"] == "healthy"
++    assert data["services"]["livekit"]["status"] == "healthy"
+ 
+-    # Verify parsed cluster data
+-    assert data["total_gpus"] == 2
+-    assert data["active_gpus"] == 1
+-    assert data["failover_ready"] is False  # Only 1 healthy node, need >1 for failover
+ 
++def test_voice_token_requires_livekit_credentials(test_client, monkeypatch):
++    """POST /api/voice/token returns 503 when LIVEKIT credentials are missing."""
++    monkeypatch.delenv("LIVEKIT_API_KEY", raising=False)
++    monkeypatch.delenv("LIVEKIT_API_SECRET", raising=False)
+ 
+-def test_agents_cluster_failover_ready(test_client):
+-    """GET /api/agents/cluster with 2 healthy nodes → failover_ready is True."""
++    resp = test_client.post(
++        "/api/voice/token",
++        json={"identity": "dashboard-test", "room": "dream-voice"},
++        headers=test_client.auth_headers,
++    )
++    assert resp.status_code == 503
++    assert "not configured" in resp.json()["detail"]
+ 
+-    async def _fake_subprocess(*args, **kwargs):
+-        """Mock subprocess that returns a 2-node cluster with both nodes healthy."""
+-        proc = MagicMock()
+-        cluster_response = b'{"nodes": [{"id": "node1", "healthy": true}, {"id": "node2", "healthy": true}]}'
+-        proc.communicate = AsyncMock(return_value=(cluster_response, b""))
+-        proc.returncode = 0
+-        return proc
+ 
+-    with patch("asyncio.create_subprocess_exec", side_effect=_fake_subprocess):
+-        resp = test_client.get("/api/agents/cluster", headers=test_client.auth_headers)
++def test_voice_token_returns_jwt_with_credentials(test_client, monkeypatch):
++    """POST /api/voice/token returns a JWT-like token when credentials exist."""
++    monkeypatch.setenv("LIVEKIT_API_KEY", "livekit-key")
++    monkeypatch.setenv("LIVEKIT_API_SECRET", "super-secret")
++    monkeypatch.setenv("LIVEKIT_URL", "ws://livekit:7880")
+ 
++    resp = test_client.post(
++        "/api/voice/token",
++        json={"identity": "dashboard-test", "room": "dream-voice", "ttlSeconds": 600},
++        headers=test_client.auth_headers,
++    )
+     assert resp.status_code == 200
+     data = resp.json()
+-    assert data["total_gpus"] == 2
+-    assert data["active_gpus"] == 2
+-    assert data["failover_ready"] is True  # 2 healthy nodes enables failover
+-
+-
+-def test_agents_metrics_html_xss_escaping(test_client):
+-    """GET /api/agents/metrics.html escapes HTML special chars to prevent XSS."""
+-    from agent_monitor import agent_metrics, throughput
+-
+-    # Inject XSS payload into agent metrics
+-    agent_metrics.session_count = 999
+-    throughput.add_sample(42.0)
+-
+-    # Mock cluster status with XSS payload in node data
+-    async def _fake_subprocess(*args, **kwargs):
+-        proc = MagicMock()
+-        # Node ID contains script tag
+-        cluster_response = b'{"nodes": [{"id": "<script>alert(1)</script>", "healthy": true}]}'
+-        proc.communicate = AsyncMock(return_value=(cluster_response, b""))
+-        proc.returncode = 0
+-        return proc
+-
+-    with patch("asyncio.create_subprocess_exec", side_effect=_fake_subprocess):
+-        resp = test_client.get("/api/agents/metrics.html", headers=test_client.auth_headers)
+-
+-    assert resp.status_code == 200
+-    html_content = resp.text
+-
+-    # Verify HTML special chars are escaped
+-    assert "<script>" not in html_content
+-    assert "&lt;script&gt;" in html_content or "alert(1)" not in html_content
+-    # Verify legitimate content is present
+-    assert "999" in html_content  # session_count
+-    assert "42.0" in html_content  # throughput
++    assert data["room"] == "dream-voice"
++    assert data["url"] == "ws://livekit:7880"
++    assert len(data["token"].split(".")) == 3
+ 
+ 
+-def test_agents_throughput_authenticated(test_client):
+-    """GET /api/agents/throughput with auth → 200, returns throughput stats with real data."""
+-    from agent_monitor import throughput
++def test_diagnostic_voice_endpoint_uses_voice_status(test_client, monkeypatch):
++    """GET /api/test/voice maps to voice status and returns success bool."""
++    import routers.runtime as runtime_router
+ 
+-    # Seed throughput data to test actual behavior
+-    throughput.add_sample(42.0)
+-    throughput.add_sample(55.0)
+-    throughput.add_sample(38.0)
++    monkeypatch.setattr(
++        runtime_router,
++        "voice_status",
++        AsyncMock(return_value={"available": True, "services": {"stt": {}, "tts": {}, "livekit": {}}, "message": "ok", "checkedAt": "now"}),
++    )
+ 
+-    resp = test_client.get("/api/agents/throughput", headers=test_client.auth_headers)
++    resp = test_client.get("/api/test/voice", headers=test_client.auth_headers)
+     assert resp.status_code == 200
+     data = resp.json()
+-    assert "current" in data
+-    assert "average" in data
+-    assert "peak" in data
+-    assert "history" in data
++    assert data["feature"] == "voice"
++    assert data["success"] is True
+ 
+-    # Verify calculated stats
+-    assert data["current"] == 38.0  # Last sample
+-    assert data["peak"] == 55.0  # Max of all samples
+-    assert data["average"] == (42.0 + 55.0 + 38.0) / 3  # Average of all samples
+-    assert len(data["history"]) == 3
+ 
++def test_diagnostic_unknown_target_returns_404(test_client):
++    """Unknown diagnostics target should return 404."""
++    resp = test_client.get("/api/test/not-a-real-target", headers=test_client.auth_headers)
++    assert resp.status_code == 404

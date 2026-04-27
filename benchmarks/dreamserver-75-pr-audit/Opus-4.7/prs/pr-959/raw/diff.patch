@@ -1,0 +1,93 @@
+diff --git a/resources/products/token-spy/PHASE1-ARCHITECTURE.md b/resources/products/token-spy/PHASE1-ARCHITECTURE.md
+index 05042eac..44810571 100644
+--- a/resources/products/token-spy/PHASE1-ARCHITECTURE.md
++++ b/resources/products/token-spy/PHASE1-ARCHITECTURE.md
+@@ -1,18 +1,22 @@
+ # Token Spy Phase 1 Architecture
+ 
+-**Status:** Implementation Complete  
+-**Date:** 2026-02-15  
++> **Prototype / incubator track**
++>
++> This document describes the Phase 1 prototype work under `resources/products/token-spy/`. It does **not** represent the currently shipped Dream Server extension in `dream-server/extensions/services/token-spy/`.
++
++**Status:** Prototype Complete
++**Date:** 2026-02-15
+ **Owner:** Android-17
+ 
+ ---
+ 
+ ## Overview
+ 
+-Phase 1 transforms Token Spy from a personal SQLite-based tool into a production-ready, multi-tenant, configuration-driven proxy system backed by TimescaleDB.
++Phase 1 transforms Token Spy from a personal SQLite-based tool into a prototype multi-tenant, configuration-driven proxy system backed by TimescaleDB.
+ 
+ ---
+ 
+-## Components Delivered
++## Prototype Components Delivered
+ 
+ ### 1. Provider Plugin System (Configuration-Driven)
+ 
+diff --git a/resources/products/token-spy/PRODUCT-SCOPE.md b/resources/products/token-spy/PRODUCT-SCOPE.md
+index 2a9d6a8b..f6ed60c5 100644
+--- a/resources/products/token-spy/PRODUCT-SCOPE.md
++++ b/resources/products/token-spy/PRODUCT-SCOPE.md
+@@ -1,6 +1,10 @@
+ # Token Spy — Product Scope & Roadmap
+ *Mission 12 in `MISSIONS.md`. Product Priority #2.*
+ 
++> **Prototype / product vision document**
++>
++> This file captures the broader Token Spy product direction and incubator roadmap under `resources/products/token-spy/`. It does **not** describe the exact shipped Dream Server extension in `dream-server/extensions/services/token-spy/`, which currently uses an authenticated-proxy model rather than a no-auth-change transparent proxy.
++
+ ## Vision
+ 
+ **Token Spy is the Morningstar of LLM APIs.**
+diff --git a/resources/products/token-spy/README.md b/resources/products/token-spy/README.md
+index 790a0e75..65a68029 100644
+--- a/resources/products/token-spy/README.md
++++ b/resources/products/token-spy/README.md
+@@ -2,11 +2,17 @@
+ 
+ **Track every token, every dollar, every LLM call.**
+ 
+-Token Spy is a transparent proxy that sits between your applications and LLM APIs. It logs every request, tracks token usage, and shows real-time cost analytics — without changing your code.
++> **Prototype / incubator track**
++>
++> This `resources/products/token-spy/` subtree documents the broader Token Spy product prototype and Phase 1 platform work. It does **not** describe the exact shipped Dream Server extension in `dream-server/extensions/services/token-spy/`.
++>
++> The shipped Dream Server extension currently uses an authenticated-proxy model. Use the extension docs there for production behavior and operator guidance.
++
++This prototype track explores a richer Token Spy platform that sits between your applications and LLM APIs, logs every request, and shows real-time cost analytics.
+ 
+ ## Features
+ 
+-- **Zero code changes** — Drop-in proxy, just point your API base URL
++- **Prototype drop-in proxy vision** — point your API base URL at Token Spy
+ - **Multi-provider** — OpenAI, Anthropic, any OpenAI-compatible API
+ - **Real-time dashboard** — Live token counts, costs, and request history
+ - **Cost tracking** — Per-model pricing with daily aggregates
+@@ -66,11 +72,11 @@ Point your LLM client to Token Spy instead of the provider directly:
+ # Before
+ client = OpenAI(api_key="sk-...", base_url="https://api.openai.com/v1")
+ 
+-# After — just change the base_url
++# After — prototype target state, just change the base_url
+ client = OpenAI(api_key="sk-...", base_url="http://localhost:8080/v1")
+ ```
+ 
+-Token Spy transparently forwards requests and logs everything to TimescaleDB.
++In this prototype track, Token Spy forwards requests and logs everything to TimescaleDB.
+ 
+ ## Configuration
+ 
+@@ -137,7 +143,7 @@ openssl rand -base64 32
+ ```
+ 
+ **Components:**
+-- **Proxy** (`:8080`): Transparent LLM API interceptor
++- **Proxy** (`:8080`): LLM API interceptor for the prototype stack
+ - **API** (`:8000`): FastAPI backend for dashboard data
+ - **Dashboard** (`:3001`): React frontend for analytics
+ - **TimescaleDB**: Time-series database for metrics

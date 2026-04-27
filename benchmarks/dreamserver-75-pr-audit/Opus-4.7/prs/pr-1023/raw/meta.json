@@ -1,0 +1,24 @@
+{
+  "additions": 6,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nReplace `| head -1 |` / `| head -n 1 |` with `| sed -n '1p' |` in five scripts to eliminate SIGPIPE termination under `set -euo pipefail`.\n\n## Why\n`head -1` closes its stdin after consuming one line. When the upstream pipeline stage produces multiple lines (multi-GPU nvidia-smi output, multiple GGUFs, duplicate .env keys), the resulting SIGPIPE (exit 141) propagates back through the pipeline and \u2014 because all five files run under `set -euo pipefail` \u2014 aborts the script entirely. The three distinct trigger conditions are:\n\n- **Multi-GPU NVIDIA host**: `nvidia-smi --query-gpu=...` emits one line per GPU. `pre-download.sh` (VRAM detection) and `dream-preflight.sh` (GPU probe) both abort on the SIGPIPE.\n- **Multiple GGUFs present**: `ls -1 data/models/*.gguf` on a host with 2+ downloaded models causes `check-offline-models.sh` to abort before reporting status.\n- **Duplicate key in `.env`**: `grep` returns multiple matches; `read_env_value` (dream-macos.sh + env-generator.sh) and `read_searxng_secret` (env-generator.sh) silently return empty strings \u2014 the `|| true` guard prevents script abort but leaves the variable empty/truncated.\n\n## How\nSix targeted substitutions across 5 files:\n\n| File | Line | Change |\n|------|------|--------|\n| `dream-server/scripts/pre-download.sh` | 112 | `head -1` \u2192 `sed -n '1p'` |\n| `dream-server/scripts/dream-preflight.sh` | 87 | `head -1` \u2192 `sed -n '1p'` |\n| `dream-server/scripts/check-offline-models.sh` | 27 | `head -1` \u2192 `sed -n '1p'` |\n| `dream-server/installers/macos/dream-macos.sh` | 158 | `head -n 1` \u2192 `sed -n '1p'` |\n| `dream-server/installers/macos/lib/env-generator.sh` | 39 | `head -n 1` \u2192 `sed -n '1p'` |\n| `dream-server/installers/macos/lib/env-generator.sh` | 51 | `head -n 1` \u2192 `sed -n '1p'` |\n\n`sed -n '1p'` consumes the full stdin stream before exiting, so the upstream producer never receives SIGPIPE. It is identical in behaviour on BSD sed (macOS) and GNU sed (Linux).\n\n## Testing\n- Automated: `bash -n` syntax check passes on all 5 files. ShellCheck: no new warnings introduced.\n- Manual (Linux NVIDIA multi-GPU): Run `dream-server/scripts/pre-download.sh` and `dream-server/scripts/dream-preflight.sh` on a host with 2+ GPUs \u2014 both should complete without SIGPIPE exit 141.\n- Manual (macOS, multiple GGUFs): Place 2+ `.gguf` files in `data/models/` and run `dream-server/scripts/check-offline-models.sh` \u2014 should enumerate correctly.\n- Manual (macOS, duplicate .env key): Add a duplicate key to `.env` and run through the macOS installer `read_env_value` path \u2014 should return the first value, not empty.\n\n## Platform Impact\n- **macOS**: Affected \u2014 `dream-macos.sh` and `env-generator.sh` fixes apply here only.\n- **Linux (NVIDIA)**: Affected \u2014 `pre-download.sh` and `dream-preflight.sh` fixes apply to multi-GPU NVIDIA hosts.\n- **Linux (AMD/CPU)**: `check-offline-models.sh` fix applies to any platform with 2+ GGUFs.\n- **Windows (WSL2)**: Not directly affected \u2014 these scripts run on the Linux / macOS side. WSL2 inherits Linux behaviour if any of these scripts are invoked there.\n\n## Known Considerations\nNone \u2014 mechanical substitutions only; no logic changes.\n",
+  "changedFiles": 5,
+  "createdAt": "2026-04-24T16:17:28Z",
+  "deletions": 6,
+  "headRefName": "fix/shell-sigpipe-sweep-4scripts",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1023,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(scripts): SIGPIPE-safe first-line selection in 5 scripts",
+  "updatedAt": "2026-04-24T16:17:28Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1023"
+}

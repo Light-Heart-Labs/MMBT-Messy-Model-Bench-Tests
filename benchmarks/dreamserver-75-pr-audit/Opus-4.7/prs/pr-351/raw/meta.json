@@ -1,0 +1,24 @@
+{
+  "additions": 370,
+  "author": {
+    "id": "U_kgDODAOGXg",
+    "is_bot": false,
+    "login": "reo0603",
+    "name": "Pheonix DEV"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nAdds 31 new security-focused tests validating that the dashboard API properly rejects malicious input patterns including SQL injection, command injection, path traversal, and encoding bypasses.\n\nThis PR is **test-only** with zero production code changes \u2014 purely defensive validation of existing security boundaries.\n\n## Motivation\n\nAfter reviewing recent security hardening work (commits ce53ae6, 686f284, a83dbec), identified that while the codebase has good input validation (regex checks, path resolution, list-based subprocess args), it lacks comprehensive test coverage for malicious input edge cases. This PR fills that gap.\n\n## Test Coverage Added\n\n### Workflow ID Injection (8 tests)\n- SQL injection attempts (single quote, UNION)\n- Command injection (semicolon, pipe, backtick)\n- Null byte injection\n- URL-encoded path traversal (single and double encoding)\n\n### Path Traversal Variants (4 tests)\n- Absolute paths\n- Windows path separators\n- Mixed separators\n- Unicode traversal characters\n\n### Persona Validation (3 tests)\n- Path traversal attempts\n- SQL injection attempts\n- Special character injection\n\n### Port Validation (4 tests)\n- Negative ports\n- Out-of-range ports (> 65535)\n- Zero port\n- String injection attempts\n\n### Subprocess Injection (3 tests)\n- Backup name command injection\n- Invalid action validation\n- Script path validation\n\n### Additional Edge Cases (9 tests)\n- Whitespace in workflow IDs\n- Newline/tab characters\n- Empty strings\n- Null values\n- Boundary testing (port 1, port 65535)\n\n## Files Changed\n\n- tests/test_security_validation.py (NEW): 254 lines, 22 tests\n- tests/test_workflows.py: +50 lines, 5 tests\n- tests/test_routers.py: +45 lines, 4 tests\n\n**Total: 349 lines, 31 test functions**\n\n## Testing\n\nAll tests verify existing protections work correctly:\n- Workflow ID regex rejects special characters\n- Persona validation checks against allowlist\n- Port validation enforces 1-65535 range\n- Path resolution with startswith() prevents traversal\n- Subprocess calls use list args (no shell injection)\n\nSyntax validated with python3 -m py_compile on all modified files.\n\n## Security Impact\n\n- **Risk Level**: None (test-only)\n- **Behavior Changes**: None\n- **Backward Compatibility**: 100%\n\nThis PR documents expected security behavior and will catch regressions if validation logic is accidentally weakened in future changes.",
+  "changedFiles": 5,
+  "createdAt": "2026-03-17T18:20:26Z",
+  "deletions": 2,
+  "headRefName": "feat/input-validation-test-suite",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "DIRTY",
+  "mergeable": "CONFLICTING",
+  "number": 351,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "test: add comprehensive input validation and injection resistance tests",
+  "updatedAt": "2026-04-18T14:21:48Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/351"
+}

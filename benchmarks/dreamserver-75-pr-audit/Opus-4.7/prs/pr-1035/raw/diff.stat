@@ -1,0 +1,6 @@
+ dream-server/bin/dream-host-agent.py               | 35 ++++++++++
+ .../dashboard-api/tests/test_host_agent.py         | 78 ++++++++++++++++++++++
+ .../extensions/services/openclaw/README.md         |  1 -
+ .../extensions/services/openclaw/compose.yaml      |  4 --
+ dream-server/installers/phases/06-directories.sh   |  7 +-
+ 5 files changed, 117 insertions(+), 8 deletions(-)

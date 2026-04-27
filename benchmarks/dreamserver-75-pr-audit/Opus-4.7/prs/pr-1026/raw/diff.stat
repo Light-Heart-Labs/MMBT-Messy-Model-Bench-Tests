@@ -1,0 +1,5 @@
+ dream-server/installers/macos/install-macos.sh         | 16 ++++++++++++++++
+ dream-server/installers/phases/13-summary.sh           | 18 ++++++++++++++++++
+ dream-server/installers/windows/install-windows.ps1    | 17 +++++++++++++++++
+ .../tests/contracts/test-installer-contracts.sh        | 12 ++++++++++++
+ 4 files changed, 63 insertions(+)

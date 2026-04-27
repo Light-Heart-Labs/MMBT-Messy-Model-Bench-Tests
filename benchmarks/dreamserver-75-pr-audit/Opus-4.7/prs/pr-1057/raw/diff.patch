@@ -1,0 +1,164 @@
+diff --git a/dream-server/bin/dream-host-agent.py b/dream-server/bin/dream-host-agent.py
+index 21fc7642..153fc8ce 100755
+--- a/dream-server/bin/dream-host-agent.py
++++ b/dream-server/bin/dream-host-agent.py
+@@ -199,7 +199,17 @@ def _precreate_data_dirs(service_id: str):
+         if not isinstance(volumes, list):
+             continue
+         for vol in volumes:
+-            vol_str = str(vol).split(":")[0]
++            if isinstance(vol, dict):
++                # Compose long-form mount; only bind mounts have a host source.
++                if vol.get("type") != "bind":
++                    continue
++                vol_str = vol.get("source", "")
++            else:
++                vol_str = str(vol).split(":")[0]
++            # Skip sources compose does not pre-expand (env vars, home,
++            # backticks, Windows-style escapes) — we cannot resolve them safely.
++            if not vol_str or vol_str.startswith(("~", "$", "`", "\\")):
++                continue
+             if vol_str.startswith("./data/") or vol_str.startswith("data/"):
+                 dir_path = (INSTALL_DIR / vol_str.lstrip("./")).resolve()
+                 try:
+@@ -1130,19 +1140,53 @@ class AgentHandler(BaseHTTPRequestHandler):
+                         )
+                         if result.returncode != 0:
+                             _write_progress(service_id, "error", "Setup failed",
+-                                            error=result.stderr[:500])
++                                            error=result.stderr[-500:])
+                             return
+ 
+-                # Step 2: Pull (best-effort — failure is non-fatal if cached image exists)
++                # Step 2: Pull (best-effort — failure is non-fatal if cached image exists).
++                # Narrow the pull to base + GPU overlay + this extension's own
++                # compose so we don't refetch images for every other installed
++                # extension on each install. The `up` step below keeps full
++                # `flags` so cross-service `depends_on` still resolves.
++                ext_roots = (EXTENSIONS_DIR.resolve(), USER_EXTENSIONS_DIR.resolve())
++
++                def _is_other_ext_compose(fpath: str) -> bool:
++                    p = Path(fpath)
++                    if not p.is_absolute():
++                        p = INSTALL_DIR / p
++                    try:
++                        resolved = p.resolve()
++                    except OSError:
++                        return False
++                    if resolved.parent.name == service_id:
++                        return False
++                    for root in ext_roots:
++                        try:
++                            resolved.relative_to(root)
++                            return True
++                        except ValueError:
++                            continue
++                    return False
++
++                pull_flags: list = []
++                i = 0
++                while i < len(flags):
++                    if (flags[i] == "-f" and i + 1 < len(flags)
++                            and _is_other_ext_compose(flags[i + 1])):
++                        i += 2
++                        continue
++                    pull_flags.append(flags[i])
++                    i += 1
++
+                 _write_progress(service_id, "pulling", "Downloading image...")
+                 pull_result = subprocess.run(
+-                    ["docker", "compose"] + flags + ["pull", service_id],
++                    ["docker", "compose"] + pull_flags + ["pull", service_id],
+                     cwd=str(INSTALL_DIR), capture_output=True, text=True,
+                     timeout=SUBPROCESS_TIMEOUT_START,
+                 )
+                 if pull_result.returncode != 0:
+                     logger.warning("Pull failed for %s (rc=%d), proceeding to start: %s",
+-                                   service_id, pull_result.returncode, pull_result.stderr[:200])
++                                   service_id, pull_result.returncode, pull_result.stderr[-200:])
+ 
+                 # Step 3: Start
+                 _write_progress(service_id, "starting", "Starting container...")
+@@ -1154,7 +1198,7 @@ class AgentHandler(BaseHTTPRequestHandler):
+                 )
+                 if start_result.returncode != 0:
+                     _write_progress(service_id, "error", "Installation failed",
+-                                    error=start_result.stderr[:500])
++                                    error=start_result.stderr[-500:])
+                     return
+ 
+                 # Step 4: Success
+@@ -1189,13 +1233,17 @@ class AgentHandler(BaseHTTPRequestHandler):
+             library_path = INSTALL_DIR / "config" / "model-library.json"
+             env_path = INSTALL_DIR / ".env"
+ 
+-            # Load library
++            # Load library. A missing file is fine (fresh install); an
++            # unreadable/malformed file is a real error — surface it as 500
++            # rather than silently returning an empty catalog.
+             library = []
+             if library_path.exists():
+                 try:
+                     library = json.loads(library_path.read_text(encoding="utf-8")).get("models", [])
+                 except (json.JSONDecodeError, OSError):
+-                    pass
++                    logger.exception("Model library catalog unavailable")
++                    json_response(self, 500, {"error": "Model catalog unavailable"})
++                    return
+ 
+             # Scan downloaded GGUFs
+             downloaded = {}
+@@ -1272,10 +1320,15 @@ class AgentHandler(BaseHTTPRequestHandler):
+         # cover every part of split-file downloads, not just single-file models.
+         library_path = INSTALL_DIR / "config" / "model-library.json"
+         allowed = False
++        # Sentinel: distinguishes "catalog unreadable/missing" (500) from
++        # "catalog readable but model not listed" (403). Conflating the two
++        # masks broken installs as policy denials.
++        catalog_ok = False
+         expected_sha_by_file: dict = {}
+         if library_path.exists():
+             try:
+                 lib = json.loads(library_path.read_text(encoding="utf-8"))
++                catalog_ok = True
+                 for m in lib.get("models", []):
+                     if m.get("gguf_file") != gguf_file:
+                         continue
+@@ -1298,7 +1351,12 @@ class AgentHandler(BaseHTTPRequestHandler):
+                         expected_sha_by_file = {gguf_file: m.get("gguf_sha256", "")}
+                     break
+             except (json.JSONDecodeError, OSError):
+-                pass
++                logger.exception("Model library catalog unavailable")
++                json_response(self, 500, {"error": "Model catalog unavailable"})
++                return
++        if not catalog_ok:
++            json_response(self, 500, {"error": "Model catalog unavailable"})
++            return
+         if not allowed:
+             json_response(self, 403, {"error": "Model not in library catalog"})
+             return
+@@ -2143,8 +2201,8 @@ def _recreate_llama_server(env: dict, override_image: str = ""):
+     result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
+     if result.returncode != 0:
+         logger.error("Failed to create llama-server: %s", result.stderr)
+-    else:
+-        logger.info("llama-server container created successfully")
++        raise RuntimeError(f"docker run failed: {result.stderr[-500:]}")
++    logger.info("llama-server container created successfully")
+ 
+ 
+ def _write_model_status(path: Path, status: str, model: str, downloaded: int, total: int, error: str = ""):
+@@ -2162,8 +2220,10 @@ def _write_model_status(path: Path, status: str, model: str, downloaded: int, to
+     try:
+         tmp.write_text(json.dumps(data), encoding="utf-8")
+         tmp.rename(path)
+-    except OSError:
+-        pass
++    except OSError as e:
++        # Don't crash the activate flow; surface to the journal so operators
++        # can diagnose why progress stalled.
++        logger.warning("Failed to write model status to %s: %s", path, e)
+ 
+ 
+ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):

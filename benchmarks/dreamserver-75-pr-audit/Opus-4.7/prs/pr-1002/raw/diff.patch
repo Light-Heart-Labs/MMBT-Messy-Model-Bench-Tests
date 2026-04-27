@@ -1,0 +1,182 @@
+diff --git a/dream-server/dream-cli b/dream-server/dream-cli
+index 6e160f64..00f93a62 100755
+--- a/dream-server/dream-cli
++++ b/dream-server/dream-cli
+@@ -3,7 +3,7 @@
+ # Mission: M5 (Clonable Dream Setup Server)
+ # Version: 2.0.0 — Registry-driven service resolution
+ 
+-set -e
++set -euo pipefail
+ 
+ # Require Bash 4+ (associative arrays used by service registry and dream-cli)
+ if (( BASH_VERSINFO[0] < 4 )); then
+@@ -251,7 +251,7 @@ _check_version_compat() {
+ 
+     # 1. Installed version
+     _COMPAT_INSTALLED_VER=$(grep '^DREAM_VERSION=' "$INSTALL_DIR/.env" 2>/dev/null \
+-        | head -1 | cut -d= -f2 | tr -d '[:space:]')
++        | sed -n '1p' | cut -d= -f2 | tr -d '[:space:]')
+     # Fall back to .version file (written by dream-update.sh / PR #349 convention)
+     if [[ -z "$_COMPAT_INSTALLED_VER" && -f "$INSTALL_DIR/.version" ]]; then
+         _COMPAT_INSTALLED_VER=$(jq -r '.version // empty' "$INSTALL_DIR/.version" 2>/dev/null \
+@@ -1148,20 +1148,44 @@ cmd_chat() {
+     local _llm_port="${SERVICE_PORTS[llama-server]:-11434}"
+     _llm_port="${OLLAMA_PORT:-${LLAMA_SERVER_PORT:-$_llm_port}}"
+ 
+-    # Get model from llama-server if not specified
++    # Pre-flight reachability check.
++    local _probe
++    _probe=$(curl --silent --show-error --fail --max-time 3 \
++        "http://localhost:${_llm_port}/v1/models" 2>&1) || {
++        error "llama-server not reachable at http://localhost:${_llm_port} — is 'dream status' showing it healthy?"
++    }
++
+     if [[ -z "$model" ]]; then
+-        model=$(curl -s "http://localhost:${_llm_port}/v1/models" | jq -r '.data[0].id // "local"')
++        model=$(printf '%s' "$_probe" | jq -er '.data[0].id' 2>/dev/null || echo "local")
+     fi
+ 
+     log "Sending to $model..."
+ 
+-    # Use jq to safely construct JSON payload (prevents injection)
+-    local payload=$(jq -n --arg model "$model" --arg msg "$message" \
++    local payload
++    payload=$(jq -n --arg model "$model" --arg msg "$message" \
+         '{model: $model, messages: [{role: "user", content: $msg}], max_tokens: 500}')
+ 
+-    curl -s "http://localhost:${_llm_port}/v1/chat/completions" \
+-        -H "Content-Type: application/json" \
+-        -d "$payload" | jq -r '.choices[0].message.content // .error.message // "Error: no response"'
++    local _resp
++    # HTTP 4xx/5xx responses are delegated to the jq fallback below, which
++    # extracts .error.message cleanly. Only transport failures (DNS, refused,
++    # timeout) trip curl's non-zero exit here. Avoiding --fail / --fail-with-body
++    # also keeps compat with curl < 7.76 (Ubuntu 20.04, Debian 11, RHEL 8).
++    _resp=$(curl --silent --show-error --max-time 30 \
++        "http://localhost:${_llm_port}/v1/chat/completions" \
++        -H "Content-Type: application/json" -d "$payload" 2>&1) || {
++        error "LLM request failed: $_resp"
++    }
++
++    [[ -z "$_resp" ]] && error "LLM returned empty response"
++
++    local _content
++    _content=$(printf '%s' "$_resp" | jq -er '.choices[0].message.content') || {
++        local _err
++        _err=$(printf '%s' "$_resp" | jq -r '.error.message // "unknown error"' 2>/dev/null)
++        error "LLM error: ${_err:-unparseable response}"
++    }
++
++    printf '%s\n' "$_content"
+ }
+ 
+ cmd_benchmark() {
+@@ -1171,7 +1195,10 @@ cmd_benchmark() {
+     log "Running quick benchmark..."
+ 
+     local start=$(date +%s)
+-    local response=$(cmd_chat "Say exactly: Hello World" 2>/dev/null)
++    local response
++    if ! response=$(cmd_chat "Say exactly: Hello World" 2>&1); then
++        error "Benchmark failed: LLM unreachable or error — see 'dream chat' for details"
++    fi
+     local end=$(date +%s)
+ 
+     local duration=$(( end - start ))
+@@ -1462,7 +1489,7 @@ cmd_enable() {
+     fi
+ 
+     # Check inter-extension dependencies
+-    local deps="${SERVICE_DEPENDS[$service_id]}"
++    local deps="${SERVICE_DEPENDS[$service_id]:-}"
+     if [[ -n "$deps" ]]; then
+         local missing=()
+         for dep in $deps; do
+@@ -1520,6 +1547,7 @@ cmd_disable() {
+     # Check built-in extensions first, then dashboard-installed user extensions
+     local ext_dir="$INSTALL_DIR/extensions/services/$service_id"
+     [[ ! -d "$ext_dir" ]] && ext_dir="$INSTALL_DIR/data/user-extensions/$service_id"
++    [[ -d "$ext_dir" ]] || error "Unknown service: $input"
+     local cf="$ext_dir/compose.yaml"
+ 
+     # Check it's not a core service
+@@ -1892,7 +1920,7 @@ META
+ 
+             # Validate archive structure
+             local archive_name
+-            archive_name=$(tar tzf "$archive" 2>/dev/null | head -1 | cut -d/ -f1)
++            archive_name=$(tar tzf "$archive" 2>/dev/null | sed -n '1p' | cut -d/ -f1)
+             [[ -z "$archive_name" ]] && error "Invalid archive structure"
+ 
+             # Check if preset already exists
+@@ -1927,8 +1955,8 @@ META
+             ;;
+ 
+         diff|d)
+-            local preset1="$2"
+-            local preset2="$3"
++            local preset1="${2:-}"
++            local preset2="${3:-}"
+ 
+             # Validate arguments
+             if [[ -z "$preset1" ]] || [[ -z "$preset2" ]]; then
+@@ -1968,7 +1996,7 @@ META
+                 local all_sids=()
+                 for sid in "${!ext1[@]}"; do all_sids+=("$sid"); done
+                 for sid in "${!ext2[@]}"; do
+-                    [[ -z "${ext1[$sid]}" ]] && all_sids+=("$sid")
++                    [[ -z "${ext1[$sid]:-}" ]] && all_sids+=("$sid")
+                 done
+ 
+                 # Sort and compare
+@@ -2013,14 +2041,14 @@ META
+                 local all_keys=()
+                 for key in "${!env1[@]}"; do all_keys+=("$key"); done
+                 for key in "${!env2[@]}"; do
+-                    [[ -z "${env1[$key]}" ]] && all_keys+=("$key")
++                    [[ -z "${env1[$key]:-}" ]] && all_keys+=("$key")
+                 done
+ 
+                 # Sort and compare (mask secrets)
+                 local has_diff=false
+                 for key in $(printf '%s\n' "${all_keys[@]}" | sort); do
+-                    local val1="${env1[$key]}"
+-                    local val2="${env2[$key]}"
++                    local val1="${env1[$key]:-}"
++                    local val2="${env2[$key]:-}"
+ 
+                     # Check if values differ BEFORE masking
+                     if [[ "$val1" != "$val2" ]]; then
+@@ -2461,6 +2489,7 @@ cmd_agent() {
+                 tail -f "$log_file"
+             else
+                 warn "No log file at $log_file"
++                return 1
+             fi
+             ;;
+         *)
+@@ -2822,19 +2851,19 @@ _gpu_reassign() {
+ 
+     if ! command -v nvidia-smi &>/dev/null; then
+         warn "GPU reassign is only supported for NVIDIA. Use 'dream gpu status' for AMD."
+-        return
++        return 1
+     fi
+ 
+     if ! command -v jq &>/dev/null; then
+         warn "jq not found — required for GPU reassignment"
+-        return
++        return 1
+     fi
+ 
+     local topo_lib="$SCRIPT_DIR/installers/lib/nvidia-topo.sh"
+     local assign_script="$SCRIPT_DIR/scripts/assign_gpus.py"
+ 
+-    [[ -f "$topo_lib" ]] || { warn "Topology library not found: $topo_lib"; return; }
+-    [[ -f "$assign_script" ]] || { warn "Assignment script not found: $assign_script"; return; }
++    [[ -f "$topo_lib" ]] || { warn "Topology library not found: $topo_lib"; return 1; }
++    [[ -f "$assign_script" ]] || { warn "Assignment script not found: $assign_script"; return 1; }
+ 
+     # warn and err are already defined; source is safe
+     . "$topo_lib"

@@ -1,0 +1,24 @@
+{
+  "additions": 7,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\n\nWindows installer now generates a dedicated `DREAM_AGENT_KEY` via `[System.Security.Cryptography.RandomNumberGenerator]`, writes it to `.env`, and exposes it via the `$envResult` hashtable. Removes the vestigial `DashboardKey` field from the return hashtable (zero readers anywhere in the installer).\n\n## Why\n\nHost agent and dashboard-api were sharing a fallback secret on Windows because `DREAM_AGENT_KEY` wasn't being generated there. The macOS installer (`env-generator.sh`) and Linux installer (`06-directories.sh`) both generate both keys independently. Windows was the only platform with this gap.\n\nSeparately, `$envResult.DashboardKey` had zero readers across all Windows installer phases (verified via grep) but was still documented in three header comments as part of the return shape \u2014 code hygiene gap.\n\n## How\n\nSingle commit `b0b10641`. Generates `$dreamAgentKey` via CSPRNG, writes the `DREAM_AGENT_KEY=...` heredoc block alongside `DASHBOARD_API_KEY`, returns the key in `$envResult`. Updates three header comments (`install-windows.ps1:168`, `phases/06-directories.ps1:19`, `phases/07-devtools.ps1:13`) and one dry-run placeholder (`phases/06-directories.ps1:44`) to reflect the new field set: `{EnvPath, SearxngSecret, OpenclawToken, DreamAgentKey}`.\n\n`$dashboardApiKey` continues to be generated at line 136 and written to `.env` as `DASHBOARD_API_KEY=...` for runtime use; only the in-memory hashtable surface changes.\n\n## Testing\n\n- PowerShell syntax validation via CI's `.github/workflows/lint-powershell.yml` (PSScriptAnalyzer).\n- Repo-wide grep confirms no orphan references to `DashboardKey` after the change.\n- Round-1 review: Critique Guardian approved. Round-2 adversarial audit by analysis team: security-critical path verified (CSPRNG entropy, preservation across reinstall, schema registration, Windows ACL).\n\n## Known Considerations\n\nThe new `DreamAgentKey` field in the return hashtable has zero current readers; it's a forward-compat affordance for future phases that may consume it. A broader cleanup of the entire `$envResult` return pattern (3 of 4 fields currently unread) is tracked as a separate follow-up issue on the fork.\n\n## Platform Impact\n\n- **Windows:** defense-in-depth \u2014 host agent and dashboard-api now use distinct secrets.\n- **macOS / Linux:** no-op. Their installers already generate the key via different code paths.\n",
+  "changedFiles": 4,
+  "createdAt": "2026-04-23T19:50:32Z",
+  "deletions": 5,
+  "headRefName": "fix/windows-dream-agent-key",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 996,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(windows): generate DREAM_AGENT_KEY in installer env-generator.ps1",
+  "updatedAt": "2026-04-23T19:50:32Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/996"
+}

@@ -1,0 +1,24 @@
+{
+  "additions": 3,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\n\nAdd `OPENCLAW_TOKEN` placeholder to `.env.example` and align its documented byte count with what the installers actually generate (24 bytes / 192 bits, not the previously-documented 32).\n\n## Why\n\nIntegration-smoke CI fails on upstream `main` because `openclaw/compose.yaml` requires `OPENCLAW_TOKEN` via strict `${VAR:?msg}` interpolation but the variable isn't listed in `.env.example`. Separately, the documented byte count in `.env.example`'s comment didn't match installer output (`installers/phases/06-directories.sh` and `installers/windows/lib/env-generator.ps1` both use 24 bytes, consistent with other 192-bit tokens).\n\n## How\n\nTwo commits:\n\n- `ca2ded8f` \u2014 add `CHANGEME` placeholder with generate command, matching the convention used for `WEBUI_SECRET` and `SEARXNG_SECRET`.\n- `001f5d07` \u2014 correct the documented byte count to match installer output.\n\n## Testing\n\n- `docker compose config --env-file .env.example` passes locally on macOS.\n- Integration-smoke CI job (currently broken on upstream `main`) will unblock on merge.\n- Operator's end-to-end test battery on the 23APRdevelopments integration branch: green.\n\n## Known Considerations\n\nSecurity-irrelevant change: 24 bytes = 192 bits, well above any reasonable secret-strength floor. This is documentation hygiene, not a security fix.\n\n## Platform Impact\n\n- **macOS:** fixes local `docker compose config` validation.\n- **Linux:** fixes integration-smoke CI job.\n- **Windows / WSL2:** same behavior as Linux; no platform branching.\n",
+  "changedFiles": 1,
+  "createdAt": "2026-04-23T19:50:02Z",
+  "deletions": 0,
+  "headRefName": "fix/env-example-openclaw-token",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 992,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(ci): add OPENCLAW_TOKEN placeholder to .env.example",
+  "updatedAt": "2026-04-23T19:50:02Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/992"
+}

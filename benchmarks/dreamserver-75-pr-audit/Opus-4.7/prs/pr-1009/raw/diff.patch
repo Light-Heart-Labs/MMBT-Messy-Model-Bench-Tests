@@ -1,0 +1,52 @@
+diff --git a/dream-server/docker-compose.amd.yml b/dream-server/docker-compose.amd.yml
+index eb57e88b..633f4d53 100644
+--- a/dream-server/docker-compose.amd.yml
++++ b/dream-server/docker-compose.amd.yml
+@@ -70,6 +70,7 @@ services:
+   open-webui:
+     environment:
+       - OPENAI_API_KEY=no-key
++      - ENABLE_IMAGE_GENERATION=${ENABLE_IMAGE_GENERATION:-true}
+ 
+   dashboard-api:
+     environment:
+diff --git a/dream-server/docker-compose.base.yml b/dream-server/docker-compose.base.yml
+index a8fb5824..84117812 100644
+--- a/dream-server/docker-compose.base.yml
++++ b/dream-server/docker-compose.base.yml
+@@ -82,7 +82,11 @@ services:
+       ENABLE_SEARCH_QUERY_GENERATION: "true"
+       WEB_SEARCH_RESULT_COUNT: "5"
+       # ── ComfyUI Image Generation (SDXL Lightning 4-step) ──
+-      ENABLE_IMAGE_GENERATION: "${ENABLE_IMAGE_GENERATION:-true}"
++      # Default OFF in base: ComfyUI ships only on GPU backends (amd/nvidia per
++      # comfyui/manifest.yaml). The amd and nvidia overlays re-assert this as
++      # ${...:-true} so image-gen is on for GPU users by default. CPU/Apple
++      # users would otherwise hit a missing-engine error from Open WebUI.
++      ENABLE_IMAGE_GENERATION: "${ENABLE_IMAGE_GENERATION:-false}"
+       IMAGE_GENERATION_ENGINE: "comfyui"
+       COMFYUI_BASE_URL: "http://comfyui:8188"
+       IMAGE_SIZE: "1024x1024"
+diff --git a/dream-server/docker-compose.nvidia.yml b/dream-server/docker-compose.nvidia.yml
+index cdac23e6..b00e90ef 100644
+--- a/dream-server/docker-compose.nvidia.yml
++++ b/dream-server/docker-compose.nvidia.yml
+@@ -29,3 +29,4 @@ services:
+   open-webui:
+     environment:
+       AUDIO_STT_MODEL: "deepdml/faster-whisper-large-v3-turbo-ct2"
++      ENABLE_IMAGE_GENERATION: "${ENABLE_IMAGE_GENERATION:-true}"
+diff --git a/dream-server/extensions/services/dreamforge/compose.yaml b/dream-server/extensions/services/dreamforge/compose.yaml
+index d6fb28ee..6af4badf 100644
+--- a/dream-server/extensions/services/dreamforge/compose.yaml
++++ b/dream-server/extensions/services/dreamforge/compose.yaml
+@@ -54,9 +54,3 @@ services:
+       options:
+         max-size: "10m"
+         max-file: "3"
+-    networks:
+-      - dream-network
+-
+-networks:
+-  dream-network:
+-    external: true

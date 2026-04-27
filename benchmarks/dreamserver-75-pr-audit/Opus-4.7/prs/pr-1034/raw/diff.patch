@@ -1,0 +1,25 @@
+diff --git a/resources/dev/extensions-library/services/milvus/compose.yaml b/resources/dev/extensions-library/services/milvus/compose.yaml
+index 62c95b91..63f995b1 100644
+--- a/resources/dev/extensions-library/services/milvus/compose.yaml
++++ b/resources/dev/extensions-library/services/milvus/compose.yaml
+@@ -4,6 +4,7 @@ services:
+     container_name: dream-milvus
+     ports:
+       - "127.0.0.1:${MILVUS_PORT:-19530}:19530"
++      - "${BIND_ADDRESS:-127.0.0.1}:9091:9091"
+     volumes:
+       - ./data/milvus:/var/lib/milvus
+     environment:
+diff --git a/resources/dev/extensions-library/services/piper-audio/compose.yaml b/resources/dev/extensions-library/services/piper-audio/compose.yaml
+index c60127d8..d54801a6 100644
+--- a/resources/dev/extensions-library/services/piper-audio/compose.yaml
++++ b/resources/dev/extensions-library/services/piper-audio/compose.yaml
+@@ -31,7 +31,7 @@ services:
+     healthcheck:
+       test: ["CMD-SHELL", "echo '{\"type\": \"describe\"}' | nc -w 1 127.0.0.1 10200 | grep -q piper"]
+       interval: 30s
+-      timeout: 30s
++      timeout: 10s
+       retries: 3
+       start_period: 60s
+     networks:

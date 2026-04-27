@@ -1,0 +1,24 @@
+{
+  "additions": 38,
+  "author": {
+    "id": "MDQ6VXNlcjQwMjUxODg3",
+    "is_bot": false,
+    "login": "yasinBursali",
+    "name": "Yasin Bursali"
+  },
+  "baseRefName": "main",
+  "body": "## What\nRemove `--no-deps` from the `docker compose up -d` call inside `_handle_install()` so that extension sidecar services and cross-extension `depends_on` targets start correctly when an extension is installed.\n\n## Why\n`_handle_install()` called `docker compose up -d --no-deps <service>`, which tells Compose to bring up only the named service and skip everything it depends on. Extensions that declare private sidecar containers in their own compose fragment (e.g. a paperless extension shipping its own postgres and redis) had those sidecars silently ignored. Cross-extension `depends_on` relationships (e.g. perplexica \u2192 searxng) were also skipped, leaving services in a broken state after install.\n\n## How\nOne-character change: drop `\"--no-deps\"` from the `subprocess.run` argv in `_handle_install()` (line 1151 of `bin/dream-host-agent.py`). `docker_compose_recreate()` \u2014 used for core-service force-recreate after a model swap \u2014 retains `--no-deps` intentionally; that call site is unchanged.\n\n## Testing\n- 40/40 tests pass in `dashboard-api/tests/test_host_agent.py`\n- New `TestInstallStartCommandNoDeps` regression test uses `inspect.getsource` (file's existing pattern) to lock the argv shape for both paths:\n  - `test_install_up_command_does_not_pass_no_deps` \u2014 asserts `--no-deps` absent from `_handle_install`\n  - `test_docker_compose_recreate_still_uses_no_deps` \u2014 asserts `--no-deps` present in `docker_compose_recreate`\n- No behaviour change for single-service extensions (they have no deps to start)\n\n## Platform Impact\n- **macOS / Linux / Windows-WSL2**: identical \u2014 the host agent is a platform-agnostic Python daemon; this code path runs on all platforms.\n\n## Known Considerations\nFollow-up candidate: the subprocess argv in `_run_install` could be extracted into module-level helpers to enable direct argv-mock tests rather than source inspection. Good candidate for a standalone refactor PR if the pattern spreads.\n",
+  "changedFiles": 2,
+  "createdAt": "2026-04-24T16:17:20Z",
+  "deletions": 1,
+  "headRefName": "fix/host-agent-install-no-deps",
+  "isDraft": false,
+  "labels": [],
+  "mergeStateStatus": "BLOCKED",
+  "mergeable": "MERGEABLE",
+  "number": 1021,
+  "reviewDecision": "REVIEW_REQUIRED",
+  "title": "fix(host-agent): start extension sidecars during install",
+  "updatedAt": "2026-04-24T16:17:20Z",
+  "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1021"
+}

@@ -1,0 +1,2186 @@
+{
+  "1000": {
+    "title": "feat(dream-cli): --json flag on list/status and document doctor --json",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 53,
+    "deletions": 6,
+    "changedFiles": 1,
+    "createdAt": "2026-04-23T19:50:47Z",
+    "primary_sub": "dream-cli",
+    "all_subs": [
+      "dream-cli"
+    ],
+    "paths": [
+      "dream-server/dream-cli"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1000"
+  },
+  "1002": {
+    "title": "refactor(dream-cli): enable set -u and add guards for conditional variables",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 51,
+    "deletions": 22,
+    "changedFiles": 1,
+    "createdAt": "2026-04-23T19:50:55Z",
+    "primary_sub": "dream-cli",
+    "all_subs": [
+      "dream-cli"
+    ],
+    "paths": [
+      "dream-server/dream-cli"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1002"
+  },
+  "1003": {
+    "title": "fix(dashboard,dashboard-api): sentinel-based setup wizard success detection",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 215,
+    "deletions": 57,
+    "changedFiles": 6,
+    "createdAt": "2026-04-23T19:50:59Z",
+    "primary_sub": "dashboard-ui",
+    "all_subs": [
+      "dashboard-api",
+      "dashboard-ui",
+      "scripts-shell"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/routers/setup.py",
+      "dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx",
+      "dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx",
+      "dream-server/extensions/services/dashboard/src/lib/templates.js",
+      "dream-server/extensions/services/dashboard/src/pages/Extensions.jsx",
+      "dream-server/scripts/dream-test-functional.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1003"
+  },
+  "1004": {
+    "title": "fix(resolver): skip compose.local.yaml on Apple Silicon to avoid llama-server deadlock",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 7,
+    "deletions": 2,
+    "changedFiles": 1,
+    "createdAt": "2026-04-23T21:20:57Z",
+    "primary_sub": "compose-resolver",
+    "all_subs": [
+      "compose-resolver"
+    ],
+    "paths": [
+      "dream-server/scripts/resolve-compose-stack.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1004"
+  },
+  "1005": {
+    "title": "fix(macos): install-time polish \u2014 DIM constant, busybox pin, healthcheck rewrite",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 35,
+    "deletions": 17,
+    "changedFiles": 3,
+    "createdAt": "2026-04-23T21:21:14Z",
+    "primary_sub": "installer-macos",
+    "all_subs": [
+      "installer-macos"
+    ],
+    "paths": [
+      "dream-server/installers/macos/docker-compose.macos.yml",
+      "dream-server/installers/macos/install-macos.sh",
+      "dream-server/installers/macos/lib/constants.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1005"
+  },
+  "1006": {
+    "title": "fix(dream-cli): route log() and warn() to stderr so command captures remain clean",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 2,
+    "deletions": 2,
+    "changedFiles": 1,
+    "createdAt": "2026-04-23T21:21:25Z",
+    "primary_sub": "dream-cli",
+    "all_subs": [
+      "dream-cli"
+    ],
+    "paths": [
+      "dream-server/dream-cli"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1006"
+  },
+  "1007": {
+    "title": "fix(dream-cli): double-quote tmpdir in gpu_reassign RETURN trap",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 1,
+    "deletions": 1,
+    "changedFiles": 1,
+    "createdAt": "2026-04-23T21:21:42Z",
+    "primary_sub": "dream-cli",
+    "all_subs": [
+      "dream-cli"
+    ],
+    "paths": [
+      "dream-server/dream-cli"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1007"
+  },
+  "1008": {
+    "title": "refactor(dream-cli): guard .env grep pipelines against pipefail kill on missing keys",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 7,
+    "deletions": 7,
+    "changedFiles": 1,
+    "createdAt": "2026-04-23T21:22:03Z",
+    "primary_sub": "dream-cli",
+    "all_subs": [
+      "dream-cli"
+    ],
+    "paths": [
+      "dream-server/dream-cli"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1008"
+  },
+  "1009": {
+    "title": "fix(compose): image-gen default off on non-GPU platforms + dreamforge network convention",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 7,
+    "deletions": 7,
+    "changedFiles": 4,
+    "createdAt": "2026-04-23T21:22:54Z",
+    "primary_sub": "compose-base",
+    "all_subs": [
+      "compose-base",
+      "compose-extensions"
+    ],
+    "paths": [
+      "dream-server/docker-compose.amd.yml",
+      "dream-server/docker-compose.base.yml",
+      "dream-server/docker-compose.nvidia.yml",
+      "dream-server/extensions/services/dreamforge/compose.yaml"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1009"
+  },
+  "1010": {
+    "title": "chore(schema): mark provider API keys as secret in .env.schema.json",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 39,
+    "deletions": 5,
+    "changedFiles": 2,
+    "createdAt": "2026-04-23T22:23:02Z",
+    "primary_sub": "env-schema",
+    "all_subs": [
+      "dashboard-api",
+      "env-schema"
+    ],
+    "paths": [
+      "dream-server/.env.schema.json",
+      "dream-server/extensions/services/dashboard-api/tests/test_settings_env.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1010"
+  },
+  "1011": {
+    "title": "chore(bash32): guard declare -A callers + route dream-cli validate through $BASH",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 43,
+    "deletions": 3,
+    "changedFiles": 6,
+    "createdAt": "2026-04-23T22:23:59Z",
+    "primary_sub": "scripts-shell",
+    "all_subs": [
+      "dream-cli",
+      "installer-core",
+      "other",
+      "scripts-shell"
+    ],
+    "paths": [
+      "dream-server/dream-cli",
+      "dream-server/installers/phases/03-features.sh",
+      "dream-server/lib/progress.sh",
+      "dream-server/scripts/dream-test-functional.sh",
+      "dream-server/scripts/pre-download.sh",
+      "dream-server/scripts/validate-env.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1011"
+  },
+  "1012": {
+    "title": "refactor(windows): trim dead fields from New-DreamEnv return hash",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 3,
+    "deletions": 7,
+    "changedFiles": 4,
+    "createdAt": "2026-04-23T22:24:47Z",
+    "primary_sub": "installer-windows",
+    "all_subs": [
+      "installer-windows"
+    ],
+    "paths": [
+      "dream-server/installers/windows/install-windows.ps1",
+      "dream-server/installers/windows/lib/env-generator.ps1",
+      "dream-server/installers/windows/phases/06-directories.ps1",
+      "dream-server/installers/windows/phases/07-devtools.ps1"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1012"
+  },
+  "1013": {
+    "title": "fix(dream-agent-key): complete DREAM_AGENT_KEY lifecycle on macOS + docs",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 8,
+    "deletions": 0,
+    "changedFiles": 2,
+    "createdAt": "2026-04-23T23:03:10Z",
+    "primary_sub": "env-schema",
+    "all_subs": [
+      "env-schema",
+      "installer-macos"
+    ],
+    "paths": [
+      "dream-server/.env.example",
+      "dream-server/installers/macos/lib/env-generator.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1013"
+  },
+  "1014": {
+    "title": "fix(tests): repair extension summary assertion in doctor diagnostics test",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 2,
+    "deletions": 1,
+    "changedFiles": 1,
+    "createdAt": "2026-04-23T23:03:18Z",
+    "primary_sub": "tests",
+    "all_subs": [
+      "tests"
+    ],
+    "paths": [
+      "dream-server/tests/test-doctor-extension-diagnostics.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1014"
+  },
+  "1015": {
+    "title": "fix(dashboard): template picker defensive fixes (handleApply + vacuous-truth)",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 217,
+    "deletions": 58,
+    "changedFiles": 6,
+    "createdAt": "2026-04-23T23:40:02Z",
+    "primary_sub": "dashboard-ui",
+    "all_subs": [
+      "dashboard-api",
+      "dashboard-ui",
+      "scripts-shell"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/routers/setup.py",
+      "dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx",
+      "dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx",
+      "dream-server/extensions/services/dashboard/src/lib/templates.js",
+      "dream-server/extensions/services/dashboard/src/pages/Extensions.jsx",
+      "dream-server/scripts/dream-test-functional.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1015"
+  },
+  "1016": {
+    "title": "fix(dream-cli): Apple GPU output polish + compose wrapper SIGINT/zero-match",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 170,
+    "deletions": 33,
+    "changedFiles": 3,
+    "createdAt": "2026-04-23T23:40:26Z",
+    "primary_sub": "dream-cli",
+    "all_subs": [
+      "dream-cli",
+      "other",
+      "scripts-shell"
+    ],
+    "paths": [
+      "dream-server/dream-cli",
+      "dream-server/lib/service-registry.sh",
+      "dream-server/scripts/dream-doctor.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 24,
+      "SKIPPED": 8
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1016"
+  },
+  "1017": {
+    "title": "docs(security): Linux host-agent fallback is 127.0.0.1 post-#988",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 393,
+    "deletions": 132,
+    "changedFiles": 20,
+    "createdAt": "2026-04-23T23:40:34Z",
+    "primary_sub": "docs",
+    "all_subs": [
+      "docs",
+      "env-schema",
+      "host-agent",
+      "installer-macos",
+      "installer-windows",
+      "langfuse",
+      "scripts-shell"
+    ],
+    "paths": [
+      "README.md",
+      "dream-server/.env.example",
+      "dream-server/.env.schema.json",
+      "dream-server/QUICKSTART.md",
+      "dream-server/README.md",
+      "dream-server/SECURITY.md",
+      "dream-server/bin/dream-host-agent.py",
+      "dream-server/docs/FAQ.md",
+      "dream-server/docs/HOST-AGENT-API.md",
+      "dream-server/docs/MODE-SWITCH.md",
+      "dream-server/docs/POST-INSTALL-CHECKLIST.md",
+      "dream-server/docs/SUPPORT-MATRIX.md",
+      "dream-server/docs/WINDOWS-QUICKSTART.md",
+      "dream-server/extensions/CATALOG.md",
+      "dream-server/extensions/services/langfuse/README.md",
+      "dream-server/installers/macos/dream-macos.sh",
+      "dream-server/installers/macos/install-macos.sh",
+      "dream-server/installers/windows/dream.ps1",
+      "dream-server/installers/windows/install-windows.ps1",
+      "dream-server/scripts/bootstrap-upgrade.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 25,
+      "SKIPPED": 8
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1017"
+  },
+  "1018": {
+    "title": "test(dream-cli): BATS regression shield for 5 dream-cli / supporting behaviors",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 1319,
+    "deletions": 117,
+    "changedFiles": 16,
+    "createdAt": "2026-04-23T23:41:06Z",
+    "primary_sub": "tests",
+    "all_subs": [
+      "dashboard-api",
+      "dashboard-ui",
+      "dream-cli",
+      "env-schema",
+      "other",
+      "scripts-shell",
+      "tests"
+    ],
+    "paths": [
+      "dream-server/.env.schema.json",
+      "dream-server/dream-cli",
+      "dream-server/extensions/services/dashboard-api/routers/setup.py",
+      "dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx",
+      "dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx",
+      "dream-server/extensions/services/dashboard/src/lib/templates.js",
+      "dream-server/extensions/services/dashboard/src/pages/Extensions.jsx",
+      "dream-server/lib/service-registry.sh",
+      "dream-server/scripts/dream-test-functional.sh",
+      "dream-server/scripts/validate-env.sh",
+      "dream-server/tests/bats-tests/test-compose-summary-wrapper.bats",
+      "dream-server/tests/bats-tests/test-config-masking.bats",
+      "dream-server/tests/bats-tests/test-dream-cli-flags.bats",
+      "dream-server/tests/bats-tests/test-functional-resilience.bats",
+      "dream-server/tests/bats-tests/test-sr-resolve.bats",
+      "dream-server/tests/test-validate-env.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1018"
+  },
+  "1019": {
+    "title": "test+fix(setup): complete __DREAM_RESULT__ sentinel contract (exception path + tests)",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 689,
+    "deletions": 60,
+    "changedFiles": 9,
+    "createdAt": "2026-04-23T23:41:29Z",
+    "primary_sub": "dashboard-ui",
+    "all_subs": [
+      "dashboard-api",
+      "dashboard-ui",
+      "scripts-shell"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/routers/setup.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_setup_sentinel.py",
+      "dream-server/extensions/services/dashboard/src/components/SetupWizard.jsx",
+      "dream-server/extensions/services/dashboard/src/components/TemplatePicker.jsx",
+      "dream-server/extensions/services/dashboard/src/components/__tests__/SetupWizard.test.jsx",
+      "dream-server/extensions/services/dashboard/src/components/__tests__/TemplatePicker.a11y.test.jsx",
+      "dream-server/extensions/services/dashboard/src/lib/templates.js",
+      "dream-server/extensions/services/dashboard/src/pages/Extensions.jsx",
+      "dream-server/scripts/dream-test-functional.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 3,
+      "SUCCESS": 21,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1019"
+  },
+  "1020": {
+    "title": "test: contract + mock coverage for Apple Silicon GPU backends",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 538,
+    "deletions": 5,
+    "changedFiles": 4,
+    "createdAt": "2026-04-23T23:41:51Z",
+    "primary_sub": "tests",
+    "all_subs": [
+      "dream-cli",
+      "scripts-shell",
+      "tests"
+    ],
+    "paths": [
+      "dream-server/dream-cli",
+      "dream-server/scripts/dream-doctor.sh",
+      "dream-server/tests/contracts/test-dream-doctor.sh",
+      "dream-server/tests/test-gpu-apple.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1020"
+  },
+  "1021": {
+    "title": "fix(host-agent): start extension sidecars during install",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 38,
+    "deletions": 1,
+    "changedFiles": 2,
+    "createdAt": "2026-04-24T16:17:20Z",
+    "primary_sub": "host-agent",
+    "all_subs": [
+      "dashboard-api",
+      "host-agent"
+    ],
+    "paths": [
+      "dream-server/bin/dream-host-agent.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_host_agent.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1021"
+  },
+  "1022": {
+    "title": "fix(dashboard-api): async hygiene in routers/extensions.py",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 102,
+    "deletions": 12,
+    "changedFiles": 2,
+    "createdAt": "2026-04-24T16:17:24Z",
+    "primary_sub": "dashboard-api",
+    "all_subs": [
+      "dashboard-api"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/routers/extensions.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_extensions.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1022"
+  },
+  "1023": {
+    "title": "fix(scripts): SIGPIPE-safe first-line selection in 5 scripts",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 6,
+    "deletions": 6,
+    "changedFiles": 5,
+    "createdAt": "2026-04-24T16:17:28Z",
+    "primary_sub": "scripts-shell",
+    "all_subs": [
+      "installer-macos",
+      "scripts-shell"
+    ],
+    "paths": [
+      "dream-server/installers/macos/dream-macos.sh",
+      "dream-server/installers/macos/lib/env-generator.sh",
+      "dream-server/scripts/check-offline-models.sh",
+      "dream-server/scripts/dream-preflight.sh",
+      "dream-server/scripts/pre-download.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1023"
+  },
+  "1024": {
+    "title": "refactor(scripts): array-expand COMPOSE_FLAGS for SC2086 + glob safety",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 31,
+    "deletions": 8,
+    "changedFiles": 3,
+    "createdAt": "2026-04-24T16:18:33Z",
+    "primary_sub": "scripts-shell",
+    "all_subs": [
+      "scripts-shell"
+    ],
+    "paths": [
+      "dream-server/scripts/dream-preflight.sh",
+      "dream-server/scripts/validate-compose-stack.sh",
+      "dream-server/scripts/validate.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1024"
+  },
+  "1025": {
+    "title": "fix(dashboard-api): wire Apple Silicon into /api/gpu/detailed",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 100,
+    "deletions": 0,
+    "changedFiles": 2,
+    "createdAt": "2026-04-24T16:18:37Z",
+    "primary_sub": "dashboard-api",
+    "all_subs": [
+      "dashboard-api"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/routers/gpu.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_gpu_detailed.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1025"
+  },
+  "1026": {
+    "title": "fix(installer): pre-mark setup wizard complete on successful install",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 63,
+    "deletions": 0,
+    "changedFiles": 4,
+    "createdAt": "2026-04-24T16:18:41Z",
+    "primary_sub": "installer-macos",
+    "all_subs": [
+      "installer-core",
+      "installer-macos",
+      "installer-windows",
+      "tests"
+    ],
+    "paths": [
+      "dream-server/installers/macos/install-macos.sh",
+      "dream-server/installers/phases/13-summary.sh",
+      "dream-server/installers/windows/install-windows.ps1",
+      "dream-server/tests/contracts/test-installer-contracts.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1026"
+  },
+  "1027": {
+    "title": "fix(extensions): bind community extension ports via ${BIND_ADDRESS}",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 87,
+    "deletions": 35,
+    "changedFiles": 31,
+    "createdAt": "2026-04-24T16:21:57Z",
+    "primary_sub": "resources",
+    "all_subs": [
+      "anythingllm",
+      "continue",
+      "jupyter",
+      "librechat",
+      "localai",
+      "milvus",
+      "other",
+      "piper-audio",
+      "privacy-shield",
+      "resources",
+      "tests"
+    ],
+    "paths": [
+      "dream-server/Makefile",
+      "dream-server/tests/test-bind-address-sweep.sh",
+      "resources/dev/extensions-library/services/anythingllm/compose.yaml",
+      "resources/dev/extensions-library/services/audiocraft/compose.yaml",
+      "resources/dev/extensions-library/services/bark/compose.yaml",
+      "resources/dev/extensions-library/services/baserow/compose.yaml",
+      "resources/dev/extensions-library/services/chromadb/compose.yaml",
+      "resources/dev/extensions-library/services/continue/compose.yaml",
+      "resources/dev/extensions-library/services/crewai/compose.yaml",
+      "resources/dev/extensions-library/services/flowise/compose.yaml",
+      "resources/dev/extensions-library/services/forge/compose.yaml",
+      "resources/dev/extensions-library/services/frigate/compose.yaml",
+      "resources/dev/extensions-library/services/gitea/compose.yaml",
+      "resources/dev/extensions-library/services/immich/compose.yaml",
+      "resources/dev/extensions-library/services/invokeai/compose.yaml",
+      "resources/dev/extensions-library/services/jupyter/compose.yaml",
+      "resources/dev/extensions-library/services/label-studio/compose.yaml",
+      "resources/dev/extensions-library/services/langflow/compose.yaml",
+      "resources/dev/extensions-library/services/librechat/compose.yaml",
+      "resources/dev/extensions-library/services/localai/compose.yaml",
+      "resources/dev/extensions-library/services/milvus/compose.yaml",
+      "resources/dev/extensions-library/services/ollama/compose.yaml",
+      "resources/dev/extensions-library/services/open-interpreter/compose.yaml",
+      "resources/dev/extensions-library/services/paperless-ngx/compose.yaml",
+      "resources/dev/extensions-library/services/piper-audio/compose.yaml",
+      "resources/dev/extensions-library/services/privacy-shield/compose.yaml",
+      "resources/dev/extensions-library/services/rvc/compose.yaml",
+      "resources/dev/extensions-library/services/sillytavern/compose.yaml",
+      "resources/dev/extensions-library/services/text-generation-webui/compose.yaml",
+      "resources/dev/extensions-library/services/weaviate/compose.yaml",
+      "resources/dev/extensions-library/services/xtts/compose.yaml"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1027"
+  },
+  "1028": {
+    "title": "fix(embeddings): raise healthcheck start_period from 120s to 600s",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 1,
+    "deletions": 1,
+    "changedFiles": 1,
+    "createdAt": "2026-04-24T17:47:01Z",
+    "primary_sub": "compose-extensions",
+    "all_subs": [
+      "compose-extensions"
+    ],
+    "paths": [
+      "dream-server/extensions/services/embeddings/compose.yaml"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1028"
+  },
+  "1029": {
+    "title": "fix(resolver): dedupe override.yml; apply gpu_backends filter to user-extensions",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 46,
+    "deletions": 7,
+    "changedFiles": 2,
+    "createdAt": "2026-04-24T17:47:09Z",
+    "primary_sub": "installer-core",
+    "all_subs": [
+      "compose-resolver",
+      "installer-core"
+    ],
+    "paths": [
+      "dream-server/installers/lib/compose-select.sh",
+      "dream-server/scripts/resolve-compose-stack.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1029"
+  },
+  "1030": {
+    "title": "fix(host-agent): install flow \u2014 built-in hooks, bind-mount anchor, post-up state verify",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 187,
+    "deletions": 3,
+    "changedFiles": 2,
+    "createdAt": "2026-04-24T17:47:13Z",
+    "primary_sub": "host-agent",
+    "all_subs": [
+      "dashboard-api",
+      "host-agent"
+    ],
+    "paths": [
+      "dream-server/bin/dream-host-agent.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_host_agent.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 2,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1030"
+  },
+  "1032": {
+    "title": "fix(extensions): mirror manifest depends_on in anythingllm / localai / continue",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 51,
+    "deletions": 0,
+    "changedFiles": 6,
+    "createdAt": "2026-04-24T17:47:28Z",
+    "primary_sub": "continue",
+    "all_subs": [
+      "anythingllm",
+      "continue",
+      "localai"
+    ],
+    "paths": [
+      "resources/dev/extensions-library/services/anythingllm/compose.yaml",
+      "resources/dev/extensions-library/services/continue/compose.amd.yaml",
+      "resources/dev/extensions-library/services/continue/compose.apple.yaml",
+      "resources/dev/extensions-library/services/continue/compose.cpu.yaml",
+      "resources/dev/extensions-library/services/continue/compose.nvidia.yaml",
+      "resources/dev/extensions-library/services/localai/compose.yaml"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1032"
+  },
+  "1033": {
+    "title": "fix(extensions): align librechat MONGO_URI guard; remove :? from jupyter command",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 2,
+    "deletions": 2,
+    "changedFiles": 2,
+    "createdAt": "2026-04-24T17:47:31Z",
+    "primary_sub": "jupyter",
+    "all_subs": [
+      "jupyter",
+      "librechat"
+    ],
+    "paths": [
+      "resources/dev/extensions-library/services/jupyter/compose.yaml",
+      "resources/dev/extensions-library/services/librechat/compose.yaml"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1033"
+  },
+  "1034": {
+    "title": "fix(extensions): piper-audio healthcheck timeout gap; publish milvus health port",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 2,
+    "deletions": 1,
+    "changedFiles": 2,
+    "createdAt": "2026-04-24T17:47:35Z",
+    "primary_sub": "milvus",
+    "all_subs": [
+      "milvus",
+      "piper-audio"
+    ],
+    "paths": [
+      "resources/dev/extensions-library/services/milvus/compose.yaml",
+      "resources/dev/extensions-library/services/piper-audio/compose.yaml"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1034"
+  },
+  "1035": {
+    "title": "fix(openclaw): trigger open-webui recreate on install; simplify volume layout",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 117,
+    "deletions": 8,
+    "changedFiles": 5,
+    "createdAt": "2026-04-24T19:52:27Z",
+    "primary_sub": "openclaw",
+    "all_subs": [
+      "dashboard-api",
+      "host-agent",
+      "installer-core",
+      "openclaw"
+    ],
+    "paths": [
+      "dream-server/bin/dream-host-agent.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_host_agent.py",
+      "dream-server/extensions/services/openclaw/README.md",
+      "dream-server/extensions/services/openclaw/compose.yaml",
+      "dream-server/installers/phases/06-directories.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1035"
+  },
+  "1036": {
+    "title": "chore(extensions-library): remove community privacy-shield (dead code)",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 2,
+    "deletions": 602,
+    "changedFiles": 9,
+    "createdAt": "2026-04-24T19:52:41Z",
+    "primary_sub": "privacy-shield",
+    "all_subs": [
+      "docs",
+      "privacy-shield"
+    ],
+    "paths": [
+      "resources/dev/extensions-library/README.md",
+      "resources/dev/extensions-library/services/privacy-shield/Dockerfile",
+      "resources/dev/extensions-library/services/privacy-shield/PII_COVERAGE.md",
+      "resources/dev/extensions-library/services/privacy-shield/README.md",
+      "resources/dev/extensions-library/services/privacy-shield/compose.yaml",
+      "resources/dev/extensions-library/services/privacy-shield/manifest.yaml",
+      "resources/dev/extensions-library/services/privacy-shield/pii_scrubber.py",
+      "resources/dev/extensions-library/services/privacy-shield/proxy.py",
+      "resources/dev/extensions-library/services/privacy-shield/requirements.txt"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 2,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1036"
+  },
+  "1037": {
+    "title": "fix(dashboard): expandable error text + poll recovery on extensions page",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 191,
+    "deletions": 15,
+    "changedFiles": 3,
+    "createdAt": "2026-04-24T19:54:07Z",
+    "primary_sub": "dashboard-api",
+    "all_subs": [
+      "dashboard-api",
+      "dashboard-ui"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/routers/extensions.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_extensions.py",
+      "dream-server/extensions/services/dashboard/src/pages/Extensions.jsx"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1037"
+  },
+  "1038": {
+    "title": "fix(dashboard-api): honor pre_start return, surface post_start failure",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 240,
+    "deletions": 8,
+    "changedFiles": 3,
+    "createdAt": "2026-04-24T19:54:21Z",
+    "primary_sub": "dashboard-api",
+    "all_subs": [
+      "dashboard-api",
+      "dashboard-ui"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/routers/extensions.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_extensions.py",
+      "dream-server/extensions/services/dashboard/src/pages/Extensions.jsx"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 25,
+      "SKIPPED": 8
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1038"
+  },
+  "1039": {
+    "title": "fix(host-agent): retry install failure through the hook + progress path",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 528,
+    "deletions": 5,
+    "changedFiles": 3,
+    "createdAt": "2026-04-24T19:54:42Z",
+    "primary_sub": "dashboard-api",
+    "all_subs": [
+      "dashboard-api",
+      "host-agent"
+    ],
+    "paths": [
+      "dream-server/bin/dream-host-agent.py",
+      "dream-server/extensions/services/dashboard-api/routers/extensions.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_host_agent.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1039"
+  },
+  "1040": {
+    "title": "fix(langfuse): chown postgres/clickhouse data dirs to image uids on Linux",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 473,
+    "deletions": 3,
+    "changedFiles": 5,
+    "createdAt": "2026-04-24T19:55:02Z",
+    "primary_sub": "langfuse",
+    "all_subs": [
+      "dashboard-api",
+      "host-agent",
+      "langfuse"
+    ],
+    "paths": [
+      "dream-server/bin/dream-host-agent.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_host_agent.py",
+      "dream-server/extensions/services/langfuse/hooks/post_install.sh",
+      "dream-server/extensions/services/langfuse/manifest.yaml",
+      "dream-server/tests/reproducers/langfuse-uid-check.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1040"
+  },
+  "1042": {
+    "title": "feat(support): add redacted diagnostics bundle generator",
+    "author": "boffin-dmytro",
+    "isDraft": false,
+    "additions": 796,
+    "deletions": 0,
+    "changedFiles": 3,
+    "createdAt": "2026-04-25T00:47:50Z",
+    "primary_sub": "docs",
+    "all_subs": [
+      "docs",
+      "scripts-shell",
+      "tests"
+    ],
+    "paths": [
+      "dream-server/docs/SUPPORT-BUNDLE.md",
+      "dream-server/scripts/dream-support-bundle.sh",
+      "dream-server/tests/test-support-bundle.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1042"
+  },
+  "1043": {
+    "title": "fix(installer): custom menu's 'n' answers were not actually disabling services",
+    "author": "y-coffee-dev",
+    "isDraft": false,
+    "additions": 47,
+    "deletions": 47,
+    "changedFiles": 2,
+    "createdAt": "2026-04-25T03:46:55Z",
+    "primary_sub": "installer-core",
+    "all_subs": [
+      "installer-core"
+    ],
+    "paths": [
+      "dream-server/install-core.sh",
+      "dream-server/installers/phases/03-features.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1043"
+  },
+  "1044": {
+    "title": "fix(dashboard-api): accept ${VAR:-127.0.0.1} in compose port-binding scan",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 356,
+    "deletions": 18,
+    "changedFiles": 2,
+    "createdAt": "2026-04-25T16:34:07Z",
+    "primary_sub": "dashboard-api",
+    "all_subs": [
+      "dashboard-api"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/routers/extensions.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_extensions.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1044"
+  },
+  "1045": {
+    "title": "fix(dashboard-api,host-agent): route extension config sync through host agent",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 569,
+    "deletions": 55,
+    "changedFiles": 4,
+    "createdAt": "2026-04-25T16:34:47Z",
+    "primary_sub": "dashboard-api",
+    "all_subs": [
+      "dashboard-api",
+      "host-agent"
+    ],
+    "paths": [
+      "dream-server/bin/dream-host-agent.py",
+      "dream-server/extensions/services/dashboard-api/routers/extensions.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_extensions.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_host_agent.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1045"
+  },
+  "1046": {
+    "title": "fix(perplexica): bind Next.js 16 to 0.0.0.0 inside container",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 1,
+    "deletions": 0,
+    "changedFiles": 1,
+    "createdAt": "2026-04-26T17:24:33Z",
+    "primary_sub": "perplexica",
+    "all_subs": [
+      "perplexica"
+    ],
+    "paths": [
+      "dream-server/extensions/services/perplexica/compose.yaml"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1046"
+  },
+  "1047": {
+    "title": "fix(langfuse): use 127.0.0.1 in healthcheck URLs",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 4,
+    "deletions": 4,
+    "changedFiles": 1,
+    "createdAt": "2026-04-26T17:24:40Z",
+    "primary_sub": "langfuse",
+    "all_subs": [
+      "langfuse"
+    ],
+    "paths": [
+      "dream-server/extensions/services/langfuse/compose.yaml.disabled"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1047"
+  },
+  "1048": {
+    "title": "fix(macos): replace backticks with single quotes in env-generator comment",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 1,
+    "deletions": 1,
+    "changedFiles": 1,
+    "createdAt": "2026-04-26T17:24:43Z",
+    "primary_sub": "installer-macos",
+    "all_subs": [
+      "installer-macos"
+    ],
+    "paths": [
+      "dream-server/installers/macos/lib/env-generator.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1048"
+  },
+  "1049": {
+    "title": "fix(jupyter): convert command to exec-form list to avoid shell splitting",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 9,
+    "deletions": 1,
+    "changedFiles": 1,
+    "createdAt": "2026-04-26T17:24:46Z",
+    "primary_sub": "jupyter",
+    "all_subs": [
+      "jupyter"
+    ],
+    "paths": [
+      "resources/dev/extensions-library/services/jupyter/compose.yaml"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1049"
+  },
+  "1050": {
+    "title": "fix(installer): block non-POSIX INSTALL_DIR + verify Docker Desktop sharing",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 351,
+    "deletions": 1,
+    "changedFiles": 5,
+    "createdAt": "2026-04-26T17:24:49Z",
+    "primary_sub": "installer-macos",
+    "all_subs": [
+      "host-agent",
+      "installer-core",
+      "installer-macos",
+      "installer-windows"
+    ],
+    "paths": [
+      "dream-server/bin/dream-host-agent.py",
+      "dream-server/installers/macos/install-macos.sh",
+      "dream-server/installers/macos/lib/preflight-fs.sh",
+      "dream-server/installers/phases/01-preflight.sh",
+      "dream-server/installers/windows/phases/01-preflight.ps1"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1050"
+  },
+  "1051": {
+    "title": "fix(resolver): hoist yaml import, guard empty manifests, align user-ext loop",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 76,
+    "deletions": 10,
+    "changedFiles": 1,
+    "createdAt": "2026-04-26T17:24:51Z",
+    "primary_sub": "compose-resolver",
+    "all_subs": [
+      "compose-resolver"
+    ],
+    "paths": [
+      "dream-server/scripts/resolve-compose-stack.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1051"
+  },
+  "1052": {
+    "title": "test(langfuse): structural guard for setup_hook + hook file coexistence",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 34,
+    "deletions": 0,
+    "changedFiles": 1,
+    "createdAt": "2026-04-26T17:24:53Z",
+    "primary_sub": "dashboard-api",
+    "all_subs": [
+      "dashboard-api"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/tests/test_hooks.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 2,
+      "SUCCESS": 21,
+      "CANCELLED": 2,
+      "SKIPPED": 3
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1052"
+  },
+  "1053": {
+    "title": "ci(openclaw): filesystem-write gate to detect new openclaw write paths",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 131,
+    "deletions": 0,
+    "changedFiles": 1,
+    "createdAt": "2026-04-26T17:24:55Z",
+    "primary_sub": "ci",
+    "all_subs": [
+      "ci"
+    ],
+    "paths": [
+      ".github/workflows/openclaw-image-diff.yml"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "CANCELLED": 2,
+      "SUCCESS": 22,
+      "SKIPPED": 3
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1053"
+  },
+  "1054": {
+    "title": "fix(dashboard-api): require deployable compose.yaml to mark extension installable",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 4,
+    "deletions": 1,
+    "changedFiles": 1,
+    "createdAt": "2026-04-26T18:35:29Z",
+    "primary_sub": "dashboard-api",
+    "all_subs": [
+      "dashboard-api"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/routers/extensions.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1054"
+  },
+  "1055": {
+    "title": "docs(dashboard-api): add development workflow guide for the bake-vs-bind-mount trap",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 159,
+    "deletions": 0,
+    "changedFiles": 2,
+    "createdAt": "2026-04-26T18:36:04Z",
+    "primary_sub": "docs",
+    "all_subs": [
+      "docs"
+    ],
+    "paths": [
+      "dream-server/CONTRIBUTING.md",
+      "dream-server/docs/DASHBOARD-API-DEVELOPMENT.md"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1055"
+  },
+  "1056": {
+    "title": "fix(dashboard-api): catalog timeout, orphaned whitelist, GPU passthrough scan, health_port",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 138,
+    "deletions": 12,
+    "changedFiles": 4,
+    "createdAt": "2026-04-26T18:36:55Z",
+    "primary_sub": "dashboard-api",
+    "all_subs": [
+      "dashboard-api"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/helpers.py",
+      "dream-server/extensions/services/dashboard-api/routers/extensions.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_extensions.py",
+      "dream-server/extensions/services/dashboard-api/user_extensions.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1056"
+  },
+  "1057": {
+    "title": "fix(host-agent): runtime hygiene \u2014 narrow pull, surface failures, normalize bind volumes",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 73,
+    "deletions": 13,
+    "changedFiles": 1,
+    "createdAt": "2026-04-26T18:37:52Z",
+    "primary_sub": "host-agent",
+    "all_subs": [
+      "host-agent"
+    ],
+    "paths": [
+      "dream-server/bin/dream-host-agent.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/1057"
+  },
+  "351": {
+    "title": "test: add comprehensive input validation and injection resistance tests",
+    "author": "reo0603",
+    "isDraft": false,
+    "additions": 370,
+    "deletions": 2,
+    "changedFiles": 5,
+    "createdAt": "2026-03-17T18:20:26Z",
+    "primary_sub": "dashboard-api",
+    "all_subs": [
+      "dashboard-api"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/models.py",
+      "dream-server/extensions/services/dashboard-api/routers/workflows.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_routers.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_security_validation.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_workflows.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 4,
+      "SUCCESS": 12
+    },
+    "mergeable": "CONFLICTING",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/351"
+  },
+  "364": {
+    "title": "feat(dashboard-api): add settings, voice runtime, and diagnostics APIs",
+    "author": "championVisionAI",
+    "isDraft": false,
+    "additions": 471,
+    "deletions": 149,
+    "changedFiles": 4,
+    "createdAt": "2026-03-18T01:45:55Z",
+    "primary_sub": "dashboard-api",
+    "all_subs": [
+      "dashboard-api"
+    ],
+    "paths": [
+      "dream-server/extensions/services/dashboard-api/README.md",
+      "dream-server/extensions/services/dashboard-api/main.py",
+      "dream-server/extensions/services/dashboard-api/routers/runtime.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_routers.py"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 4,
+      "SUCCESS": 12
+    },
+    "mergeable": "CONFLICTING",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/364"
+  },
+  "716": {
+    "title": "fix(extensions-library): add sensible defaults for required env vars",
+    "author": "Arifuzzamanjoy",
+    "isDraft": false,
+    "additions": 27,
+    "deletions": 4,
+    "changedFiles": 3,
+    "createdAt": "2026-04-01T18:30:37Z",
+    "primary_sub": "resources",
+    "all_subs": [
+      "resources"
+    ],
+    "paths": [
+      "resources/dev/extensions-library/services/frigate/compose.yaml",
+      "resources/dev/extensions-library/services/open-interpreter/compose.yaml",
+      "resources/dev/extensions-library/validate-compose.sh"
+    ],
+    "review_decision": "CHANGES_REQUESTED",
+    "ci": {
+      "SUCCESS": 19,
+      "FAILURE": 1,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/716"
+  },
+  "750": {
+    "title": "feat: AMD Multi-GPU Support",
+    "author": "y-coffee-dev",
+    "isDraft": false,
+    "additions": 3092,
+    "deletions": 145,
+    "changedFiles": 33,
+    "createdAt": "2026-04-03T01:30:38Z",
+    "primary_sub": "tests",
+    "all_subs": [
+      "ci",
+      "comfyui",
+      "compose-extensions",
+      "compose-resolver",
+      "config-other",
+      "dashboard-api",
+      "dream-cli",
+      "env-schema",
+      "installer-core",
+      "other",
+      "scripts-shell",
+      "tests",
+      "whisper-stt"
+    ],
+    "paths": [
+      ".github/workflows/validate-compose.yml",
+      "dream-server/.env.example",
+      "dream-server/.env.schema.json",
+      "dream-server/config/gpu-database.json",
+      "dream-server/docker-compose.multigpu-amd.yml",
+      "dream-server/docker-compose.multigpu-nvidia.yml",
+      "dream-server/dream-cli",
+      "dream-server/extensions/services/comfyui/compose.multigpu-amd.yaml",
+      "dream-server/extensions/services/comfyui/compose.multigpu-nvidia.yaml",
+      "dream-server/extensions/services/dashboard-api/gpu.py",
+      "dream-server/extensions/services/dashboard-api/tests/test_gpu_amd.py",
+      "dream-server/extensions/services/embeddings/compose.multigpu-amd.yaml",
+      "dream-server/extensions/services/embeddings/compose.multigpu-nvidia.yaml",
+      "dream-server/extensions/services/whisper/compose.multigpu-amd.yaml",
+      "dream-server/extensions/services/whisper/compose.multigpu-nvidia.yaml",
+      "dream-server/installers/lib/amd-topo.sh",
+      "dream-server/installers/lib/detection.sh",
+      "dream-server/installers/phases/02-detection.sh",
+      "dream-server/installers/phases/03-features.sh",
+      "dream-server/installers/phases/06-directories.sh",
+      "dream-server/installers/phases/10-amd-tuning.sh",
+      "dream-server/scripts/assign_gpus.py",
+      "dream-server/scripts/classify-hardware.sh",
+      "dream-server/scripts/resolve-compose-stack.sh",
+      "dream-server/tests/bats-tests/amd-topo.bats",
+      "dream-server/tests/bats-tests/docker-phase.bats",
+      "dream-server/tests/contracts/test-installer-contracts.sh",
+      "dream-server/tests/fixtures/amd/amd_smi_topology_2gpu_pcie.json",
+      "dream-server/tests/fixtures/amd/amd_smi_topology_4gpu_xgmi.json",
+      "dream-server/tests/fixtures/amd/rocm_smi_productname_4gpu_mi300x.txt",
+      "dream-server/tests/fixtures/amd/rocm_smi_showtopo_2gpu_pcie.txt",
+      "dream-server/tests/fixtures/amd/rocm_smi_showtopo_4gpu_xgmi.txt",
+      "dream-server/tests/test-amd-topo.sh"
+    ],
+    "review_decision": "CHANGES_REQUESTED",
+    "ci": {
+      "SUCCESS": 25,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/750"
+  },
+  "959": {
+    "title": "fix: address audit findings \u2014 Windows docs, Token Spy auth, and incubator disclaimers",
+    "author": "boffin-dmytro",
+    "isDraft": false,
+    "additions": 23,
+    "deletions": 9,
+    "changedFiles": 3,
+    "createdAt": "2026-04-14T15:33:45Z",
+    "primary_sub": "token-spy",
+    "all_subs": [
+      "token-spy"
+    ],
+    "paths": [
+      "resources/products/token-spy/PHASE1-ARCHITECTURE.md",
+      "resources/products/token-spy/PRODUCT-SCOPE.md",
+      "resources/products/token-spy/README.md"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/959"
+  },
+  "961": {
+    "title": "feat: add mobile paths for Android Termux and iOS a-Shell",
+    "author": "gabsprogrammer",
+    "isDraft": false,
+    "additions": 6891,
+    "deletions": 26,
+    "changedFiles": 30,
+    "createdAt": "2026-04-15T00:33:41Z",
+    "primary_sub": "other",
+    "all_subs": [
+      "docs",
+      "installer-core",
+      "other",
+      "tests"
+    ],
+    "paths": [
+      "README.md",
+      "dream-mobile.sh",
+      "dream-server/.gitignore",
+      "dream-server/README.md",
+      "dream-server/docs/IOS-ASHELL-SHORTCUTS.md",
+      "dream-server/docs/IOS-ASHELL-WASM-RUNTIME.md",
+      "dream-server/docs/MOBILE-SHELL-QUICKSTART.md",
+      "dream-server/docs/PLATFORM-TRUTH-TABLE.md",
+      "dream-server/docs/SUPPORT-MATRIX.md",
+      "dream-server/dream-mobile.sh",
+      "dream-server/install.sh",
+      "dream-server/installers/common.sh",
+      "dream-server/installers/dispatch.sh",
+      "dream-server/installers/mobile/android-local-server.py",
+      "dream-server/installers/mobile/android-local-ui/app.css",
+      "dream-server/installers/mobile/android-local-ui/app.js",
+      "dream-server/installers/mobile/android-local-ui/index.html",
+      "dream-server/installers/mobile/build-ios-ashell-wasm-runtime.sh",
+      "dream-server/installers/mobile/build-ios-ashell-wasm-sdk.sh",
+      "dream-server/installers/mobile/install-mobile.sh",
+      "dream-server/installers/mobile/ios-ashell-cli.sh",
+      "dream-server/installers/mobile/ios-ashell-install.sh",
+      "dream-server/installers/mobile/ios-wasm-runner/CMakeLists.txt",
+      "dream-server/installers/mobile/ios-wasm-runner/__cpp_exception.S",
+      "dream-server/installers/mobile/ios-wasm-runner/dlfcn_stubs.cpp",
+      "dream-server/installers/mobile/ios-wasm-runner/main.cpp",
+      "dream-server/mobile-runtime/ios-ashell/bin/llama-cli.wasm",
+      "dream-server/tests/bats-tests/dispatch.bats",
+      "dream-server/tests/smoke/mobile-dispatch.sh",
+      "install.sh"
+    ],
+    "review_decision": "CHANGES_REQUESTED",
+    "ci": {
+      "SUCCESS": 24,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/961"
+  },
+  "966": {
+    "title": "docs(platform): sync Windows and macOS support docs",
+    "author": "boffin-dmytro",
+    "isDraft": false,
+    "additions": 44,
+    "deletions": 30,
+    "changedFiles": 1,
+    "createdAt": "2026-04-15T17:13:53Z",
+    "primary_sub": "docs",
+    "all_subs": [
+      "docs"
+    ],
+    "paths": [
+      "dream-server/docs/WINDOWS-INSTALL-WALKTHROUGH.md"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/966"
+  },
+  "973": {
+    "title": "docs: sync documentation with codebase after 50+ merged PRs",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 376,
+    "deletions": 115,
+    "changedFiles": 13,
+    "createdAt": "2026-04-16T15:36:33Z",
+    "primary_sub": "docs",
+    "all_subs": [
+      "docs",
+      "env-schema",
+      "langfuse"
+    ],
+    "paths": [
+      "README.md",
+      "dream-server/.env.example",
+      "dream-server/QUICKSTART.md",
+      "dream-server/README.md",
+      "dream-server/SECURITY.md",
+      "dream-server/docs/FAQ.md",
+      "dream-server/docs/HOST-AGENT-API.md",
+      "dream-server/docs/MODE-SWITCH.md",
+      "dream-server/docs/POST-INSTALL-CHECKLIST.md",
+      "dream-server/docs/SUPPORT-MATRIX.md",
+      "dream-server/docs/WINDOWS-QUICKSTART.md",
+      "dream-server/extensions/CATALOG.md",
+      "dream-server/extensions/services/langfuse/README.md"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/973"
+  },
+  "974": {
+    "title": "fix(bootstrap): use $DOCKER_CMD for DreamForge restart",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 3,
+    "deletions": 3,
+    "changedFiles": 1,
+    "createdAt": "2026-04-17T12:14:28Z",
+    "primary_sub": "scripts-shell",
+    "all_subs": [
+      "scripts-shell"
+    ],
+    "paths": [
+      "dream-server/scripts/bootstrap-upgrade.sh"
+    ],
+    "review_decision": "CHANGES_REQUESTED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/974"
+  },
+  "983": {
+    "title": "feat(resources): add p2p-gpu deploy toolkit for Vast.ai GPU instances",
+    "author": "Arifuzzamanjoy",
+    "isDraft": false,
+    "additions": 5054,
+    "deletions": 165,
+    "changedFiles": 33,
+    "createdAt": "2026-04-18T12:58:34Z",
+    "primary_sub": "resources",
+    "all_subs": [
+      "ci",
+      "docs",
+      "other",
+      "resources"
+    ],
+    "paths": [
+      ".github/workflows/p2p-gpu.yml",
+      ".gitignore",
+      "resources/README.md",
+      "resources/p2p-gpu/README.md",
+      "resources/p2p-gpu/config/service-hints.yaml",
+      "resources/p2p-gpu/lib/compatibility.sh",
+      "resources/p2p-gpu/lib/constants.sh",
+      "resources/p2p-gpu/lib/environment.sh",
+      "resources/p2p-gpu/lib/gpu-topology.sh",
+      "resources/p2p-gpu/lib/logging.sh",
+      "resources/p2p-gpu/lib/models.sh",
+      "resources/p2p-gpu/lib/networking.sh",
+      "resources/p2p-gpu/lib/permissions.sh",
+      "resources/p2p-gpu/lib/services.sh",
+      "resources/p2p-gpu/phases/00-preflight.sh",
+      "resources/p2p-gpu/phases/01-dependencies.sh",
+      "resources/p2p-gpu/phases/02-user-setup.sh",
+      "resources/p2p-gpu/phases/03-repository.sh",
+      "resources/p2p-gpu/phases/04-installer.sh",
+      "resources/p2p-gpu/phases/05-post-install.sh",
+      "resources/p2p-gpu/phases/06-bootstrap-model.sh",
+      "resources/p2p-gpu/phases/07-model-optimize.sh",
+      "resources/p2p-gpu/phases/08-vastai-quirks.sh",
+      "resources/p2p-gpu/phases/09-services.sh",
+      "resources/p2p-gpu/phases/10-voice-stack.sh",
+      "resources/p2p-gpu/phases/11-access-layer.sh",
+      "resources/p2p-gpu/phases/12-summary.sh",
+      "resources/p2p-gpu/setup.sh",
+      "resources/p2p-gpu/subcommands/fix.sh",
+      "resources/p2p-gpu/subcommands/info.sh",
+      "resources/p2p-gpu/subcommands/resume.sh",
+      "resources/p2p-gpu/subcommands/status.sh",
+      "resources/p2p-gpu/subcommands/teardown.sh"
+    ],
+    "review_decision": "CHANGES_REQUESTED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/983"
+  },
+  "988": {
+    "title": "fix(security): bind llama-server and host agent to loopback",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 47,
+    "deletions": 17,
+    "changedFiles": 8,
+    "createdAt": "2026-04-22T10:53:49Z",
+    "primary_sub": "env-schema",
+    "all_subs": [
+      "env-schema",
+      "host-agent",
+      "installer-macos",
+      "installer-windows",
+      "scripts-shell"
+    ],
+    "paths": [
+      "dream-server/.env.example",
+      "dream-server/.env.schema.json",
+      "dream-server/bin/dream-host-agent.py",
+      "dream-server/installers/macos/dream-macos.sh",
+      "dream-server/installers/macos/install-macos.sh",
+      "dream-server/installers/windows/dream.ps1",
+      "dream-server/installers/windows/install-windows.ps1",
+      "dream-server/scripts/bootstrap-upgrade.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 23,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/988"
+  },
+  "990": {
+    "title": "chore(deps): bump actions/github-script from 8.0.0 to 9.0.0",
+    "author": "app/dependabot",
+    "isDraft": false,
+    "additions": 5,
+    "deletions": 5,
+    "changedFiles": 2,
+    "createdAt": "2026-04-23T08:37:29Z",
+    "primary_sub": "ci",
+    "all_subs": [
+      "ci"
+    ],
+    "paths": [
+      ".github/workflows/autonomous-code-scanner.yml",
+      ".github/workflows/claude-review.yml"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SKIPPED": 7,
+      "SUCCESS": 22,
+      "CANCELLED": 3
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/990"
+  },
+  "991": {
+    "title": "chore(deps): bump anthropics/claude-code-action from 1.0.97 to 1.0.104",
+    "author": "app/dependabot",
+    "isDraft": false,
+    "additions": 4,
+    "deletions": 4,
+    "changedFiles": 3,
+    "createdAt": "2026-04-23T08:37:36Z",
+    "primary_sub": "ci",
+    "all_subs": [
+      "ci"
+    ],
+    "paths": [
+      ".github/workflows/ai-issue-triage.yml",
+      ".github/workflows/claude-review.yml",
+      ".github/workflows/release-notes.yml"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SKIPPED": 12,
+      "SUCCESS": 20
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/991"
+  },
+  "992": {
+    "title": "fix(ci): add OPENCLAW_TOKEN placeholder to .env.example",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 3,
+    "deletions": 0,
+    "changedFiles": 1,
+    "createdAt": "2026-04-23T19:50:02Z",
+    "primary_sub": "env-schema",
+    "all_subs": [
+      "env-schema"
+    ],
+    "paths": [
+      "dream-server/.env.example"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/992"
+  },
+  "993": {
+    "title": "fix(dream-cli): color-escape + table-separator + NO_COLOR spec",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 56,
+    "deletions": 16,
+    "changedFiles": 1,
+    "createdAt": "2026-04-23T19:50:20Z",
+    "primary_sub": "dream-cli",
+    "all_subs": [
+      "dream-cli"
+    ],
+    "paths": [
+      "dream-server/dream-cli"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/993"
+  },
+  "994": {
+    "title": "fix(dream-cli): schema-driven secret masking + macOS Bash 4 validation",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 89,
+    "deletions": 15,
+    "changedFiles": 4,
+    "createdAt": "2026-04-23T19:50:24Z",
+    "primary_sub": "env-schema",
+    "all_subs": [
+      "dream-cli",
+      "env-schema",
+      "scripts-shell",
+      "tests"
+    ],
+    "paths": [
+      "dream-server/.env.schema.json",
+      "dream-server/dream-cli",
+      "dream-server/scripts/validate-env.sh",
+      "dream-server/tests/test-validate-env.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/994"
+  },
+  "996": {
+    "title": "fix(windows): generate DREAM_AGENT_KEY in installer env-generator.ps1",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 7,
+    "deletions": 5,
+    "changedFiles": 4,
+    "createdAt": "2026-04-23T19:50:32Z",
+    "primary_sub": "installer-windows",
+    "all_subs": [
+      "installer-windows"
+    ],
+    "paths": [
+      "dream-server/installers/windows/install-windows.ps1",
+      "dream-server/installers/windows/lib/env-generator.ps1",
+      "dream-server/installers/windows/phases/06-directories.ps1",
+      "dream-server/installers/windows/phases/07-devtools.ps1"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/996"
+  },
+  "997": {
+    "title": "fix(dream-cli): pre-validate 'dream shell' service + Docker daemon preflight",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 46,
+    "deletions": 2,
+    "changedFiles": 1,
+    "createdAt": "2026-04-23T19:50:35Z",
+    "primary_sub": "dream-cli",
+    "all_subs": [
+      "dream-cli"
+    ],
+    "paths": [
+      "dream-server/dream-cli"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/997"
+  },
+  "998": {
+    "title": "fix(dream-cli): pipefail + surface LLM failures + exit-code contract",
+    "author": "yasinBursali",
+    "isDraft": true,
+    "additions": 44,
+    "deletions": 15,
+    "changedFiles": 1,
+    "createdAt": "2026-04-23T19:50:39Z",
+    "primary_sub": "dream-cli",
+    "all_subs": [
+      "dream-cli"
+    ],
+    "paths": [
+      "dream-server/dream-cli"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/998"
+  },
+  "999": {
+    "title": "feat(dream-cli): Apple Silicon coverage for gpu subcommands and doctor",
+    "author": "yasinBursali",
+    "isDraft": false,
+    "additions": 79,
+    "deletions": 5,
+    "changedFiles": 2,
+    "createdAt": "2026-04-23T19:50:43Z",
+    "primary_sub": "dream-cli",
+    "all_subs": [
+      "dream-cli",
+      "scripts-shell"
+    ],
+    "paths": [
+      "dream-server/dream-cli",
+      "dream-server/scripts/dream-doctor.sh"
+    ],
+    "review_decision": "REVIEW_REQUIRED",
+    "ci": {
+      "FAILURE": 1,
+      "SUCCESS": 22,
+      "SKIPPED": 4
+    },
+    "mergeable": "MERGEABLE",
+    "url": "https://github.com/Light-Heart-Labs/DreamServer/pull/999"
+  }
+}

@@ -1,0 +1,20 @@
+diff --git a/dream-server/scripts/resolve-compose-stack.sh b/dream-server/scripts/resolve-compose-stack.sh
+index b29c873a..d4333afc 100755
+--- a/dream-server/scripts/resolve-compose-stack.sh
++++ b/dream-server/scripts/resolve-compose-stack.sh
+@@ -190,8 +190,13 @@ if ext_dir.exists():
+             if gpu_overlay.exists():
+                 resolved.append(str(gpu_overlay.relative_to(script_dir)))
+             
+-            # Mode-specific overlay — depends_on for local/hybrid mode only
+-            if dream_mode in ("local", "hybrid", "lemonade"):
++            # Mode-specific overlay — depends_on for local/hybrid mode only.
++            # Skip on Apple Silicon: macOS runs llama-server natively on the host
++            # (Docker service has replicas: 0), so `depends_on: llama-server:
++            # service_healthy` inside compose.local.yaml overlays can never be
++            # satisfied and deadlocks the stack. The real LLM-ready gate on macOS
++            # is the `llama-server-ready` sidecar defined in the macOS overlay.
++            if dream_mode in ("local", "hybrid", "lemonade") and gpu_backend != "apple":
+                 local_mode_overlay = service_dir / "compose.local.yaml"
+                 if local_mode_overlay.exists():
+                     resolved.append(str(local_mode_overlay.relative_to(script_dir)))

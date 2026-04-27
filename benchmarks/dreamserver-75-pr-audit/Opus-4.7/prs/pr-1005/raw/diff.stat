@@ -1,0 +1,4 @@
+ .../installers/macos/docker-compose.macos.yml      |  4 +-
+ dream-server/installers/macos/install-macos.sh     | 47 +++++++++++++++-------
+ dream-server/installers/macos/lib/constants.sh     |  1 +
+ 3 files changed, 35 insertions(+), 17 deletions(-)

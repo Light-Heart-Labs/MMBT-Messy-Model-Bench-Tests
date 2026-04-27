@@ -1,0 +1,122 @@
+diff --git a/dream-server/dream-cli b/dream-server/dream-cli
+index 6e160f64..a12a52fa 100755
+--- a/dream-server/dream-cli
++++ b/dream-server/dream-cli
+@@ -31,13 +31,29 @@ if [[ -f "$INSTALL_DIR/.env" ]]; then
+     [[ -n "${_v:-}" ]] && VERSION="$_v"
+ fi
+ 
+-# Colors
+-RED='\033[0;31m'
+-GREEN='\033[0;32m'
+-YELLOW='\033[1;33m'
+-BLUE='\033[0;34m'
+-CYAN='\033[0;36m'
+-NC='\033[0m'
++# Colors — use ANSI-C quoting ($'\033') so the variables hold real ESC bytes
++# at assignment time. Single-quoted strings store the backslash literally,
++# which breaks unquoted heredocs (cmd_help) that never re-interpret escapes.
++# Guard on TTY + NO_COLOR so redirected / piped output stays clean.
++# Per no-color.org, NO_COLOR disables colors when it is present (set to any
++# value, including empty), so we check set-ness with ${NO_COLOR+x} — which
++# expands to "x" whenever NO_COLOR is set and to "" only when truly unset —
++# rather than ${NO_COLOR:-} which would treat NO_COLOR="" as unset.
++if [[ -t 1 ]] && [[ -z "${NO_COLOR+x}" ]]; then
++    RED=$'\033[0;31m'
++    GREEN=$'\033[0;32m'
++    YELLOW=$'\033[1;33m'
++    BLUE=$'\033[0;34m'
++    CYAN=$'\033[0;36m'
++    NC=$'\033[0m'
++else
++    RED=''
++    GREEN=''
++    YELLOW=''
++    BLUE=''
++    CYAN=''
++    NC=''
++fi
+ 
+ #=============================================================================
+ # Helpers
+@@ -49,6 +65,14 @@ error() { echo -e "${RED}✗${NC} $1"; exit 1; }
+ log_warn() { echo -e "${YELLOW}⚠${NC} $1"; }
+ log_error() { echo -e "${RED}✗${NC} $1" >&2; }
+ 
++# Print a separator of repeated characters filling the given width.
++# Usage: hr <width> [<char=─>]
++hr() {
++    local w="${1:-10}" c="${2:-─}" out=''
++    printf -v out '%*s' "$w" ''
++    printf '%s' "${out// /$c}"
++}
++
+ # Update or add a key=value in .env
+ _env_set() {
+     local key="$1" val="$2" file="$INSTALL_DIR/.env"
+@@ -1652,7 +1676,7 @@ cmd_list() {
+     active_flags=$(get_compose_flags)
+     echo -e "${BLUE}━━━ Available Services ━━━${NC}"
+     printf "%-20s %-12s %-10s\n" "SERVICE" "CATEGORY" "STATUS"
+-    printf "%-20s %-12s %-10s\n" "───────" "────────" "──────"
++    printf "%-20s %-12s %-10s\n" "$(hr 20)" "$(hr 12)" "$(hr 10)"
+     for sid in "${SERVICE_IDS[@]}"; do
+         local cat="${SERVICE_CATEGORIES[$sid]}"
+         local cf="${SERVICE_COMPOSE[$sid]}"
+@@ -1821,7 +1845,7 @@ META
+             fi
+ 
+             printf "  %-20s %-22s %-10s\n" "NAME" "CREATED" "BACKEND"
+-            printf "  %-20s %-22s %-10s\n" "────" "───────" "───────"
++            printf "  %-20s %-22s %-10s\n" "$(hr 20)" "$(hr 22)" "$(hr 10)"
+             for dir in "$PRESETS_DIR"/*/; do
+                 [[ -d "$dir" ]] || continue
+                 local pname
+@@ -3088,9 +3112,10 @@ _template_list() {
+         return 0
+     fi
+ 
+-    local found=0
+-    printf "${CYAN}%-20s %-30s %-6s %s${NC}\n" "ID" "NAME" "TIER" "SERVICES"
+-    printf "%-20s %-30s %-6s %s\n" "----" "----" "----" "--------"
++    # First pass: collect template rows and compute max ID width so the
++    # column fits IDs like "personal-knowledge-base" (23) without overflow.
++    local -a rows=()
++    local max_id_len=2  # at minimum, wide enough for the "ID" header
+ 
+     for f in "$templates_dir"/*.yaml "$templates_dir"/*.yml; do
+         [[ -f "$f" ]] || continue
+@@ -3111,14 +3136,29 @@ if tid:
+ PYEOF
+         ) || continue
+         [[ -z "$info" ]] && continue
+-        IFS=$'\t' read -r tid tname ttier tsvcs <<< "$info"
+-        printf "%-20s %-30s %-6s %s\n" "$tid" "$tname" "$ttier" "$tsvcs"
+-        found=1
++        rows+=("$info")
++        local this_id="${info%%$'\t'*}"
++        (( ${#this_id} > max_id_len )) && max_id_len=${#this_id}
+     done
+ 
+-    if [[ "$found" -eq 0 ]]; then
++    if [[ ${#rows[@]} -eq 0 ]]; then
+         log "No templates found."
++        return 0
+     fi
++
++    # Second pass: emit header, full-width separator, and rows using the
++    # dynamic ID column width. `hr` produces separators that span each
++    # column exactly, replacing the old hard-coded "----" dashes that
++    # left visible gaps under %-Ns padding.
++    printf "${CYAN}%-*s %-30s %-6s %s${NC}\n" "$max_id_len" "ID" "NAME" "TIER" "SERVICES"
++    printf "%-*s %-30s %-6s %s\n" \
++        "$max_id_len" "$(hr "$max_id_len")" "$(hr 30)" "$(hr 6)" "$(hr 8)"
++
++    local row tid tname ttier tsvcs
++    for row in "${rows[@]}"; do
++        IFS=$'\t' read -r tid tname ttier tsvcs <<< "$row"
++        printf "%-*s %-30s %-6s %s\n" "$max_id_len" "$tid" "$tname" "$ttier" "$tsvcs"
++    done
+ }
+ 
+ _template_preview() {

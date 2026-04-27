@@ -1,0 +1,415 @@
+diff --git a/dream-server/bin/dream-host-agent.py b/dream-server/bin/dream-host-agent.py
+index 21fc7642..f39f82da 100755
+--- a/dream-server/bin/dream-host-agent.py
++++ b/dream-server/bin/dream-host-agent.py
+@@ -165,6 +165,65 @@ def resolve_compose_flags() -> list:
+     return result.stdout.strip().split()
+ 
+ 
++# Filesystem types that silently ignore POSIX ownership/permissions.
++# Used by _precreate_data_dirs to skip os.chown when running on exFAT/FAT/NTFS-fuseblk
++# instead of raising a misleading PermissionError.
++_NON_POSIX_FS = frozenset({
++    "exfat", "msdos", "vfat", "fat", "fat32", "fat16",
++    "ntfs", "ntfs-3g", "fuseblk", "9p", "drvfs",
++    "ms-dos",
++})
++
++
++def _fs_type(path: Path) -> str | None:
++    """Return the lowercased filesystem type for ``path``, or ``None``.
++
++    Linux: walk /proc/self/mountinfo to find the longest matching mountpoint.
++    macOS / BSD: shell out to ``stat -f %T`` (Python's ``os.statvfs_result``
++    does not expose ``f_basetype``).
++    """
++    try:
++        target = str(Path(path).resolve())
++    except OSError:
++        return None
++
++    mountinfo = Path("/proc/self/mountinfo")
++    if mountinfo.exists():
++        try:
++            best_match = ""
++            best_fstype: str | None = None
++            with mountinfo.open("r", encoding="utf-8") as f:
++                for line in f:
++                    parts = line.split()
++                    if "-" not in parts:
++                        continue
++                    sep_idx = parts.index("-")
++                    if sep_idx + 1 >= len(parts) or sep_idx < 5:
++                        continue
++                    mountpoint = parts[4]
++                    fstype = parts[sep_idx + 1]
++                    if target == mountpoint or target.startswith(mountpoint.rstrip("/") + "/"):
++                        if len(mountpoint) >= len(best_match):
++                            best_match = mountpoint
++                            best_fstype = fstype
++            if best_fstype:
++                return best_fstype.lower()
++        except OSError:
++            pass
++
++    try:
++        result = subprocess.run(
++            ["stat", "-f", "%T", target],
++            capture_output=True, text=True, timeout=5, check=False,
++        )
++        if result.returncode == 0 and result.stdout.strip():
++            return result.stdout.strip().lower()
++    except (FileNotFoundError, subprocess.SubprocessError):
++        pass
++
++    return None
++
++
+ def _precreate_data_dirs(service_id: str):
+     """Pre-create data directories for an extension with correct ownership."""
+     ext_dir = USER_EXTENSIONS_DIR / service_id
+@@ -210,7 +269,20 @@ def _precreate_data_dirs(service_id: str):
+                 try:
+                     dir_path.mkdir(parents=True, exist_ok=True)
+                     if uid is not None and os.getuid() == 0:
+-                        os.chown(str(dir_path), uid, uid)
++                        # Defense-in-depth: the installer preflight already
++                        # blocks non-POSIX filesystems at INSTALL_DIR, but
++                        # runtime extension installs (post-setup) can still
++                        # land on a non-POSIX volume. chown there is a silent
++                        # no-op or raises EPERM/EOPNOTSUPP — skip cleanly.
++                        fs = _fs_type(dir_path)
++                        if fs in _NON_POSIX_FS:
++                            logger.warning(
++                                "Skipping chown for %s on non-POSIX filesystem %s "
++                                "(extension may not function correctly)",
++                                dir_path, fs,
++                            )
++                        else:
++                            os.chown(str(dir_path), uid, uid)
+                 except OSError as e:
+                     logger.warning("Failed to pre-create %s: %s", dir_path, e)
+ 
+diff --git a/dream-server/installers/macos/install-macos.sh b/dream-server/installers/macos/install-macos.sh
+index dbec0311..d2e540b8 100755
+--- a/dream-server/installers/macos/install-macos.sh
++++ b/dream-server/installers/macos/install-macos.sh
+@@ -111,6 +111,7 @@ source "${LIB_DIR}/constants.sh"
+ source "${LIB_DIR}/ui.sh"
+ source "${LIB_DIR}/tier-map.sh"
+ source "${LIB_DIR}/detection.sh"
++source "${LIB_DIR}/preflight-fs.sh"
+ source "${LIB_DIR}/env-generator.sh"
+ 
+ # ── File-local helpers ──
+@@ -191,6 +192,39 @@ if ! $DOCKER_RUNNING; then
+ fi
+ ai_ok "Docker Desktop running (v${DOCKER_VERSION})"
+ 
++# Filesystem POSIX-permission check
++# The .env file (chmod 600) lives at INSTALL_DIR; a non-POSIX FS makes that
++# a silent no-op and leaks secrets. Block install before any directory
++# creation so the user can pick a different path.
++test_install_dir_filesystem "$INSTALL_DIR"
++info_box "Filesystem:" "${INSTALL_FS_TYPE}"
++if $INSTALL_FS_FATAL; then
++    ai_err "INSTALL_DIR (${INSTALL_DIR}) is on a ${INSTALL_FS_TYPE} filesystem."
++    ai_err "Dream Server requires a POSIX-permission filesystem (apfs/hfs) so .env"
++    ai_err "secrets can be locked down with chmod 600. ${INSTALL_FS_TYPE} silently"
++    ai_err "ignores chmod/chown, leaving secrets world-readable."
++    ai "Pick a path on your APFS system volume (e.g. ~/dream-server) and re-run."
++    exit 1
++fi
++ai_ok "Filesystem supports POSIX permissions"
++
++# Docker Desktop file-sharing allowlist check
++# Bind-mounts of paths outside the allowlist fail with cryptic OCI errors at
++# `docker compose up`. Probe with a throwaway container so we surface a clear
++# message before any compose work starts.
++test_docker_desktop_sharing "$INSTALL_DIR"
++if ! $DOCKER_SHARE_OK; then
++    ai_err "Docker Desktop cannot bind-mount ${INSTALL_DIR}."
++    ai_err "Add the path to Docker Desktop > Settings > Resources > File Sharing,"
++    ai_err "apply, then re-run this installer."
++    if [[ -n "$DOCKER_SHARE_ERR" ]]; then
++        ai "Probe output:"
++        printf '%s\n' "$DOCKER_SHARE_ERR" | sed 's/^/    /'
++    fi
++    exit 1
++fi
++ai_ok "Docker Desktop file sharing OK"
++
+ # Disk space
+ test_disk_space "$INSTALL_DIR" 30
+ info_box "Disk free:" "${DISK_FREE_GB} GB"
+diff --git a/dream-server/installers/macos/lib/preflight-fs.sh b/dream-server/installers/macos/lib/preflight-fs.sh
+new file mode 100644
+index 00000000..796acf79
+--- /dev/null
++++ b/dream-server/installers/macos/lib/preflight-fs.sh
+@@ -0,0 +1,100 @@
++#!/bin/bash
++# ============================================================================
++# Dream Server macOS Installer -- Filesystem & Docker Desktop Sharing Checks
++# ============================================================================
++# Part of: installers/macos/lib/
++# Purpose: Detect non-POSIX filesystems at the install path (which silently
++#          drop chmod/chown — leaking .env secrets) and Docker Desktop file
++#          sharing allowlist gaps (which surface as cryptic OCI mount errors).
++#
++# Provides:
++#   test_install_dir_filesystem() -- sets INSTALL_FS_TYPE, INSTALL_FS_FATAL
++#   test_docker_desktop_sharing() -- sets DOCKER_SHARE_OK, DOCKER_SHARE_ERR
++#
++# shellcheck disable=SC2034  # vars are read by install-macos.sh after sourcing
++#
++# Modder notes:
++#   POSIX-permission filesystems leave chmod 600 .env useful. Non-POSIX
++#   filesystems (exFAT/FAT/NTFS-via-fuseblk) make the chmod a no-op, so the
++#   secrets file ends up world-readable — treat that as fatal.
++#   Filesystems that hold containerised data subpaths only are warn-only.
++# ============================================================================
++
++# Resolve to the nearest existing path so `stat -f` doesn't fail when the
++# install dir hasn't been created yet (first install).
++_resolve_existing_parent() {
++    local p="$1"
++    while [[ -n "$p" && ! -e "$p" ]]; do
++        p="$(dirname "$p")"
++    done
++    [[ -z "$p" ]] && p="/"
++    printf '%s' "$p"
++}
++
++# Detect filesystem type at INSTALL_DIR's parent (where .env will live).
++# BSD `stat -f %T` returns short personality strings (apfs, hfs, msdos, exfat,
++# ntfs). diskutil gives a richer "File System Personality" line we fall back
++# to when stat returns something unexpected.
++test_install_dir_filesystem() {
++    local install_dir="${1:-$INSTALL_DIR}"
++    INSTALL_FS_TYPE=""
++    INSTALL_FS_FATAL=false
++
++    local probe
++    probe="$(_resolve_existing_parent "$install_dir")"
++
++    local fs_type=""
++    fs_type=$(stat -f %T "$probe" 2>/dev/null || true)
++
++    # `stat -f %T` on macOS sometimes returns just a short tag; cross-check
++    # with diskutil for stable personality identification.
++    if command -v diskutil >/dev/null 2>&1; then
++        # `diskutil info` only accepts mount points or device IDs. Subpaths
++        # (e.g. /Volumes/X/dreamserver) make it exit non-zero, which under
++        # `set -euo pipefail` would silently kill the entire installer. The
++        # personality lookup is an optional refinement on top of `stat -f %T`,
++        # so swallow non-zero — empty personality just means we keep the stat
++        # value.
++        local personality=""
++        personality=$(diskutil info "$probe" 2>/dev/null \
++            | awk -F': *' '/File System Personality/ {print $2; exit}' \
++            | tr '[:upper:]' '[:lower:]' || true)
++        if [[ -n "$personality" ]]; then
++            fs_type="$personality"
++        fi
++    fi
++
++    INSTALL_FS_TYPE="${fs_type:-unknown}"
++
++    case "$INSTALL_FS_TYPE" in
++        *exfat*|*msdos*|*fat32*|*fat16*|*"ms-dos"*|*ntfs*)
++            INSTALL_FS_FATAL=true
++            ;;
++    esac
++}
++
++# Smoke-test Docker Desktop's file-sharing allowlist by trying to bind-mount
++# the install dir into a throwaway alpine container. Docker Desktop responds
++# with a recognisable error when the path is not in the shared list.
++test_docker_desktop_sharing() {
++    local install_dir="${1:-$INSTALL_DIR}"
++    DOCKER_SHARE_OK=true
++    DOCKER_SHARE_ERR=""
++
++    if ! command -v docker >/dev/null 2>&1; then
++        DOCKER_SHARE_OK=false
++        DOCKER_SHARE_ERR="docker CLI not found"
++        return
++    fi
++
++    local probe
++    probe="$(_resolve_existing_parent "$install_dir")"
++
++    local out=""
++    out=$(docker run --rm -v "${probe}:/check:ro" alpine true 2>&1) || true
++
++    if echo "$out" | grep -qiE "not shared from the host|Mounts denied|file sharing|filesharing"; then
++        DOCKER_SHARE_OK=false
++        DOCKER_SHARE_ERR="$out"
++    fi
++}
+diff --git a/dream-server/installers/phases/01-preflight.sh b/dream-server/installers/phases/01-preflight.sh
+index ba56c5b5..7696aa7a 100755
+--- a/dream-server/installers/phases/01-preflight.sh
++++ b/dream-server/installers/phases/01-preflight.sh
+@@ -84,5 +84,72 @@ if [[ -d "$INSTALL_DIR" ]]; then
+     signal "Existing install detected. Secrets and data will be preserved."
+ fi
+ 
++# Filesystem POSIX-permission check.
++# Phase 06 runs `chmod 600 $INSTALL_DIR/.env` to lock down secrets. On exFAT,
++# FAT32, fuseblk (NTFS via ntfs-3g), 9p and DrvFs that chmod is a silent no-op
++# — the secrets file ends up world-readable. Refuse install up front so the
++# user can pick a POSIX-native path.
++check_install_dir_filesystem() {
++    local probe="$INSTALL_DIR"
++    while [[ -n "$probe" && ! -e "$probe" ]]; do
++        probe="$(dirname "$probe")"
++    done
++    [[ -z "$probe" ]] && probe="/"
++
++    local fs_type=""
++    fs_type=$(stat -fc %T "$probe" 2>/dev/null || true)
++    fs_type="${fs_type,,}"  # lowercase
++    INSTALL_FS_TYPE="${fs_type:-unknown}"
++
++    case "$fs_type" in
++        fuseblk|msdos|exfat|vfat|fat|9p|drvfs|ntfs|ntfs-3g)
++            error "INSTALL_DIR ($INSTALL_DIR) is on a ${fs_type} filesystem.
++
++Dream Server stores secrets in $INSTALL_DIR/.env and locks them with
++chmod 600. ${fs_type} silently ignores POSIX permissions, which would
++leave the secrets file world-readable.
++
++Pick a path on a POSIX-native filesystem (ext4, btrfs, xfs, zfs) and
++re-run, e.g.:  INSTALL_DIR=\"\$HOME/dream-server\" $0"
++            ;;
++    esac
++    log "INSTALL_DIR filesystem: ${INSTALL_FS_TYPE}"
++}
++
++# Docker Desktop file-sharing probe — only meaningful when Docker Desktop
++# is in use (most Linux installs use the native daemon and skip this).
++check_docker_desktop_sharing() {
++    command -v docker >/dev/null 2>&1 || return 0
++
++    local os_string=""
++    os_string=$(docker info --format '{{json .OperatingSystem}}' 2>/dev/null || true)
++    case "$os_string" in
++        *"Docker Desktop"*) ;;
++        *) return 0 ;;
++    esac
++
++    local probe="$INSTALL_DIR"
++    while [[ -n "$probe" && ! -e "$probe" ]]; do
++        probe="$(dirname "$probe")"
++    done
++    [[ -z "$probe" ]] && probe="/"
++
++    local out=""
++    out=$(docker run --rm -v "${probe}:/check:ro" alpine true 2>&1) || true
++    if echo "$out" | grep -qiE "not shared from the host|Mounts denied|file sharing|filesharing"; then
++        error "Docker Desktop cannot bind-mount $INSTALL_DIR.
++
++Add the path to Docker Desktop > Settings > Resources > File Sharing,
++apply, then re-run this installer.
++
++Probe output:
++$(printf '%s\n' "$out" | sed 's/^/    /')"
++    fi
++    log "Docker Desktop file sharing OK"
++}
++
++check_install_dir_filesystem
++check_docker_desktop_sharing
++
+ ai_ok "Pre-flight checks passed."
+ signal "No cloud dependencies required for core operation."
+diff --git a/dream-server/installers/windows/phases/01-preflight.ps1 b/dream-server/installers/windows/phases/01-preflight.ps1
+index 2aaf85c9..52548d72 100644
+--- a/dream-server/installers/windows/phases/01-preflight.ps1
++++ b/dream-server/installers/windows/phases/01-preflight.ps1
+@@ -95,6 +95,83 @@ if (-not $preflight_docker.WSL2Backend) {
+     Write-AIWarn "--Force specified, continuing without confirmed WSL2 backend."
+ }
+ 
++# ── Filesystem POSIX-permission check ────────────────────────────────────────
++# Phase 06 (.env generation) writes secrets and relies on filesystem ACLs.
++# exFAT and FAT32 cannot represent per-user permissions at all, so the
++# secrets file ends up readable by every account on the machine. Refuse
++# install up front so the user can choose an NTFS/ReFS path. NTFS is fine
++# from native Windows; we only flag NTFS as fatal when the install path is
++# inside a 9p/DrvFs WSL mount (rare for this PowerShell installer, but kept
++# for safety when somebody runs install.ps1 from inside a WSL shell).
++$_fsProbe = $installDir
++while ($_fsProbe -and -not (Test-Path -LiteralPath $_fsProbe)) {
++    $_fsProbe = Split-Path -Parent $_fsProbe
++}
++if (-not $_fsProbe) { $_fsProbe = $installDir }
++
++$_fsType = ""
++try {
++    $_di = [System.IO.DriveInfo]::new($_fsProbe)
++    $_fsType = $_di.DriveFormat
++} catch {
++    # Path is on a non-Windows mount (e.g. WSL 9p) — DriveInfo throws.
++    $_fsType = ""
++}
++
++# WSL detection (when running install.ps1 from inside WSL)
++$_isWslPath = $false
++if ($_fsProbe -match "^(?i)/mnt/[a-z]/" -or $env:WSL_DISTRO_NAME) {
++    $_isWslPath = $true
++}
++
++Write-InfoBox "Filesystem:" $(if ($_fsType) { $_fsType } else { "unknown" })
++
++$_fsFatal = $false
++switch -Regex ($_fsType) {
++    "^(exFAT|FAT32|FAT)$" { $_fsFatal = $true }
++    "^NTFS$"              { if ($_isWslPath) { $_fsFatal = $true } }
++}
++
++if ($_fsFatal) {
++    Write-AIError "INSTALL_DIR ($installDir) is on a $_fsType filesystem."
++    Write-AIError "Dream Server stores secrets in .env and depends on filesystem"
++    Write-AIError "permissions. $_fsType cannot represent per-user permissions,"
++    Write-AIError "which would leave secrets readable by every account on this machine."
++    Write-AI "  Pick a path on an NTFS/ReFS volume (e.g. C:\Users\<you>\dream-server) and re-run."
++    exit 1
++}
++Write-AISuccess "Filesystem supports POSIX-style permissions"
++
++# ── Docker Desktop file-sharing allowlist check ──────────────────────────────
++# Bind-mounting a path outside the Docker Desktop file-sharing list fails at
++# `docker compose up` with a cryptic OCI error. Probe with a throwaway alpine
++# container so we surface a clear message before any compose work starts.
++$_shareOk = $true
++$_shareErr = ""
++try {
++    # PowerShell -v argument needs careful quoting for paths with spaces.
++    $_probeOut = & docker run --rm -v "${_fsProbe}:/check:ro" alpine true 2>&1
++    $_probeText = ($_probeOut -join "`n")
++    if ($_probeText -match "not shared from the host|Mounts denied|file sharing|filesharing") {
++        $_shareOk = $false
++        $_shareErr = $_probeText
++    }
++} catch {
++    $_shareOk = $false
++    $_shareErr = $_.Exception.Message
++}
++if (-not $_shareOk) {
++    Write-AIError "Docker Desktop cannot bind-mount $installDir."
++    Write-AIError "Add the path to Docker Desktop > Settings > Resources > File Sharing,"
++    Write-AIError "apply, then re-run this installer."
++    if ($_shareErr) {
++        Write-AI "  Probe output:"
++        $_shareErr -split "`n" | ForEach-Object { Write-Host "    $_" }
++    }
++    exit 1
++}
++Write-AISuccess "Docker Desktop file sharing OK"
++
+ # ── Initial disk space check ─────────────────────────────────────────────────
+ # 20 GB minimum before model size is known (tier-aware check happens in phase 04).
+ $_disk = Test-DiskSpace -Path $installDir -RequiredGB 20
