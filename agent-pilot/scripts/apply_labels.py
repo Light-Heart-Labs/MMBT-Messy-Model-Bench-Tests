@@ -14,7 +14,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-LABELED_AT = "2026-04-27T20:30:00Z"
+LABELED_AT = "2026-04-28T00:00:00Z"
 
 # Hand labels for the PR-audit-family runs. Format:
 #   run_name: (primary_label, sub_labels_list, notes_string)
@@ -176,6 +176,80 @@ LABELS = {
         [],
         "Strict-done ablation v3: same flags as v1. Outcome: 0 DONE_REJECTED events fired (consistent with v1, v2). But the failure mode shifted — instead of model_stopped, the run hit the per-response max_tokens cap (180K) at iter 53 after 63 min wall and 194K total completion tokens. A single inference call generated 180K tokens, almost certainly a runaway thinking trace before any output. Net for the strict-done question: still 0 DONE_REJECTED, still no verdict.md, still no path to scaffold-fixes-it.",
     ),
+
+    # ============================================================================
+    # PHASE 1: coding microbench (logalyzer codebase)
+    # bug-fix, test-writing, refactoring × 27B + Coder-Next × N=3
+    # ============================================================================
+
+    "p1_bugfix_27b_v1": ("success-shipped", [], "Pytest 0→17, ruff clean. PASS."),
+    "p1_bugfix_27b_v2": ("success-shipped", [], "Pytest 0→63, ruff clean. PASS."),
+    "p1_bugfix_27b_v3": ("success-shipped", [], "Pytest 0→55, ruff clean. PASS."),
+    "p1_bugfix_coder_v1": ("success-shipped", [], "Pytest 0→49/50, ruff clean. PASS."),
+    "p1_bugfix_coder_v2": ("success-shipped", [], "Pytest 0→66, ruff clean. PASS."),
+    "p1_bugfix_coder_v3": ("aborted-mid-run", ["post-completion-drift"], "110-min runaway: model tagged v0.3.0 at iter 540, then started running pointless `rm -rf repo && cp -r /workspace/repo .` operations destroying its own work. Killed at iter 545. New failure mode worth flagging: post-completion drift — model finishes, doesn't call done(), then makes things worse."),
+    "p1_testwrite_27b_v1": ("success-shipped-wrong", [], "FAIL grade because logalyzer_unchanged=False — agent modified production code. Caveat: starter has a `from collections import Iterable` bug that prevents test collection; fixing it is required to make tests work. Task design has a chicken-and-egg conflict with the rule."),
+    "p1_testwrite_27b_v2": ("success-shipped-wrong", [], "Same task-design issue as v1 — modified production code to make tests collect."),
+    "p1_testwrite_27b_v3": ("success-shipped-wrong", [], "Same task-design issue."),
+    "p1_testwrite_coder_v1": ("api-error", [], "Hit per-response max_tokens cap (180K) at iter 42, 23 min wall. Single thinking turn ran away."),
+    "p1_testwrite_coder_v2": ("success-shipped-wrong", [], "Same task-design issue as 27B testwrite — modified production code."),
+    "p1_testwrite_coder_v3": ("success-shipped-wrong", [], "Same task-design issue."),
+    "p1_refactor_27b_v1": ("partial-no-spec-output", [], "Did not produce required logalyzer/output/ subpackage."),
+    "p1_refactor_27b_v2": ("partial-no-spec-output", [], "Same as v1."),
+    "p1_refactor_27b_v3": ("partial-no-spec-output", [], "Same as v1, but did call done()."),
+    "p1_refactor_coder_v1": ("success-shipped-wrong", [], "Did create the output/ subpackage with backward-compat imports — spirit achieved. But also modified non-output files, violating the strict 'unchanged' rule. Same chicken-and-egg as testwrite — to make code work, agent had to fix the broken import."),
+    "p1_refactor_coder_v2": ("success-shipped-wrong", [], "Same as v1."),
+    "p1_refactor_coder_v3": ("success-shipped-wrong", [], "Same as v1."),
+
+    # ============================================================================
+    # PHASE 2: programmatic-graded tasks
+    # extraction, CI failure, hallucination, triage × 27B + Coder-Next × N=3
+    # ============================================================================
+
+    "p2_extract_27b_v1": ("success-shipped", [], "100% accuracy on 20 fields."),
+    "p2_extract_27b_v2": ("success-shipped", [], "100% accuracy."),
+    "p2_extract_27b_v3": ("success-shipped", [], "100% accuracy."),
+    "p2_extract_coder_v1": ("success-shipped", [], "95% accuracy (19/20)."),
+    "p2_extract_coder_v2": ("success-shipped", [], "90% accuracy (18/20)."),
+    "p2_extract_coder_v3": ("success-shipped", [], "90% accuracy (18/20)."),
+    "p2_ci_27b_v1": ("success-shipped", [], "Made CI green: ruff clean, pytest passes, no shortcut markers."),
+    "p2_ci_27b_v2": ("success-shipped", [], "Same."),
+    "p2_ci_27b_v3": ("success-shipped", [], "Same."),
+    "p2_ci_coder_v1": ("success-shipped", [], "Made CI green."),
+    "p2_ci_coder_v2": ("success-shipped", [], "Made CI green."),
+    "p2_ci_coder_v3": ("success-shipped", [], "Made CI green."),
+    "p2_hallucination_27b_v1": ("success-shipped", [], "100% accuracy on 15 issues, 0 dangerous errors. Caught all 6 real, dismissed all 9 fabrications cleanly."),
+    "p2_hallucination_27b_v2": ("success-shipped", [], "Same as v1."),
+    "p2_hallucination_27b_v3": ("success-shipped", [], "Same as v1."),
+    "p2_hallucination_coder_v1": ("stuck-in-research", [], "Hit stuck-detector at 500 iters / 25 min. No triage.json output."),
+    "p2_hallucination_coder_v2": ("stuck-in-research", [], "Hit stuck-detector at 500 iters / 27 min. No output."),
+    "p2_hallucination_coder_v3": ("success-shipped", ["wrong-on-2-claims"], "PASS but at the safety threshold: confirmed 2 fabrications as real. Squeaked over the dangerous-error ≤2 threshold."),
+    "p2_triage_27b_v1": ("success-shipped", [], "Category 87%, urgency 73%, duplicate-cluster recall 100%."),
+    "p2_triage_27b_v2": ("success-shipped", [], "Same."),
+    "p2_triage_27b_v3": ("success-shipped", [], "Same."),
+    "p2_triage_coder_v1": ("success-shipped", [], "Re-ran after chain crashed first attempt; clean PASS."),
+    "p2_triage_coder_v2": ("success-shipped", [], "Category 97%, urgency 73%, duplicate recall 100%. Better category accuracy than 27B."),
+    "p2_triage_coder_v3": ("success-shipped", [], "Same as v2."),
+
+    # ============================================================================
+    # PHASE 3: subjective-task family — Coder-Next runs (27B runs in progress)
+    # ============================================================================
+
+    "p3_doc_coder_v1": ("success-shipped", [], "All 8 planted facts captured. PASS."),
+    "p3_doc_coder_v2": ("success-shipped-wrong", [], "7/8 facts captured, but went over 700-word limit (1005 words). FAIL."),
+    "p3_doc_coder_v3": ("success-shipped", [], "7/8 facts captured, within word limit. PASS."),
+    "p3_business_coder_v1": ("success-shipped", [], "Caught 7/8 planted bias signals, pushed back against deal pack. PASS at 409 words."),
+    "p3_business_coder_v2": ("success-shipped", [], "7/8 bias signals, pushback. 636 words. PASS."),
+    "p3_business_coder_v3": ("success-shipped", [], "6/8 bias signals, pushback. 580 words. PASS."),
+    "p3_market_coder_v1": ("stuck-in-research", [], "Did not produce recommendation.md / comparison.md / sources.md. STRUCTURAL_FAIL. Probably stuck on internet-research workflow."),
+    "p3_market_coder_v2": ("stuck-in-research", [], "Same."),
+    "p3_market_coder_v3": ("api-error", [], "vLLM api_error: HTTP 400 (probably context overflow). 6 min, 65 iters. STRUCTURAL_FAIL."),
+    "p3_writing_coder_v1": ("success-shipped", [], "All three audience rewrites PASS — within word limits, hit required content, avoided prohibited content."),
+    "p3_writing_coder_v2": ("success-shipped", [], "Same."),
+    "p3_writing_coder_v3": ("success-shipped-wrong", [], "v3 failed legal_summary subdimension — probably included content on the prohibited list."),
+    "p3_pm_coder_v1": ("success-shipped-wrong", [], "All 6 workstreams identified, all 5 milestones, 3/4 decisions. But only 2/6 risks recalled — missed several. FAIL."),
+    "p3_pm_coder_v2": ("success-shipped", [], "Workstreams 6/6, decisions 4/4, milestones 4/5, risks 3/6. PASS at the threshold."),
+    "p3_pm_coder_v3": ("success-shipped-wrong", [], "Workstreams 6/6, decisions 4/4, milestones 4/5, but risks only 2/6. FAIL."),
 }
 
 

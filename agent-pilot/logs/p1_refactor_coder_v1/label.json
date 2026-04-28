@@ -1,0 +1,7 @@
+{
+  "primary": "success-shipped-wrong",
+  "sub_labels": [],
+  "notes": "Did create the output/ subpackage with backward-compat imports \u2014 spirit achieved. But also modified non-output files, violating the strict 'unchanged' rule. Same chicken-and-egg as testwrite \u2014 to make code work, agent had to fix the broken import.",
+  "labeler": "human",
+  "labeled_at": "2026-04-28T00:00:00Z"
+}

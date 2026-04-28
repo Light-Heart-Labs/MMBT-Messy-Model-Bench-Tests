@@ -1,0 +1,9 @@
+{
+  "primary": "aborted-mid-run",
+  "sub_labels": [
+    "post-completion-drift"
+  ],
+  "notes": "110-min runaway: model tagged v0.3.0 at iter 540, then started running pointless `rm -rf repo && cp -r /workspace/repo .` operations destroying its own work. Killed at iter 545. New failure mode worth flagging: post-completion drift \u2014 model finishes, doesn't call done(), then makes things worse.",
+  "labeler": "human",
+  "labeled_at": "2026-04-28T00:00:00Z"
+}

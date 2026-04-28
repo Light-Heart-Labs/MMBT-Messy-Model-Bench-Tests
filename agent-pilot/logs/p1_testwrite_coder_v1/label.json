@@ -1,0 +1,7 @@
+{
+  "primary": "api-error",
+  "sub_labels": [],
+  "notes": "Hit per-response max_tokens cap (180K) at iter 42, 23 min wall. Single thinking turn ran away.",
+  "labeler": "human",
+  "labeled_at": "2026-04-28T00:00:00Z"
+}

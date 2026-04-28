@@ -1,0 +1,7 @@
+{
+  "primary": "api-error",
+  "sub_labels": [],
+  "notes": "vLLM api_error: HTTP 400 (probably context overflow). 6 min, 65 iters. STRUCTURAL_FAIL.",
+  "labeler": "human",
+  "labeled_at": "2026-04-28T00:00:00Z"
+}
