@@ -1,0 +1,9 @@
+{
+  "started_at": null,
+  "ended_at": "2026-04-28T15:07:22.697618+00:00",
+  "elapsed_s": null,
+  "iterations": 58,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "wall_killed_identical_call_loop",
+  "done_summary": "KILLED at iter 58 \u2014 identical-call-loop on brief.md (45 same-content writes at 781 words, 81 over the 700-word limit). Same pattern as 27B doc v2/v3 originals."
+}

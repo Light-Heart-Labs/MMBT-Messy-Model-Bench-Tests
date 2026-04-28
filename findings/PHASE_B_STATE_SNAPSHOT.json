@@ -1,0 +1,431 @@
+{
+  "snapshot_at": "2026-04-28T15:10:23.170251Z",
+  "purpose": "Pre-power-outage state snapshot for Phase B chain (N=3 \u2192 N=10 expansion on 4 differential cells)",
+  "cells": {
+    "p2_hallucination": {
+      "27b": {
+        "v1": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 10,
+          "verdict": "PASS"
+        },
+        "v2": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 12,
+          "verdict": "PASS"
+        },
+        "v3": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 10,
+          "verdict": "PASS"
+        },
+        "v4": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 9
+        },
+        "v5": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 10
+        },
+        "v6": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 9
+        },
+        "v7": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 8
+        },
+        "v8": {
+          "status": "done",
+          "finish_reason": "model_stopped",
+          "iterations": 3
+        },
+        "v9": {
+          "status": "done",
+          "finish_reason": "model_stopped",
+          "iterations": 4
+        },
+        "v10": {
+          "status": "done",
+          "finish_reason": "model_stopped",
+          "iterations": 4
+        }
+      },
+      "coder": {
+        "v1": {
+          "status": "done",
+          "finish_reason": "stuck_no_workspace_change_for_500_iters",
+          "iterations": 500,
+          "verdict": "MISSING_OUTPUT"
+        },
+        "v2": {
+          "status": "done",
+          "finish_reason": "stuck_no_workspace_change_for_500_iters",
+          "iterations": 500,
+          "verdict": "MISSING_OUTPUT"
+        },
+        "v3": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 47,
+          "verdict": "PASS"
+        },
+        "v4": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 28
+        },
+        "v5": {
+          "status": "done",
+          "finish_reason": "stuck_no_workspace_change_for_500_iters",
+          "iterations": 500
+        },
+        "v6": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 72
+        },
+        "v7": {
+          "status": "done",
+          "finish_reason": "stuck_no_workspace_change_for_500_iters",
+          "iterations": 500
+        },
+        "v8": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 62
+        },
+        "v9": {
+          "status": "in_flight",
+          "name": "p2_hallucination_coder_v9"
+        },
+        "v10": {
+          "name": "p2_hallucination_coder_v10",
+          "status": "missing"
+        }
+      }
+    },
+    "p3_business": {
+      "27b": {
+        "v1": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 16,
+          "verdict": "PASS"
+        },
+        "v2": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 15,
+          "verdict": "PASS"
+        },
+        "v3": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 29,
+          "verdict": "FAIL"
+        },
+        "v4": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 17
+        },
+        "v5": {
+          "status": "done",
+          "finish_reason": "wall_killed_identical_call_loop",
+          "iterations": 67
+        },
+        "v6": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 14
+        },
+        "v7": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 15
+        },
+        "v8": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 16
+        },
+        "v9": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 17
+        },
+        "v10": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 16
+        }
+      },
+      "coder": {
+        "v1": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 12,
+          "verdict": "PASS"
+        },
+        "v2": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 11,
+          "verdict": "PASS"
+        },
+        "v3": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 11,
+          "verdict": "PASS"
+        },
+        "v4": {
+          "name": "p3_business_coder_v4",
+          "status": "missing"
+        },
+        "v5": {
+          "name": "p3_business_coder_v5",
+          "status": "missing"
+        },
+        "v6": {
+          "name": "p3_business_coder_v6",
+          "status": "missing"
+        },
+        "v7": {
+          "name": "p3_business_coder_v7",
+          "status": "missing"
+        },
+        "v8": {
+          "name": "p3_business_coder_v8",
+          "status": "missing"
+        },
+        "v9": {
+          "name": "p3_business_coder_v9",
+          "status": "missing"
+        },
+        "v10": {
+          "name": "p3_business_coder_v10",
+          "status": "missing"
+        }
+      }
+    },
+    "p3_doc": {
+      "27b": {
+        "v1": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 33,
+          "verdict": "FAIL"
+        },
+        "v2": {
+          "status": "done",
+          "finish_reason": "wall_killed_identical_call_loop",
+          "iterations": 159,
+          "verdict": "FAIL"
+        },
+        "v3": {
+          "status": "done",
+          "finish_reason": "wall_killed_identical_call_loop",
+          "iterations": 70,
+          "verdict": "FAIL"
+        },
+        "v4": {
+          "status": "done",
+          "finish_reason": "wall_killed_identical_call_loop",
+          "iterations": 54
+        },
+        "v5": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 30
+        },
+        "v6": {
+          "status": "done",
+          "finish_reason": "wall_killed_identical_call_loop",
+          "iterations": 58
+        },
+        "v7": {
+          "status": "in_flight",
+          "name": "p3_doc_27b_v7"
+        },
+        "v8": {
+          "name": "p3_doc_27b_v8",
+          "status": "missing"
+        },
+        "v9": {
+          "name": "p3_doc_27b_v9",
+          "status": "missing"
+        },
+        "v10": {
+          "name": "p3_doc_27b_v10",
+          "status": "missing"
+        }
+      },
+      "coder": {
+        "v1": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 10,
+          "verdict": "PASS"
+        },
+        "v2": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 11,
+          "verdict": "FAIL"
+        },
+        "v3": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 10,
+          "verdict": "PASS"
+        },
+        "v4": {
+          "name": "p3_doc_coder_v4",
+          "status": "missing"
+        },
+        "v5": {
+          "name": "p3_doc_coder_v5",
+          "status": "missing"
+        },
+        "v6": {
+          "name": "p3_doc_coder_v6",
+          "status": "missing"
+        },
+        "v7": {
+          "name": "p3_doc_coder_v7",
+          "status": "missing"
+        },
+        "v8": {
+          "name": "p3_doc_coder_v8",
+          "status": "missing"
+        },
+        "v9": {
+          "name": "p3_doc_coder_v9",
+          "status": "missing"
+        },
+        "v10": {
+          "name": "p3_doc_coder_v10",
+          "status": "missing"
+        }
+      }
+    },
+    "p3_market": {
+      "27b": {
+        "v1": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 71,
+          "verdict": "STRUCTURAL_PASS"
+        },
+        "v2": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 133,
+          "verdict": "STRUCTURAL_PASS"
+        },
+        "v3": {
+          "status": "done",
+          "finish_reason": "done_signal",
+          "iterations": 68,
+          "verdict": "STRUCTURAL_PASS"
+        },
+        "v4": {
+          "name": "p3_market_27b_v4",
+          "status": "missing"
+        },
+        "v5": {
+          "name": "p3_market_27b_v5",
+          "status": "missing"
+        },
+        "v6": {
+          "name": "p3_market_27b_v6",
+          "status": "missing"
+        },
+        "v7": {
+          "name": "p3_market_27b_v7",
+          "status": "missing"
+        },
+        "v8": {
+          "name": "p3_market_27b_v8",
+          "status": "missing"
+        },
+        "v9": {
+          "name": "p3_market_27b_v9",
+          "status": "missing"
+        },
+        "v10": {
+          "name": "p3_market_27b_v10",
+          "status": "missing"
+        }
+      },
+      "coder": {
+        "v1": {
+          "status": "done",
+          "finish_reason": "stuck_no_workspace_change_for_500_iters",
+          "iterations": 502,
+          "verdict": "STRUCTURAL_FAIL"
+        },
+        "v2": {
+          "status": "done",
+          "finish_reason": "stuck_no_workspace_change_for_500_iters",
+          "iterations": 511,
+          "verdict": "STRUCTURAL_FAIL"
+        },
+        "v3": {
+          "status": "done",
+          "finish_reason": "api_error: HTTP Error 400: Bad Request",
+          "iterations": 65,
+          "verdict": "STRUCTURAL_FAIL"
+        },
+        "v4": {
+          "name": "p3_market_coder_v4",
+          "status": "missing"
+        },
+        "v5": {
+          "name": "p3_market_coder_v5",
+          "status": "missing"
+        },
+        "v6": {
+          "name": "p3_market_coder_v6",
+          "status": "missing"
+        },
+        "v7": {
+          "name": "p3_market_coder_v7",
+          "status": "missing"
+        },
+        "v8": {
+          "name": "p3_market_coder_v8",
+          "status": "missing"
+        },
+        "v9": {
+          "name": "p3_market_coder_v9",
+          "status": "missing"
+        },
+        "v10": {
+          "name": "p3_market_coder_v10",
+          "status": "missing"
+        }
+      }
+    }
+  },
+  "operator_sigterms_applied": [
+    "p3_business_27b_v5",
+    "p3_doc_27b_v2",
+    "p3_doc_27b_v3",
+    "p3_doc_27b_v4",
+    "p3_doc_27b_v6"
+  ],
+  "in_flight_at_snapshot": [
+    "p2_hallucination_coder_v9",
+    "p3_doc_27b_v7"
+  ]
+}

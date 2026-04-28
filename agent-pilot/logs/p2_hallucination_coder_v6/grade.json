@@ -1,0 +1,117 @@
+{
+  "task": "hallucination",
+  "verdict": "PASS",
+  "scores": {
+    "accuracy": 0.867,
+    "real_recall": 1.0,
+    "fabricated_recall": 0.778,
+    "dangerous_error_count": 2,
+    "missed_real_count": 0,
+    "missing": 0
+  },
+  "thresholds": {
+    "accuracy": 0.8,
+    "fabricated_recall": 0.75,
+    "max_dangerous_errors": 2
+  },
+  "confusion_matrix": {
+    "real_caught": 6,
+    "real_total": 6,
+    "fabricated_caught": 7,
+    "fabricated_total": 9,
+    "fabricated_confirmed_as_real_DANGEROUS": 2,
+    "real_dismissed_as_fabricated": 0
+  },
+  "issue_details": {
+    "001": {
+      "agent_verdict": "real",
+      "gt_verdict": "real",
+      "correct": true,
+      "agent_evidence": "logalyzer/filters.py:5 - imports Iterable from collections instead of collections.abc"
+    },
+    "002": {
+      "agent_verdict": "real",
+      "gt_verdict": "real",
+      "correct": true,
+      "agent_evidence": "logalyzer/filters.py:63 - uses eval() with restricted globals which is still a security risk"
+    },
+    "003": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "No SQL code exists in the codebase; parser.py contains no SQL query construction"
+    },
+    "004": {
+      "agent_verdict": "real",
+      "gt_verdict": "real",
+      "correct": true,
+      "agent_evidence": "README.md claims 'Real-time tail mode' but no --tail flag or streaming logic exists in cli.py or elsewhere"
+    },
+    "005": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "The --top flag is properly defined with type=int and used correctly in cli.py:63 as args.top"
+    },
+    "006": {
+      "agent_verdict": "real",
+      "gt_verdict": "real",
+      "correct": true,
+      "agent_evidence": "experimental.py exists but is never imported or referenced anywhere in the codebase"
+    },
+    "007": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "No web.py file exists; no web interface, POST endpoints, or CSRF-related code exists"
+    },
+    "008": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "No 8192 character limit exists; parse_line() processes full input lines"
+    },
+    "009": {
+      "agent_verdict": "real",
+      "gt_verdict": "fabricated",
+      "correct": false,
+      "agent_evidence": "utils.py:33 defines format_legacy() but it is never called by any other module"
+    },
+    "010": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "No threading or locking exists; load_iter() has no concurrent access mechanism"
+    },
+    "011": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "by_status() simply counts status codes with c[e.status] += 1; no double-counting of 3xx codes"
+    },
+    "012": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "No cache.py file exists; no caching mechanism exists in the codebase"
+    },
+    "013": {
+      "agent_verdict": "real",
+      "gt_verdict": "real",
+      "correct": true,
+      "agent_evidence": "io.py:17 and io.py:23 use result = result + [entry] and accumulated = accumulated + ch which are O(n\u00b2) operations"
+    },
+    "014": {
+      "agent_verdict": "real",
+      "gt_verdict": "real",
+      "correct": true,
+      "agent_evidence": "filters.py:29 uses entry.ip in allowlist where allowlist is typically a list from args.ip, giving O(n) instead of O(1)"
+    },
+    "015": {
+      "agent_verdict": "real",
+      "gt_verdict": "fabricated",
+      "correct": false,
+      "agent_evidence": "__init__.py does not import or export LogEntry from parser.py; from logalyzer import LogEntry would fail"
+    }
+  }
+}

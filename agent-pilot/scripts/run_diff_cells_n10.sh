@@ -11,10 +11,14 @@
 #
 # Total: 4 cells × 2 models × 7 additional reps = 56 runs.
 #
-# IMPORTANT: --stuck-threshold 100 for doc-synthesis-27B specifically.
-# That cell is known to identical-call-loop on brief.md after producing
-# the 763-775-word draft. With threshold 500 each loop run is 2-5 hours
-# wall; with 100 it's ~10 min. Saves 6+ hours over 7 runs.
+# IMPORTANT: --stuck-threshold 500 across the board to match the
+# original v1-v3 runs' methodology. Doc-synthesis-27B is known to
+# identical-call-loop on brief.md (v2 and v3 in the original N=3
+# series did this and were manually SIGTERM'd). Capping the threshold
+# at 100 would change methodology — defeats the N=10 purpose. So we
+# keep threshold 500 here too, watch for the loop pattern, and SIGTERM
+# manually when observed (same as original). Operator monitoring task,
+# not a script automation task.
 #
 # Usage: bash agent-pilot/scripts/run_diff_cells_n10.sh
 # Run from ~/bench/. Assumes vLLM endpoints already up (27B port 8000,
@@ -35,12 +39,16 @@ if ! curl -sf http://127.0.0.1:8001/v1/models >/dev/null; then
 fi
 echo "    OK"
 
-# Cell config: name | task_file | input_dir | stuck_threshold_27b | stuck_threshold_coder
+# Cell config: name | task_file | input_dir
+# All cells use --stuck-threshold 500 to match the original v1-v3 methodology.
+# Doc-synthesis-27B will identical-call-loop on brief.md (same as original
+# v2/v3); operator monitors and manually SIGTERMs when observed. This keeps
+# methodology comparable across N=3 → N=10.
 CELLS=(
-  "hallucination|task_hallucination.md|agent-pilot/inputs/phase2_hallucination|500|500"
-  "business|task_business_memo.md|agent-pilot/inputs/phase3_business_memo|500|500"
-  "doc|task_doc_synthesis.md|agent-pilot/inputs/phase3_doc_synthesis|100|500"
-  "market|task_market_research.md||500|500"
+  "hallucination|task_hallucination.md|agent-pilot/inputs/phase2_hallucination"
+  "business|task_business_memo.md|agent-pilot/inputs/phase3_business_memo"
+  "doc|task_doc_synthesis.md|agent-pilot/inputs/phase3_doc_synthesis"
+  "market|task_market_research.md|"
 )
 
 # Generate v4..v10 for each (model, cell)
@@ -49,9 +57,10 @@ COUNTER=0
 TOTAL=$((${#CELLS[@]} * 2 * 7))
 
 for entry in "${CELLS[@]}"; do
-  IFS='|' read -r short task_file input_dir stuck_27b stuck_coder <<< "$entry"
-  for model_pair in "27b|qwen3.6-27b-awq|8000|$stuck_27b" "coder|qwen3-coder-next-awq|8001|$stuck_coder"; do
-    IFS='|' read -r model_label model_name port stuck_thresh <<< "$model_pair"
+  IFS='|' read -r short task_file input_dir <<< "$entry"
+  for model_pair in "27b|qwen3.6-27b-awq|8000" "coder|qwen3-coder-next-awq|8001"; do
+    IFS='|' read -r model_label model_name port <<< "$model_pair"
+    stuck_thresh=500
     for v in 4 5 6 7 8 9 10; do
       COUNTER=$((COUNTER + 1))
       run_name="p${short:0:1}_${short}_${model_label}_v${v}"
