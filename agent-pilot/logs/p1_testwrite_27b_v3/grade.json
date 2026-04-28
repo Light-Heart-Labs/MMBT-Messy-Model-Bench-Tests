@@ -1,0 +1,21 @@
+{
+  "task": "testwrite",
+  "verdict": "FAIL",
+  "criteria": {
+    "coverage_improved": false,
+    "baseline_tests_pass": true,
+    "logalyzer_unchanged": false
+  },
+  "before": {
+    "cov": 0,
+    "passed": 0
+  },
+  "after": {
+    "cov": 0,
+    "passed": 0,
+    "total": 1
+  },
+  "delta": {
+    "cov_pp": 0
+  }
+}

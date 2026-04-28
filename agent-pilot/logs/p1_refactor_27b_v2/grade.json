@@ -1,0 +1,27 @@
+{
+  "task": "refactor",
+  "verdict": "FAIL",
+  "criteria": {
+    "tests_pass": true,
+    "output_pkg_exists": true,
+    "output_renderers_present": [
+      "json_renderer.py",
+      "csv_renderer.py",
+      "plain_renderer.py",
+      "legacy.py"
+    ],
+    "old_output_gone": true,
+    "backward_compat_import": true,
+    "non_output_files_unchanged": false,
+    "tests_unchanged": false
+  },
+  "before": {
+    "passed": 0
+  },
+  "after": {
+    "passed": 13
+  },
+  "non_output_changed": [
+    "filters.py"
+  ]
+}

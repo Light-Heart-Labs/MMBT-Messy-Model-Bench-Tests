@@ -1,0 +1,103 @@
+{
+  "task": "triage",
+  "verdict": "PASS",
+  "scores": {
+    "category_accuracy": 0.867,
+    "urgency_accuracy": 0.733,
+    "duplicate_recall": 1.0,
+    "duplicate_clusters_correct": 2,
+    "duplicate_clusters_total": 2,
+    "fabricated_clusters": 0
+  },
+  "thresholds": {
+    "category_accuracy": 0.8,
+    "urgency_accuracy": 0.7,
+    "duplicate_recall": 0.5
+  },
+  "errors": {
+    "missing_tickets": [],
+    "category_errors": [
+      {
+        "id": "014",
+        "predicted": "billing-other",
+        "actual": "incident-active"
+      },
+      {
+        "id": "023",
+        "predicted": "billing-other",
+        "actual": "incident-active"
+      },
+      {
+        "id": "029",
+        "predicted": "spam-or-noise",
+        "actual": "security-incident"
+      },
+      {
+        "id": "030",
+        "predicted": "billing-other",
+        "actual": "incident-active"
+      }
+    ],
+    "urgency_errors": [
+      {
+        "id": "004",
+        "predicted": "n/a",
+        "actual": "low"
+      },
+      {
+        "id": "009",
+        "predicted": "n/a",
+        "actual": "low"
+      },
+      {
+        "id": "012",
+        "predicted": "low",
+        "actual": "normal"
+      },
+      {
+        "id": "014",
+        "predicted": "normal",
+        "actual": "urgent"
+      },
+      {
+        "id": "017",
+        "predicted": "low",
+        "actual": "normal"
+      },
+      {
+        "id": "018",
+        "predicted": "low",
+        "actual": "normal"
+      },
+      {
+        "id": "021",
+        "predicted": "n/a",
+        "actual": "low"
+      },
+      {
+        "id": "029",
+        "predicted": "n/a",
+        "actual": "urgent"
+      }
+    ],
+    "fabricated_clusters": [],
+    "missed_clusters": []
+  },
+  "summary_self_consistency": {
+    "agent_summary_present": true,
+    "summary_by_category": {
+      "bug-report": 4,
+      "billing-refund": 4,
+      "billing-other": 3,
+      "feature-request": 3,
+      "incident-active": 2,
+      "account-management": 2,
+      "auth-permissions": 2,
+      "general-question": 2,
+      "spam-or-noise": 4,
+      "security-incident": 1,
+      "external-business": 2,
+      "legal-compliance": 1
+    }
+  }
+}

@@ -29,8 +29,11 @@ def grade(workspace: Path) -> dict:
         return {"task": "ci_failure", "verdict": "MISSING_OUTPUT",
                 "notes": "no pyproject.toml in workspace"}
 
-    # Install package (in case it's not already)
-    install = run(["pip", "install", "-q", "-e", ".[dev]"], cwd=workspace, timeout=120)
+    # Install package (in case it's not already). --break-system-packages
+    # because some host Pythons enforce PEP 668; we're in a throwaway grading
+    # env where contaminating user-site is fine.
+    install = run(["pip", "install", "-q", "--break-system-packages", "-e", ".[dev]"],
+                  cwd=workspace, timeout=120)
     install_ok = install["rc"] == 0
 
     # Run ruff
