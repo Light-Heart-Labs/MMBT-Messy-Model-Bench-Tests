@@ -60,10 +60,12 @@
     "explicit_recommendation_present": true
   },
   "hand_rating_placeholders": {
-    "prose_quality_1to5": null,
-    "stance_clarity_1to5": null,
-    "source_skepticism_1to5": null,
-    "balanced_tone_1to5": null,
-    "rater_notes": null
+    "prose_quality_1to5": 5,
+    "stance_clarity_1to5": 5,
+    "source_skepticism_1to5": 5,
+    "balanced_tone_1to5": 5,
+    "rater_notes": "Same brief structure and quality as v1 (the cleanly-completed run). 775 words >700 limit \u2014 same word-limit-trim failure mode that ran the agent into an identical-call-loop on `brief.md` (writes same 775-word content for ~138 iters before manual SIGTERM). Brief content quality not affected by the loop \u2014 the prose is excellent. Failure is purely the model's inability to compress further. See doc-synthesis README and findings.md \u00a7 'word-limit-trim failure'.",
+    "_GRADED_AT_": "2026-04-28T07:30:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }

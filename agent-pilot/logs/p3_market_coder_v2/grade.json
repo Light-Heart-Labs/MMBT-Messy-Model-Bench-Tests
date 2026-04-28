@@ -21,10 +21,12 @@
     "_HAND_VERIFICATION_REQUIRED_": "structural pass is necessary but not sufficient. The fabrication-and-citation-validity dimensions need human verification of each cited source.",
     "citations_valid_pct_0to100": null,
     "fabricated_stats_count": null,
-    "products_actually_compared_0to5": null,
+    "products_actually_compared_0to5": 0,
     "decision_criteria_explicit_1to5": null,
     "recommendation_specificity_1to5": null,
     "context_appropriateness_1to5": null,
-    "rater_notes": null
+    "rater_notes": "STRUCTURAL_FAIL. Same as v1 \u2014 stuck-in-research, no required deliverables produced.",
+    "_GRADED_AT_": "2026-04-28T07:30:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }

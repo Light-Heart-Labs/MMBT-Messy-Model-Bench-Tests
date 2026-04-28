@@ -64,6 +64,11 @@
     "calibration_1to5": null,
     "concise_for_audience_1to5": null,
     "fabrication_count": null,
-    "rater_notes": null
+    "rater_notes": "8/8 bias signals captured (same across v1, v2, v3). Memo pushes back against the deal pack with concrete questions about ARR-vs-revenue framing, customer-concentration risk, and the discrepancy between the press-release narrative and the operational memo. 656 words, well within limit.",
+    "bias_recall_completeness_1to5": 5,
+    "stance_pushback_1to5": 5,
+    "memo_clarity_1to5": 5,
+    "_GRADED_AT_": "2026-04-28T07:30:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }

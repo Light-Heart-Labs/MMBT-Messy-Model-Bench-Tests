@@ -60,10 +60,12 @@
     "explicit_recommendation_present": true
   },
   "hand_rating_placeholders": {
-    "prose_quality_1to5": null,
-    "stance_clarity_1to5": null,
-    "source_skepticism_1to5": null,
-    "balanced_tone_1to5": null,
-    "rater_notes": null
+    "prose_quality_1to5": 5,
+    "stance_clarity_1to5": 5,
+    "source_skepticism_1to5": 5,
+    "balanced_tone_1to5": 5,
+    "rater_notes": "Same as v2 \u2014 excellent brief, 768 words, identical-call-loop on brief.md. Manual SIGTERM at iter 71. Brief structure and quality consistent with v1.",
+    "_GRADED_AT_": "2026-04-28T07:30:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }

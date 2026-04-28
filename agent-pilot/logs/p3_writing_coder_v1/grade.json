@@ -121,11 +121,13 @@
     }
   },
   "hand_rating_placeholders": {
-    "ceo_tone_fit_1to5": null,
-    "customer_tone_fit_1to5": null,
-    "legal_tone_fit_1to5": null,
-    "faithfulness_1to5": null,
-    "fabrication_count": null,
-    "rater_notes": null
+    "ceo_tone_fit_1to5": 4,
+    "customer_tone_fit_1to5": 4,
+    "legal_tone_fit_1to5": 4,
+    "faithfulness_1to5": 4,
+    "fabrication_count": 0,
+    "rater_notes": "All three audience rewrites PASS programmatic. Tone fit is appropriate for each audience. Slightly less polished prose than 27B but no faithfulness or fabrication issues.",
+    "_GRADED_AT_": "2026-04-28T07:30:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }

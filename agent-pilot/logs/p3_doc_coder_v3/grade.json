@@ -60,10 +60,12 @@
     "explicit_recommendation_present": true
   },
   "hand_rating_placeholders": {
-    "prose_quality_1to5": null,
-    "stance_clarity_1to5": null,
-    "source_skepticism_1to5": null,
-    "balanced_tone_1to5": null,
-    "rater_notes": null
+    "prose_quality_1to5": 4,
+    "stance_clarity_1to5": 5,
+    "source_skepticism_1to5": 3,
+    "balanced_tone_1to5": 4,
+    "rater_notes": "Within word limit, PASS by grader. Prose quality and stance similar to v1. Source skepticism 3/5 \u2014 cites sources but no explicit reliability evaluation (consistent with Coder-Next pattern across the doc-synthesis runs).",
+    "_GRADED_AT_": "2026-04-28T07:30:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }

@@ -64,6 +64,11 @@
     "calibration_1to5": null,
     "concise_for_audience_1to5": null,
     "fabrication_count": null,
-    "rater_notes": null
+    "rater_notes": "Same 8/8 bias signals. 708 words \u2014 1 over the 700-word limit (FAIL by grader threshold). Content quality consistent with v1/v2 but minor compress-to-limit miss.",
+    "bias_recall_completeness_1to5": 5,
+    "stance_pushback_1to5": 5,
+    "memo_clarity_1to5": 4,
+    "_GRADED_AT_": "2026-04-28T07:30:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }

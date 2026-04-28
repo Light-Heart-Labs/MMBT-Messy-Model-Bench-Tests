@@ -124,11 +124,13 @@
     }
   },
   "hand_rating_placeholders": {
-    "ceo_tone_fit_1to5": null,
-    "customer_tone_fit_1to5": null,
-    "legal_tone_fit_1to5": null,
-    "faithfulness_1to5": null,
-    "fabrication_count": null,
-    "rater_notes": null
+    "ceo_tone_fit_1to5": 4,
+    "customer_tone_fit_1to5": 4,
+    "legal_tone_fit_1to5": 2,
+    "faithfulness_1to5": 4,
+    "fabrication_count": 0,
+    "rater_notes": "ceo_brief and customer_email PASS, legal_summary FAIL (programmatic \u2014 likely included content on the prohibited list, e.g. speculation about cause or non-factual framing). Faithfulness to source material is OK but the legal-summary subdimension's must-not-include list flagged something.",
+    "_GRADED_AT_": "2026-04-28T07:30:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }

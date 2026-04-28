@@ -121,11 +121,13 @@
     }
   },
   "hand_rating_placeholders": {
-    "ceo_tone_fit_1to5": null,
-    "customer_tone_fit_1to5": null,
-    "legal_tone_fit_1to5": null,
-    "faithfulness_1to5": null,
-    "fabrication_count": null,
-    "rater_notes": null
+    "ceo_tone_fit_1to5": 5,
+    "customer_tone_fit_1to5": 3,
+    "legal_tone_fit_1to5": 5,
+    "faithfulness_1to5": 5,
+    "fabrication_count": 0,
+    "rater_notes": "ceo_brief and legal_summary PASS. customer_email FAIL (programmatic) \u2014 missing required keyword (outage/downtime/incident); content is faithful to source material but uses softer phrasing ('disruption', 'service issue') that doesn't match the keyword list. Tone for CEO and legal audiences is appropriate; customer tone is also appropriate but euphemistic.",
+    "_GRADED_AT_": "2026-04-28T07:30:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }

@@ -119,6 +119,12 @@
     "structure_quality_1to5": null,
     "fabrication_count": null,
     "owner_accuracy_0to6": null,
-    "rater_notes": null
+    "rater_notes": "Workstreams 6/6 (programmatic). Decisions 3/4 captured. Risks 2/6 \u2014 multi-week-spanning risks systematically missed (same pattern as Coder-Next). FAIL by grader threshold (risks <3/6).",
+    "workstream_completeness_1to5": 5,
+    "risk_completeness_1to5": 2,
+    "decision_quality_1to5": 4,
+    "milestone_clarity_1to5": 5,
+    "_GRADED_AT_": "2026-04-28T07:30:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }

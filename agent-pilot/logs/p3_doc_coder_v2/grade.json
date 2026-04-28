@@ -60,10 +60,12 @@
     "explicit_recommendation_present": true
   },
   "hand_rating_placeholders": {
-    "prose_quality_1to5": null,
-    "stance_clarity_1to5": null,
-    "source_skepticism_1to5": null,
-    "balanced_tone_1to5": null,
-    "rater_notes": null
+    "prose_quality_1to5": 4,
+    "stance_clarity_1to5": 4,
+    "source_skepticism_1to5": 3,
+    "balanced_tone_1to5": 4,
+    "rater_notes": "1005 words \u2014 agent didn't apply the word limit. Content quality similar to v1 (4/5 prose) but length-cap miss is a different failure mode than the v1/v3 PASS runs \u2014 agent didn't try to compress at all. Different from 27B's 'tries to compress, can't' loop.",
+    "_GRADED_AT_": "2026-04-28T07:30:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }
