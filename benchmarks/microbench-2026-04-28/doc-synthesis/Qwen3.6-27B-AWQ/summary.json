@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-28T04:26:15.539597+00:00",
+  "ended_at": "2026-04-28T04:34:22.682101+00:00",
+  "elapsed_s": 487.1,
+  "iterations": 33,
+  "total_completion_tokens": 24955,
+  "total_prompt_tokens": 492640,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Produced a 1-page executive brief for Nimbus Logistics follow-on investment assessment.\n\n**Deliverables:**\n- `brief.md` \u2014 626-word executive brief with a clear **PASS** recommendation, citing all five sources inline\n- `key-facts.md` \u2014 Complete table of every material fact with source attribution\n- `research/notes.md` \u2014 Working notes from reading all five sources\n- `research/dead-ends.md` \u2014 Abandoned ideas with rationale\n- `decisions/adr-001-recommendation-stance.md` \u2014 ADRs explaining framing choices\n- `README.md` \u2014 How to read the output\n\n**Key findings synthesized across sources:**\n1. ARR is inflated by churn: $42M claimed vs. $36\u201337M adjusted (Sources 1, 2)\n2. Valuation was repriced down 22% from $720M to $560M mid-process (Source 2)\n3. Top 5 customers = 38% of ARR \u2014 material concentration risk (Source 3)\n4. Net burn of ~$500K/month with layoffs and further restructuring planned (Sources 3, 4)\n5. $50M credit facility secured so soon after $84M equity raise (Source 4)\n\n**Recommendation:** PASS now, watch for Series C in late 2026 once restructuring plays out and breakeven path is demonstrated."
+}

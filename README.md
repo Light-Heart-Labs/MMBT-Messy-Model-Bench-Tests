@@ -33,6 +33,7 @@ benchmarks/
 | [`dreamserver-75-pr-audit`](benchmarks/dreamserver-75-pr-audit/) | Audit 75 open PRs in a live repository and produce a traceable maintainer triage repo. | `GPT-5.5`, `Opus-4.7`, `Qwen3.6-27B-AWQ`, `Qwen3-Coder-Next-AWQ` (failure-mode entry) |
 | [`dreamserver-1-pr-audit`](benchmarks/dreamserver-1-pr-audit/) | Same task spec, scaled to a single PR. Built as the floor of an escalation ladder (1 → 2 → 4 → 8 → 16 → 32) to find each model's complexity ceiling. | `Qwen3-Coder-Next-AWQ`, `Qwen3.6-27B-AWQ`, `Qwen3.6-35B-A3B-AWQ` (floor failure) |
 | [`wallstreet-intern-test`](benchmarks/wallstreet-intern-test/) | Build a traceable investment memo repo with raw sources, extracted data, a three-statement model, valuation, and recommendation. | `GPT-5.5`, `Opus-4.7`, `Qwen3.6-27B-AWQ`, `Qwen3-Coder-Next-AWQ`, `Qwen3.6-35B-A3B-AWQ` (failure-mode entry) |
+| [`microbench-2026-04-28`](benchmarks/microbench-2026-04-28/) | 12 smaller-scope task families (5-30 min deliverables) split across 3 phases — coding (Phase 1), structured business tasks (Phase 2), unbounded business/writing (Phase 3). Designed to surface task-class-specific differences between local 30B-class quantizations. N=3 per cell. Three highest-signal task families published as full per-model entries: adversarial-hallucination, market-research, doc-synthesis. | `Qwen3.6-27B-AWQ`, `Qwen3-Coder-Next-AWQ` |
 
 ## At a glance
 
@@ -82,3 +83,9 @@ The repo keeps the failures because the *kinds* of failure are themselves the co
 - [Qwen3.6-27B-AWQ](benchmarks/wallstreet-intern-test/Qwen3.6-27B-AWQ/) — local, GitLab Inc. (`GTLB`) BUY recommendation. 1 of 3 attempts shipped (other 2: parser fault, 1-hour single-call timeout). 17 KB three-statement model, full audit trail.
 - [Qwen3-Coder-Next-AWQ](benchmarks/wallstreet-intern-test/Qwen3-Coder-Next-AWQ/) — local, DocuSign (`DOCU`) BUY recommendation. 1 of 3 attempts shipped (other 2: scaffold-and-stop). 10.6 KB three-statement model. **Verdict-reliability caveat in entry README** — single-shot Coder-Next output can be confidently wrong with fabricated evidence (see PR-audit benchmark for documented examples).
 - [Qwen3.6-35B-A3B-AWQ](benchmarks/wallstreet-intern-test/Qwen3.6-35B-A3B-AWQ/) — local, **no usable deliverable**. 0 of 3 attempts shipped. Folder kept as failure-mode evidence consistent with the model's PR-audit floor failure.
+
+**microbench-2026-04-28:**
+- [`adversarial-hallucination/`](benchmarks/microbench-2026-04-28/adversarial-hallucination/) — agent must distinguish 6 real bugs from 9 confident-but-wrong fabrications. Sharpest local-model superiority signal in the entire repo: 27B 3/3 PASS, Coder-Next 1/3 PASS with 2 confirmed-fabrications-as-real on the shipping run.
+- [`market-research/`](benchmarks/microbench-2026-04-28/market-research/) — 5-product enterprise password manager comparison + pricing math + cited sources. Inversion of the prior "both fail at internet research" expectation: 27B 3/3 STRUCTURAL_PASS (12-18 cites to 29-33 distinct URLs), Coder-Next 0/3 STRUCTURAL_FAIL.
+- [`doc-synthesis/`](benchmarks/microbench-2026-04-28/doc-synthesis/) — 1-page executive brief from 5 source documents, 700-word limit. Documents a 27B failure mode: 8/8 facts captured every run, but model can't trim to length (765-775 words across N=3, two runs entered identical-call-loops on `brief.md`).
+- [`findings.md`](benchmarks/microbench-2026-04-28/findings.md) — cross-cutting writeup spanning all 12 task families (3 published full + 9 summarized).
