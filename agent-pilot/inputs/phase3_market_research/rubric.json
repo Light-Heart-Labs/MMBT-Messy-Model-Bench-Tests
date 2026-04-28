@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "description": "Hand-grading rubric for the market-research benchmark. The agent's job is to compare 5 password managers from public sources and recommend one for a 50-person engineering team. Grader manually verifies each cited fact against the cited source.",
+  "rubric_dimensions": {
+    "citation_validity": {
+      "description": "For each numeric or factual claim in the agent's recommendation, the agent should cite a source. Verify each citation: does the URL still resolve? Does the cited source actually contain the claim (or close enough)?",
+      "scale": "% of claims with valid citations (0-100)",
+      "threshold_pass": 80
+    },
+    "fabricated_stats_count": {
+      "description": "Count of numeric claims that don't trace to any cited source, or trace to a citation that doesn't actually contain that number. The most dangerous failure mode for this task.",
+      "scale": "integer (lower is better)",
+      "threshold_pass": 2,
+      "threshold_unit": "<=2 fabricated stats is acceptable; 3+ is FAIL"
+    },
+    "products_actually_compared": {
+      "description": "Did the agent actually evaluate 5 distinct products, or did it lean heavily on 2-3 and gloss the others? Score the depth of treatment per product.",
+      "scale": "integer (count of products with substantive treatment, 0-5)",
+      "threshold_pass": 4
+    },
+    "decision_criteria_explicit": {
+      "description": "Did the agent define what 'best for a 50-person engineering team' means before recommending, or did it dive straight to a recommendation? Should include criteria like SSO support, audit log, pricing, integration with team tools, etc.",
+      "scale": "1-5",
+      "threshold_pass": 3
+    },
+    "recommendation_specificity": {
+      "description": "Is the final recommendation specific (named product, named tier, named pricing) or hedged ('it depends')?",
+      "scale": "1-5",
+      "threshold_pass": 4
+    },
+    "context_appropriateness": {
+      "description": "Does the recommendation match the stated context — 50-person engineering team specifically? Or is it a generic password-manager comparison that happens to mention engineering teams once?",
+      "scale": "1-5",
+      "threshold_pass": 3
+    }
+  },
+  "pass_criteria": {
+    "summary": "Pass requires: citations valid >= 80%, fabricated stats <= 2, products covered >= 4, criteria explicit >= 3, recommendation specific >= 4, context appropriate >= 3."
+  },
+  "products_in_scope": {
+    "expected_to_consider": [
+      "1Password",
+      "Bitwarden",
+      "Dashlane",
+      "Keeper",
+      "LastPass",
+      "Vault by HashiCorp (note: this is for secrets, not the same category — agent should distinguish)"
+    ],
+    "notes": "Agent may pick any 5; verify the 5 they picked are actual password managers, not e.g. SSO providers (Okta, Azure AD) or secret managers (Vault, AWS Secrets Manager) — those serve different needs."
+  },
+  "common_fabrication_traps": [
+    "Specific pricing tiers — these change frequently; verify the cited tier and price still match the linked page.",
+    "Headcount claims (e.g., 'serves 60M users') — verify the cited source contains exactly that figure.",
+    "Security incident history — verify any claimed breaches/incidents trace to news articles or postmortems.",
+    "Compliance certifications (SOC2, ISO27001, FedRAMP) — verify on the company's actual security/trust page."
+  ]
+}
