@@ -20,9 +20,9 @@ For some entries (`benchmarks/dreamserver-75-pr-audit/Qwen3-Coder-Next-AWQ/`, `b
 
 ### Microbench-2026-04-28: only 3 of 12 task families are published as full entries
 
-The microbench has 12 task families × 2 models × N=3 = ~80 runs. Publishing every run as a full per-model folder would create 60+ tiny entries. Three task families (`adversarial-hallucination/`, `market-research/`, `doc-synthesis/`) are published as full per-model entries because they carry the highest-signal results. The other nine (Phase 1 coding × 3, Phase 2 extraction/CI/triage, Phase 3 business-memo/writing/PM) are summarized in `findings.md` and `SCORECARD.md` only. Their per-run cost.json / grade.json / label.json / receipt.json / summary.json / transcript.jsonl / deliverables exist in the source bench repo (`agent-pilot/logs/p[1-3]_*/`) but aren't mirrored here.
+The microbench has 12 task families × 2 models × N=3 = ~80 runs. Publishing every run as a full per-model folder would create 60+ tiny entries. Three task families (`adversarial-hallucination/`, `market-research/`, `doc-synthesis/`) are published as full per-model entries because they carry the highest-signal results. The other nine (Phase 1 coding × 3, Phase 2 extraction/CI/triage, Phase 3 business-memo/writing/PM) are published as **lean entries** (per-model README + cost.json + grade.json + label.json + summary.json + receipt.json — no transcripts or deliverables to keep repo size manageable).
 
-This means: for the 9 unpublished task families, you can read the SCORECARD pass-rate cell and the findings doc's discussion, but you can't drill into a specific deliverable artifact from MMBT alone. If you want to verify a specific claim about (say) Coder-Next on triage at N=3, you'd need access to the source bench repo.
+This means: for the 9 lean entries, you can read the per-model verdict, cost, and label, but you can't drill into the specific transcript or deliverable artifact from MMBT alone. **However, the task prompts, input starters, ground truth, and grader scripts for all 12 task families are now shipped in `tooling/`** — so a reader with the right hardware can rerun any of these task families and produce their own transcripts + deliverables. See `tooling/REPRODUCING.md` § "Reproducing the microbench".
 
 ### Microbench: two manually-advanced 27B runs in `doc-synthesis`
 

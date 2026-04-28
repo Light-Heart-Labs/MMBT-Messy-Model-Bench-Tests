@@ -38,4 +38,4 @@ The Coder-Next runs handled the trim more reliably — 2/3 PASS at 626 words. Th
 
 ## Task starter
 
-The 5 source documents and the planted-fact list are in the source bench repo at `agent-pilot/inputs/phase3_doc_synthesis/sources.md`. Ground truth (the 8 specific facts and how each is canonically expressed) is in `agent-pilot/graders/ground_truth/phase3_doc_synthesis.json` — kept out of the agent-mountable input dir.
+The 5 source documents and the planted-fact list are in [`../../../tooling/inputs/phase3_doc_synthesis/sources.md`](../../../tooling/inputs/phase3_doc_synthesis/sources.md). Ground truth (the 8 specific facts and how each is canonically expressed) is in [`../../../tooling/graders/ground_truth/phase3_doc_synthesis.json`](../../../tooling/graders/ground_truth/phase3_doc_synthesis.json) — kept SEPARATE from `tooling/inputs/` (which is what the agent mounts) so the planted answers can't leak.

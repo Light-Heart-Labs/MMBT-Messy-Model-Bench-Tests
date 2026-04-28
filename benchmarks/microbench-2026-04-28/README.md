@@ -33,7 +33,7 @@ This benchmark has 12 task families and would produce 60+ per-model folders if e
 | [`writing-editing/`](writing-editing/) | 0/3 | 2/3 PASS | 27B's 0/3 is a single-keyword miss on customer email (CEO + legal pass 5/5 every run) |
 | [`project-management/`](project-management/) | 0/3 | 1/3 PASS | Both excellent on workstreams + decisions, both 2-3/6 on multi-week risks |
 
-For the 9 lean entries, transcripts and deliverable artifacts live in the source bench repository at `agent-pilot/logs/p[1-3]_*/`.
+For the 9 lean entries, transcripts and deliverable artifacts are not mirrored in MMBT (to keep repo size manageable) but the **task prompts, input starters, ground truth, and grader scripts are all in `tooling/`** — meaning a reader with the right hardware can rerun any of these task families and produce their own transcripts + deliverables. See [`tooling/REPRODUCING.md`](../../../tooling/REPRODUCING.md) § "Reproducing the microbench" for the walkthrough.
 
 ## Per-entry layout
 
@@ -58,7 +58,7 @@ All runs used:
 - Sandbox: bench/agent-pilot/Dockerfile (Python 3.11 + git + curl + standard tools)
 - Hardware: Tower2, 2× NVIDIA RTX PRO 6000 Blackwell Workstation Edition, AMD Threadripper PRO 7965WX, 252 GB RAM, 1600W PSU on dedicated 20A circuit. See `tooling/REPRODUCING.md` for the reproduction walkthrough.
 
-Per-task starter inputs (the planted facts, schemas, audience briefs, etc.) are in the source bench repository's `agent-pilot/inputs/phase[2-3]_*/` directories. The ground-truth files (planted answers) live in `agent-pilot/graders/ground_truth/` to keep them out of the agent-mountable input dirs — verified pre-launch.
+Per-task starter inputs (the planted facts, schemas, audience briefs, etc.) are in this repo's `tooling/` folder (see [`tooling/REPRODUCING.md`](../../tooling/REPRODUCING.md) § "Reproducing the microbench")'s `agent-pilot/inputs/phase[2-3]_*/` directories. The ground-truth files (planted answers) live in `agent-pilot/graders/ground_truth/` to keep them out of the agent-mountable input dirs — verified pre-launch.
 
 ## Caveats
 

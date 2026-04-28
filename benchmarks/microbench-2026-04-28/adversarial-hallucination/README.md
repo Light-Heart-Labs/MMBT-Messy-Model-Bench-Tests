@@ -29,4 +29,4 @@ This is the same failure mode as the Coder-Next runs on `dreamserver-1-pr-audit`
 
 ## Task starter
 
-The 15-issue report and the codebase under audit (`logalyzer/`) are in the source bench repo at `agent-pilot/inputs/phase2_hallucination/`. Ground truth (which 6 are real and which 9 are fabricated, with the why for each) is in `agent-pilot/graders/ground_truth/phase2_hallucination.json` — kept out of the agent-mountable input dir to prevent leakage.
+The 15-issue report and the codebase under audit (`logalyzer/`) are in [`../../../tooling/inputs/phase2_hallucination/`](../../../tooling/inputs/phase2_hallucination/). Ground truth (which 6 are real and which 9 are fabricated, with the why for each) is in [`../../../tooling/graders/ground_truth/phase2_hallucination.json`](../../../tooling/graders/ground_truth/phase2_hallucination.json) — kept SEPARATE from `tooling/inputs/` (which is what the agent mounts) so the planted answers can't leak to prevent leakage.

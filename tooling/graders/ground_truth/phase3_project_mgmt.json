@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "description": "Expected extractions from the Project Aurora meeting-notes log. Used as a hand-grading rubric. The agent's job is to produce a roadmap, risk register, owner assignments, and milestone list — measured against these expected items.",
+  "expected_workstreams": [
+    {"id": "WS1", "name": "Query-layer / SDK filter parser", "owner": "Marcus", "blocking_for_v1": true, "current_status": "60% done, tracking to mid-May", "notes": "Aanya covering reviews while Lin on PTO"},
+    {"id": "WS2", "name": "Dashboard refresh (frontend)", "owner": "Jen", "blocking_for_v1": true, "current_status": "in progress; mobile-responsive on track for mid-May", "notes": "Custom branding deferred to V1.5+"},
+    {"id": "WS3", "name": "Data pipeline architectural fix (panel-density)", "owner": "Roman", "blocking_for_v1": false, "current_status": "30% done, on track for V1.1 in August", "notes": "V1 ships with documented 40-panel limit"},
+    {"id": "WS4", "name": "SDK access-control / IAM", "owner": "Priya (security) + Marcus", "blocking_for_v1": true, "current_status": "IAM design started; customer-facing API discussion next", "notes": "4-week minimum effort; private-beta path chosen"},
+    {"id": "WS5", "name": "Customer comms — Maevia (was promised GA SDK at conference)", "owner": "Sara", "blocking_for_v1": false, "current_status": "CSM call tomorrow", "notes": "Customer-relationship risk if not handled well"},
+    {"id": "WS6", "name": "Legal — private-beta contracts for SDK access-control commitments", "owner": "Sara → legal", "blocking_for_v1": true, "current_status": "Legal hasn't responded to draft", "notes": "Blocking SDK private-beta launch"}
+  ],
+  "expected_risks": [
+    {"id": "R1", "summary": "Brendan's mid-July date may slip if any of {query-layer, mobile-responsive, IAM access-control} is late", "severity": "high"},
+    {"id": "R2", "summary": "Maevia push-back on private-beta vs promised GA — customer-relationship risk", "severity": "medium"},
+    {"id": "R3", "summary": "Legal team unresponsive on private-beta contract draft — blocking the SDK launch path", "severity": "high"},
+    {"id": "R4", "summary": "40-panel-per-page limit in V1 will need clear customer-facing docs to avoid expectation mismatches", "severity": "medium"},
+    {"id": "R5", "summary": "Custom-branding deferred from V1 — Jen has 3 weeks of design work parked, may bleed into V1.5", "severity": "low"},
+    {"id": "R6", "summary": "Lin's PTO created a review bottleneck that was only solved by escalation; future reviewer single-point-of-failure", "severity": "low"}
+  ],
+  "expected_decisions_made": [
+    "Custom-branding deferred from V1 (Brendan, week 3)",
+    "40-panel limit accepted in V1 (Brendan, week 3)",
+    "Mobile path = web-responsive in V1, native in V2 (team consensus, week 4)",
+    "SDK access-control = Option B private-beta with 3-5 customers (Brendan, week 6)"
+  ],
+  "expected_milestones": [
+    {"name": "Query-layer complete", "owner": "Marcus", "target": "mid-May 2026"},
+    {"name": "Mobile-responsive complete", "owner": "Jen", "target": "mid-May 2026"},
+    {"name": "V1 launch (private beta of SDK + GA dashboard)", "owner": "Sara", "target": "mid-July 2026"},
+    {"name": "V1.1 — architectural fix for panel density", "owner": "Roman", "target": "August/September 2026"},
+    {"name": "V1.5 — custom-branding + native mobile", "owner": "Jen", "target": "TBD (deferred)"}
+  ],
+  "rubric": {
+    "workstream_recall": {"description": "How many of the 6 expected workstreams did the agent identify?", "scale": "0-6"},
+    "owner_accuracy": {"description": "Did the agent name the correct owner per workstream?", "scale": "0-6"},
+    "risk_recall": {"description": "How many of the 6 expected risks did the agent surface?", "scale": "0-6"},
+    "decision_recall": {"description": "How many of the 4 expected decisions did the agent capture?", "scale": "0-4"},
+    "milestone_recall": {"description": "How many of the 5 expected milestones did the agent identify?", "scale": "0-5"},
+    "fabrication_count": {"description": "Items in the agent's output not present in the source.", "scale": "integer (lower better)"},
+    "structure_quality": {"description": "Is the output structured (clearly labeled sections for roadmap / risks / owners / milestones) or a wall of text?", "scale": "1-5"}
+  }
+}

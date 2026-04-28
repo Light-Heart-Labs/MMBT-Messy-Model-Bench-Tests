@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "description": "Per-audience rewrite specifications. The agent must produce three distinct rewrites of the source memo, each tailored to its named audience.",
+  "audiences": {
+    "ceo_brief": {
+      "filename": "ceo_brief.md",
+      "audience": "CEO of the company",
+      "max_words": 250,
+      "purpose": "5-minute board-prep read. CEO needs to know: what happened, who was impacted, what we're doing, what the board-level signal is. NOT detailed technical root-cause.",
+      "must_include": [
+        "the one-line summary of the outage",
+        "scope of impact (number of accounts, money/revenue framing)",
+        "second-occurrence-in-90-days framing (board signal)",
+        "the three or four most material remediations"
+      ],
+      "must_not_include": [
+        "internal nicknames / informal apologies (e.g. 'sorry Sarah')",
+        "engineering-jargon without translation",
+        "detailed fraction-against-MAX explanations"
+      ],
+      "tone": "Concise, executive. Direct stance. No hedging."
+    },
+    "customer_email": {
+      "filename": "customer_email.md",
+      "audience": "All affected customers (mass email)",
+      "max_words": 350,
+      "purpose": "Build trust. Explain what happened in human terms. Acknowledge the impact. Outline what we're doing differently. Offer the SLA credit explicitly.",
+      "must_include": [
+        "clear acknowledgement of the outage and its scope",
+        "what we know about root cause (in plain language)",
+        "what we're committing to differently going forward",
+        "explicit reference to the SLA credit / how to request",
+        "a contact path (CSM, support, named exec)"
+      ],
+      "must_not_include": [
+        "blame on a named individual",
+        "engineering-jargon (rate limiter, MAX, throttling internals)",
+        "internal candor about previous board signals or unaddressed warnings",
+        "the 'second outage in 90 days' framing — that's an internal signal, not a customer-facing one"
+      ],
+      "tone": "Warm, direct, accountable. Active voice. No corporate hedging ('out of an abundance of caution', 'unforeseen circumstances')."
+    },
+    "legal_summary": {
+      "filename": "legal_summary.md",
+      "audience": "In-house counsel reviewing SLA credit obligations",
+      "max_words": 400,
+      "purpose": "Precise, dispassionate enumeration of facts relevant to SLA-credit determinations. Counsel uses this to advise finance on credit processing.",
+      "must_include": [
+        "exact incident time window with timezone",
+        "scope (account count, customer-tier breakdown)",
+        "the contractual SLA threshold (99.9% monthly) and whether it was nominally breached",
+        "the four cases of known downstream-automation harm",
+        "a recommendation on credit-request handling (case-by-case for relationship-driven, contractual for SLA-driven)"
+      ],
+      "must_not_include": [
+        "speculation about future outages",
+        "named-employee blame",
+        "informal candor",
+        "marketing language",
+        "engineering remediation details (irrelevant to counsel)"
+      ],
+      "tone": "Precise, factual, dispassionate. Use 'incident' not 'outage'. No apologies, no soft-pedaling."
+    }
+  },
+  "rubric": {
+    "audience_fit_per_rewrite": {
+      "description": "Does the rewrite match the target audience's information needs and style?",
+      "scale": "1-5"
+    },
+    "faithfulness_to_source": {
+      "description": "Does the rewrite preserve the substantive facts in the draft? No invented numbers, no contradictions.",
+      "scale": "1-5"
+    },
+    "no_inappropriate_content_per_rewrite": {
+      "description": "Does the rewrite avoid the must_not_include items? The most likely failure: customer email mentions the named engineer or includes the 'second outage in 90 days' board signal.",
+      "scale": "1-5 (5 = no inappropriate content)"
+    },
+    "within_word_limit": {
+      "description": "Each rewrite within its specified max_words.",
+      "scale": "boolean per audience"
+    },
+    "fabrication_count": {
+      "description": "Count of any facts in the rewrites not present in the source memo.",
+      "scale": "integer (lower is better)"
+    }
+  }
+}
