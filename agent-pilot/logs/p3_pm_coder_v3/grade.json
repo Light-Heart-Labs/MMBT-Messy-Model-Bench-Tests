@@ -1,0 +1,124 @@
+{
+  "task": "project_mgmt",
+  "verdict": "FAIL",
+  "scores": {
+    "workstream_recall": "6/6",
+    "risk_recall": "2/6",
+    "decision_recall": "4/4",
+    "milestone_recall": "4/5",
+    "sections_present": [
+      "workstream",
+      "risk",
+      "decision",
+      "milestone"
+    ],
+    "word_count": 378
+  },
+  "thresholds": {
+    "min_workstreams": 4,
+    "min_risks": 3,
+    "min_decisions": 3,
+    "min_milestones": 3,
+    "max_word_count": 700
+  },
+  "details": {
+    "workstreams": {
+      "WS1": {
+        "matched": true,
+        "keyword": "query-layer"
+      },
+      "WS2": {
+        "matched": true,
+        "keyword": "dashboard refresh"
+      },
+      "WS3": {
+        "matched": true,
+        "keyword": "panel-density"
+      },
+      "WS4": {
+        "matched": true,
+        "keyword": "access-control"
+      },
+      "WS5": {
+        "matched": true,
+        "keyword": "maevia"
+      },
+      "WS6": {
+        "matched": true,
+        "keyword": "legal"
+      }
+    },
+    "risks": {
+      "R1": {
+        "matched": false,
+        "keyword": null
+      },
+      "R2": {
+        "matched": false,
+        "keyword": null
+      },
+      "R3": {
+        "matched": false,
+        "keyword": null
+      },
+      "R4": {
+        "matched": true,
+        "keyword": "40-panel"
+      },
+      "R5": {
+        "matched": true,
+        "keyword": "custom-branding"
+      },
+      "R6": {
+        "matched": false,
+        "keyword": null
+      }
+    },
+    "decisions": {
+      "D1_branding": {
+        "matched": true,
+        "keyword": "cut custom-branding"
+      },
+      "D2_panel_limit": {
+        "matched": true,
+        "keyword": "40-panel"
+      },
+      "D3_mobile": {
+        "matched": true,
+        "keyword": "native in v2"
+      },
+      "D4_option_b": {
+        "matched": true,
+        "keyword": "option b"
+      }
+    },
+    "milestones": {
+      "M1": {
+        "matched": true,
+        "keyword": "mid-may"
+      },
+      "M2": {
+        "matched": true,
+        "keyword": "mid-may"
+      },
+      "M3": {
+        "matched": false,
+        "keyword": null
+      },
+      "M4": {
+        "matched": true,
+        "keyword": "v1.1"
+      },
+      "M5": {
+        "matched": true,
+        "keyword": "deferred"
+      }
+    }
+  },
+  "hand_rating_placeholders": {
+    "structure_quality_1to5": null,
+    "fabrication_count": null,
+    "owner_accuracy_0to6": null,
+    "rater_notes": null
+  }
+}

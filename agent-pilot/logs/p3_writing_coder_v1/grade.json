@@ -1,0 +1,131 @@
+{
+  "task": "writing_editing",
+  "verdict": "PASS",
+  "per_audience": {
+    "ceo_brief": {
+      "verdict": "PASS",
+      "filename": "ceo_brief.md",
+      "word_count": 161,
+      "max_words": 250,
+      "within_word_limit": true,
+      "required_content_hits": [
+        {
+          "any_of": [
+            "outage",
+            "incident"
+          ],
+          "matched": "outage"
+        },
+        {
+          "any_of": [
+            "11,400",
+            "11400"
+          ],
+          "matched": "11,400"
+        },
+        {
+          "any_of": [
+            "second",
+            "two",
+            "twice"
+          ],
+          "matched": "second"
+        },
+        {
+          "any_of": [
+            "90 days",
+            "90-day",
+            "second time",
+            "second 4"
+          ],
+          "matched": "second 4"
+        }
+      ],
+      "required_content_pass": true,
+      "prohibited_content_hits": [],
+      "prohibited_content_pass": true
+    },
+    "customer_email": {
+      "verdict": "PASS",
+      "filename": "customer_email.md",
+      "word_count": 200,
+      "max_words": 350,
+      "within_word_limit": true,
+      "required_content_hits": [
+        {
+          "any_of": [
+            "outage",
+            "downtime",
+            "incident"
+          ],
+          "matched": "incident"
+        },
+        {
+          "any_of": [
+            "sla",
+            "credit"
+          ],
+          "matched": "sla"
+        },
+        {
+          "any_of": [
+            "contact",
+            "csm",
+            "support",
+            "reach out",
+            "email"
+          ],
+          "matched": "contact"
+        }
+      ],
+      "required_content_pass": true,
+      "prohibited_content_hits": [],
+      "prohibited_content_pass": true
+    },
+    "legal_summary": {
+      "verdict": "PASS",
+      "filename": "legal_summary.md",
+      "word_count": 192,
+      "max_words": 400,
+      "within_word_limit": true,
+      "required_content_hits": [
+        {
+          "any_of": [
+            "14:11",
+            "14:09",
+            "18:24",
+            "14:00"
+          ],
+          "matched": "14:11"
+        },
+        {
+          "any_of": [
+            "99.9",
+            "monthly uptime",
+            "uptime"
+          ],
+          "matched": "99.9"
+        },
+        {
+          "any_of": [
+            "four",
+            "4",
+            "downstream"
+          ],
+          "matched": "4"
+        }
+      ],
+      "required_content_pass": true,
+      "prohibited_content_hits": [],
+      "prohibited_content_pass": true
+    }
+  },
+  "hand_rating_placeholders": {
+    "ceo_tone_fit_1to5": null,
+    "customer_tone_fit_1to5": null,
+    "legal_tone_fit_1to5": null,
+    "faithfulness_1to5": null,
+    "fabrication_count": null,
+    "rater_notes": null
+  }
+}

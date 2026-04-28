@@ -1,35 +1,35 @@
 {
-  "run_name": "p2_triage_coder_v1",
+  "run_name": "p3_pm_coder_v3",
   "model": "qwen3-coder-next-awq",
-  "wall_s": 61.7,
-  "iters": 33,
+  "wall_s": 15.8,
+  "iters": 9,
   "tokens": {
-    "completion_total": 8029,
-    "prompt_total": 259165,
-    "all_total": 267194
+    "completion_total": 2299,
+    "prompt_total": 34072,
+    "all_total": 36371
   },
   "throughput": {
-    "completion_tps_avg": 140.3,
-    "model_call_wall_s": 57.2,
-    "tool_call_wall_s": 2.3,
+    "completion_tps_avg": 157.1,
+    "model_call_wall_s": 14.6,
+    "tool_call_wall_s": 0.5,
     "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
   },
   "time_to": {
-    "first_write_s": 2.1,
-    "first_commit_s": null,
-    "first_tag_s": null
+    "first_write_s": 4.3,
+    "first_commit_s": 13.3,
+    "first_tag_s": 13.9
   },
   "gpu": {
     "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
     "power_limit_w": 600.0,
-    "power_draw_w_at_start": 83.55,
-    "memory_used_mib_at_start": 92768.0,
+    "power_draw_w_at_start": 529.87,
+    "memory_used_mib_at_start": 92648.0,
     "memory_total_mib": 97887.0,
     "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
   },
   "energy_estimate": {
-    "kwh_upper_bound": 0.0103,
-    "cost_usd_upper_bound": 0.0013,
+    "kwh_upper_bound": 0.0026,
+    "cost_usd_upper_bound": 0.0003,
     "rate_usd_per_kwh": 0.13,
     "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
   }
