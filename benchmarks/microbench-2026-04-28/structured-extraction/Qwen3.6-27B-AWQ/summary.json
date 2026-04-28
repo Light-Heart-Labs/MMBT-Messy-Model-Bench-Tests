@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-28T02:22:29.394455+00:00",
+  "ended_at": "2026-04-28T02:23:40.400075+00:00",
+  "elapsed_s": 71.0,
+  "iterations": 5,
+  "total_completion_tokens": 4449,
+  "total_prompt_tokens": 18999,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Extracted all 20 fields from the Veridyne Networks Q3 FY2026 press release into /workspace/extraction_results.json. All fields validated against the schema for correct types (string, integer, number, date) and units (USD millions, percent). No uncertain fields \u2014 every value was explicitly stated in the document. Key decisions documented in notes: ARR extracted as 710 (stated \"exceeded $710M\"), Stitchwise consideration as 115 (stated \"approximately $115M\"), and non-GAAP operating income as positive 9.8 (not loss)."
+}

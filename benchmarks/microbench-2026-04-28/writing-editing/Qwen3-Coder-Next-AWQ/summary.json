@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-28T06:04:16.227944+00:00",
+  "ended_at": "2026-04-28T06:04:36.463882+00:00",
+  "elapsed_s": 20.2,
+  "iterations": 11,
+  "total_completion_tokens": 2856,
+  "total_prompt_tokens": 54578,
+  "model": "qwen3-coder-next-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "I have successfully produced three audience-specific rewrites of the incident memo:\n\n1. **CEO brief** (`/workspace/ceo_brief.md`): 248 words \u2014 executive summary with scope, board signal, and top remediations. No engineering jargon or named individuals.\n\n2. **Customer email** (`/workspace/customer_email.md`): 349 words \u2014 warm, accountable message with outage acknowledgment, plain-language root cause, commitments, explicit SLA credit offer, and contact path. No blame or internal signals.\n\n3. **Legal summary** (`/workspace/legal_summary.md`): 398 words \u2014 precise, factual enumeration of incident time, scope, SLA breach, and credit obligations. No speculation, remediation details, or informal language.\n\nSupporting materials include:\n- `README.md` \u2014 how to read the package\n- `decisions/adr.md` \u2014 ADR-style records for key choices\n- `research/notes.md` \u2014 working notes summarizing the source memo\n\nAll rewrites preserve the substantive facts from the source memo, avoid any invented details, and adhere strictly to the audience briefs' constraints. The final commit is tagged as release v1.0.0."
+}

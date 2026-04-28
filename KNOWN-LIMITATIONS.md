@@ -18,6 +18,16 @@ The local-model entries that have a deliverable are the *single best of multiple
 
 For some entries (`benchmarks/dreamserver-75-pr-audit/Qwen3-Coder-Next-AWQ/`, `benchmarks/wallstreet-intern-test/Qwen3.6-35B-A3B-AWQ/`) we publish failure-mode-only entries with no deliverable. Those are honest about the lack of a single representative run. But for the entries with deliverables, **don't quote a verdict or recommendation as "what the model says" without first checking the entry's variance section**.
 
+### Microbench-2026-04-28: only 3 of 12 task families are published as full entries
+
+The microbench has 12 task families × 2 models × N=3 = ~80 runs. Publishing every run as a full per-model folder would create 60+ tiny entries. Three task families (`adversarial-hallucination/`, `market-research/`, `doc-synthesis/`) are published as full per-model entries because they carry the highest-signal results. The other nine (Phase 1 coding × 3, Phase 2 extraction/CI/triage, Phase 3 business-memo/writing/PM) are summarized in `findings.md` and `SCORECARD.md` only. Their per-run cost.json / grade.json / label.json / receipt.json / summary.json / transcript.jsonl / deliverables exist in the source bench repo (`agent-pilot/logs/p[1-3]_*/`) but aren't mirrored here.
+
+This means: for the 9 unpublished task families, you can read the SCORECARD pass-rate cell and the findings doc's discussion, but you can't drill into a specific deliverable artifact from MMBT alone. If you want to verify a specific claim about (say) Coder-Next on triage at N=3, you'd need access to the source bench repo.
+
+### Microbench: two manually-advanced 27B runs in `doc-synthesis`
+
+`p3_doc_27b_v2` and `p3_doc_27b_v3` were manually SIGTERM'd mid-run after entering identical-call-loops on `brief.md` (writing the same content for 50-130+ iters). The stuck-detector at `--stuck-threshold 500` would have eventually fired but several hours later. The runs' summary.json files explicitly mark `finish_reason: wall_killed_identical_call_loop`. The behavior is documented as a 27B failure shape on this task, not a transient bug. But: a strict reading might note that the 0/3 PASS rate on doc-synthesis includes 2 manually-advanced runs, not 3 stuck-detector-fired runs. The diagnostic interpretation (model can't trim to word limit) is supported by all 3 runs producing identical-content writes around the same word count (765/775/768).
+
 ### Failed-run artifacts not currently included for most entries
 
 Source bench repo has full receipts + transcripts + workspaces for every attempted run (success and failure). MMBT publishes receipts + transcripts only for the single representative run per entry. The 5 failed runs across the local models (`27b_invest_memo_v3`, `27b_invest_memo_v4`, `coder_invest_memo_v6`, `coder_invest_memo_v7`, `n1_coder_v1`, `n1_coder_v3`, all three 27B PR-audit canonicals' "secondary" runs, and the 35B-A3B failure runs) have receipts and transcripts in the private bench repo but not here. A more rigorous audit of variance would need those.
@@ -27,6 +37,12 @@ Source bench repo has full receipts + transcripts + workspaces for every attempt
 ### No formal scoring rubric
 
 Verdicts are graded right/wrong by hand against the actual diff and a known-correct reference review. This works at small N with a single PR; it does not scale. Any larger comparison should establish a per-claim rubric (verdict matches ground truth: y/n; line citations valid: y/n; fabricated evidence count) and apply it consistently. The forthcoming `SCORECARD.md` synthesizes existing evidence into a normalized table but uses hand-graded inputs, not a formal rubric.
+
+### Microbench Phase 3 hand-grading is *claude-grading-claude*
+
+The 30 hand-graded subjective dimensions on the microbench Phase 3 entries (prose quality, stance clarity, source skepticism, balanced tone, audience tone fit, faithfulness, fabrication count, citation validity) were graded by Claude Opus 4.7, not by the human maintainer. The grader is a different model from the grade-ees (Qwen3.6-27B-AWQ, Qwen3-Coder-Next-AWQ), and the grader's outputs went into `hand_rating_placeholders` with explicit `_GRADER_: claude-opus-4.7-1m-context` provenance fields — but the meta-issue stands: a model graded other models' outputs, and the grader's biases are not separately characterized. For research-grade claims about prose quality differences between models, a human grading pass would be needed.
+
+The citation-validity sample on the 27B market-research entry (18 of 33 URLs, measured 75% valid) was done with WebFetch + content-comparison, which is a more grounded methodology than aesthetic judgment. The remaining hand-graded dimensions are prose-aesthetic and meta-issue-affected.
 
 ### Small N (typically N=3 per model × task)
 
@@ -71,6 +87,12 @@ These flags exist because the benchmark tasks needed them. They are not appropri
 The cloud entries in this repo were not graded with the same scoring methodology as the local entries, because the local entries' grading was hand-done against ground truth on PR #1057 and the cloud entries' verdicts on the same PR aren't graded at the per-claim level here (Opus-4.7's broader audit covers PR #1057 in passing; GPT-5.5's similarly). So while both classes are present in this repo, **a direct head-to-head with consistent grading isn't currently published.**
 
 That's the gap a future `RUBRIC.md` + per-entry `grade.json` would close. As of this writing, the cloud-vs-local comparison should be read at the *categorical* level ("cloud entries shipped complete deliverables; most local entries shipped failure modes") not at the per-claim accuracy level.
+
+### `microbench-2026-04-28` is local-models-only
+
+The microbench has no cloud-LLM entries at all. The 12 task families were run only on Qwen3.6-27B-AWQ and Qwen3-Coder-Next-AWQ. Headline reads from the microbench (e.g. "27B drives internet-research workflows that Coder-Next doesn't") apply *between local models*, not vs cloud. Cloud LLMs would almost certainly do as well or better on these tasks; the gap-vs-cloud is undocumented.
+
+A future microbench expansion that runs Opus-4.7 / GPT-5.5 on the same task starters (using the same harness via API instead of vLLM) would close this. Until then: the microbench tells you which *local* model to use, not whether a local model is the right fit at all.
 
 ## What this repo can and can't support
 

@@ -79,7 +79,7 @@
 >
 > ‡ 27B doc-synthesis median wall is dominated by the wall-killed v2/v3 runs (32.7 min, $0.043). The cleanly-completed v1 was 8 min / $0.011.
 >
-> ★ Inversion vs the prior expectation in the findings doc: 27B *can* drive sustained internet-research workflows that Coder-Next doesn't. **Citation-validity sample (2 of 33 URLs from `p3_market_27b_v1` validated on 2026-04-28): 1Password Business $7.99/user/month and Bitwarden Teams $4 / Enterprise $6 both match live pricing pages exactly.** Hand-graded `citations_valid_pct = 90` (estimate, full validation pass would tighten); fabricated_stats_count = 0 across the sample. Agent's own `sources.md` is unusually transparent — flags pages that 404'd, uses third-party fallbacks (ZDNet, PCMag) when vendor pricing isn't public.
+> ★ Inversion vs the prior expectation in the findings doc: 27B *can* drive sustained internet-research workflows that Coder-Next doesn't. **Citation-validity pass (18 of 33 URLs from `p3_market_27b_v1` validated on 2026-04-28): 9 strong-valid (factual claim exactly matches live page), 3 partial-valid (claim mostly right with minor specificity issues), 2 confirmed-wrong URLs (404), 4 inaccessible to the validator. Of 14 testable URLs, 12 (86%) are mostly-valid and 9 (64%) are strict-valid. Measured `citations_valid_pct = 75` (was 90 estimate). `fabricated_stats_count = 0` — every checkable factual claim (prices, certifications, products) matched live data.** Critical observation: the error mode is URL drift (wrong or dead URLs cited), not fabricated facts — a meaningfully different failure shape than the dreamserver-1-pr-audit Coder-Next variance that fabricated technical evidence with confident citations.
 
 **Headline reads from this table (post 27B Phase 3 completion):**
 
@@ -104,7 +104,7 @@
 - "Coder-Next is X% wrong on PR review in general" — current evidence is 2/3 wrong on a single PR. Need more PRs and more N to pin a real rate.
 - "27B is reliably better than Coder-Next for analytical work" — likely true but evidence is qualitative (the 3 hand-written reviews on `dreamserver-75-pr-audit/Qwen3.6-27B-AWQ/` are clean; 27B's `review.md` content on PR #1057 is excellent). Phase 3 hand-grading sharpens this: 27B prose quality 5/5 on doc-synthesis, business-memo bias-pushback 5/5; Coder-Next 4/5 on the same axes.
 - "Cloud models are N× better than local on this benchmark" — categorical gap is clear (cloud ships, local mostly doesn't), but per-claim accuracy for the cloud entries isn't graded with the same methodology used on the local entries.
-- "27B citations on the market-research microbench are valid" — sampled 2 of 33 URLs (5%) validated as exact matches against live pages on 2026-04-28. Sample size too small to assert "all 33 are valid"; the structural-pass + 2/2 sample is suggestive but a full URL-by-URL validation pass would convert citations_valid_pct from 90 (estimate) to a measured number.
+- "27B citations on the market-research microbench are valid" — sampled 18 of 33 URLs (~55%) validated. 86% mostly-valid / 64% strict-valid out of 14 testable URLs (4 were inaccessible to the validator from this IP). Measured `citations_valid_pct = 75`. **Important nuance: factual content (prices, certifications) is 100% accurate in the validated sample; the error mode is URL drift, not fabrication.** The remaining 15 URLs are unverified — sample is large enough to assert *most* citations are valid but not "all 33."
 
 ---
 
@@ -151,7 +151,7 @@
 
 These additions would tighten the recommendations above; until they land, the recommendations are best read as "based on this evidence" rather than "definitive":
 
-1. **Full URL-by-URL citation-validity pass** on the 27B market-research entry's 33 cited URLs (currently sampled at 2/33). Would convert `citations_valid_pct = 90 (estimate)` into a measured number, and is the cheapest way to either confirm or undermine the "27B drives internet-research workflows" claim. Estimated effort: 1-2 hours, mostly fetching pages and comparing to the agent's claimed quotes.
+1. **Validate the remaining 15 unsampled URLs and the 4 inaccessible-from-this-validator URLs** on the 27B market-research entry. Currently 18/33 sampled, measured citations_valid_pct = 75. The 4 inaccessible URLs (PCMag, ZDNet, two LastPass pages) are blocked by Cloudflare from the validator's IP — they could be sampled from a different IP, or the agent's specific cited content could be cross-referenced from archive.org. Would tighten the measured number from 75 (sample) to a fully-measured rate.
 2. **Per-claim rubric applied uniformly** to cloud entries. Phase 3 hand-grading is now done for the local entries (prose, stance, source skepticism, balance, citations, tone fit, faithfulness, fabrication count); cloud entries (Opus-4.7, GPT-5.5) on the older benchmarks haven't been graded with the same rubric. Would let cloud-vs-local comparisons go beyond "shipping vs not."
 3. **Failed-run artifacts published** (receipts + transcripts for the 5+ unsuccessful local-model runs not currently in MMBT). Would let a reader see expected failure modes per model.
 4. **N=10+ on the highest-signal cells** (Coder-Next on `dreamserver-1-pr-audit`, 27B on the same; both on `microbench-2026-04-28/adversarial-hallucination`). Would bound the variance the current N=3 only suggests.

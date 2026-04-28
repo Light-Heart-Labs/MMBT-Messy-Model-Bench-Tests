@@ -9,7 +9,9 @@
 
 ## What's published here
 
-This benchmark has 12 task families and would produce 60+ per-model folders if every cell were published in full. To avoid bloating the repo, only the **three highest-signal task families** are published as full per-model entries; the other nine are summarized in `findings.md` and `SCORECARD.md` only, with full artifacts (cost.json, grade.json, label.json, receipt.json, summary.json, transcript.jsonl, deliverables) available in the source bench repository.
+This benchmark has 12 task families and would produce 60+ per-model folders if every cell were published in full. To avoid bloating the repo, **all 12 task families have entries — but published at two levels of detail**:
+
+**Three highest-signal task families: full per-model entries** (with transcripts and complete deliverable bundles):
 
 | Task family | Why it's here | 27B | Coder-Next |
 |---|---|---|---|
@@ -17,13 +19,21 @@ This benchmark has 12 task families and would produce 60+ per-model folders if e
 | [`market-research/`](market-research/) | Second-sharpest signal — and an inversion of the "both fail at internet research" expectation. 27B 3/3 STRUCTURAL_PASS (5 products, 12-18 inline cites to 29-33 distinct URLs); Coder-Next 0/3 STRUCTURAL_FAIL (no required output files produced). | [Qwen3.6-27B-AWQ/](market-research/Qwen3.6-27B-AWQ/) | [Qwen3-Coder-Next-AWQ/](market-research/Qwen3-Coder-Next-AWQ/) |
 | [`doc-synthesis/`](doc-synthesis/) | Documented 27B failure mode — 8/8 planted facts captured every run, but 0/3 PASS because model couldn't trim to the 700-word limit. Two of three runs entered identical-call-loops on `brief.md`. Coder-Next handled the same task-class better (2/3 PASS). | [Qwen3.6-27B-AWQ/](doc-synthesis/Qwen3.6-27B-AWQ/) | [Qwen3-Coder-Next-AWQ/](doc-synthesis/Qwen3-Coder-Next-AWQ/) |
 
-## Other task families (results in findings.md / SCORECARD)
+**Nine other task families: lean entries** (per-model README + cost.json + grade.json + label.json + summary.json + receipt.json — no transcripts or deliverables to keep the repo size manageable):
 
-- **Phase 1 coding** (3 task families): bug-fixing (27B 3/3, Coder-Next 2/3), test-writing (0/3 both — task-design issue with broken starter import), refactoring (0/3 both — same starter issue).
-- **Phase 2 programmatic** (3 other task families): structured extraction (3/3 both, 27B 100% accuracy), CI failure debugging (3/3 both), customer support triage (3/3 both, Coder-Next category accuracy slightly higher).
-- **Phase 3 unbounded** (2 other task families): business memo (27B 2/3, Coder-Next 3/3), writing/editing (27B 0/3 customer_email subdimension, Coder-Next 2/3), project management (0/3 and 1/3 — both miss multi-week-spanning risks).
+| Task family | 27B | Coder-Next | Headline |
+|---|---|---|---|
+| [`bug-fixing/`](bug-fixing/) | 3/3 PASS | 2/3 PASS | Both can fix planted bugs; 27B more reliable, Coder-Next faster |
+| [`test-writing/`](test-writing/) | 0/3 † | 0/3 † | Task-design issue (broken starter import) — see findings.md caveat |
+| [`refactoring/`](refactoring/) | 0/3 † | 0/3 † | Same task-design issue |
+| [`structured-extraction/`](structured-extraction/) | 3/3 PASS | 3/3 PASS | 27B 100% on 20 fields; Coder-Next ~92% & 4× cheaper |
+| [`ci-failure-debugging/`](ci-failure-debugging/) | 3/3 PASS | 3/3 PASS | Both clean; pick the cheaper |
+| [`customer-support-triage/`](customer-support-triage/) | 3/3 PASS | 3/3 PASS | **Coder-Next 96.7% > 27B 86.7%** category accuracy AND faster AND cheaper |
+| [`business-memo/`](business-memo/) | 2/3 PASS | 3/3 PASS | Both reliable on bias-detection; Coder-Next ships within word limit consistently |
+| [`writing-editing/`](writing-editing/) | 0/3 | 2/3 PASS | 27B's 0/3 is a single-keyword miss on customer email (CEO + legal pass 5/5 every run) |
+| [`project-management/`](project-management/) | 0/3 | 1/3 PASS | Both excellent on workstreams + decisions, both 2-3/6 on multi-week risks |
 
-The full set of cost.json / grade.json / label.json / receipt.json / summary.json / transcript.jsonl files for the unpublished task families lives in `agent-pilot/logs/p[1-3]_*/` in the source bench repository at the time these results were generated.
+For the 9 lean entries, transcripts and deliverable artifacts live in the source bench repository at `agent-pilot/logs/p[1-3]_*/`.
 
 ## Per-entry layout
 
