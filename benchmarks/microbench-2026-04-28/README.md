@@ -2,6 +2,16 @@
 
 > 12 task families, 2 local models, N=3 each. Smaller-scope tasks than the dreamserver-PR-audit / wallstreet-intern-test benchmarks above — each task is a 5-30 minute deliverable rather than a multi-hour audit. Designed to surface task-class-specific differences between Qwen3.6-27B-AWQ and Qwen3-Coder-Next-AWQ that the larger benchmarks couldn't isolate.
 
+## Headline: aggregate-tied at 56% / 56%, complementary task-class strengths
+
+Across the 12 task families × N=3, **both models PASS exactly 20 of 36 cells.** They tie on overall pass rate but win on different task classes:
+
+- **27B wins** adversarial-hallucination, market-research, bug-fixing (3 task families, 6/9 vs 1/3 for Coder-Next)
+- **Coder-Next wins** doc-synthesis, business-memo, writing-editing, project-management (4 task families, 8/12 vs 2/12 for 27B)
+- **Both tie** on extraction, CI debugging, triage (all 3/3), plus test-writing and refactoring (both 0/3 due to task-design issue)
+
+**Coder-Next is 2-5× faster and 4-12× cheaper per attempt on every cell where both ship.** The right read is *complementary, not interchangeable, not strictly ranked* — pick by task class, default to Coder-Next when class is uncertain or cost matters. See [`findings.md`](findings.md) for the full per-task-class breakdown.
+
 ## Read these first
 
 - [`findings.md`](findings.md) — cross-cutting writeup. Headline reads, daily-driver-guide updates, caveats. Read this before drilling into individual task-family folders.

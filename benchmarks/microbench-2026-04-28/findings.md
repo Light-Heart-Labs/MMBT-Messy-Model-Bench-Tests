@@ -1,7 +1,57 @@
 # 2026-04-28 — Coding + business microbenches across Phase 1, 2, 3
 
-> 12 task families, 2 models, N=3 each = 72 planned runs (re-runs / kills push the actual to ~80, including 2 27B runs manually advanced past identical-call-loops). The headline rewrites the daily-driver picture set by the 75-PR audit benchmarks:
->
+> 12 task families, 2 models, N=3 each = 72 planned runs (re-runs / kills push the actual to ~80, including 2 27B runs manually advanced past identical-call-loops). The headline:
+
+## The headline read: aggregate-tied at 56% / 56%, complementary task-class strengths, Coder-Next much faster
+
+**Across the full microbench, both models PASS exactly 20 of 36 cells (55.6%).** That's the single most important result and it took until external audit to surface — the per-cell tables in the previous draft hid the aggregate.
+
+| Model | Microbench PASS | Aggregate rate |
+|---|---|---|
+| Qwen3.6-27B-AWQ | **20 / 36** | 55.6% |
+| Qwen3-Coder-Next-AWQ | **20 / 36** | 55.6% |
+
+The tie isn't because they pass the same things. The 12 task families split into three buckets:
+
+**27B wins (3 task families, 27B 3/3 → 6/9 vs Coder-Next 1/3):**
+- adversarial-hallucination — 27B 3/3 (100% accuracy, 0 dangerous), Coder-Next 1/3 (the shipping run had 2 confirmed-fabrications-as-real)
+- market-research — 27B 3/3 STRUCTURAL_PASS (5 products, 12-18 inline cites to 29-33 URLs), Coder-Next 0/3 STRUCTURAL_FAIL (couldn't drive the internet-research workflow)
+- bug-fixing — 27B 3/3, Coder-Next 2/3 (one Coder-Next run drifted post-completion and was killed)
+
+**Coder-Next wins (4 task families, Coder 8/12 vs 27B 2/12):**
+- doc-synthesis — Coder-Next 2/3, 27B 0/3 (27B captured all 8/8 facts every run but couldn't trim to the 700-word limit; v2/v3 entered identical-call-loops)
+- business-memo — Coder-Next 3/3, 27B 2/3 (27B v3 was 1 word over)
+- writing-editing (3-audience rewrite) — Coder-Next 2/3, 27B 0/3 (27B's customer-email subdimension missed the required keyword in all 3 runs)
+- project-management synthesis — Coder-Next 1/3, 27B 0/3 (both reliably miss multi-week-spanning risks; Coder-Next v2 squeaked over the threshold)
+
+**Both tie (5 task families):**
+- structured extraction (3/3 both) — 27B more accurate (100% on 20 fields) but both PASS
+- CI failure debugging (3/3 both)
+- customer-support triage (3/3 both — Coder-Next 96.7% category accuracy slightly above 27B's 86.7%)
+- test-writing (0/3 both — task-design issue with broken starter import)
+- refactoring (0/3 both — same task-design issue)
+
+**The performance/cost split is decisively in Coder-Next's favor:**
+- 4-12× cheaper per attempt on Phase 2 cells where both ship
+- 2-5× faster wall on every cell where both ship (5.6× faster on business-memo, 7× on writing/editing, 4.3× on PM, 3.3× on triage, 1.6× on bug-fixing)
+- ~25× cheaper than 27B on doc-synthesis specifically (because of the 27B identical-call-loop tax)
+
+## Updated framing: complementary, not interchangeable, not strictly ranked
+
+The right read of this data is **complementary task-class strengths at similar overall pass rate, with Coder-Next much faster.** The earlier draft's framing — "27B reliable / Coder-Next cheap" — understated how complementary the wins are. Coder-Next *also* ships reliably on its strong task classes; 27B is *also* fast on its strong task classes. The honest claim is:
+
+- **Pick by task class** (use the buckets above) — there's a clear right answer per cell.
+- **Default to Coder-Next** when task class is uncertain or when cost matters — it's 4-12× cheaper and competitive on accuracy where both ship.
+- **Default to 27B** when fabrication-resistance or sustained-research is the binding requirement — those are genuine 27B strengths Coder-Next doesn't replicate.
+
+## Caveats on the headline
+
+- **N=3 means the per-cell wins are directionally clear but not bounded.** 95% Wilson CIs on 3/3 vs 1/3 are [29%, 99%] vs [1%, 71%] — overlapping. The aggregate-tied 56% / 56% is a sharper signal than any individual cell's win because it's drawn from 36 trials, not 3.
+- **Each "27B wins" or "Coder-Next wins" headline rides on a single task instance.** "27B has hallucination resistance" comes from one codebase-specific issue report; "27B drives market research" comes from one password-manager comparison. Could be model property; could be task-instance quirk. Need a second instance per high-signal task class to separate these.
+- **The 5 ties may not be ties at output-quality level.** Programmatic graders pass both models at threshold; pairwise quality comparison (separate study) is needed to know if "both 3/3 PASS" means "interchangeable outputs" or "both clear the bar but one is meaningfully better."
+
+## Earlier-draft headlines (still valid, now framed as task-class observations not overall claims)
+
 > 1. **27B is reliable at tight-schema tasks** (Phase 2: 12/12 PASS) — the prior "27B doesn't ship" framing was task-class-specific.
 > 2. **27B drives internet-research workflows that Coder-Next can't** (market research: 27B 3/3 STRUCTURAL_PASS vs Coder-Next 0/3 STRUCTURAL_FAIL — the single largest model-superiority signal in this benchmark outside hallucination resistance).
 > 3. **Coder-Next is cheap and shippable but has a real hallucination-resistance gap** (1/3 PASS on adversarial hallucination, with 2 confirmed-fabrications-as-real on the one shipping run).

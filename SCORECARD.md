@@ -81,8 +81,10 @@
 >
 > ★ Inversion vs the prior expectation in the findings doc: 27B *can* drive sustained internet-research workflows that Coder-Next doesn't. **Citation-validity pass (18 of 33 URLs from `p3_market_27b_v1` validated on 2026-04-28): 9 strong-valid (factual claim exactly matches live page), 3 partial-valid (claim mostly right with minor specificity issues), 2 confirmed-wrong URLs (404), 4 inaccessible to the validator. Of 14 testable URLs, 12 (86%) are mostly-valid and 9 (64%) are strict-valid. Measured `citations_valid_pct = 75` (was 90 estimate). `fabricated_stats_count = 0` — every checkable factual claim (prices, certifications, products) matched live data.** Critical observation: the error mode is URL drift (wrong or dead URLs cited), not fabricated facts — a meaningfully different failure shape than the dreamserver-1-pr-audit Coder-Next variance that fabricated technical evidence with confident citations.
 
-**Headline reads from this table (post 27B Phase 3 completion):**
+**Headline reads from this table:**
 
+- **Aggregate is tied at 20/36 vs 20/36 (55.6% / 55.6%).** Across the 12 task families × N=3, both models PASS exactly 20 cells. They tie on overall pass rate but win on different task classes — 27B wins adversarial-hallucination, market-research, bug-fixing; Coder-Next wins doc-synthesis, business-memo, writing-editing, project-management; both tie on extraction, CI, triage. The right framing is **complementary, not interchangeable, not strictly ranked**: pick by task class, default to Coder-Next when class is uncertain or cost matters.
+- **Coder-Next is 2-5× faster and 4-12× cheaper per attempt** on every cell where both ship. This is the most decisive Coder-Next-favoring signal in the data. When task-class accuracy is roughly matched (the 5 ties + the 4 Coder-Next-wins task families = 9 of 12 task families), Coder-Next is the operational pick.
 - **27B is reliable on tight-schema tasks.** Phase 2's 12 programmatic-graded runs: 12/12 PASS. The "27B doesn't ship" framing from the dreamserver-PR-audit benchmark was task-class-specific — when the deliverable is a constrained-shape JSON or markdown-with-clear-keys, 27B ships cleanly.
 - **27B has a documented word-limit-trim failure mode.** Doc-synthesis: 8/8 planted facts captured every single run, but 0/3 PASS because the model cannot reliably compress to a tight word limit. 2 of 3 runs entered identical-call-loops trying. Coder-Next handled this better (2/3 PASS).
 - **Big inversion on market research.** 27B was 3/3 STRUCTURAL_PASS (5-product evaluations, 12-18 inline cites, 29-33 distinct URLs); Coder-Next was 0/3 STRUCTURAL_FAIL. Internet-research workflows aren't hopeless for local models — they're a 27B strength, just not Coder-Next's. (Citation validity is hand-grading placeholder; this is structural completion only.)
@@ -112,7 +114,24 @@
 
 > The recommendations below are conditional on the task class this benchmark covers — long-horizon agentic work, structured deliverables, real-world-shaped tasks. They don't speak to interactive chat, single-question Q&A, or coding completion. For those, this benchmark has no signal.
 
-### When to use **Qwen3.6-27B-AWQ**
+### Choosing between 27B and Coder-Next: pick by task class
+
+**Aggregate pass rate is identical** (20/36 each on the microbench). The two models are not interchangeable but they are also not strictly ranked — they have complementary task-class strengths. The selection criterion is therefore "which task class is this?" rather than "which model is generally better?"
+
+| If your task is... | Pick | Why |
+|---|---|---|
+| Adversarial review / fabrication-resistance / security audit | **27B** | 3/3 PASS at 100% accuracy / 0 dangerous on adversarial-hallucination; Coder-Next 1/3 with 2 fabrications-as-real on the shipping run |
+| Internet research with sustained multi-step workflows | **27B** | 3/3 STRUCTURAL_PASS on market-research; Coder-Next 0/3 STRUCTURAL_FAIL |
+| Bug-fixing / code-task with running tests | **27B** | 3/3 vs 2/3; only marginal. Coder-Next is 1.6× faster — pick by speed if you don't care about the marginal reliability |
+| Doc synthesis / business memo / writing rewrite / PM synthesis | **Coder-Next** | Wins on doc-synthesis (2/3 vs 0/3 — 27B can't trim to word limits), business-memo (3/3 vs 2/3), writing (2/3 vs 0/3 — 27B's customer-email subdimension fails), PM (1/3 vs 0/3) |
+| Tight-schema structured extraction / triage / classification | **Either** (lean Coder-Next for cost) | Both 3/3; 27B more accurate (100% on 20 fields vs ~92%); Coder-Next 4-12× cheaper |
+| CI failure debugging | **Either** (lean Coder-Next for cost) | Both 3/3 clean; Coder-Next ~2× cheaper |
+| Cost is binding | **Coder-Next** | 4-12× cheaper per attempt on Phase 2 cells when both ship; 5.6× faster on business-memo, 7× on writing/editing, 4.3× on PM |
+| Speed is binding | **Coder-Next** | 2-5× faster wall on every cell where both ship |
+
+**One sentence recommendation:** *Pick by task class using the table above; default to Coder-Next when the task class is ambiguous or cost matters; default to 27B when fabrication-resistance or sustained-research is the binding requirement.*
+
+### Detail: when to use **Qwen3.6-27B-AWQ**
 
 - **Hallucination resistance is required.** The single sharpest local-model superiority signal in this repo: on the adversarial-hallucination microbench (15 issues, 6 real / 9 fabricated, agent must classify), 27B was 3/3 PASS with 100% accuracy and 0 dangerous errors; Coder-Next was 1/3 PASS with 2 confirmed-fabrications-as-real on the one shipping run. For security review, factual research, anything where confidently-wrong is dangerous, 27B is the pick.
 - **Internet-research-driven workflows.** The second-sharpest local-model superiority signal: market-research microbench saw 27B 3/3 STRUCTURAL_PASS (5 products, 12-18 inline cites to 29-33 distinct URLs) and Coder-Next 0/3 STRUCTURAL_FAIL. 27B drives sustained multi-step research that Coder-Next doesn't. Caveat: STRUCTURAL_PASS only — sample-grade citations rather than consuming blind.
@@ -121,7 +140,7 @@
 - **Tasks where truthfulness matters more than artifact obedience.** 27B's failures are usually "didn't finish" or "didn't write the spec-required file"; it doesn't fabricate confident-but-wrong claims with citations.
 - **Tasks where you control the downstream consumption.** If your pipeline expects markdown notes (not a structured `verdict.md` JSON), 27B's output is usable as-is.
 
-### When to use **Qwen3-Coder-Next-AWQ**
+### Detail: when to use **Qwen3-Coder-Next-AWQ**
 
 - **Pipelines where artifact shape is required and a verifier exists.** If your downstream consumes `verdict.md`/`tag`/`done()` and you have a separate check for correctness (a second model, a human pass, regression tests), Coder-Next ships reliably and is ~4× cheaper than 27B.
 - **Bounded business-memo, triage, and writing-rewrite tasks.** Coder-Next was 3/3 PASS on business-memo (bias-signal recall), 3/3 PASS on triage at 96.7% category accuracy (better than 27B's 86.7%), 2/3 PASS on writing-editing. Below the cost-per-attempt of 27B by 4-12× and competitive on accuracy.
