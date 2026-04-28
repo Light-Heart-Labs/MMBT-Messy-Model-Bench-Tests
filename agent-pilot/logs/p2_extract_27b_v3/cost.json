@@ -1,16 +1,16 @@
 {
-  "run_name": "p2_extract_27b_v1",
+  "run_name": "p2_extract_27b_v3",
   "model": "qwen3.6-27b-awq",
-  "wall_s": 71.0,
+  "wall_s": 70.7,
   "iters": 5,
   "tokens": {
-    "completion_total": 4449,
-    "prompt_total": 18999,
-    "all_total": 23448
+    "completion_total": 4394,
+    "prompt_total": 19589,
+    "all_total": 23983
   },
   "throughput": {
-    "completion_tps_avg": 63.2,
-    "model_call_wall_s": 70.4,
+    "completion_tps_avg": 62.8,
+    "model_call_wall_s": 70.0,
     "tool_call_wall_s": 0.3,
     "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
   },
@@ -22,8 +22,8 @@
   "gpu": {
     "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
     "power_limit_w": 600.0,
-    "power_draw_w_at_start": 88.87,
-    "memory_used_mib_at_start": 92727.0,
+    "power_draw_w_at_start": 292.92,
+    "memory_used_mib_at_start": 92609.0,
     "memory_total_mib": 97887.0,
     "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
   },
