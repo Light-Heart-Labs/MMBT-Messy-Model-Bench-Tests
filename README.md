@@ -41,7 +41,10 @@ benchmarks/
 
 ## Reproducing the runs
 
-The [`tooling/`](tooling/) folder is the reproduction pack — agent harness, sandbox Dockerfile, vLLM launch commands, task prompts, and analysis scripts. With everything there plus a CUDA-capable Linux box and the relevant model quantizations from HuggingFace, an external reader can rerun any of the local-model entries here. See [`tooling/REPRODUCING.md`](tooling/REPRODUCING.md) for the setup-to-rerun walkthrough.
+The [`tooling/`](tooling/) folder is the reproduction pack — agent harness, sandbox Dockerfile, vLLM launch commands, all 12 microbench task prompts, input starters, ground truth, grader scripts, and batch-runner scripts. With everything there plus a CUDA-capable Linux box and a HuggingFace model, an external reader can rerun any of the local-model entries here.
+
+- **Replaying a published run**: see [`tooling/REPRODUCING.md`](tooling/REPRODUCING.md) — receipt-driven walkthrough.
+- **Benchmarking a new local model**: see [`tooling/ADDING-A-MODEL.md`](tooling/ADDING-A-MODEL.md) — end-to-end guide with a four-command friendly path (`smoke_test.sh` → `run_microbench.sh` → `grade_microbench.sh` → `summarize.sh`). Half-day to one-day operator time per new model.
 
 ## How To Read A Model Entry
 

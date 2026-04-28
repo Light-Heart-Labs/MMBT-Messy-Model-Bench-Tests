@@ -4,6 +4,8 @@ This folder is the *reproduction pack*. With everything here, plus a CUDA-capabl
 
 It exists because the entry READMEs and findings docs only show *deliverables and analysis* — they describe what happened but don't let you actually run the experiments. This pack closes that gap.
 
+> **🎯 Adding a new model?** Read [`ADDING-A-MODEL.md`](ADDING-A-MODEL.md) — it's the dedicated end-to-end walkthrough from "I have a HuggingFace model name" to "PR submitted with my model's results." Half-day to one-day total operator time. The four-command friendly path is documented there.
+
 ## What's here
 
 ```
@@ -54,41 +56,87 @@ tooling/
                                     modes. Run-name → label mapping is
                                     in the script body. Re-run after
                                     edits to refresh label.json files.
+    smoke_test.sh                   Run ONE task at N=1 (~3 min) to verify
+                                    your vLLM endpoint + tool-call parser
+                                    work before committing to a 3-7 hour
+                                    full chain. Mandatory step before
+                                    run_microbench.sh.
+    run_microbench.sh               Batch chain runner: 12 task families ×
+                                    N replicates against one model on one
+                                    vLLM endpoint. Idempotent — re-run is
+                                    safe; skips runs that already have
+                                    summary.json + workspace_final.tar.gz.
+                                    3-7 hr wall on Tower2-class hardware.
+    grade_microbench.sh             Batch grader: iterates the runs from
+                                    a microbench chain and writes grade.json
+                                    next to each. Idempotent. ~5 min.
+    summarize.sh                    Per-task PASS/FAIL table + cost/wall
+                                    medians for one model, with the
+                                    published Coder-Next + 27B reference
+                                    cells next to your numbers.
+  ADDING-A-MODEL.md       End-to-end guide for contributors testing a new
+                          model. Covers parser-quick-reference, smoke-test
+                          discipline, the four-command friendly path, what
+                          to write up, and how to submit a PR. Read this
+                          if you want to run the microbench against a
+                          model that isn't already in the published
+                          comparison.
+  inputs/                 Microbench task starter files (press releases,
+                          deal packs, source documents, audience briefs,
+                          meeting notes, codebases under audit). Mounted
+                          read-only into the sandbox via `--input-mount`.
+                          See REPRODUCING.md § "Reproducing the microbench"
+                          for the per-task input-dir mapping.
+  graders/                Grader scripts — one per task family. Take a
+                          workspace-dir + ground-truth-file and emit
+                          grade.json with verdict + per-dimension scores.
+                          For Phase 3 (open-ended) graders, also emit
+                          hand_rating_placeholders for subjective
+                          dimensions you'd hand-grade after.
+    ground_truth/         Planted-answer files (which 6 issues are real
+                          out of 15, the 8 facts to capture, etc.). Kept
+                          SEPARATE from inputs/ so the agent can't see
+                          the answers when it mounts an input dir.
 ```
 
-## Quick start
+## Quick start (running the published microbench against any new local model)
 
 ```bash
 # 1. Build sandbox (one-time, ~1.5 GB)
 docker build -t bench-sandbox:latest tooling/
 
-# 2. Pull vLLM image
+# 2. Pull vLLM image (one-time, ~12 GB)
 docker pull vllm/vllm-openai:latest
 
-# 3. Download a model (e.g. Coder-Next AWQ-4bit) to ~/models/
-huggingface-cli download cyankiwi/Qwen3-Coder-Next-AWQ-4bit --local-dir ~/models/cyankiwi-Qwen3-Coder-Next-AWQ-4bit
+# 3. Download your chosen model
+huggingface-cli download <org>/<model> --local-dir ~/models/<org>-<model>
 
-# 4. Start a vLLM endpoint (use the canonical command from launch-commands.md)
-docker run -d --name vllm-coder-next --gpus '"device=0"' --shm-size 8g \
+# 4. Start vLLM (see launch-commands.md for the right --tool-call-parser
+#    flag for your model family — get this wrong and tool calls silently fail)
+docker run -d --name vllm-mine --gpus '"device=0"' --shm-size 8g \
   -v ~/models:/models:ro -p 127.0.0.1:8001:8000 \
   vllm/vllm-openai:latest \
-  --model /models/cyankiwi-Qwen3-Coder-Next-AWQ-4bit \
-  --served-model-name qwen3-coder-next-awq \
+  --model /models/<org>-<model> \
+  --served-model-name my-new-model \
   --host 0.0.0.0 --port 8000 --tensor-parallel-size 1 \
-  --max-model-len 262144 --gpu-memory-utilization 0.92 \
-  --enable-auto-tool-choice --tool-call-parser qwen3_coder
+  --max-model-len 65536 --gpu-memory-utilization 0.92 \
+  --enable-auto-tool-choice --tool-call-parser <parser-from-launch-commands.md>
 
 # 5. Wait for ready
 until curl -sf http://127.0.0.1:8001/v1/models >/dev/null; do sleep 5; done
 
-# 6. Run a task — outputs land in tooling/logs/<run_name>/
-python3 tooling/harness.py my_first_run tooling/tasks/task_pr_audit_n1.md \
-  --model qwen3-coder-next-awq --port 8001 \
-  --temperature 0.3 --stuck-threshold 500 \
-  --docker-socket --gpus all
+# 6. Friendly path — four scripts, run in order:
+bash tooling/scripts/smoke_test.sh my-new-model 8001              # ~3 min
+bash tooling/scripts/run_microbench.sh my-new-model 8001 my-tag   # 3-7 hr
+bash tooling/scripts/grade_microbench.sh my-tag                   # ~5 min
+bash tooling/scripts/summarize.sh my-tag                          # instant
 ```
 
-`REPRODUCING.md` has the full version with all the flag explanations, hardware-equivalence notes for smaller GPUs, and troubleshooting.
+The `summarize.sh` output prints a per-task PASS/FAIL table next to the published Coder-Next + 27B reference cells, so you can see at-a-glance where your model is stronger or weaker.
+
+**`ADDING-A-MODEL.md` is the full walkthrough** with parser-quick-reference, hardware-adjustment guide for smaller GPUs, troubleshooting, and a write-up checklist for the PR. Read that if you're contributing.
+
+For replaying a specific past run (rather than benching a new model), `REPRODUCING.md` has the receipt-driven walkthrough.
 
 ## Mapping entries to runs
 

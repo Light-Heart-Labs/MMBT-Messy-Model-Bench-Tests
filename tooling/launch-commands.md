@@ -21,6 +21,32 @@ Exact `docker run` commands for each model under test. Each run's `logs/<run>/re
 - `--temperature 0.0` is set per-request in the harness (not at launch); receipts record it
 - `--tensor-parallel-size 1` for now (each model on a single GPU); change if both GPUs are needed for one model
 
+## Tool-call-parser quick reference (for new models)
+
+The single highest-leverage flag when adding a new model. Wrong `--tool-call-parser` produces empty `tool_calls` arrays silently — the run looks like it's executing but the agent never actually calls any tools.
+
+vLLM's tool-call parsers (as of vLLM 0.19.x):
+
+| Model family | `--tool-call-parser` | `--reasoning-parser` | Notes |
+|---|---|---|---|
+| Qwen3.x dense (thinking) | `qwen3_xml` | `qwen3` | 0.6B / 1.7B / 4B / 8B / 14B / 27B / 32B / 72B (when re-released) |
+| Qwen3-Coder (Coder-Next, Coder-30B-A3B) | `qwen3_coder` | *(omit)* | Not thinking-mode; adding the reasoning parser breaks output |
+| Qwen3.6-35B-A3B (MoE thinking) | `qwen3_xml` | `qwen3` | Same parser as 27B |
+| Qwen2.5 / Qwen2.5-Coder | `hermes` | *(omit)* | Trained on Hermes-style tool calling |
+| Llama 3.1 / 3.2 / 3.3 instruct | `llama3_json` | *(omit)* | The `_json` parser handles their `[<TOOLCALL>...JSON...</TOOLCALL>]` format |
+| Llama 4 instruct | `pythonic` | *(omit)* | Llama 4 emits Python-call-style tool invocations |
+| Mistral / Mixtral instruct | `mistral` | *(omit)* | Native Mistral tool-call format |
+| DeepSeek-V3 / R1 | `deepseek_v3` | `deepseek_r1` *(R1 only)* | R1 has thinking; V3 doesn't |
+| DeepSeek-Coder-V2 | `hermes` | *(omit)* | Hermes-trained variant |
+| Gemma 2 / Gemma 3 instruct | `pythonic` | *(omit)* | Pythonic tool-call format |
+| GLM-4 / GLM-4.5 | `glm45` | `glm45` *(if thinking variant)* | Vendor-shipped parser |
+| Phi-3.5 / Phi-4 | `phi4_mini_json` | *(omit)* | JSON-style |
+| Hermes-3 (Nous) | `hermes` | *(omit)* | Origin of the Hermes parser |
+
+If the model isn't listed above, check `vllm/entrypoints/openai/tool_parsers/` in the vLLM source for available parsers, or the model's HuggingFace model card. Some new models ship with a custom Jinja chat template that bakes the parser format into the prompt — those usually work with `hermes` or `pythonic` as the closest match.
+
+**Smoke test before committing to a full run.** [`tooling/scripts/smoke_test.sh`](scripts/smoke_test.sh) runs one task at N=1 (~2-5 min) and reports PASS/FAIL. If the smoke test fails with `tcs=0` consistently in `transcript.jsonl`, your tool-call-parser is wrong.
+
 ## Per-model launch
 
 ### Qwen3.6-27B AWQ (dense, thinking-mode)
