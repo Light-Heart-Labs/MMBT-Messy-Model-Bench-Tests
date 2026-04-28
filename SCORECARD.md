@@ -79,7 +79,7 @@
 >
 > ‡ 27B doc-synthesis median wall is dominated by the wall-killed v2/v3 runs (32.7 min, $0.043). The cleanly-completed v1 was 8 min / $0.011.
 >
-> ★ Inversion vs the prior expectation in the findings doc: 27B *can* drive sustained internet-research workflows that Coder-Next doesn't. Caveat: STRUCTURAL_PASS is structural only — the citation-validity and fabrication dimensions are hand-grading placeholders not yet filled.
+> ★ Inversion vs the prior expectation in the findings doc: 27B *can* drive sustained internet-research workflows that Coder-Next doesn't. **Citation-validity sample (2 of 33 URLs from `p3_market_27b_v1` validated on 2026-04-28): 1Password Business $7.99/user/month and Bitwarden Teams $4 / Enterprise $6 both match live pricing pages exactly.** Hand-graded `citations_valid_pct = 90` (estimate, full validation pass would tighten); fabricated_stats_count = 0 across the sample. Agent's own `sources.md` is unusually transparent — flags pages that 404'd, uses third-party fallbacks (ZDNet, PCMag) when vendor pricing isn't public.
 
 **Headline reads from this table (post 27B Phase 3 completion):**
 
@@ -102,8 +102,9 @@
 
 **Weaker / not-yet-supported:**
 - "Coder-Next is X% wrong on PR review in general" — current evidence is 2/3 wrong on a single PR. Need more PRs and more N to pin a real rate.
-- "27B is reliably better than Coder-Next for analytical work" — likely true but evidence is qualitative (the 3 hand-written reviews on `dreamserver-75-pr-audit/Qwen3.6-27B-AWQ/` are clean; 27B's `review.md` content on PR #1057 is excellent). Not graded against a fixed rubric.
+- "27B is reliably better than Coder-Next for analytical work" — likely true but evidence is qualitative (the 3 hand-written reviews on `dreamserver-75-pr-audit/Qwen3.6-27B-AWQ/` are clean; 27B's `review.md` content on PR #1057 is excellent). Phase 3 hand-grading sharpens this: 27B prose quality 5/5 on doc-synthesis, business-memo bias-pushback 5/5; Coder-Next 4/5 on the same axes.
 - "Cloud models are N× better than local on this benchmark" — categorical gap is clear (cloud ships, local mostly doesn't), but per-claim accuracy for the cloud entries isn't graded with the same methodology used on the local entries.
+- "27B citations on the market-research microbench are valid" — sampled 2 of 33 URLs (5%) validated as exact matches against live pages on 2026-04-28. Sample size too small to assert "all 33 are valid"; the structural-pass + 2/2 sample is suggestive but a full URL-by-URL validation pass would convert citations_valid_pct from 90 (estimate) to a measured number.
 
 ---
 
@@ -150,10 +151,11 @@
 
 These additions would tighten the recommendations above; until they land, the recommendations are best read as "based on this evidence" rather than "definitive":
 
-1. **Per-claim rubric applied uniformly** to every entry (cloud + local). Hand-grade verdict correctness, line citations, fabricated-evidence count, etc., per a fixed scoring scheme. Would convert the "not graded" cells to numbers.
-2. **Failed-run artifacts published** (receipts + transcripts for the 5+ unsuccessful local-model runs not currently in MMBT). Would let a reader see expected failure modes per model.
-3. **N=10+ on the highest-signal cells** (Coder-Next on `dreamserver-1-pr-audit`, 27B on the same). Would bound the variance the current N=3 only suggests.
-4. **Different PR shapes** in the dreamserver-1-pr-audit family — the current PR has subtle architectural distinctions; a docs-only PR or a security PR would test different failure modes.
-5. **Higher-precision quantizations** of the same models (FP8, BF16). Particularly for 35B-A3B which fails at 4-bit; might be a quantization-headroom issue rather than a base-model issue.
+1. **Full URL-by-URL citation-validity pass** on the 27B market-research entry's 33 cited URLs (currently sampled at 2/33). Would convert `citations_valid_pct = 90 (estimate)` into a measured number, and is the cheapest way to either confirm or undermine the "27B drives internet-research workflows" claim. Estimated effort: 1-2 hours, mostly fetching pages and comparing to the agent's claimed quotes.
+2. **Per-claim rubric applied uniformly** to cloud entries. Phase 3 hand-grading is now done for the local entries (prose, stance, source skepticism, balance, citations, tone fit, faithfulness, fabrication count); cloud entries (Opus-4.7, GPT-5.5) on the older benchmarks haven't been graded with the same rubric. Would let cloud-vs-local comparisons go beyond "shipping vs not."
+3. **Failed-run artifacts published** (receipts + transcripts for the 5+ unsuccessful local-model runs not currently in MMBT). Would let a reader see expected failure modes per model.
+4. **N=10+ on the highest-signal cells** (Coder-Next on `dreamserver-1-pr-audit`, 27B on the same; both on `microbench-2026-04-28/adversarial-hallucination`). Would bound the variance the current N=3 only suggests.
+5. **Different PR shapes** in the dreamserver-1-pr-audit family — the current PR has subtle architectural distinctions; a docs-only PR or a security PR would test different failure modes.
+6. **Higher-precision quantizations** of the same models (FP8, BF16). Particularly for 35B-A3B which fails at 4-bit; might be a quantization-headroom issue rather than a base-model issue.
 
 None of these are in scope for the current MMBT publication. They're separate experiments.

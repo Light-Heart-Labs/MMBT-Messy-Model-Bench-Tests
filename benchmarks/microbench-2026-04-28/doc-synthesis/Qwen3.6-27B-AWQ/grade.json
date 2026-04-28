@@ -60,10 +60,12 @@
     "explicit_recommendation_present": true
   },
   "hand_rating_placeholders": {
-    "prose_quality_1to5": null,
-    "stance_clarity_1to5": null,
-    "source_skepticism_1to5": null,
-    "balanced_tone_1to5": null,
-    "rater_notes": null
+    "prose_quality_1to5": 5,
+    "stance_clarity_1to5": 5,
+    "source_skepticism_1to5": 5,
+    "balanced_tone_1to5": 5,
+    "rater_notes": "Excellent across the board, despite the FAIL on word limit. Brief is well-organized: clear PASS recommendation up front, 'The Good' before 'Five Red Flags' (balance), explicit 'Source Quality' section evaluating each of 5 sources by reliability (rare for an LLM-generated brief \u2014 shows real skepticism), 'What Would Change Our View' with quantified conditions, 'Bottom Line' restating the recommendation. All 8 planted facts surface naturally in the narrative. The 765-word length isn't bloat \u2014 content is tight and every paragraph carries weight. The trim-to-700 problem is the model's failure to compress, not the brief being padded.",
+    "_GRADED_AT_": "2026-04-28T07:00:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }

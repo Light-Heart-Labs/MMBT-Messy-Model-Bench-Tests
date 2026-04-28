@@ -60,10 +60,12 @@
     "explicit_recommendation_present": true
   },
   "hand_rating_placeholders": {
-    "prose_quality_1to5": null,
-    "stance_clarity_1to5": null,
-    "source_skepticism_1to5": null,
-    "balanced_tone_1to5": null,
-    "rater_notes": null
+    "prose_quality_1to5": 4,
+    "stance_clarity_1to5": 5,
+    "source_skepticism_1to5": 3,
+    "balanced_tone_1to5": 4,
+    "rater_notes": "Solid brief, slightly less polished than 27B. Recommendation is specific (Pass + 3 conditions to revisit). Lacks an explicit Source Quality / source-reliability evaluation \u2014 cites sources but takes them at face value (lower source skepticism). Balance is OK ('Conditions for Reconsideration' acknowledges positives) but not as deliberate as 27B's 'The Good' / 'Five Red Flags' structure. Word count 626 is comfortably under the 700 limit (vs 27B's 765). Captured 7 of 8 planted facts (per the programmatic grader) vs 27B's 8 of 8.",
+    "_GRADED_AT_": "2026-04-28T07:00:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   }
 }
