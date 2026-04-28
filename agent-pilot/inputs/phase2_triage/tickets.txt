@@ -1,0 +1,149 @@
+=== TICKET 001 ===
+From: dana.k@example.com
+Subject: Refund for double charge on March invoice
+Body: Hey, I was charged twice this month for the Pro plan ($29 each). Can you refund one? My account is dana.k@example.com. Thanks.
+
+=== TICKET 002 ===
+From: jose.medina@startup.io
+Subject: Add support for SAML SSO
+Body: Hi team — we're evaluating moving 60 seats from Trial to Business but our security team requires SAML. Any timeline on adding it? Currently we're stuck with Google OAuth only.
+
+=== TICKET 003 ===
+From: sandra.chen@bigcorp.example
+Subject: URGENT — production down, cannot login
+Body: Our entire org cannot login since 9:42 EST. Getting 503s on the login page. We have a board meeting at 11. Please escalate immediately. Account ID: BC-44218.
+
+=== TICKET 004 ===
+From: kevin.tom@school.edu
+Subject: Free Pixar character collection?? Just discovered :)
+Body: Hello there. I read on Reddit that you guys give out free Pixar character collectables to new users. How do I claim mine? Also, can I have 50 of them? My friends would love them.
+
+=== TICKET 005 ===
+From: ben@ben-and-co.dev
+Subject: Bug: CSV export drops the last row when filename has spaces
+Body: Reproducer: any saved view, click Export → CSV, give it a filename with a space ("my report.csv"). The downloaded file is missing the last row of the table. If I save without spaces, all rows are present. Reliable. Browser is Firefox 134 on macOS.
+
+=== TICKET 006 ===
+From: hr@verylargeenterprise.com
+Subject: Cancel subscription
+Body: Please cancel our subscription effective end of month. We're moving to a different vendor. Account: VLE-9981. No refund needed for the current period.
+
+=== TICKET 007 ===
+From: jordan.lee@mid-co.com
+Subject: Can't see my teammate's dashboards
+Body: My coworker (alex.petrov@mid-co.com) shared three dashboards with me last week. I can see them in the sidebar but when I click them I get a "permission denied" message. Alex says he set me to Editor. We're both on the same team, account MC-3309.
+
+=== TICKET 008 ===
+From: pranav@side-project.app
+Subject: Refund for the Annual plan after 4 months
+Body: I bought the Annual plan in October but I'm not using it anymore — life got busy. Can I get a pro-rated refund for the remaining 8 months? I paid $290 upfront. Account: SPA-7733.
+
+=== TICKET 009 ===
+From: noreply@phishing-site.example
+Subject: VERIFY YOUR ACCOUNT NOW or LOSE ACCESS
+Body: Click here to verify: http://totally-real-verify.example.com/login. You have 24 hours. Sincerely, "Account Security Team."
+
+=== TICKET 010 ===
+From: marketing@agency-xyz.com
+Subject: Want to promote your product on our podcast — paid placement
+Body: Hi! We have a podcast with 18,000 downloads/month focused on B2B SaaS. We'd love to have you as a sponsor. Rates start at $1,500/episode. Reply to schedule a call.
+
+=== TICKET 011 ===
+From: alex.petrov@mid-co.com
+Subject: Sharing dashboards with teammate fails
+Body: I shared three dashboards with jordan.lee@mid-co.com (same team, account MC-3309) last Wednesday. He says he can see them in the sidebar but gets a permission-denied error when opening them. I have him set to Editor in the share dialog. Restarting browsers and clearing cookies didn't help.
+
+=== TICKET 012 ===
+From: priya.k@datatools.example
+Subject: Feature request: schedule reports to be emailed weekly
+Body: Currently we have to manually pull reports. Would love to schedule a weekly email of our top 5 dashboards as PDFs. We do this externally with a cron + headless browser today. Account: DT-1198.
+
+=== TICKET 013 ===
+From: marc@builder-corp.example
+Subject: Refund — accidentally upgraded to Enterprise
+Body: I clicked the wrong button in the billing page yesterday and now I'm on Enterprise instead of Pro. Charged $1,200. I really only wanted Pro at $29. Please downgrade me and refund the difference. Account: BC-2289.
+
+=== TICKET 014 ===
+From: ops@major-customer.com
+Subject: API rate limits are blocking our nightly ingestion
+Body: We hit your rate limits every night around 2-3am EST during our scheduled ingestion of trailing-day data. We're on the Business plan with the documented 600 req/min limit. Last night we had 4 hours of failed requests with 429s. We have a $48k/yr contract — can we get a higher limit or some kind of burst allowance?
+
+=== TICKET 015 ===
+From: annette@solo-consulting.example
+Subject: Add dark mode!!
+Body: please please please add dark mode. love your product but my eyes are tired :)
+
+=== TICKET 016 ===
+From: dev@platform-engineering.com
+Subject: 500 errors on /api/v2/exports endpoint started at 14:00 UTC
+Body: We're seeing roughly 30% of POST requests to /api/v2/exports returning 500 since approximately 14:00 UTC today. Status page shows green. We have a SOC1 review tomorrow morning that depends on these exports completing. Need urgent eyes. Account: PE-5510.
+
+=== TICKET 017 ===
+From: hi@new-user.example
+Subject: Tutorial / onboarding question — how do I import data?
+Body: Just signed up. Trying to import a CSV with our customer data. The import wizard says "no valid columns found" but my CSV definitely has headers. What format do you expect?
+
+=== TICKET 018 ===
+From: ceo@buyer-corp.example
+Subject: Acquisition inquiry
+Body: Confidential — please forward to your founder. We're a VC-backed analytics platform interested in exploring an acquisition of your company. Could we set up a call this week? Best, Tom Reilly, CEO BuyerCorp.
+
+=== TICKET 019 ===
+From: legal@law-firm.example
+Subject: GDPR data export request for our client
+Body: We represent former-user michael.r@example.com (account ID: PG-7733, deleted 2026-01-12). Per GDPR Article 15, please provide all personal data you held on this individual. 30-day response window per Art. 12. Reference: Case-2026-LR-0084.
+
+=== TICKET 020 ===
+From: brian@retailer.example
+Subject: Bug: filtering by date excludes today's data even with "include today" checked
+Body: Steps to reproduce: open any saved view with a date filter set to "Last 7 days". Click "include today's data" checkbox. Today's records are still missing from results. Reproducible across users in our org. Account: RT-9912.
+
+=== TICKET 021 ===
+From: random@blog-hosting.example
+Subject: Did you know you can save 80% on web hosting?
+Body: Hi friend! Our hosting platform offers 99.99% uptime and... [continues for 8 paragraphs with affiliate links]
+
+=== TICKET 022 ===
+From: pat@small-business.example
+Subject: Refund — service was down all weekend during our launch
+Body: We launched our product Saturday and your platform was down 11 hours over the weekend (per your status page). We're a small business; this hurt us materially. Looking for at minimum a credit for the affected period. Account: SB-2204.
+
+=== TICKET 023 ===
+From: ops@major-customer.com
+Subject: Re: API rate limits are blocking our nightly ingestion (FOLLOW-UP)
+Body: Hi, following up on ticket #14. It happened AGAIN last night — 3 hours of 429s starting at 02:11 UTC. We have a backlog of unprocessed data growing by ~200 GB/day. We need this resolved before our quarterly review next Thursday or we'll have to escalate to our account exec. Account: MC-4221.
+
+=== TICKET 024 ===
+From: support@partner-integrator.com
+Subject: Webhook receiver returning 200 OK but events not arriving
+Body: Our webhook endpoint at https://partner.example.com/hooks/your-product has been returning 200 OK to your test pings (verified in our logs) but our application isn't seeing the actual event payloads. Started Tuesday. Could you confirm whether you're sending to the correct URL? Account: PI-1166.
+
+=== TICKET 025 ===
+From: maya@curious-user.example
+Subject: How does your pricing work for non-profits?
+Body: Hi, I run a small environmental non-profit (501c3). Do you offer non-profit discounts? Looked on your website but couldn't find anything specific. Would love to use your product if there's a fit.
+
+=== TICKET 026 ===
+From: hr@new-customer-org.example
+Subject: Need to add 12 new seats and remove 3 old ones
+Body: Account admin here. We've onboarded 12 new analysts and three people left. Can you bulk-update our seats? Names attached in the CSV. Account: NCO-3389.
+
+=== TICKET 027 ===
+From: jamie.k@enterprise-dev.example
+Subject: BUG: Report PDFs render charts at low resolution (looks pixelated)
+Body: When I export any dashboard with charts to PDF, the charts come out at what looks like 72 DPI — visibly pixelated when printed. The web view looks fine. Tested on three different dashboards. Browser: Chrome 130 on Windows. Account: ED-7745.
+
+=== TICKET 028 ===
+From: critical-incident@major-bank.example
+Subject: SECURITY — possible account compromise, freeze account immediately
+Body: We detected unauthorized API key usage from foreign IP addresses against our account in the last 90 minutes. Please freeze account MB-8821 and revoke all API keys NOW. Will follow up with audit logs request. Compliance team will need full access log.
+
+=== TICKET 029 ===
+From: hacker@blackhat-forum.example
+Subject: I will share your bugs unless you pay
+Body: I found 3 vulns in your platform. Pay $50,000 in BTC or I post them on twitter. Address: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa. You have 48 hours.
+
+=== TICKET 030 ===
+From: ops@major-customer.com
+Subject: Re: Re: API rate limits are blocking our nightly ingestion (THIRD MESSAGE)
+Body: Still no response. This is now blocking $48k of contracted business. Please prioritize. We have an enterprise contract and this SLA does not appear to be being honored. Account: MC-4221.
