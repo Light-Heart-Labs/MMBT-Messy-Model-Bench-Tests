@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "source": "press_release.txt",
+  "description": "Planted ground truth for the structured-extraction benchmark. Each field has the canonical answer from the press release. Numeric fields use a tolerance of +/- 0.5% of the answer (i.e., 38.0 grows accepts 37.81-38.19); equivalent presentations like '38%' and '38.0%' are accepted; the agent's units must match the field's documented units.",
+  "fields": {
+    "company_name": {
+      "type": "string",
+      "answer": "Veridyne Networks, Inc.",
+      "match_mode": "case_insensitive_substring",
+      "notes": "Accept variants: 'Veridyne Networks', 'Veridyne Networks, Inc.', 'Veridyne Networks Inc.'"
+    },
+    "ticker_symbol": {
+      "type": "string",
+      "answer": "VRDN",
+      "match_mode": "exact",
+      "notes": "Accept 'NASDAQ: VRDN' if separated"
+    },
+    "fiscal_period": {
+      "type": "string",
+      "answer": "Q3 FY2026",
+      "match_mode": "case_insensitive_substring",
+      "notes": "Accept 'Q3 2026', 'Q3 fiscal 2026', 'fiscal third quarter 2026', etc."
+    },
+    "fiscal_period_end_date": {
+      "type": "date",
+      "answer": "2026-02-28",
+      "match_mode": "iso_date",
+      "notes": "Accept 'February 28, 2026' or '2026-02-28'"
+    },
+    "total_revenue_usd_millions": {
+      "type": "number",
+      "answer": 187.4,
+      "tolerance_pct": 0.5,
+      "units": "USD millions"
+    },
+    "revenue_yoy_growth_pct": {
+      "type": "number",
+      "answer": 38.0,
+      "tolerance_pct": 1.0,
+      "units": "percent",
+      "notes": "Accept 38, 38%, 38.0%, 0.38 (treat fraction equivalent)"
+    },
+    "subscription_revenue_usd_millions": {
+      "type": "number",
+      "answer": 171.2,
+      "tolerance_pct": 0.5,
+      "units": "USD millions"
+    },
+    "gaap_gross_margin_pct": {
+      "type": "number",
+      "answer": 76.3,
+      "tolerance_pct": 0.5,
+      "units": "percent"
+    },
+    "non_gaap_operating_income_usd_millions": {
+      "type": "number",
+      "answer": 9.8,
+      "tolerance_pct": 5.0,
+      "units": "USD millions",
+      "notes": "Wider tolerance because the headline-rounded figure may be cited differently"
+    },
+    "total_customers": {
+      "type": "integer",
+      "answer": 4117,
+      "tolerance_pct": 0.5
+    },
+    "customers_above_100k_arr": {
+      "type": "integer",
+      "answer": 1082,
+      "tolerance_pct": 0.5
+    },
+    "customers_above_1m_arr": {
+      "type": "integer",
+      "answer": 71,
+      "tolerance_pct": 0.5
+    },
+    "net_dollar_retention_pct": {
+      "type": "number",
+      "answer": 124,
+      "tolerance_pct": 0.5,
+      "units": "percent"
+    },
+    "total_arr_usd_millions": {
+      "type": "number",
+      "answer": 710,
+      "tolerance_pct": 0.5,
+      "units": "USD millions",
+      "notes": "Press release says 'exceeded $710 million'; accept 710 or any value labeled 'over 710' / '>$710M'"
+    },
+    "fte_count_end_of_q3": {
+      "type": "integer",
+      "answer": 1847,
+      "tolerance_pct": 0.5
+    },
+    "stitchwise_acquisition_total_consideration_usd_millions": {
+      "type": "number",
+      "answer": 115,
+      "tolerance_pct": 0.5,
+      "units": "USD millions",
+      "notes": "Press release says '$87 million in cash and 1.4 million shares' totaling 'approximately $115 million'"
+    },
+    "stitchwise_close_date": {
+      "type": "date",
+      "answer": "2026-01-22",
+      "match_mode": "iso_date"
+    },
+    "fy2026_revenue_guidance_low_usd_millions": {
+      "type": "number",
+      "answer": 722,
+      "tolerance_pct": 0.5,
+      "units": "USD millions"
+    },
+    "fy2026_revenue_guidance_high_usd_millions": {
+      "type": "number",
+      "answer": 726,
+      "tolerance_pct": 0.5,
+      "units": "USD millions"
+    },
+    "share_repurchase_authorization_usd_millions": {
+      "type": "number",
+      "answer": 200,
+      "tolerance_pct": 0.5,
+      "units": "USD millions"
+    }
+  },
+  "summary": {
+    "total_fields": 20,
+    "field_types": {"number": 12, "integer": 4, "string": 3, "date": 2}
+  }
+}

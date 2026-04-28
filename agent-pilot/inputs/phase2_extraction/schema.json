@@ -1,0 +1,84 @@
+{
+  "description": "Schema for extracting facts from press_release.txt. Each field lists its type, units (if any), and notes about acceptable variants.",
+  "fields": {
+    "company_name": {
+      "type": "string",
+      "notes": "Accept variants: 'Veridyne Networks', 'Veridyne Networks, Inc.', 'Veridyne Networks Inc.'"
+    },
+    "ticker_symbol": {
+      "type": "string",
+      "notes": "Accept 'NASDAQ: VRDN' if separated"
+    },
+    "fiscal_period": {
+      "type": "string",
+      "notes": "Accept 'Q3 2026', 'Q3 fiscal 2026', 'fiscal third quarter 2026', etc."
+    },
+    "fiscal_period_end_date": {
+      "type": "date",
+      "notes": "Accept 'February 28, 2026' or '2026-02-28'"
+    },
+    "total_revenue_usd_millions": {
+      "type": "number",
+      "units": "USD millions"
+    },
+    "revenue_yoy_growth_pct": {
+      "type": "number",
+      "units": "percent",
+      "notes": "Accept 38, 38%, 38.0%, 0.38 (treat fraction equivalent)"
+    },
+    "subscription_revenue_usd_millions": {
+      "type": "number",
+      "units": "USD millions"
+    },
+    "gaap_gross_margin_pct": {
+      "type": "number",
+      "units": "percent"
+    },
+    "non_gaap_operating_income_usd_millions": {
+      "type": "number",
+      "units": "USD millions",
+      "notes": "Wider tolerance because the headline-rounded figure may be cited differently"
+    },
+    "total_customers": {
+      "type": "integer"
+    },
+    "customers_above_100k_arr": {
+      "type": "integer"
+    },
+    "customers_above_1m_arr": {
+      "type": "integer"
+    },
+    "net_dollar_retention_pct": {
+      "type": "number",
+      "units": "percent"
+    },
+    "total_arr_usd_millions": {
+      "type": "number",
+      "units": "USD millions",
+      "notes": "Press release says 'exceeded $710 million'; accept 710 or any value labeled 'over 710' / '>$710M'"
+    },
+    "fte_count_end_of_q3": {
+      "type": "integer"
+    },
+    "stitchwise_acquisition_total_consideration_usd_millions": {
+      "type": "number",
+      "units": "USD millions",
+      "notes": "Press release says '$87 million in cash and 1.4 million shares' totaling 'approximately $115 million'"
+    },
+    "stitchwise_close_date": {
+      "type": "date"
+    },
+    "fy2026_revenue_guidance_low_usd_millions": {
+      "type": "number",
+      "units": "USD millions"
+    },
+    "fy2026_revenue_guidance_high_usd_millions": {
+      "type": "number",
+      "units": "USD millions"
+    },
+    "share_repurchase_authorization_usd_millions": {
+      "type": "number",
+      "units": "USD millions"
+    }
+  }
+}
