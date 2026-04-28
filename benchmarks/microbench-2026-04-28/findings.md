@@ -48,7 +48,11 @@ The right read of this data is **complementary task-class strengths at similar o
 
 - **N=3 means the per-cell wins are directionally clear but not bounded.** 95% Wilson CIs on 3/3 vs 1/3 are [29%, 99%] vs [1%, 71%] — overlapping. The aggregate-tied 56% / 56% is a sharper signal than any individual cell's win because it's drawn from 36 trials, not 3.
 - **Each "27B wins" or "Coder-Next wins" headline rides on a single task instance.** "27B has hallucination resistance" comes from one codebase-specific issue report; "27B drives market research" comes from one password-manager comparison. Could be model property; could be task-instance quirk. Need a second instance per high-signal task class to separate these.
-- **The 5 ties may not be ties at output-quality level.** Programmatic graders pass both models at threshold; pairwise quality comparison (separate study) is needed to know if "both 3/3 PASS" means "interchangeable outputs" or "both clear the bar but one is meaningfully better."
+- **The 5 ties may not be ties at output-quality level.** [Pairwise quality study](findings-pairwise-quality.md) inspected 3 of the 5 ties:
+  - **Extraction** is genuinely tied (both correct, comparable documentation philosophies)
+  - **CI debugging** is NOT a tie — 27B's fix contains a regression the binary grader missed: it rewrote a unit test to match buggy production code rather than fixing the production code to match the documented v0.3.0 API. Coder-Next did the correct fix. **Pretty diagnosis prose for a wrong fix is worse than less-pretty prose for a correct fix.**
+  - **Triage** is NOT a tie — Coder-Next has higher category accuracy (96.7% vs 27B's 86.7%) AND a safer urgency-failure-mode: 27B tends to *under-escalate* (3 "low" → "normal" misses out of 7 disagreements), Coder-Next tends to *over-escalate* (3 "normal" → "low/urgent" misses). For a customer-support pipeline, over-escalation is operationally safer.
+  - At output-quality grain, Coder-Next wins 6 of 12 task families (the original 4 + CI + triage), ties 2 (extraction + the 2 task-design-issue rows), and loses 3 (adversarial-hallucination, market-research, bug-fixing). 27B's per-cell wins remain real but narrower than the binary PASS/FAIL count suggested.
 
 ## Earlier-draft headlines (still valid, now framed as task-class observations not overall claims)
 

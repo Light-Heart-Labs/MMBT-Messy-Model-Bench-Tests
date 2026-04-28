@@ -15,6 +15,7 @@ Across the 12 task families × N=3, **both models PASS exactly 20 of 36 cells.**
 ## Read these first
 
 - [`findings.md`](findings.md) — cross-cutting writeup. Headline reads, daily-driver-guide updates, caveats. Read this before drilling into individual task-family folders.
+- [`findings-pairwise-quality.md`](findings-pairwise-quality.md) — paired-output quality comparison on the 3 cells where both models 3/3 PASS (extraction, CI debugging, triage). Surfaces a 27B test-rewrite-instead-of-prod-fix regression in CI debugging that the binary grader missed, plus a measurable urgency-calibration gap in triage. **The supposed ties aren't all real ties.**
 - [`../../SCORECARD.md`](../../SCORECARD.md) § "microbench-2026-04-28" — single-table summary with PASS rates, costs, walls.
 
 ## What's published here
