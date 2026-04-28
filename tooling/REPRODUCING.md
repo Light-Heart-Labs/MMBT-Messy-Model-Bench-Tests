@@ -4,14 +4,14 @@ This walks an external reader from "fresh checkout" through running one of the b
 
 ## What you need
 
-**Hardware**: a Linux box with at least one CUDA-capable GPU. Most of the runs in `agent-pilot/logs/` were on Tower2 (2× RTX PRO 6000 Blackwell, 96 GB each, 252 GB RAM, TR PRO 7965WX). Smaller GPUs work but you'll need to drop `--max-model-len` and `--gpu-memory-utilization` accordingly. The harness itself is GPU-agnostic; only the vLLM containers care.
+**Hardware**: a Linux box with at least one CUDA-capable GPU. Most of the runs in `logs/` were on Tower2 (2× RTX PRO 6000 Blackwell, 96 GB each, 252 GB RAM, TR PRO 7965WX). Smaller GPUs work but you'll need to drop `--max-model-len` and `--gpu-memory-utilization` accordingly. The harness itself is GPU-agnostic; only the vLLM containers care.
 
 **Software**:
 - Docker (with NVIDIA Container Toolkit if you're running models on GPU — `docker run --gpus all` needs to work)
-- Python 3.10+ on the host (the harness is `python3 agent-pilot/harness.py`; only depends on the standard library)
+- Python 3.10+ on the host (the harness is `python3 harness.py`; only depends on the standard library)
 - ~50 GB free disk for vLLM image + at least one model
 
-**Models**: The benchmark uses Qwen3-family models hosted locally. Download whatever you want to test to a directory you'll mount read-only into the vLLM container. Path convention here is `~/models/<org>-<model-name>/`. Three are tracked in `agent-pilot/launch-commands.md`:
+**Models**: The benchmark uses Qwen3-family models hosted locally. Download whatever you want to test to a directory you'll mount read-only into the vLLM container. Path convention here is `~/models/<org>-<model-name>/`. Three are tracked in `launch-commands.md`:
 
 - `cyankiwi-Qwen3.6-27B-AWQ-INT4` (dense thinking, ~16 GB)
 - `cyankiwi-Qwen3-Coder-Next-AWQ-4bit` (MoE 80B/3B, ~45 GB)
@@ -26,10 +26,10 @@ Cloud LLM endpoints work too — point `--model` and `--port` at any OpenAI-comp
 The agent runs every tool call inside a per-run container based on `bench-sandbox:latest`:
 
 ```bash
-docker build -t bench-sandbox:latest agent-pilot/
+docker build -t bench-sandbox:latest tooling/
 ```
 
-Image is ~1.5 GB. Includes Python 3.11, common analysis libs (pandas, numpy, openpyxl, yfinance, sec-edgar-downloader, reportlab, python-pptx, matplotlib), `gh` CLI, `docker` CLI (static binary, talks to the host daemon when `--docker-socket` is passed), git, curl, etc. See `agent-pilot/Dockerfile` for the exact contents.
+Image is ~1.5 GB. Includes Python 3.11, common analysis libs (pandas, numpy, openpyxl, yfinance, sec-edgar-downloader, reportlab, python-pptx, matplotlib), `gh` CLI, `docker` CLI (static binary, talks to the host daemon when `--docker-socket` is passed), git, curl, etc. See `Dockerfile` for the exact contents.
 
 ### 2. Pull the vLLM image
 
@@ -41,7 +41,7 @@ docker pull vllm/vllm-openai:latest
 
 ### 3. Decide which model to test
 
-Pick from `agent-pilot/launch-commands.md`. The launch commands document the exact `docker run` form for each model — flags for tool-call parsing and reasoning-mode parsing are model-specific and getting them wrong silently breaks the run (e.g., adding `--reasoning-parser qwen3` to a non-thinking model causes all output to be misclassified as "reasoning" with empty `content`).
+Pick from `launch-commands.md`. The launch commands document the exact `docker run` form for each model — flags for tool-call parsing and reasoning-mode parsing are model-specific and getting them wrong silently breaks the run (e.g., adding `--reasoning-parser qwen3` to a non-thinking model causes all output to be misclassified as "reasoning" with empty `content`).
 
 ### 4. (Optional) Authenticate gh on the host
 
@@ -51,7 +51,7 @@ For tasks that hit GitHub. `gh auth login` once on the host; the harness can the
 
 ### 1. Start the vLLM endpoint
 
-Copy the canonical command from `agent-pilot/launch-commands.md` for your model. Example (Coder-Next on GPU 0, port 8001):
+Copy the canonical command from `launch-commands.md` for your model. Example (Coder-Next on GPU 0, port 8001):
 
 ```bash
 docker run -d \
@@ -81,15 +81,15 @@ echo "ready"
 ### 2. Run the harness
 
 ```bash
-python3 agent-pilot/harness.py <run_name> <task_file> [flags]
+python3 harness.py <run_name> <task_file> [flags]
 ```
 
 Concrete example — N=1 PR-audit on Coder-Next:
 
 ```bash
-python3 agent-pilot/harness.py \
+python3 harness.py \
   my_first_run \
-  agent-pilot/task_pr_audit_n1.md \
+  tasks/task_pr_audit_n1.md \
   --model qwen3-coder-next-awq \
   --port 8001 \
   --temperature 0.3 \
@@ -103,7 +103,7 @@ python3 agent-pilot/harness.py \
 | flag | default | when to set |
 |---|---|---|
 | `<run_name>` | — | unique per run; used for sandbox container name + log dir name. Reusing a name nukes the prior workspace via the harness's `rm -rf` step. |
-| `<task_file>` | — | path to one of the `agent-pilot/task_*.md` prompts. |
+| `<task_file>` | — | path to one of the `tasks/task_*.md` prompts. |
 | `--model` | `qwen3-coder-next-awq` | the `--served-model-name` your vLLM endpoint advertises. |
 | `--port` | 8001 | the host port your vLLM endpoint is bound to. |
 | `--temperature` | 0.0 | **set to 0.3-0.5 for agentic tasks**. At temp=0 with seed=42, models can fall into deterministic fixed-point loops on long-horizon work (same context → same response → same tool result → same response). 0.3 breaks the trap without much off-task drift. See HARNESS-CHANGELOG. |
@@ -136,7 +136,7 @@ Run ends when one of: the model calls `done()`, the model emits a "stop" finish 
 ## Where the artifacts land
 
 ```
-agent-pilot/logs/<run_name>/
+logs/<run_name>/
   receipt.json           reproducibility metadata, written before the loop starts
   transcript.jsonl       every model turn + tool call (one line each)
   summary.json           final state (only present if the harness exited cleanly — wall-killed runs lack this)
@@ -148,31 +148,31 @@ The workspace tarball is the deliverable. Most are 1-50 MB depending on what the
 ## Reading a receipt
 
 ```bash
-cat agent-pilot/logs/<run>/receipt.json | jq '.vllm.containers[].args'      # exact vLLM launch flags
-cat agent-pilot/logs/<run>/receipt.json | jq '.harness'                      # harness git SHA + dirty flag + sha256
-cat agent-pilot/logs/<run>/receipt.json | jq '.task'                         # task file SHA
-cat agent-pilot/logs/<run>/receipt.json | jq '.hardware.nvidia_smi'          # GPU state at start
-cat agent-pilot/logs/<run>/receipt.json | jq '.sandbox.runtime'              # the per-run flags
-cat agent-pilot/logs/<run>/receipt.json | jq '.inference_request_defaults'   # temperature, max_tokens strategy, etc.
+cat logs/<run>/receipt.json | jq '.vllm.containers[].args'      # exact vLLM launch flags
+cat logs/<run>/receipt.json | jq '.harness'                      # harness git SHA + dirty flag + sha256
+cat logs/<run>/receipt.json | jq '.task'                         # task file SHA
+cat logs/<run>/receipt.json | jq '.hardware.nvidia_smi'          # GPU state at start
+cat logs/<run>/receipt.json | jq '.sandbox.runtime'              # the per-run flags
+cat logs/<run>/receipt.json | jq '.inference_request_defaults'   # temperature, max_tokens strategy, etc.
 ```
 
 ## Reproducing a specific past run identically
 
 ```bash
 # 1. Read the receipt
-cat agent-pilot/logs/<run>/receipt.json | jq '.harness.git_sha, .harness.git_dirty, .vllm.containers[0].args'
+cat logs/<run>/receipt.json | jq '.harness.git_sha, .harness.git_dirty, .vllm.containers[0].args'
 
 # 2. Checkout that harness SHA
 git checkout <git_sha>
 
 # 3. Rebuild the sandbox image from that SHA's Dockerfile
-docker build -t bench-sandbox:latest agent-pilot/
+docker build -t bench-sandbox:latest tooling/
 
 # 4. Launch vLLM with the captured args (paste the args from step 1)
 docker run -d --name vllm-replay --gpus '"device=0"' [...] <captured args>
 
 # 5. Run the harness with the same task file SHA + same flags
-python3 agent-pilot/harness.py replay_<run> <task_file> [<original flags>]
+python3 harness.py replay_<run> <task_file> [<original flags>]
 ```
 
 If `git_dirty: true` in the receipt, the run had uncommitted local changes; the SHA alone won't reproduce it. Receipts emit a warning when this happens. If you're publishing benchmark results, work from clean trees only.

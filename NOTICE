@@ -1,0 +1,37 @@
+# Third-party content notice
+
+The MIT License above covers code, prompts, scripts, documentation, and analysis authored by Light Heart Labs and committed to this repository.
+
+The repository also contains derivative or referenced material that retains its original licensing:
+
+## DreamServer code excerpts
+
+The PR-audit benchmark entries reference and quote code from the DreamServer
+repository (https://github.com/Light-Heart-Labs/DreamServer), also owned by Light Heart Labs and made available under its own license. PR diffs included in entry `prs/pr-{number}/diff.patch` files were fetched from public GitHub PR endpoints. They retain their original authorship — line-level diff authors are visible in each PR's history on GitHub. Including diffs here is fair-use for benchmarking purposes; reuse for other purposes should respect the contributors' rights.
+
+## SEC filings and investor-relations material
+
+The wallstreet-intern-test entries include extracted material from US SEC
+filings, earnings call transcripts, and investor relations pages for the
+companies the agents chose to analyze (GitLab Inc., DocuSign Inc., YETI Holdings, etc.). SEC filings are US public-domain works. Earnings call transcripts may carry the publishing platform's terms (Seeking Alpha, Motley Fool, etc.); SHAs and source URLs are recorded in each entry's `sources.md`.
+
+## Cloud-LLM and local-model outputs
+
+Per-entry agent-produced content (memo prose, audit verdicts, analysis notes, generated XLSX models, etc.) is published as part of this benchmark to enable comparison. Each model's output is included subject to the terms of its respective provider:
+
+- Claude Opus 4.7 outputs: Anthropic's [Usage Policy](https://www.anthropic.com/legal/aup) and [Commercial Terms](https://www.anthropic.com/legal/commercial-terms)
+- GPT-5.5 outputs: OpenAI's [Usage Policies](https://openai.com/policies/usage-policies) and [Terms of Use](https://openai.com/policies/terms-of-use)
+- Local-model outputs (Qwen3.6-27B, Qwen3-Coder-Next, Qwen3.6-35B-A3B): the underlying model weights are under their respective Apache 2.0 / Tongyi licenses; outputs from running those models locally are not separately restricted
+
+## Cyankiwi quantizations
+
+The local-model entries used 4-bit AWQ quantizations from the cyankiwi
+HuggingFace organization. Those community quantizations carry their own
+licensing — see each model's HuggingFace page.
+
+## Contributor identities
+
+The DreamServer PR audit entries reference contributor handles and emails (e.g. yasinBursali, yasinbursali38@gmail.com) that are part of the public commit metadata on the upstream PRs. They are reproduced here in the same form they appear in the public DreamServer repository on GitHub.
+
+If you believe any included material should not be redistributed under the
+terms above, please open an issue on this repository.
