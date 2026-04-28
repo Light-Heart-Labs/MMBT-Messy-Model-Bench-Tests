@@ -1,0 +1,7 @@
+{
+  "primary": "success-shipped-wrong",
+  "sub_labels": [],
+  "notes": "FAIL grade because logalyzer_unchanged=False \u2014 agent modified production code. Caveat: starter has a `from collections import Iterable` bug that prevents test collection; fixing it is required to make tests work. Task design has a chicken-and-egg conflict with the rule.",
+  "labeler": "human",
+  "labeled_at": "2026-04-28T00:00:00Z"
+}

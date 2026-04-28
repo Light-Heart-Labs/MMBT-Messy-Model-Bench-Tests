@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-28T03:22:43.444530+00:00",
+  "ended_at": "2026-04-28T03:23:00.535376+00:00",
+  "elapsed_s": 17.1,
+  "iterations": 10,
+  "total_completion_tokens": 2449,
+  "total_prompt_tokens": 42467,
+  "model": "qwen3-coder-next-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Successfully extracted all 20 fields from the Veridyne Networks Q3 FY2026 earnings press release. Created extraction_results.json with all required fields, notes.md documenting judgments, and ADRs in /workspace/decisions/. Committed and tagged release v1.0.0."
+}

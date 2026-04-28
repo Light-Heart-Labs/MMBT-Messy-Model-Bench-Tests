@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "description": "Ground-truth labels for the customer-support-triage benchmark. Each ticket gets a primary category from a fixed vocabulary plus an urgency level. Some tickets have a 'related_to' field linking duplicates / follow-ups to their original.",
+  "categories": [
+    "bug-report",
+    "billing-refund",
+    "billing-other",
+    "feature-request",
+    "incident-active",
+    "account-management",
+    "auth-permissions",
+    "general-question",
+    "spam-or-noise",
+    "security-incident",
+    "external-business",
+    "legal-compliance"
+  ],
+  "urgency_levels": ["urgent", "normal", "low", "n/a"],
+  "tickets": {
+    "001": {"category": "billing-refund", "urgency": "normal", "notes": "double-charge refund"},
+    "002": {"category": "feature-request", "urgency": "normal", "notes": "SAML SSO; expansion-blocking (60 seats)"},
+    "003": {"category": "incident-active", "urgency": "urgent", "notes": "production down, 503s, board-meeting deadline"},
+    "004": {"category": "spam-or-noise", "urgency": "low", "notes": "fictitious 'free Pixar collectables' premise; no such program"},
+    "005": {"category": "bug-report", "urgency": "normal", "notes": "CSV export + filename-with-spaces drops last row"},
+    "006": {"category": "account-management", "urgency": "normal", "notes": "voluntary cancellation, no refund expected"},
+    "007": {"category": "auth-permissions", "urgency": "normal", "notes": "share-permission denied; pair with 011 (same incident, two reporters)", "related_to": "011"},
+    "008": {"category": "billing-refund", "urgency": "normal", "notes": "annual-plan partial refund request; policy-judgment-needed"},
+    "009": {"category": "spam-or-noise", "urgency": "low", "notes": "obvious phishing email impersonating account-security"},
+    "010": {"category": "external-business", "urgency": "low", "notes": "podcast sponsorship pitch; not customer support"},
+    "011": {"category": "auth-permissions", "urgency": "normal", "notes": "share-permission denied; same incident as 007 from the other side", "related_to": "007"},
+    "012": {"category": "feature-request", "urgency": "normal", "notes": "scheduled-report-by-email"},
+    "013": {"category": "billing-refund", "urgency": "normal", "notes": "accidental upgrade, refund the difference"},
+    "014": {"category": "incident-active", "urgency": "urgent", "notes": "rate-limiting blocking enterprise customer's nightly ingestion; SLA-relevant; pair with 023, 030 (same customer, escalations)", "related_to": "023,030"},
+    "015": {"category": "feature-request", "urgency": "low", "notes": "dark mode"},
+    "016": {"category": "incident-active", "urgency": "urgent", "notes": "500-errors on exports endpoint; SOC1 deadline; status page miss"},
+    "017": {"category": "general-question", "urgency": "normal", "notes": "onboarding/CSV import help"},
+    "018": {"category": "external-business", "urgency": "normal", "notes": "acquisition inquiry; route to founder/CEO, not support"},
+    "019": {"category": "legal-compliance", "urgency": "normal", "notes": "GDPR Article 15 data-subject access request; 30-day clock"},
+    "020": {"category": "bug-report", "urgency": "normal", "notes": "date-filter 'include today' checkbox bug"},
+    "021": {"category": "spam-or-noise", "urgency": "low", "notes": "affiliate-link blog-hosting spam"},
+    "022": {"category": "billing-refund", "urgency": "normal", "notes": "credit-for-downtime request; tied to status-page outage; policy-judgment"},
+    "023": {"category": "incident-active", "urgency": "urgent", "notes": "follow-up to 014; same rate-limit issue, escalation language; pair with 014, 030", "related_to": "014,030"},
+    "024": {"category": "bug-report", "urgency": "normal", "notes": "webhook delivery issue; possibly server-side delivery bug"},
+    "025": {"category": "general-question", "urgency": "low", "notes": "non-profit pricing inquiry"},
+    "026": {"category": "account-management", "urgency": "normal", "notes": "bulk seat add/remove"},
+    "027": {"category": "bug-report", "urgency": "normal", "notes": "PDF export low-DPI charts"},
+    "028": {"category": "security-incident", "urgency": "urgent", "notes": "customer-reported account compromise; freeze + revoke API keys ASAP"},
+    "029": {"category": "security-incident", "urgency": "urgent", "notes": "extortion / coerced-disclosure threat; engage security + legal; do NOT pay"},
+    "030": {"category": "incident-active", "urgency": "urgent", "notes": "third escalation of 014 / 023; SLA breach claim; pair with 014, 023", "related_to": "014,023"}
+  },
+  "summary": {
+    "total_tickets": 30,
+    "by_category": {
+      "bug-report": 5,
+      "billing-refund": 4,
+      "billing-other": 0,
+      "feature-request": 3,
+      "incident-active": 4,
+      "account-management": 2,
+      "auth-permissions": 2,
+      "general-question": 2,
+      "spam-or-noise": 3,
+      "security-incident": 2,
+      "external-business": 2,
+      "legal-compliance": 1
+    },
+    "urgent_count": 7,
+    "duplicate_clusters": [
+      ["007", "011"],
+      ["014", "023", "030"]
+    ]
+  }
+}

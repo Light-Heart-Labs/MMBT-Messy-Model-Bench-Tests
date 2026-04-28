@@ -52,6 +52,46 @@
 
 ---
 
+## microbench-2026-04-28 (12 task families × 2 models × N=3)
+
+> Smaller-scope task families than the dreamserver/wallstreet benchmarks above — each task is a 5-30 minute deliverable rather than a multi-hour audit. Phase 1 = coding (programmatic graders). Phase 2 = structured business tasks (programmatic graders). Phase 3 = unbounded business/writing tasks (mix of programmatic + hand-grading placeholders). N=3 per cell. Cherry-picked-best-of-N is **not** the publishing default here — the table reports N=3 PASS rates so variance is visible. See [`benchmarks/microbench-2026-04-28/findings.md`](benchmarks/microbench-2026-04-28/findings.md) for cross-cutting analysis. Entries published only for the most signal-rich task families to avoid bloating the repo with 60+ tiny folders; full results table reproduced below for completeness.
+>
+> **Two task-design issues called out separately**: `p1_testwrite` and `p1_refactor` use a shared starter (`logalyzer/`) with a known broken import (`from collections import Iterable` — Python 3.10+ removed this). Both models 0/3 PASS on these — but the failure is fixing-the-starter-vs-task-scope tension, not pure model failure. See findings doc § "Test-writing and refactoring task-design issue".
+
+| Phase | Task | 27B PASS | Coder-Next PASS | 27B median wall | Coder median wall | 27B median cost | Coder median cost | Notable |
+|---|---|---|---|---|---|---|---|---|
+| **1** | bug-fixing (logalyzer) | **3/3** | 2/3 | 18.0 min | 11.5 min | $0.023 | $0.015 | both ship; coder-v3 killed at iter 540 (post-completion drift) |
+| 1 | test-writing (logalyzer) | 0/3 † | 0/3 † | 9.6 min | 14.0 min | $0.012 | $0.018 | task-design issue (broken import) — see caveat |
+| 1 | refactoring (logalyzer) | 0/3 † | 0/3 † | 5.4 min | 5.4 min | $0.007 | $0.007 | task-design issue — see caveat |
+| **2** | structured extraction | **3/3** | **3/3** | 1.2 min | 0.3 min | $0.0015 | $0.0004 | 27B 100% on 20 fields; coder ~92% |
+| 2 | CI failure debugging | **3/3** | **3/3** | 2.1 min | 1.2 min | $0.003 | $0.0015 | both clean; coder cheaper |
+| 2 | adversarial hallucination | **3/3** | 1/3 | 3.4 min | 25.9 min | $0.004 | $0.034 | 27B 100% / 0 dangerous; coder 2/3 stuck-detector fired, ship-with-2-dangerous-errors |
+| 2 | customer support triage | **3/3** | **3/3** | 3.3 min | 1.0 min | $0.004 | $0.0013 | coder 96.7% category, 27B 86.7% (both 100% dup-cluster recall) |
+| **3** | document synthesis | 0/3 †† | 2/3 | 32.7 min ‡ | 0.6 min | $0.043 ‡ | $0.0008 | 27B 8/8 facts every run but couldn't trim to 700 words (765, 775, 768); 2 of 3 stuck in identical-call-loop trying to trim. coder hit limit 2/3. |
+| 3 | business memo | 2/3 | **3/3** | 2.8 min | 0.5 min | $0.0037 | $0.0007 | both 8/8 bias signals every run; 27B v3 hit 708 words (1 over) |
+| 3 | market research | **3/3 ★** | 0/3 | 18.9 min | 19.1 min | $0.025 | $0.025 | **27B drives the internet-research workflow Coder-Next doesn't.** All 3 27B runs evaluated all 5 products with 12-18 inline cites to 29-33 distinct URLs. Coder-Next 0/3 STRUCTURAL_FAIL across all 3 runs. |
+| 3 | writing/editing (3-audience rewrite) | 0/3 | 2/3 | 2.8 min | 0.4 min | $0.0036 | $0.0005 | 27B 0/3 all single-subdimension fails (customer_email missing required keyword); ceo_brief + legal_summary PASS in all 3 |
+| 3 | project management synthesis | 0/3 | 1/3 | 1.3 min | 0.3 min | $0.0017 | $0.0003 | both: workstreams 6/6 every run, but only 2-3/6 risks recalled (multi-week risks missed) |
+
+> † `p1_testwrite` / `p1_refactor` failures are correlated with starter-codebase task-design issue; see microbench findings doc § "Test-writing and refactoring task-design issue" before drawing model-quality conclusions from these rows.
+>
+> †† All 3 27B doc-synthesis runs captured all 8 planted facts but couldn't trim to the 700-word limit. 2 of 3 (v2, v3) hit identical-call-loop on the same brief.md content for 50-130+ iters and were manually advanced to keep the chain moving. Pattern is a documented 27B failure shape, not a transient bug.
+>
+> ‡ 27B doc-synthesis median wall is dominated by the wall-killed v2/v3 runs (32.7 min, $0.043). The cleanly-completed v1 was 8 min / $0.011.
+>
+> ★ Inversion vs the prior expectation in the findings doc: 27B *can* drive sustained internet-research workflows that Coder-Next doesn't. **Citation-validity pass (18 of 33 URLs from `p3_market_27b_v1` validated on 2026-04-28): 9 strong-valid (factual claim exactly matches live page), 3 partial-valid (claim mostly right with minor specificity issues), 2 confirmed-wrong URLs (404), 4 inaccessible to the validator. Of 14 testable URLs, 12 (86%) are mostly-valid and 9 (64%) are strict-valid. Measured `citations_valid_pct = 75` (was 90 estimate). `fabricated_stats_count = 0` — every checkable factual claim (prices, certifications, products) matched live data.** Critical observation: the error mode is URL drift (wrong or dead URLs cited), not fabricated facts — a meaningfully different failure shape than the dreamserver-1-pr-audit Coder-Next variance that fabricated technical evidence with confident citations.
+
+**Headline reads from this table (post 27B Phase 3 completion):**
+
+- **27B is reliable on tight-schema tasks.** Phase 2's 12 programmatic-graded runs: 12/12 PASS. The "27B doesn't ship" framing from the dreamserver-PR-audit benchmark was task-class-specific — when the deliverable is a constrained-shape JSON or markdown-with-clear-keys, 27B ships cleanly.
+- **27B has a documented word-limit-trim failure mode.** Doc-synthesis: 8/8 planted facts captured every single run, but 0/3 PASS because the model cannot reliably compress to a tight word limit. 2 of 3 runs entered identical-call-loops trying. Coder-Next handled this better (2/3 PASS).
+- **Big inversion on market research.** 27B was 3/3 STRUCTURAL_PASS (5-product evaluations, 12-18 inline cites, 29-33 distinct URLs); Coder-Next was 0/3 STRUCTURAL_FAIL. Internet-research workflows aren't hopeless for local models — they're a 27B strength, just not Coder-Next's. (Citation validity is hand-grading placeholder; this is structural completion only.)
+- **Coder-Next has a real hallucination-resistance gap.** Adversarial-hallucination: 27B 3/3 100% accurate / 0 dangerous; Coder-Next 1/3 with the one ship-attempt landing 2 confirmed-fabrications-as-real (right at the safety threshold). Same failure shape as the documented dreamserver-1-pr-audit Coder-Next variance.
+- **Cost-per-attempt: Coder-Next is 4-12× cheaper** when it ships. When it doesn't ship (stuck-detector cases), it spends 25+ minutes and ~$0.03 producing nothing, which inverts the economics for hallucination-resistance-required tasks.
+- **Both miss multi-week risks on PM-synthesis.** Project management: workstream + decision recall is excellent (6/6 + 3-4/4 every run for both models), but risks 2-3/6 across all runs and both models — multi-week-spanning risks systematically dropped.
+
+---
+
 ## What the data supports
 
 **Strong claims:**
@@ -62,8 +102,9 @@
 
 **Weaker / not-yet-supported:**
 - "Coder-Next is X% wrong on PR review in general" — current evidence is 2/3 wrong on a single PR. Need more PRs and more N to pin a real rate.
-- "27B is reliably better than Coder-Next for analytical work" — likely true but evidence is qualitative (the 3 hand-written reviews on `dreamserver-75-pr-audit/Qwen3.6-27B-AWQ/` are clean; 27B's `review.md` content on PR #1057 is excellent). Not graded against a fixed rubric.
+- "27B is reliably better than Coder-Next for analytical work" — likely true but evidence is qualitative (the 3 hand-written reviews on `dreamserver-75-pr-audit/Qwen3.6-27B-AWQ/` are clean; 27B's `review.md` content on PR #1057 is excellent). Phase 3 hand-grading sharpens this: 27B prose quality 5/5 on doc-synthesis, business-memo bias-pushback 5/5; Coder-Next 4/5 on the same axes.
 - "Cloud models are N× better than local on this benchmark" — categorical gap is clear (cloud ships, local mostly doesn't), but per-claim accuracy for the cloud entries isn't graded with the same methodology used on the local entries.
+- "27B citations on the market-research microbench are valid" — sampled 18 of 33 URLs (~55%) validated. 86% mostly-valid / 64% strict-valid out of 14 testable URLs (4 were inaccessible to the validator from this IP). Measured `citations_valid_pct = 75`. **Important nuance: factual content (prices, certifications) is 100% accurate in the validated sample; the error mode is URL drift, not fabrication.** The remaining 15 URLs are unverified — sample is large enough to assert *most* citations are valid but not "all 33."
 
 ---
 
@@ -73,6 +114,9 @@
 
 ### When to use **Qwen3.6-27B-AWQ**
 
+- **Hallucination resistance is required.** The single sharpest local-model superiority signal in this repo: on the adversarial-hallucination microbench (15 issues, 6 real / 9 fabricated, agent must classify), 27B was 3/3 PASS with 100% accuracy and 0 dangerous errors; Coder-Next was 1/3 PASS with 2 confirmed-fabrications-as-real on the one shipping run. For security review, factual research, anything where confidently-wrong is dangerous, 27B is the pick.
+- **Internet-research-driven workflows.** The second-sharpest local-model superiority signal: market-research microbench saw 27B 3/3 STRUCTURAL_PASS (5 products, 12-18 inline cites to 29-33 distinct URLs) and Coder-Next 0/3 STRUCTURAL_FAIL. 27B drives sustained multi-step research that Coder-Next doesn't. Caveat: STRUCTURAL_PASS only — sample-grade citations rather than consuming blind.
+- **Tight-schema structured tasks.** 27B was 100% on 20-field extraction across 3 runs, 100% duplicate-cluster recall on triage, 12/12 PASS on Phase 2 programmatic graders. The "27B doesn't ship" framing from the dreamserver-PR-audit benchmark turned out to be task-class-specific (unbounded markdown narrative). When the deliverable shape is constrained, 27B ships cleanly.
 - **Human-in-the-loop review work where intermediate analysis matters more than spec-compliant deliverables.** 27B's `review.md` and `research/questions.md` content was the highest-quality across all six N=1 runs on PR #1057. A reviewer reading that as research notes would get a substantively correct read on the catalog-handling distinction.
 - **Tasks where truthfulness matters more than artifact obedience.** 27B's failures are usually "didn't finish" or "didn't write the spec-required file"; it doesn't fabricate confident-but-wrong claims with citations.
 - **Tasks where you control the downstream consumption.** If your pipeline expects markdown notes (not a structured `verdict.md` JSON), 27B's output is usable as-is.
@@ -80,6 +124,7 @@
 ### When to use **Qwen3-Coder-Next-AWQ**
 
 - **Pipelines where artifact shape is required and a verifier exists.** If your downstream consumes `verdict.md`/`tag`/`done()` and you have a separate check for correctness (a second model, a human pass, regression tests), Coder-Next ships reliably and is ~4× cheaper than 27B.
+- **Bounded business-memo, triage, and writing-rewrite tasks.** Coder-Next was 3/3 PASS on business-memo (bias-signal recall), 3/3 PASS on triage at 96.7% category accuracy (better than 27B's 86.7%), 2/3 PASS on writing-editing. Below the cost-per-attempt of 27B by 4-12× and competitive on accuracy.
 - **Ensemble-with-verification setups.** Run Coder-Next 3-5 times on the same input, take majority vote, flag dissent for human review. The variance characteristic is documented; you can build around it.
 - **Time-to-output matters.** ~3 min/attempt at N=1 vs ~7 min for 27B. If artifact completion + speed beats verdict-accuracy in your loss function, Coder-Next is the pick.
 
@@ -87,6 +132,7 @@
 
 - **Single-shot autonomous high-stakes verdicts** (security review, financial recommendations consumed without verification, anything cited downstream). Coder-Next's fabrication risk is documented; 27B's no-ship risk means the verdict you'd cite isn't there in machine-readable form.
 - **Long-horizon (>30 min) unattended work.** Both models find degenerate failure modes within 30-60 minutes on the 75-PR task. Coder-Next loops; 27B Goodharts the spec or hits the per-response token cap.
+- **Internet-research-driven workflows on Coder-Next specifically.** Coder-Next was 0/3 STRUCTURAL_FAIL on the market-research microbench (stuck-in-research, api-error). 27B does fine on the same task — see "When to use 27B" above. If you only have Coder-Next, have a human gather sources first.
 - **Tasks where fabricated-but-plausible technical claims are dangerous.** If a wrong cited line number or invented test would mislead someone with cleanup cost > the win from automation, don't use Coder-Next single-shot. 27B is safer here, but its no-ship failure means the real review work has to be done by hand.
 
 ### When to use **Qwen3.6-35B-A3B-AWQ**
@@ -105,10 +151,11 @@
 
 These additions would tighten the recommendations above; until they land, the recommendations are best read as "based on this evidence" rather than "definitive":
 
-1. **Per-claim rubric applied uniformly** to every entry (cloud + local). Hand-grade verdict correctness, line citations, fabricated-evidence count, etc., per a fixed scoring scheme. Would convert the "not graded" cells to numbers.
-2. **Failed-run artifacts published** (receipts + transcripts for the 5+ unsuccessful local-model runs not currently in MMBT). Would let a reader see expected failure modes per model.
-3. **N=10+ on the highest-signal cells** (Coder-Next on `dreamserver-1-pr-audit`, 27B on the same). Would bound the variance the current N=3 only suggests.
-4. **Different PR shapes** in the dreamserver-1-pr-audit family — the current PR has subtle architectural distinctions; a docs-only PR or a security PR would test different failure modes.
-5. **Higher-precision quantizations** of the same models (FP8, BF16). Particularly for 35B-A3B which fails at 4-bit; might be a quantization-headroom issue rather than a base-model issue.
+1. **Validate the remaining 15 unsampled URLs and the 4 inaccessible-from-this-validator URLs** on the 27B market-research entry. Currently 18/33 sampled, measured citations_valid_pct = 75. The 4 inaccessible URLs (PCMag, ZDNet, two LastPass pages) are blocked by Cloudflare from the validator's IP — they could be sampled from a different IP, or the agent's specific cited content could be cross-referenced from archive.org. Would tighten the measured number from 75 (sample) to a fully-measured rate.
+2. **Per-claim rubric applied uniformly** to cloud entries. Phase 3 hand-grading is now done for the local entries (prose, stance, source skepticism, balance, citations, tone fit, faithfulness, fabrication count); cloud entries (Opus-4.7, GPT-5.5) on the older benchmarks haven't been graded with the same rubric. Would let cloud-vs-local comparisons go beyond "shipping vs not."
+3. **Failed-run artifacts published** (receipts + transcripts for the 5+ unsuccessful local-model runs not currently in MMBT). Would let a reader see expected failure modes per model.
+4. **N=10+ on the highest-signal cells** (Coder-Next on `dreamserver-1-pr-audit`, 27B on the same; both on `microbench-2026-04-28/adversarial-hallucination`). Would bound the variance the current N=3 only suggests.
+5. **Different PR shapes** in the dreamserver-1-pr-audit family — the current PR has subtle architectural distinctions; a docs-only PR or a security PR would test different failure modes.
+6. **Higher-precision quantizations** of the same models (FP8, BF16). Particularly for 35B-A3B which fails at 4-bit; might be a quantization-headroom issue rather than a base-model issue.
 
 None of these are in scope for the current MMBT publication. They're separate experiments.

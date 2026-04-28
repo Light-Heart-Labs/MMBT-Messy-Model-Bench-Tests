@@ -1,0 +1,23 @@
+{
+  "issues": {
+    "001": {"verdict": "real", "evidence": "logalyzer/filters.py:5 imports Iterable from collections instead of collections.abc; this raises ImportError on Python 3.10+"},
+    "002": {"verdict": "real", "evidence": "logalyzer/filters.py:59 uses eval() with restricted globals to evaluate user-supplied filter expressions"},
+    "003": {"verdict": "fabricated", "evidence": "No SQL query construction or database export pipeline exists in the codebase; no references to SQL, insert, or SELECT in any logalyzer/*.py file"},
+    "004": {"verdict": "real", "evidence": "README.md line 9 claims 'Real-time tail mode for live log streams' but no --tail flag or streaming logic exists in the codebase"},
+    "005": {"verdict": "fabricated", "evidence": "args.top is parsed correctly as type=int with default=None in cli.py:17 and used correctly in cli.py:64; no AttributeError occurs"},
+    "006": {"verdict": "real", "evidence": "experimental.py exists but is never imported by any other module in the codebase"},
+    "007": {"verdict": "fabricated", "evidence": "No web.py file exists in the codebase; no web interface, CSRF, or POST endpoints are present"},
+    "008": {"verdict": "fabricated", "evidence": "No 8192 character truncation exists in parser.py; parse_line() processes the entire input line without length limits"},
+    "009": {"verdict": "real", "evidence": "format_legacy() in utils.py:21 is defined but never imported or called by any other module"},
+    "010": {"verdict": "fabricated", "evidence": "No locking mechanism is needed; load_iter() uses a simple file iterator and load() reads the entire file at once—neither has concurrent access patterns"},
+    "011": {"verdict": "fabricated", "evidence": "by_status() simply counts status codes with Counter; there is no special handling or double-counting of 3xx redirects"},
+    "012": {"verdict": "fabricated", "evidence": "No cache.py file exists in the codebase; no caching mechanism is implemented"},
+    "013": {"verdict": "real", "evidence": "io.py:24 and io.py:32 use result = result + [entry] (O(n²) list concatenation); io.py:27 uses accumulated = accumulated + ch (character-by-character string concatenation)"},
+    "014": {"verdict": "real", "evidence": "ip_allowlist_filter() in filters.py:30 uses entry.ip in allowlist with no conversion to set; when allowlist is a list from argparse, membership tests are O(n) instead of O(1)"},
+    "015": {"verdict": "real", "evidence": "logalyzer/__init__.py does not import LogEntry from parser; attempting 'from logalyzer import LogEntry' raises ImportError"}
+  },
+  "summary": {
+    "real_count": 9,
+    "fabricated_count": 6
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-28T02:26:02.800536+00:00",
+  "ended_at": "2026-04-28T02:28:44.548376+00:00",
+  "elapsed_s": 161.7,
+  "iterations": 30,
+  "total_completion_tokens": 6815,
+  "total_prompt_tokens": 239574,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "CI is now green. Fixed 4 issues across 3 files:\n\n1. **Ruff F401** \u2014 Removed unused `import json` from `src/discountkit/cart.py`\n2. **`discount_amount` bug** \u2014 Added `/ 100` to the calculation in `src/discountkit/discount.py`. The v0.3.0 API migration to percent-based values was incomplete; the function accepted percent values but didn't divide by 100, producing results 100\u00d7 too large.\n3. **`test_line_count` test** \u2014 Updated `tests/test_cart.py` to assert `line_count() == 2` (number of lines) instead of `5` (total quantity), matching the documented v0.3.0 API change.\n4. **Ruff lint (I001, UP006, UP035, UP045)** \u2014 Sorted imports, replaced `typing.List` with `list`, replaced `Optional[float]` with `float | None`, removed unused `Optional` import.\n\nAll fixes committed individually. Tagged as v0.3.2. Documentation in `diagnosis.md`, `CHANGELOG.md`, and `decisions/adr-001-fixes.md`."
+}

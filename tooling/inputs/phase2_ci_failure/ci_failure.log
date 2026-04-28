@@ -1,0 +1,77 @@
+Run actions/checkout@v4
+Run actions/setup-python@v5
+  with:
+    python-version: '3.11'
+  env:
+    pythonLocation: /opt/hostedtoolcache/Python/3.11.10/x64
+Run pip install -e ".[dev]"
+  Successfully installed discountkit-0.3.1 pytest-8.3.3 ruff-0.7.4
+
+==========================================================================
+Run ruff check .
+==========================================================================
+src/discountkit/cart.py:4:8: F401 [*] `json` imported but unused
+  |
+2 | from dataclasses import dataclass
+3 | from typing import List, Optional
+4 | import json  # PLANTED BUG #3: unused import — ruff F401 will catch this
+  |        ^^^^ F401
+5 | from .discount import apply_discount
+  |
+  = help: Remove unused import: `json`
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.
+##[error]Process completed with exit code 1.
+
+==========================================================================
+Run pytest -q
+==========================================================================
+F.F.F                                                          [100%]
+==================================== FAILURES ====================================
+______________________________ test_discount_amount ______________________________
+
+    def test_discount_amount():
+        # 20% off $100 should be $20
+>       assert discount_amount(100.0, 20.0) == 20.0
+E       assert 2000.0 == 20.0
+E        +  where 2000.0 = discount_amount(100.0, 20.0)
+
+tests/test_discount.py:6: AssertionError
+______________________________ test_apply_discount _______________________________
+
+    def test_apply_discount():
+        # $100 with 20% off → $80
+>       assert apply_discount(100.0, 20.0) == 80.0
+E       assert -1900.0 == 80.0
+E        +  where -1900.0 = apply_discount(100.0, 20.0)
+
+tests/test_discount.py:14: AssertionError
+___________________________ test_line_count_matches_qty_sum ______________________
+
+    def test_line_count_matches_qty_sum():
+        """line_count returns the total quantity across all lines."""
+        c = Cart()
+        c.add("SKU-A", qty=2, unit_price=10.0)
+        c.add("SKU-B", qty=3, unit_price=5.0)
+        # Two lines, total qty = 5
+>       assert c.line_count() == 5
+E       assert 2 == 5
+E        +  where 2 = <discountkit.cart.Cart object>.line_count()
+
+tests/test_cart.py:30: AssertionError
+
+==========================================================================
+short test summary info
+==========================================================================
+FAILED tests/test_discount.py::test_discount_amount - assert 2000.0 == 20.0
+FAILED tests/test_discount.py::test_apply_discount - assert -1900.0 == 80.0
+FAILED tests/test_cart.py::test_line_count_matches_qty_sum - assert 2 == 5
+=========================== 3 failed, 4 passed in 0.42s ===========================
+##[error]Process completed with exit code 1.
+
+==========================================================================
+Run pytest --cov=discountkit --cov-report=term-missing
+==========================================================================
+[skipped — pytest already failed]
+##[error]CI failed at 14:27:18 UTC. Total time: 1m 47s.

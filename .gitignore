@@ -1,0 +1,2 @@
+# Bytecode in shipped inputs (these get re-generated when the agent runs)
+tooling/inputs/**/__pycache__/

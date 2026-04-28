@@ -1,0 +1,130 @@
+{
+  "task": "project_mgmt",
+  "verdict": "FAIL",
+  "scores": {
+    "workstream_recall": "6/6",
+    "risk_recall": "2/6",
+    "decision_recall": "3/4",
+    "milestone_recall": "5/5",
+    "sections_present": [
+      "workstream",
+      "risk",
+      "decision",
+      "milestone"
+    ],
+    "word_count": 400
+  },
+  "thresholds": {
+    "min_workstreams": 4,
+    "min_risks": 3,
+    "min_decisions": 3,
+    "min_milestones": 3,
+    "max_word_count": 700
+  },
+  "details": {
+    "workstreams": {
+      "WS1": {
+        "matched": true,
+        "keyword": "query layer"
+      },
+      "WS2": {
+        "matched": true,
+        "keyword": "dashboard refresh"
+      },
+      "WS3": {
+        "matched": true,
+        "keyword": "panel-density"
+      },
+      "WS4": {
+        "matched": true,
+        "keyword": "access-control"
+      },
+      "WS5": {
+        "matched": true,
+        "keyword": "maevia"
+      },
+      "WS6": {
+        "matched": true,
+        "keyword": "legal"
+      }
+    },
+    "risks": {
+      "R1": {
+        "matched": false,
+        "keyword": null
+      },
+      "R2": {
+        "matched": false,
+        "keyword": null
+      },
+      "R3": {
+        "matched": false,
+        "keyword": null
+      },
+      "R4": {
+        "matched": true,
+        "keyword": "40-panel"
+      },
+      "R5": {
+        "matched": true,
+        "keyword": "custom branding"
+      },
+      "R6": {
+        "matched": false,
+        "keyword": null
+      }
+    },
+    "decisions": {
+      "D1_branding": {
+        "matched": true,
+        "keyword": "branding deferred"
+      },
+      "D2_panel_limit": {
+        "matched": true,
+        "keyword": "40-panel"
+      },
+      "D3_mobile": {
+        "matched": true,
+        "keyword": "native in v2"
+      },
+      "D4_option_b": {
+        "matched": false,
+        "keyword": null
+      }
+    },
+    "milestones": {
+      "M1": {
+        "matched": true,
+        "keyword": "mid-may"
+      },
+      "M2": {
+        "matched": true,
+        "keyword": "mid-may"
+      },
+      "M3": {
+        "matched": true,
+        "keyword": "july 2026"
+      },
+      "M4": {
+        "matched": true,
+        "keyword": "v1.1"
+      },
+      "M5": {
+        "matched": true,
+        "keyword": "deferred"
+      }
+    }
+  },
+  "hand_rating_placeholders": {
+    "structure_quality_1to5": null,
+    "fabrication_count": null,
+    "owner_accuracy_0to6": null,
+    "rater_notes": "Workstreams 6/6 (programmatic). Decisions 3/4 captured. Risks 2/6 \u2014 multi-week-spanning risks systematically missed (same pattern as Coder-Next). FAIL by grader threshold (risks <3/6).",
+    "workstream_completeness_1to5": 5,
+    "risk_completeness_1to5": 2,
+    "decision_quality_1to5": 4,
+    "milestone_clarity_1to5": 5,
+    "_GRADED_AT_": "2026-04-28T07:30:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
+  }
+}
