@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-28T08:39:39.514921+00:00",
+  "ended_at": "2026-04-28T08:42:37.354589+00:00",
+  "elapsed_s": 177.8,
+  "iterations": 26,
+  "total_completion_tokens": 8975,
+  "total_prompt_tokens": 210387,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Produced three audience-tailored rewrites of the incident memo:\n\n1. **ceo_brief.md** (244 words, \u2264250 limit) \u2014 Concise executive brief covering: what happened (config change caused ~4h API errors), impact (11,400 accounts, 28 enterprise, 4 downstream breaks), board signal (second 4+ hour incident in 90 days), and 4 remediations. No engineering jargon, no named individuals.\n\n2. **customer_email.md** (279 words, \u2264350 limit) \u2014 Warm, accountable mass email with plain-language root cause explanation, explicit SLA credit offer, contact path, and commitment to improvements. No named engineers, no \"second outage in 90 days\" framing, no engineering jargon.\n\n3. **legal_summary.md** (326 words, \u2264400 limit) \u2014 Dispassionate, factual summary using \"incident\" terminology. Covers exact time window, account scope, SLA breach determination (99.9% monthly uptime breached), 4 downstream harm cases, and credit-handling recommendations. No speculation, no named employees, no marketing language.\n\nSupporting files: `decisions/adr-001-omission-decisions.md` (ADR records), `research/notes.md` (working notes), `README.md` (output guide). All facts sourced exclusively from the original memo \u2014 no invented numbers or details."
+}

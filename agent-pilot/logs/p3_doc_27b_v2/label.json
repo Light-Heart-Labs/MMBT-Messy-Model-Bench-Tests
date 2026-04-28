@@ -1,0 +1,9 @@
+{
+  "primary": "identical-call-loop",
+  "sub_labels": [
+    "wall-killed"
+  ],
+  "notes": "Wrote same brief.md (775 words) repeatedly for ~138 iters. Manual SIGTERM at iter 159 (would not have hit stuck-detector at 500 for 5+ more hours). 8/8 facts, never hit word limit. FAIL.",
+  "labeler": "human",
+  "labeled_at": "2026-04-28T00:00:00Z"
+}

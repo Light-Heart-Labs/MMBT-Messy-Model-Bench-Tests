@@ -250,6 +250,23 @@ LABELS = {
     "p3_pm_coder_v1": ("success-shipped-wrong", [], "All 6 workstreams identified, all 5 milestones, 3/4 decisions. But only 2/6 risks recalled — missed several. FAIL."),
     "p3_pm_coder_v2": ("success-shipped", [], "Workstreams 6/6, decisions 4/4, milestones 4/5, risks 3/6. PASS at the threshold."),
     "p3_pm_coder_v3": ("success-shipped-wrong", [], "Workstreams 6/6, decisions 4/4, milestones 4/5, but risks only 2/6. FAIL."),
+
+    # Phase 3 27B
+    "p3_doc_27b_v1": ("success-shipped-wrong", [], "Captured 8/8 facts but 765 words > 700 limit. Done_signal at iter 33. FAIL."),
+    "p3_doc_27b_v2": ("identical-call-loop", ["wall-killed"], "Wrote same brief.md (775 words) repeatedly for ~138 iters. Manual SIGTERM at iter 159 (would not have hit stuck-detector at 500 for 5+ more hours). 8/8 facts, never hit word limit. FAIL."),
+    "p3_doc_27b_v3": ("identical-call-loop", ["wall-killed"], "Same pattern as v2. 58 same-content writes of brief.md (768 words). Killed at iter 71. 8/8 facts. FAIL."),
+    "p3_business_27b_v1": ("success-shipped", [], "8/8 bias signals captured at 656 words. Done_signal. PASS."),
+    "p3_business_27b_v2": ("success-shipped", [], "8/8 bias signals at 656 words. PASS."),
+    "p3_business_27b_v3": ("success-shipped-wrong", [], "8/8 bias signals but 708 words > 700 limit. FAIL."),
+    "p3_market_27b_v1": ("success-shipped", [], "All 5 products evaluated, 18 inline cites to 33 distinct URLs, has 50-seat math, recommendation 1594 words. STRUCTURAL_PASS — citation validity not hand-graded yet."),
+    "p3_market_27b_v2": ("success-shipped", [], "All 5 products, 12 cites to 29 URLs, 1237 words. STRUCTURAL_PASS."),
+    "p3_market_27b_v3": ("success-shipped", [], "All 5 products, 1266 words. STRUCTURAL_PASS."),
+    "p3_writing_27b_v1": ("success-shipped-wrong", [], "ceo_brief PASS, legal_summary PASS, but customer_email FAIL — missing required keyword (outage/downtime/incident)."),
+    "p3_writing_27b_v2": ("success-shipped-wrong", [], "Same single-subdimension fail on customer_email."),
+    "p3_writing_27b_v3": ("success-shipped-wrong", [], "Same single-subdimension fail on customer_email."),
+    "p3_pm_27b_v1": ("success-shipped-wrong", [], "Workstreams 6/6, decisions 3/4, but risks 2/6. Same multi-week-risks-missed pattern as Coder-Next. FAIL."),
+    "p3_pm_27b_v2": ("success-shipped-wrong", [], "Workstreams 6/6, decisions 4/4, risks 2/6. FAIL on risk threshold."),
+    "p3_pm_27b_v3": ("success-shipped-wrong", [], "Workstreams 6/6, decisions 3/4, risks 2/6. FAIL."),
 }
 
 

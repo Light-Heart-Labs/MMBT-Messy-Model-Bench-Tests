@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-28T08:45:24.550534+00:00",
+  "ended_at": "2026-04-28T08:47:31.858107+00:00",
+  "elapsed_s": 127.3,
+  "iterations": 16,
+  "total_completion_tokens": 7088,
+  "total_prompt_tokens": 104635,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Produced three audience-tailored rewrites of the Friday incident memo:\n\n1. **ceo_brief.md** (241/250 words) \u2014 Executive board-prep read covering outage summary, impact scope (11,400 accounts, 28 enterprise), the \"second incident in 90 days\" board signal, and 4 key remediations. No engineering jargon, no named individuals.\n\n2. **customer_email.md** (282/350 words) \u2014 Warm, accountable mass email with plain-language root cause, remediation commitments, explicit SLA credit offer, and contact path. No named engineer, no \"second outage in 90 days\" framing, no jargon.\n\n3. **legal_summary.md** (303/400 words) \u2014 Dispassionate factual record for counsel with exact incident window (14:11\u201318:24 UTC), account breakdown, 99.9% SLA breach analysis, 4 downstream-automation cases, and credit-handling recommendations. No speculation, no named employees, no marketing language.\n\nAll rewrites sourced exclusively from the draft memo with no invented facts. Supporting ADR and working notes included."
+}

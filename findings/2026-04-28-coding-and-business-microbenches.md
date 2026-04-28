@@ -1,6 +1,11 @@
 # 2026-04-28 — Coding + business microbenches across Phase 1, 2, 3
 
-> 12 task families, 2 models, N=3 each = 72 planned runs (a few re-runs / kills push the actual to ~80). The headline rewrites the daily-driver picture set by the 75-PR audit benchmarks: **27B is reliable at tight-schema tasks**, **Coder-Next is cheap and shippable but worse at hallucination resistance**, and the earlier "no-ship" framing of 27B was task-class-specific.
+> 12 task families, 2 models, N=3 each = 72 planned runs (re-runs / kills push the actual to ~80, including 2 27B runs manually advanced past identical-call-loops). The headline rewrites the daily-driver picture set by the 75-PR audit benchmarks:
+>
+> 1. **27B is reliable at tight-schema tasks** (Phase 2: 12/12 PASS) — the prior "27B doesn't ship" framing was task-class-specific.
+> 2. **27B drives internet-research workflows that Coder-Next can't** (market research: 27B 3/3 STRUCTURAL_PASS vs Coder-Next 0/3 STRUCTURAL_FAIL — the single largest model-superiority signal in this benchmark outside hallucination resistance).
+> 3. **Coder-Next is cheap and shippable but has a real hallucination-resistance gap** (1/3 PASS on adversarial hallucination, with 2 confirmed-fabrications-as-real on the one shipping run).
+> 4. **27B has a documented word-limit-trim failure** (doc synthesis: 8/8 facts captured every run, but 0/3 PASS — model can't compress to a tight word limit, identical-call-loops trying).
 
 ## What was tested
 
@@ -55,9 +60,13 @@ Task family / phase split:
 | 2 | CI failure debugging | 3/3 | clean |
 | 2 | adversarial hallucination | 3/3 | **100% accuracy on 15 issues, 0 dangerous errors** all 3 runs |
 | 2 | triage | 3/3 | 86.7% category accuracy, 100% duplicate-cluster recall |
-| 3 | (in progress) | TBD | 27B Phase 3 chain still running at time of this writeup |
+| 3 | document synthesis | 0/3 | **all 3 captured 8/8 facts but went over 700-word limit** (765, 775, 768). v2 and v3 entered identical-call-loops trying to trim and were manually advanced. |
+| 3 | business memo | 2/3 | 8/8 bias signals every run; v3 hit 708 words (1 over 700 limit) |
+| 3 | market research | **3/3 STRUCTURAL_PASS** | **all 3 runs evaluated all 5 products with 12-18 inline cites to 29-33 distinct URLs** — citation validity is hand-grading placeholder; structural success only |
+| 3 | writing/editing | 0/3 | all 3 single-subdimension fails — customer_email missing required keyword (outage/downtime/incident); ceo_brief + legal_summary PASS in all 3 |
+| 3 | project management | 0/3 | workstreams 6/6 every run, decisions 3-4/4, but risks only 2/6 (same multi-week-risk-miss pattern as Coder-Next) |
 
-**27B combined (Phase 1+2): 12/15 task families excluding the task-design-issue tasks. 12/12 on programmatic-graded Phase 2 = 100% PASS.**
+**27B combined Phase 1+2+3: ~17/30 PASS (counting STRUCTURAL_PASS = PASS, excluding the task-design-issue testwrite/refactor rows). 12/12 PASS on programmatic Phase 2 (100%). 5/15 on Phase 3 vs Coder-Next 8/15.**
 
 ## What rewrites the daily-driver picture
 
@@ -106,13 +115,18 @@ So:
 
 **Lesson for benchmark design**: starter quirks need to be checked against the task constraints before a task is run. Future test-writing benchmarks should use a starter where tests *do* collect cleanly.
 
-### 5. Market research is hard for this model class
+### 5. Market research splits the models hard — 27B drives the workflow, Coder-Next can't
 
-Both models did poorly on market research. 27B Phase 3 is still running at time of writing; Coder-Next was 0/3 with all three failing structurally (no required output files produced).
+This rewrites what an earlier draft of this findings doc said. The Phase 3 result was a clean inversion:
 
-The shared difficulty: market research requires sustained internet research (tool use to fetch sources, citation tracking, cross-checking claimed stats). Both models can do *one* tool call cleanly, but driving a multi-step research workflow over an extended session is where things break.
+- 27B: **3/3 STRUCTURAL_PASS** — all three runs evaluated all 5 products (1Password, Bitwarden, Dashlane, Keeper, LastPass), with 12-18 inline cites to 29-33 distinct URLs, recommendation 1237-1594 words. The agent drove a multi-step research workflow with sustained tool use over 18-27 minutes.
+- Coder-Next: **0/3 STRUCTURAL_FAIL** — none produced the required `recommendation.md`/`comparison.md`/`sources.md` files. 2 stuck-in-research, 1 vLLM api_error (probable context overflow at 65 iters).
 
-For the daily-driver question, this means: don't expect either model to autonomously do market research. Use them for the *synthesis* step after a human has gathered the sources.
+This is the largest local-model superiority signal in the entire microbench suite outside the adversarial-hallucination cell. **27B can drive sustained internet research; Coder-Next cannot.** Two distinct architectural strengths play together: (a) larger context handling without API errors, (b) sustained tool-use loops without entering stuck-in-research.
+
+Caveat: STRUCTURAL_PASS means files exist with the right shape and content keys hit. Citation validity (do the URLs exist? do they say what they're cited for? are the stats faithful?) is a hand-grading placeholder. The "all citations valid" claim isn't supported by current data — 18 cites to 33 URLs is a lot to verify. But the *structural* gap between the models is large and visible regardless.
+
+For the daily-driver question: 27B is now the local pick for autonomous market-research-shaped tasks (with output sampled and validated, not consumed blind). Coder-Next is not.
 
 ### 6. Variance is real but smaller than expected on these tasks
 
@@ -127,20 +141,22 @@ The Phase 1+2+3 evidence sharpens the per-use-case recommendations. **Conditiona
 ### Use Qwen3.6-27B-AWQ when
 
 - **Hallucination resistance matters** — the 3/3 100%-accuracy 0-dangerous-errors result on the adversarial-hallucination task is the clearest local-model superiority signal in this entire benchmark suite. For security review, factual research, or anything where confidently-wrong is dangerous, 27B is the pick.
+- **Internet-research-driven tasks (with citation sampling)** — the 3/3 market-research STRUCTURAL_PASS is the second-clearest local-model superiority signal. 27B drives multi-step research workflows that Coder-Next can't (Coder-Next was 0/3 on the same task). Sample-grade the citations on 27B's output rather than consuming blind.
 - **High-accuracy structured extraction** — 100% on 20 fields is the kind of result you'd build a pipeline on.
 - **Tasks with tight JSON schemas** — extraction, classification, triage, schema-bound code review.
 
 ### Use Qwen3-Coder-Next-AWQ when
 
-- **Cost matters more than accuracy ceiling** — 4-12× cheaper per attempt. Run it 3-5 times for ensemble verification and you still come in under one 27B attempt.
+- **Cost matters more than accuracy ceiling** — 4-12× cheaper per attempt on Phase 2 tasks. Run it 3-5 times for ensemble verification and you still come in under one 27B attempt.
 - **Bug-fixing-style code work** — both models tied at 100% on bug-fix, but Coder-Next was faster.
-- **Bounded business-memo / triage / writing-rewrite tasks** — Coder-Next is competitive with 27B and cheaper.
+- **Tight-word-limit summary work** — Coder-Next was 2/3 on doc-synthesis vs 27B's 0/3, because Coder-Next reliably produces output under a length cap and 27B doesn't.
+- **Bounded business-memo / writing-rewrite tasks** — Coder-Next was 3/3 vs 27B 2/3 on business memo, 2/3 vs 27B 0/3 on writing-editing. Coder-Next's competitive accuracy + lower cost makes this its best Phase 3 niche.
 - **CI failure debugging** — both models 3/3 PASS; pick the cheaper one.
 
 ### Avoid both when
 
-- **Market research / internet-driven research workflows** — both models break down on this. Use a cloud LLM or a human.
 - **Long-horizon (>30 min) unattended work** — see the dreamserver-PR-audit findings; not changed by Phase 1+2+3.
+- **PM-status-synthesis with multi-week-spanning risks** — both models reliably miss multi-week risks (2-3/6 risk recall across all runs of both models). Workstream + decision recall is excellent (6/6 + 3-4/4); the multi-week risks are the failure mode.
 - **Anything where 100% accuracy is required and verification budget is zero** — 27B's accuracy is high but not 100% across all task classes. Coder-Next's is materially lower in some cases.
 
 ### Cloud comparison
@@ -154,7 +170,7 @@ This benchmark suite still doesn't have cloud-LLM entries on Phase 1+2+3 tasks. 
 - **Ground-truth-leak audit was passed pre-launch.** Ground-truth files (planted answers, planted bias signals, expected key facts) were moved from agent-mountable input dirs to a separate `agent-pilot/graders/ground_truth/` location before any Phase 2 / 3 runs. The agent could not see the answers.
 - **Hand-rating placeholders not yet filled.** Phase 3 graders emit programmatic verdicts, but the subjective dimensions (prose quality, fabrication count beyond keyword matching, audience-tone fit at 1-5 scale) are placeholder fields awaiting human grading. The PASS/FAIL above is from the programmatic axis only.
 - **Approximate determinism only.** vLLM bf16 paths aren't bitwise deterministic, runs at temp=0.3 add intentional sampling diversity.
-- **27B Phase 3 results are still landing.** Numbers above for 27B Phase 3 are partial; will be updated when the chain completes.
+- **27B Phase 3 chain had 2 manually-advanced stuck-loops on doc_synthesis** (v2, v3). Both were writing the same `brief.md` content for 50-130+ iters trying to compress to the 700-word limit and never succeeding. Manual SIGTERM advanced the chain rather than waiting 5+ hours for the stuck-detector at iter 500. The pattern is documented as a 27B failure shape, not a transient bug. v1 completed cleanly via done_signal at iter 33 but still hit 765 words >700 → FAIL.
 
 ## Where this leaves SCORECARD.md
 

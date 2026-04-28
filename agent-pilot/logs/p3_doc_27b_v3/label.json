@@ -1,0 +1,9 @@
+{
+  "primary": "identical-call-loop",
+  "sub_labels": [
+    "wall-killed"
+  ],
+  "notes": "Same pattern as v2. 58 same-content writes of brief.md (768 words). Killed at iter 71. 8/8 facts. FAIL.",
+  "labeler": "human",
+  "labeled_at": "2026-04-28T00:00:00Z"
+}

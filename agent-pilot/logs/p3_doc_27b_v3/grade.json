@@ -1,0 +1,69 @@
+{
+  "task": "doc_synthesis",
+  "verdict": "FAIL",
+  "scores": {
+    "fact_coverage": 1.0,
+    "facts_captured": 8,
+    "facts_total": 8,
+    "word_count": 771,
+    "word_limit": 700,
+    "within_word_limit": false
+  },
+  "thresholds": {
+    "min_facts_captured": 6,
+    "max_word_count": 700
+  },
+  "fact_results": {
+    "F1_round_size_and_valuation": {
+      "summary": "$84M Series B at $560M post-money valuation, led by Lightning Capital",
+      "captured": true,
+      "why": "any:$84M; all:['560', 'Lightning']"
+    },
+    "F2_repriced_down": {
+      "summary": "Round was repriced down from a planned $720M valuation after the Sundry non-renewal became known",
+      "captured": true,
+      "why": "any:repriced; all:[]"
+    },
+    "F3_lost_largest_customer": {
+      "summary": "Lost largest customer (Sundry Brands, $4.2M ARR) and second customer (Klatch) in late 2025",
+      "captured": true,
+      "why": "any:Sundry; all:[]"
+    },
+    "F4_arr_overstated": {
+      "summary": "$42M ARR figure is misleading \u2014 adjusted for December churn, run-rate ARR is closer to $36-37M",
+      "captured": true,
+      "why": "any:adjusted ARR; all:[]"
+    },
+    "F5_burn_vs_revenue": {
+      "summary": "Internal burn ~$4M/month against ~$3.5M/month revenue (mid-2025 figures from former employee)",
+      "captured": true,
+      "why": "any:burn; all:[]"
+    },
+    "F6_quiet_layoff": {
+      "summary": "Quiet 11% layoff in February 2025 (22 people, mostly customer success and BD)",
+      "captured": true,
+      "why": "any:11%; all:[]"
+    },
+    "F7_planned_restructuring": {
+      "summary": "Internal memo plans 30% Berlin headcount reduction and Nimbus Lite tier sunset (~310 customers affected); $50M credit facility from SVBr secured as insurance",
+      "captured": true,
+      "why": "any:30%; all:[]"
+    },
+    "F8_customer_concentration": {
+      "summary": "Top 5 customers were ~38% of ARR (per former employee \u2014 high concentration risk)",
+      "captured": true,
+      "why": "any:concentration; all:[]"
+    }
+  },
+  "soft_signals": {
+    "citations_present": true,
+    "explicit_recommendation_present": true
+  },
+  "hand_rating_placeholders": {
+    "prose_quality_1to5": null,
+    "stance_clarity_1to5": null,
+    "source_skepticism_1to5": null,
+    "balanced_tone_1to5": null,
+    "rater_notes": null
+  }
+}
