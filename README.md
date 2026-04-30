@@ -1,8 +1,8 @@
 # MMBT - Messy Model Bench Tests
 
 This repository stores messy, real-world benchmark outputs from different
-models. Each benchmark is a task that looks like actual project work rather
-than a tidy synthetic eval.
+hardware and LLM tests in my lab.  It's my messy research, and exists for my personal use
+but I'm making it public so that other people can use it too.
 
 ## Layout
 
