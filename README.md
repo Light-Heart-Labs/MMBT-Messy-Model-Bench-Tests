@@ -30,6 +30,7 @@ agent-pilot/                 Agent-task harness (vLLM tool-calling loop, Docker 
   graders/                   Programmatic graders for the code-adoption task
 
 findings/                    Narrative writeups, dated. Read these first.
+hardware-tests/              Hardware characterisation runs (power/throughput sweeps, thermals) on the rig itself, separate from agent-task benchmarks
 qwen3.5-397b/                Earlier Qwen3.5-397B-A17B llama.cpp benchmarking (separate work, kept for reference)
 suite/                       General benchmark scratch
 results/                     Aggregated cross-run summaries (when there are multiple)
@@ -39,7 +40,7 @@ REPRODUCING.md               Setup-to-rerun walkthrough for external readers
 External (not tracked here, but part of the same research):
 
 ```
-~/thermal-tests/     Burn-in / thermal harness (dual-GPU + CPU stress, CSV logger)
+~/thermal-tests/     Burn-in / thermal harness (dual-GPU + CPU stress, CSV logger). Selected sweeps are mirrored into hardware-tests/ when they yield a finding worth publishing.
 ~/models/            Persistent model library (FP8, AWQ, BF16, GGUFs)
 ```
 
@@ -48,6 +49,7 @@ External (not tracked here, but part of the same research):
 1. **Start with `findings/`** — the narrative writeups synthesize across runs. The most recent ones are the cleanest entry points:
    - `findings/2026-04-27-dreamserver-pr-audit-summary.md` — three local 30B-class models, three different ways of failing the PR-audit task class. Includes the N=1 escalation results and the daily-driver implications
    - `findings/2026-04-26-2x3x3-grid-consolidated.md` — the prior batch (memo + board × three models × three replicates each). Establishes the baseline behavior of each model on bounded vs unbounded tasks
+   - `hardware-tests/vllm-power-sweep-2026-04-29/findings.md` — vLLM throughput vs GPU power cap sweep on RTX PRO 6000 Blackwell, dense 27 B and Coder-Next, N=1 and N=32. Validates the 500 W operating cap (within 3.3 % of optimal in every scenario) and includes a post-hoc audit of two per-cap "winner" claims.
 2. **For a specific run referenced in a finding**, the artifacts are at `agent-pilot/logs/<run>/`:
    - `receipt.json` — vLLM args, harness git SHA, task SHA, GPU snapshot, sandbox runtime config
    - `transcript.jsonl` — full model+tool trace
