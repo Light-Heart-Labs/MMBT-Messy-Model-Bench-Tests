@@ -24,6 +24,8 @@ benchmarks/
     Qwen3.6-27B-AWQ/           local, full memo repo (GTLB BUY, 1 of 3 runs shipped)
     Qwen3-Coder-Next-AWQ/      local, full memo repo (DOCU BUY, 1 of 3 runs shipped — verdict reliability caveat in README)
     Qwen3.6-35B-A3B-AWQ/       local, no usable deliverable (0 of 3 runs shipped, kept as failure-mode entry)
+hardware-tests/
+  vllm-power-sweep-2026-04-29/ rig characterisation: vLLM throughput vs GPU power cap, 28-cell sweep with raw CSVs + audit notes
 ```
 
 ## Benchmarks
@@ -34,6 +36,14 @@ benchmarks/
 | [`dreamserver-1-pr-audit`](benchmarks/dreamserver-1-pr-audit/) | Same task spec, scaled to a single PR. Built as the floor of an escalation ladder (1 → 2 → 4 → 8 → 16 → 32) to find each model's complexity ceiling. | `Qwen3-Coder-Next-AWQ`, `Qwen3.6-27B-AWQ`, `Qwen3.6-35B-A3B-AWQ` (floor failure) |
 | [`wallstreet-intern-test`](benchmarks/wallstreet-intern-test/) | Build a traceable investment memo repo with raw sources, extracted data, a three-statement model, valuation, and recommendation. | `GPT-5.5`, `Opus-4.7`, `Qwen3.6-27B-AWQ`, `Qwen3-Coder-Next-AWQ`, `Qwen3.6-35B-A3B-AWQ` (failure-mode entry) |
 | [`microbench-2026-04-28`](benchmarks/microbench-2026-04-28/) | 12 smaller-scope task families (5-30 min deliverables) split across 3 phases — coding (Phase 1), structured business tasks (Phase 2), unbounded business/writing (Phase 3). Designed to surface task-class-specific differences between local 30B-class quantizations. N=3 per cell. Three highest-signal task families published as full per-model entries: adversarial-hallucination, market-research, doc-synthesis. | `Qwen3.6-27B-AWQ`, `Qwen3-Coder-Next-AWQ` |
+
+## Hardware tests
+
+`hardware-tests/` holds rig characterisation runs — power, throughput, and thermal sweeps on the lab hardware itself, separate from agent-task benchmarks. They support the same evidence base (e.g. validating the operating power cap a model run was conducted under), but they live in their own tree because they answer hardware questions, not model questions.
+
+| Test | Shape | What it measures |
+|---|---|---|
+| [`vllm-power-sweep-2026-04-29`](hardware-tests/vllm-power-sweep-2026-04-29/) | 7 GPU power caps × 5 min sustained vLLM load × 2 concurrencies (N=1, N=32) × 2 AWQ-INT4 models (Dense Qwen3.6-27B, MoE Coder-Next), 28 cells total, on RTX PRO 6000 Blackwell. | Throughput-vs-power-cap curve, native draw at unbounded cap, and per-cap thermal envelope. Validates the 500 W production cap (within 3.3 % of optimal in every scenario), and shows Coder-Next ≈ 1.8× faster batched / 2.3× faster single-stream than dense 27 B at every cap. The findings doc carries an "Audit notes" section flagging two per-cap "winner" markers that don't survive a re-read of the raw CSVs (a vLLM container warmup transient and a single-window thermal clock dip distort the per-cap winners without changing the plateau-shape headline). |
 
 ## At a glance
 
