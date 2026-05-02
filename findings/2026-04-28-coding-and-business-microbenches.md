@@ -54,6 +54,47 @@ The right read of this data is **complementary task-class strengths at similar o
   - **Triage** is NOT a tie — Coder-Next has higher category accuracy (96.7% vs 27B's 86.7%) AND a safer urgency-failure-mode: 27B tends to *under-escalate* (3 "low" → "normal" misses out of 7 disagreements), Coder-Next tends to *over-escalate* (3 "normal" → "low/urgent" misses). For a customer-support pipeline, over-escalation is operationally safer.
   - At output-quality grain, Coder-Next wins 6 of 12 task families (the original 4 + CI + triage), ties 2 (extraction + the 2 task-design-issue rows), and loses 3 (adversarial-hallucination, market-research, bug-fixing). 27B's per-cell wins remain real but narrower than the binary PASS/FAIL count suggested.
 
+## Architectural interpretation: why two different bets land at the same altitude
+
+The aggregate tie isn't a coincidence — it's a structural prediction. The two models embody opposite architectural bets at matched scale points, and the tradeoffs cancel at the aggregate-PASS-rate grain while diverging at the per-task-class grain. Worth naming the mechanism so this bench is useful as a *predictor*, not just a description.
+
+### Breadth vs depth
+
+Two scaling axes in modern LLMs:
+
+- **Total parameters → knowledge breadth.** How many patterns, facts, idioms, and code conventions the model carries and can route to. Scales close to linearly with total params.
+- **Active parameters per token → reasoning depth.** How much computation participates in each forward pass. Scales sub-linearly (closer to sqrt-ish per recent MoE scaling work) — gates per-step planning quality, working memory, "can I see 8 steps ahead."
+
+Qwen3-Coder-Next-AWQ is roughly **80B-A3B**: huge knowledge base, shallow per-step compute. Qwen3.6-27B-AWQ is **27B-dense** *and* a thinking model — every active param participates every step, and the thinking budget lets it iterate that depth across hundreds of internal tokens before responding.
+
+These are opposite bets:
+- Coder-Next bets that **most coding work is pattern recognition** — recognize a bug shape, recall an idiom, route to the right template. Cheap shallow lookups against a huge index.
+- 27B-thinking bets that **most coding work is sustained reasoning** — plan a fix, hold multi-step intent, evaluate tradeoffs. Deep per-step compute iterated across a thinking budget.
+
+### Why the tie
+
+When both bets are matched in scale (~80B knowledge ≈ 27B-with-thinking-iteration depth at this size class), aggregate PASS rate ties because *real-world tasks are mixed*. Some cells reward pattern-match (extraction, triage, hallucination resistance — Coder-Next's wins). Some reward sustained planning (market research, doc-synthesis trim, multi-step debugging — 27B-thinking's wins). Aggregate over enough mixed-shape cells and the bets cancel.
+
+The router argument matters here: Coder-Next at 3B-active still has 80B of knowledge to *choose from* per token. Activation is sparse, but selection is broad. That's why MoEs punch above their active-param weight on knowledge recall — knowledge access is essentially free at inference time. What active-param count gates is *reasoning depth*, not knowledge.
+
+### What this framing predicts
+
+Testable predictions for new entries on the bench:
+
+- **A trained-from-scratch thinking-MoE coder** (Qwen3.5-Coder-Thinking-80B-A3B-class, or DeepSeek's next coder-specialized R1 derivative). On paper it would combine Coder-Next's breadth with 27B's depth-via-thinking. In practice, naive "flip thinking on" doesn't work — DeepSeek needed specific RL to make R1's router pick experts that specialize in intermediate reasoning steps. Trained correctly, the framing predicts material gains over both current models; whether they materialize and by how much is open.
+- **A bigger dense thinking model** (Qwen3-72B-Thinking-class). Same depth bet as 27B-thinking with a larger knowledge base. The framing predicts a shift toward depth-favored cells.
+- **The 27B-no-think arm** (currently in flight). Tests the inverse — stripping thinking from 27B is predicted to hurt long-horizon cells (where depth budget closed the breadth gap) more than short-horizon cells.
+
+Each prediction is testable here by adding a row, which is the bench's value as a meta-tool.
+
+### Practical implication: route, don't pick
+
+Per-cell wins are well-defined and stable. A model router that classifies task shape ("broad-pattern lookup" → Coder-Next; "sustained-planning" → 27B-thinking) and picks accordingly should outperform either model alone by ~5-10 points aggregate. The per-family table in [Headline pass rates](#headline-pass-rates) is training data for that classifier. Open follow-up: build it.
+
+### Time-instability of this finding
+
+This is a 2026-Q2 snapshot. The current parity reflects where breadth-bets and depth-bets happen to be matched at this size class — not a stable property of the architecture pair. Releases on either side through the rest of 2026 will tip the balance. Re-running this bench on the next-generation model pair is the meta-tool work.
+
 ## Earlier-draft headlines (still valid, now framed as task-class observations not overall claims)
 
 > 1. **27B is reliable at tight-schema tasks** (Phase 2: 12/12 PASS) — the prior "27B doesn't ship" framing was task-class-specific.

@@ -1,0 +1,14 @@
+{
+  "started_at": "2026-05-02T14:35:50.282800+00:00",
+  "ended_at": "2026-05-02T19:32:36.328423+00:00",
+  "elapsed_s": 17806.0,
+  "iterations": 341,
+  "total_completion_tokens": 211371,
+  "total_prompt_tokens": 39131673,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "wall_killed_identical_call_loop",
+  "done_summary": null,
+  "operator_note": "SIGTERM by operator at 2026-05-02T19:32:36.328423+00:00: 27B-no-think hit the same word-limit-trim identical_call_loop pathology documented for 27B-thinking on doc/business cells. Model rewrote brief.md hundreds of times trying to compress to the 700-word limit. Workspace-hash detector did not fire because file content kept changing each iter. Killed per Rule 5 (>4hr wall + >200 iter + no deliverable convergence + >30 same-file rewrites). Honest data on the no-think failure shape on this task class.",
+  "kill_reason_class": "word_limit_trim_identical_call_loop",
+  "no_think": true
+}

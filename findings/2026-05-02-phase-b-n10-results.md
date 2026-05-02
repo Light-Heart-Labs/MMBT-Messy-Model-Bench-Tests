@@ -193,6 +193,80 @@ Currently running on both GPUs in parallel. 12 task families × N=10 = 120 runs.
 
 The big question: does no-think 27B keep 27B's task-class wins (hallucination, market, bug-fix) while gaining Coder-Next's speed and cost ratio? If yes → no-think is the new daily-driver default for cost-sensitive deployments where 27B's task-class strengths still matter.
 
+#### Preliminary results — 7 families bounded at N=10 (2026-05-02 ~16:00 EDT, chain still in flight on p3_*)
+
+7 of 12 families completed and graded at N=10. 1 family (p3_business) at 8/10 (1 operator-killed identical_call_loop). 1 (p3_doc) at 2/10 (1 operator-killed). 3 (p3_market, p3_pm, p3_writing) not yet started. Operator-SIGTERM applied to the two stuck identical_call_loop runs per Rule 5 after a 3-hour plateau (workspace-hash detector did not fire because file content kept changing each iter — same shape as the Coder-Next p3_market `wall_killed_low_progress_bash_loop` documented earlier in this doc). Synthetic summaries written; chain unblocked and continued.
+
+##### PASS-rate comparison: 27B-no-think vs 27B-thinking (Wilson 95% CIs)
+
+| Family | no-think PASS | thinking-on PASS | Direction |
+|---|---|---|---|
+| p1_bugfix | **10/10 (100%)** [72-100] | 3/3 (100%) [44-100] (N=3) | confirmed equal |
+| p1_refactor | 0/10 (0%) [0-28] | 0/3 (0%) | task-design fail (both) |
+| p1_testwrite | 0/10 (0%) [0-28] | 0/3 (0%) | task-design fail (both) |
+| p2_ci | **10/10 (100%)** [72-100] | 3/3 (100%) (N=3) | confirmed equal |
+| p2_extract | **10/10 (100%)** [72-100] | 3/3 (100%) (N=3) | confirmed equal |
+| p2_hallucination | **10/10 (100%)** [72-100] | 7/10 (70%) [40-89] | **no-think WINS by 30 points** |
+| p2_triage | **10/10 (100%)** [72-100] | 3/3 (100%) (N=3) | confirmed equal |
+| p3_business | **1/8 (12%)** [2-47] | 8/10 (80%) [49-94] | **no-think LOSES by ~68 points** |
+| p3_doc | 0/2 (0%) [0-66] | 1/10 (10%) | underpowered (N=2) |
+
+##### Speed and token compensation
+
+| Family | no-think elapsed | thinking elapsed | Speed Δ | no-think ctok | thinking ctok | ctok Δ | iters Δ |
+|---|---:|---:|---|---:|---:|---|---|
+| p1_bugfix | 2582s | 1078s | **2.40× slower** | 31976 | 18506 | 1.73× more | 130 vs 81 |
+| p1_refactor | 563s | 322s | 1.75× slower | 11264 | 12993 | 0.87× | 64 vs 45 |
+| p1_testwrite | 1186s | 573s | 2.07× slower | 30886 | 23410 | 1.32× more | 82 vs 47 |
+| p2_ci | 110s | 127s | 0.87× (faster) | 4540 | 5621 | 0.81× | 24 vs 25 |
+| p2_extract | 49s | 71s | 0.69× (faster) | 3026 | 4394 | 0.69× | 6 vs 5 |
+| p2_hallucination | 127s | 171s | 0.75× (faster) | 5678 | 10142 | 0.56× | 19 vs 9 |
+| p2_triage | 154s | 197s | 0.78× (faster) | 8586 | 12137 | 0.71× | 17 vs 10 |
+| p3_business | 171s | 163s | 1.05× ~tie | 9359 | 9538 | 0.98× | 21 vs 16 |
+| p3_doc | 8976s | 1113s | **8.06× slower** | 109490 | 24317 | **4.50× more** | 180 vs 54 |
+
+##### Definitive findings (with bounded CIs)
+
+**10. No-think wins p2_hallucination (30-point swing).** This was unexpected. The thinking-on arm at N=10 had `model_stopped_in_thinking` on 3 of 10 runs (the "stuck in think mode" failure documented as Finding 6 in this doc) — the model thought a lot then quit without acting. **No-think can't have that failure mode**, because thinking is disabled. Removing the thinking lever ELIMINATED the dominant failure mode on this cell, and the per-shipping-run accuracy held. CIs barely overlap (no-think [72-100] vs thinking [40-89]) — directionally definitive. *This is the inverse of what the breadth/depth framing predicted.*
+
+**11. No-think loses p3_business hard (~68-point swing).** 1/8 PASS at the no-think arm vs 8/10 at thinking-on. The skeptical-deal-pack-review task requires holding multiple bias signals in working memory and articulating stance pushback — exactly the kind of sustained reasoning the thinking budget supports. Without it, the model produces shorter / less-skeptical memos that miss the 8-bias-signal recall threshold. *This IS what breadth/depth predicted.*
+
+**12. p1_bugfix pass rate held perfectly despite 2.4× slower wall.** No-think solves the same set of bugs (10/10) — it just takes more iterations and tokens to get there. The model successfully compensates for missing depth-budget on this task by trying more candidates / running tests more often. Speed cost without PASS cost.
+
+**13. Token compensation pattern is real and family-specific.** On p1 (long-horizon coding) and p3_doc (word-limit-trim) the model talks 1.3-4.5× more in the visible output to compensate for stripped thinking. On p2 (short atomic tasks) ctok actually drops because there was nothing to compensate for. The model is doing implicit reasoning *somewhere* — without thinking it pushes that reasoning into the visible output stream.
+
+**14. Identical-call-loop pathology is shared with the thinking arm.** Both runs killed (`p3_business_v5`, `p3_doc_v2`) hit the same word-limit-trim loop the thinking arm hits at ~40% rate on doc. Confirms the loop is not a thinking-budget artifact — it's a model-can't-compress-to-tight-word-limit failure that manifests regardless of reasoning mode.
+
+##### What this updates about the breadth/depth framing
+
+The simple prediction "depth-budget is universally helpful, removing it should hurt" was **partly right, partly wrong**:
+
+- **Right** on p3_business: depth-budget genuinely needed for stance-pushback work; pass rate collapses without it.
+- **Right on the speed/cost direction** for short atomic tasks (p2 cells): no-think faster, ~equal pass rate.
+- **Wrong on p2_hallucination**: depth-budget had a *failure mode of its own* (stuck-in-think), and removing it eliminated that pathology. Net positive for no-think.
+- **Wrong on p1_bugfix** in the strict sense: depth-budget reduces *time-to-solve* but is not load-bearing for whether the bug gets fixed at all. The model has alternative paths to the answer — they just cost more tokens.
+
+The cleaner framing: **depth-budget is one of several reasoning levers**. Some tasks *require* it (skeptical multi-source memo writing). Some tasks have *alternative paths* (iterative test-driven debugging). And the depth-budget itself can *fail* (stuck-in-think), so its expected value is task-dependent.
+
+##### Daily-driver implication
+
+For the 7 N=10-bounded families, the pick-by-task-class rule sharpens:
+
+| Use case | Pick | Why |
+|---|---|---|
+| Hallucination resistance | **27B-no-think** | 100% vs thinking-on's 70% (ship-rate gain) |
+| Adversarial-fabrication classification | **27B-no-think** | same as above + 33% faster |
+| Structured extraction (p2) | 27B-no-think | identical pass rate, 30% faster, 30% cheaper |
+| CI failure debugging | 27B-no-think | identical pass rate, similar speed |
+| Customer support triage | 27B-no-think | identical pass rate, 22% faster |
+| Bug-fixing (p1) | 27B-thinking | identical pass rate but 2.4× faster |
+| Skeptical deal-pack review (business memo) | **27B-thinking** | 80% vs no-think's 12% — definitive |
+
+**Caveats:**
+- P3 families incomplete: doc, market, pm, writing not yet bounded for no-think. Pending chain completion.
+- P1 thinking-on baseline is N=3 only; bugfix/testwrite/refactor pass rates remain directional on the thinking side until Phase B extends to those families (not currently scoped).
+- All numbers are still single-task-instance. Generalization of any per-cell finding to a generalized model property requires a second instance per cell.
+
 ## Caveats
 
 - **Ship rate is not output quality.** A run that reaches done_signal can still produce a wrong or low-quality deliverable. PASS rate (Phase 2) is the load-bearing follow-up.
