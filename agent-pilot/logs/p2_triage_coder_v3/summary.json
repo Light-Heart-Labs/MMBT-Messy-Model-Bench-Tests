@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-28T04:23:11.824949+00:00",
+  "ended_at": "2026-04-28T04:23:38.681570+00:00",
+  "elapsed_s": 26.9,
+  "iterations": 10,
+  "total_completion_tokens": 4034,
+  "total_prompt_tokens": 55529,
+  "model": "qwen3-coder-next-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Triage complete. Processed 30 tickets, identified 3 duplicate clusters (007/011, 014/023/030), and produced structured JSON output at `/workspace/triage_results.json` with 12 categories and urgency levels. Key findings: 5 urgent items (security incident, active incidents, GDPR request), 6 spam/noise items, and 2 external-business items. README.md and decision logs in `/workspace/decisions/` explain rationale for ambiguous calls."
+}

@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-28T02:24:51.514098+00:00",
+  "ended_at": "2026-04-28T02:26:02.192949+00:00",
+  "elapsed_s": 70.7,
+  "iterations": 5,
+  "total_completion_tokens": 4394,
+  "total_prompt_tokens": 19589,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Successfully extracted all 20 fields from the Veridyne Networks Q3 FY2026 press release into `/workspace/extraction_results.json`. All fields were found in the document \u2014 none required `null` or placement in the `uncertain` array. Key extraction decisions:\n\n- **Units**: All USD millions values converted to the documented units (e.g., $187.4M \u2192 187.4)\n- **Types**: Integers for customer counts and whole-number guidance; floats for revenue/margin figures; ISO 8601 dates\n- **Approximate values**: Extracted stated figures (710 for ARR, 115 for acquisition consideration) per schema guidance\n- **Sign**: Non-GAAP operating income is positive $9.8M (not the prior-year loss)\n\nAlso produced `/workspace/notes.md` documenting all field-by-field extraction decisions."
+}

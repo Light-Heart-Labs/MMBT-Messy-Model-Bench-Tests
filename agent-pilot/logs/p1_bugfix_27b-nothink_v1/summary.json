@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T02:09:16.597122+00:00",
+  "ended_at": "2026-05-02T02:48:35.275826+00:00",
+  "elapsed_s": 2358.7,
+  "iterations": 134,
+  "total_completion_tokens": 31159,
+  "total_prompt_tokens": 5514357,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "## Summary: logalyzer v0.3.0 Stabilization\n\n### Bugs Fixed (8)\n1. **Import error**: `from collections import Iterable` removed (Python 3.10+ compatibility)\n2. **Status filter bug**: String-to-int comparison fixed \u2014 `--status` now works\n3. **URL regex bug**: `re.match()` \u2192 `re.search()` for substring matching\n4. **Missing July**: Added \"Jul\" to MONTH_NAMES (July entries were silently dropped)\n5. **by_hour timezone bug**: `time.localtime()` \u2192 direct UTC hour access\n6. **JSON escaping**: Hand-rolled JSON \u2192 `json` module\n7. **O(n\u00b2) I/O**: Character-by-character concatenation \u2192 line-by-line iteration (10x speedup)\n8. **Version mismatch**: Aligned `__init__.py` and `pyproject.toml` to 0.3.0\n\n### Performance\n- Benchmark: 2.975s \u2192 0.281s (10.6x faster) on 5 MB log\n- IP allowlist: list \u2192 set (O(1) lookup)\n- CLI: streaming instead of full collection\n\n### Test Coverage\n- Tests: 17 \u2192 78 (100% pass rate)\n- Coverage: 35% \u2192 98%\n- All modules now have dedicated test files\n\n### Documentation\n- `audit/triage.md`: 22 issues catalogued with severity/disposition\n- `audit/before-after.md`: Numeric metrics table\n- `CHANGELOG.md`: User-facing changes\n- `README.md`: Updated, false claims removed\n- `architecture/`: Module structure ADR\n- `decisions/`: 2 ADRs (eval security, experimental module)\n- `research/`: 3 notes, 8 questions, 3 dead-ends\n\n### Repository\n- 18 atomic commits with \"why\" messages\n- Tagged `v0.3.0`\n- Clean working tree, 36 tracked files\n- Ruff: 0 issues (was 18)"
+}

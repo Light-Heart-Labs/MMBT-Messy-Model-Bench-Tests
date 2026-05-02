@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T02:09:16.660695+00:00",
+  "ended_at": "2026-05-02T02:13:21.452396+00:00",
+  "elapsed_s": 244.8,
+  "iterations": 17,
+  "total_completion_tokens": 10628,
+  "total_prompt_tokens": 141434,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Completed the Nimbus Logistics follow-on investment brief with all required deliverables:\n\n- **brief.md** (695 words): Executive brief recommending **PASS** \u2014 the $560M valuation doesn't price in customer concentration (top 5 = 38% of ARR), recent churn (Sundry $4.2M + Klatch), and the company's retreat from international expansion (Berlin headcount cut 30%, expansion deferred to 2027). The brief highlights tensions between the press release narrative and the leaked memo, and is honest about source quality.\n\n- **key-facts.md**: Every material fact with source attribution \u2014 no invented numbers.\n\n- **research/notes.md**: Working notes with source-by-source summaries, key tensions, and cross-checks.\n\n- **research/dead-ends.md**: Six abandoned ideas with rationale (e.g., \"more diligence needed\" recommendation, industry benchmarks, specific follow-on valuation).\n\n- **decisions/adr-001-recommendation.md**: ADR for the PASS recommendation.\n\n- **decisions/adr-002-source-weighting.md**: ADR for how conflicting sources were weighted.\n\n- **README.md**: How to read the output.\n\nAll committed in a single release commit."
+}

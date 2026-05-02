@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-28T06:05:49.988449+00:00",
+  "ended_at": "2026-04-28T06:06:04.831687+00:00",
+  "elapsed_s": 14.8,
+  "iterations": 8,
+  "total_completion_tokens": 2190,
+  "total_prompt_tokens": 30339,
+  "model": "qwen3-coder-next-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Produced the structured status report for Project Aurora based on 6 weeks of meeting notes. The deliverables are:\n\n- `/workspace/status_report.md`: Executive summary with headline, workstreams table, risks (ordered by severity), decisions log, milestones, and open asks. All claims are traced to specific weeks and avoid invented details.\n\n- `/workspace/research/notes.md`: Working notes documenting the synthesis process, including how each workstream, risk, decision, and milestone was extracted and attributed.\n\n- `/workspace/README.md`: Instructions for reading the output.\n\nThe final commit is tagged `v1.0.0-status-report`."
+}

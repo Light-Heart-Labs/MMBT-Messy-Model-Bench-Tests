@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-28T04:22:05.092462+00:00",
+  "ended_at": "2026-04-28T04:23:11.234252+00:00",
+  "elapsed_s": 66.1,
+  "iterations": 33,
+  "total_completion_tokens": 8681,
+  "total_prompt_tokens": 268968,
+  "model": "qwen3-coder-next-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Triage completed for 30 support tickets. Final output at `/workspace/triage_results.json` with:\n\n- **7 urgent tickets** requiring immediate attention (incident-active, security-incident, legal-compliance)\n- **5 spam/noise tickets** (phishing, extortion, fictitious requests, marketing pitches)\n- **3 duplicate clusters** (7 tickets total): [007,011] (dashboard permissions), [014,023,030] (API rate limits)\n- **12 categories** strictly applied per closed vocabulary\n- **Detailed decision logs** in `/workspace/decisions/`\n- **Summary README** at `/workspace/README.md`\n\nAll tickets classified using closed vocabulary, duplicates explicitly detected, and urgency assigned based on business impact and deadlines described in tickets."
+}

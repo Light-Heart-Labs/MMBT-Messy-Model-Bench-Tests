@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T02:48:37.624094+00:00",
+  "ended_at": "2026-05-02T03:33:31.696920+00:00",
+  "elapsed_s": 2694.1,
+  "iterations": 126,
+  "total_completion_tokens": 32954,
+  "total_prompt_tokens": 5027388,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "## Summary of logalyzer v0.2.0 \u2192 v0.3.0 Stabilization\n\n### Issues Found and Fixed (18 total)\n\n**Critical (3):**\n1. `ImportError` on Python 3.10+ \u2014 `from collections import Iterable` removed\n2. `--status` filter silently matched nothing \u2014 str vs int comparison bug\n3. July log entries crash \u2014 missing \"Jul\" in MONTH_NAMES list\n\n**High (3):**\n4. O(n\u00b2) file loading \u2014 character-by-character string concatenation (11.8x speedup on 5MB, >93x on 50MB)\n5. `by_hour()` used system timezone \u2014 `time.localtime()` instead of UTC\n6. Invalid JSON output \u2014 hand-built strings, no escaping\n\n**Medium (4):**\n7. IP allowlist O(n) linear search \u2192 O(1) set lookup\n8. URL regex only matched at start \u2192 `re.search()` instead of `re.match()`\n9. CLI loaded all entries into memory \u2192 streaming generator expressions\n10. Version mismatch between `__init__.py` and `pyproject.toml`\n\n**Low (8):**\n11-18. Line-length issues, dead code documentation, test coverage gaps, README false claims\n\n### Metrics\n| Metric | Before | After |\n|--------|--------|-------|\n| Tests | 0/17 (collection error) | 78/78 (100%) |\n| Coverage | 35% | 93% |\n| Ruff issues | 18 | 0 |\n| Benchmark 50MB | >300s (timeout) | 3.1s |\n\n### Deliverables\n- `/audit/triage.md` \u2014 Full issue catalog\n- `/audit/before-after.md` \u2014 Numeric metrics\n- `/CHANGELOG.md` \u2014 User-facing changes\n- `/README.md` \u2014 Updated with bug fix history\n- `/architecture/` \u2014 2 ADRs\n- `/research/` \u2014 3 dead-ends, 7 questions, 3 session notes\n- `/decisions/` \u2014 3 individual decision records\n- `/logalyzer/` \u2014 Fixed package\n- `/tests/` \u2014 78 tests across 8 test files\n- Tagged as `v0.3.0`"
+}
