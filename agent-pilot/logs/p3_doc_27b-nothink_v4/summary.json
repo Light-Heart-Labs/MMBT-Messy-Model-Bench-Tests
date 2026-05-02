@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T19:32:35.805749+00:00",
+  "ended_at": "2026-05-02T19:35:02.111118+00:00",
+  "elapsed_s": 146.3,
+  "iterations": 18,
+  "total_completion_tokens": 7608,
+  "total_prompt_tokens": 149966,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Produced a 696-word executive brief recommending **PASS** on a follow-on investment in Nimbus Logistics, Inc.\n\n**Key findings synthesized across all five sources:**\n- ARR is $36-37M (adjusted for churn), not the $42M claimed in the press release \u2014 two top-5 customers left in late 2025\n- The $560M valuation was repriced down from a $720M target after the Sundry Brands loss\n- The company burns ~$500K/month net ($4M burn vs $3.5M revenue)\n- Top 5 customers = 38% of ARR; lost 2 of 5 in 6 months\n- The leaked memo reveals a strategic pivot: international expansion deferred to 2027, Berlin headcount cut 30%, and the lowest product tier being sunset \u2014 contradicting the press release's \"accelerate international expansion\" narrative\n- A 22-person layoff in Feb 2025 was never publicly announced\n\n**Deliverables:**\n- `brief.md` \u2014 The executive brief (primary deliverable)\n- `key-facts.md` \u2014 All material facts with source attribution\n- `research/notes.md` \u2014 Working notes from source reading\n- `research/dead-ends.md` \u2014 Abandoned ideas\n- `decisions/adr-001-recommendation.md` \u2014 ADRs for framing choices\n- `README.md` \u2014 How to read the output"
+}
