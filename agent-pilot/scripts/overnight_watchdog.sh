@@ -180,8 +180,13 @@ hourly_commit() {
 clean_api_error_runs() {
   # Delete summary.json + tarball for any run whose finish_reason indicates a
   # transient infra failure that should be retried. Keeps task-honest stuck/done.
+  # Skip Coder runs: vllm-coder-next was torn down at the dual-GPU switchover, so
+  # any cleaned Coder run can't be re-run — would lose data without recovery.
   local n cleaned=0
   while read -r n; do
+    if [[ "$n" == *_coder_v* ]]; then
+      continue  # vllm-coder-next is gone; can't re-run Coder
+    fi
     local sjson=~/bench/agent-pilot/logs/$n/summary.json
     [ -f "$sjson" ] || continue
     local fr=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('finish_reason') or '')" "$sjson" 2>/dev/null)
@@ -213,13 +218,17 @@ end_of_night() {
   # 3. Clean api_error runs for retry
   clean_api_error_runs
 
-  # 4. Re-run all 3 chains (skip-if-done logic limits to missing+cleaned)
-  log "make-up: re-running all 3 chains"
+  # 4. Re-run remaining chains. Coder Phase B is NOT re-run: vllm-coder-next
+  # was torn down at the dual-GPU switchover. Re-running its chain would
+  # produce nothing but failed connection attempts.
+  log "make-up: re-running 27B Phase B + nothink shards (Coder skipped — vllm-coder-next torn down)"
   bash agent-pilot/scripts/run_diff_cells_per_model.sh 27b >> /tmp/chain_27b_phaseB.log 2>&1 &
   local M1=$!
-  bash agent-pilot/scripts/run_diff_cells_per_model.sh coder >> /tmp/chain_coder_phaseB.log 2>&1 &
+  # Use shard runners on both GPUs (8002 + 8003) — original run_full_grid would
+  # only hit 8002 and bottleneck.
+  bash agent-pilot/scripts/run_full_grid_27b_nothink_shard.sh 0 2 8002 >> /tmp/chain_27b_nothink_shard0.log 2>&1 &
   local M2=$!
-  bash agent-pilot/scripts/run_full_grid_27b_nothink.sh >> /tmp/chain_27b_nothink_grid.log 2>&1 &
+  bash agent-pilot/scripts/run_full_grid_27b_nothink_shard.sh 1 2 8003 >> /tmp/chain_27b_nothink_shard1.log 2>&1 &
   local M3=$!
   wait $M1 $M2 $M3
   log "make-up passes complete"
