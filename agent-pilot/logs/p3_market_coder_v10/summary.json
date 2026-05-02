@@ -1,0 +1,14 @@
+{
+  "started_at": "2026-05-02T12:20:31.529526+00:00",
+  "ended_at": "2026-05-02T12:38:52.944779+00:00",
+  "elapsed_s": 1101.4,
+  "iterations": 14,
+  "total_completion_tokens": 1373,
+  "total_prompt_tokens": 178260,
+  "model": "qwen3-coder-next-awq",
+  "finish_reason": "wall_killed_low_progress_bash_loop",
+  "done_summary": null,
+  "operator_note": "SIGTERM by operator at 2026-05-02T12:38:52.944779+00:00: model spent ~18 min in a curl+grep loop on https://www.1password.com/business/ (iters 5-14 all variants of curl+grep+sort on the same URL). No deliverables written (only research/notes.md). After iter 14, vLLM was generating at 110 tok/s for 19 min (~125K tokens) with no transcript update \u2014 a runaway max_tokens generation. Second consecutive Coder-Next p3_market loop (v9 also wall_killed_low_progress_bash_loop). Suggests a reproducible Coder-Next pathology on market_research, not a 1-of-N fluke.",
+  "kill_reason_class": "low_progress_bash_loop_diverse_filenames",
+  "second_consecutive_market_failure": true
+}

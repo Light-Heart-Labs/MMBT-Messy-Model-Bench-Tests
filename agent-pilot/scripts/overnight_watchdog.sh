@@ -33,8 +33,10 @@ LOOP_INTERVAL=300        # 5 min
 COMMIT_INTERVAL=3600     # 1 hr
 VLLM_RESTART_TIMEOUT=240 # 4 min wait for re-launched vLLM
 
-# Read chain PIDs
-read -r -a CHAIN_PIDS < $CHAIN_PIDS_FILE
+# Chain PIDs are re-read from $CHAIN_PIDS_FILE on every loop iteration so the
+# orchestrator can hand off to a new set of pids mid-night (e.g., the dual-GPU
+# switchover after Coder Phase B finishes) without restarting the watchdog.
+CHAIN_PIDS=()
 
 LAST_COMMIT_TS=$(date +%s)
 
@@ -262,9 +264,12 @@ end_of_night() {
 }
 
 # === Main loop ===
-log "watchdog started; chain pids: ${CHAIN_PIDS[*]}"
+log "watchdog started"
 
 while true; do
+  # Re-read pids each tick so orchestrators can swap them in/out
+  read -r -a CHAIN_PIDS < "$CHAIN_PIDS_FILE"
+
   vllm_health_check
   cleanup_zombie_sandboxes
   snapshot_progress
@@ -276,6 +281,7 @@ while true; do
   done
 
   if (( any_alive == 0 )); then
+    log "no live pids in $CHAIN_PIDS_FILE (${CHAIN_PIDS[*]}); entering end-of-night"
     end_of_night
     log "watchdog exiting normally"
     break
