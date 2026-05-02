@@ -34,7 +34,7 @@ def docker_inspect(name, fmt=None):
 
 def record_environment(run_name, model, api_url, task_file, log_dir, *,
                        sandbox_runtime=None, temperature=0.0, stuck_threshold=30,
-                       max_iters=10000):
+                       max_iters=10000, chat_template_kwargs=None):
     """Capture everything needed to reproduce the run. Written before the loop starts.
 
     sandbox_runtime: dict of per-run sandbox flags (gh_token_set, docker_socket,
@@ -126,6 +126,7 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
         "stream": False,
         "tool_choice": "auto",
         "tools": [t["function"]["name"] for t in TOOLS],
+        "chat_template_kwargs": chat_template_kwargs,
     }
 
     receipt["harness_loop_config"] = {
@@ -335,7 +336,8 @@ def execute_tool(name, args, log_dir, require_files=None, require_git_tag=False)
 def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
                max_completion_total=10**12, max_model_len=262144,
                stuck_threshold=30, temperature=0.0,
-               require_files=None, require_git_tag=False):
+               require_files=None, require_git_tag=False,
+               chat_template_kwargs=None):
     """Run the agent until done() or limits hit. Returns final state dict."""
     log_path = Path(log_dir) / "transcript.jsonl"
     summary_path = Path(log_dir) / "summary.json"
@@ -363,7 +365,7 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
         safety = 2048
         max_tokens_safe = max(2048, max_model_len - estimated_prompt - safety)
         max_tokens_safe = min(max_tokens_safe, 180000)
-        body = json.dumps({
+        req_body = {
             "model": model,
             "messages": messages,
             "tools": TOOLS,
@@ -372,7 +374,10 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
             "seed": 42,
             "max_tokens": max_tokens_safe,
             "stream": False,
-        }).encode()
+        }
+        if chat_template_kwargs:
+            req_body["chat_template_kwargs"] = chat_template_kwargs
+        body = json.dumps(req_body).encode()
         req = urllib.request.Request(api_url, data=body, headers={"Content-Type": "application/json"})
         t0 = time.time()
         try:
@@ -549,6 +554,10 @@ def main():
                          "git repo under /workspace (depth ≤ 2). Pairs with --require-files for full "
                          "spec-compliance enforcement.")
     ap.add_argument("--system", default=None, help="Path to system prompt file (optional).")
+    ap.add_argument("--no-think", action="store_true",
+                    help="For Qwen3.x thinking-mode models, send chat_template_kwargs={enable_thinking:false} "
+                         "so the model skips the <think>...</think> block. No-op (and harmless) on models that "
+                         "don't have thinking mode (e.g. Coder-Next).")
     ap.add_argument("--input-mount", default=None,
                     help="Host path mounted read-only at /input/repo inside the sandbox. "
                          "Useful for tasks that consume a prior agent's output (e.g. presentation built from memo repo).")
@@ -587,7 +596,11 @@ def main():
     log_dir.mkdir(parents=True, exist_ok=True)
     workspace_host = Path("/home/michael/bench/agent-pilot/workspace") / args.run_name
     if workspace_host.exists():
-        subprocess.run(["rm", "-rf", str(workspace_host)], check=True)
+        # Workspace may contain root-owned files left behind by the prior
+        # docker container's bind-mount writes (git/.git/objects/* in
+        # particular). Plain `rm -rf` fails on those; fall back to sudo.
+        if subprocess.run(["rm", "-rf", str(workspace_host)]).returncode != 0:
+            subprocess.run(["sudo", "-n", "rm", "-rf", str(workspace_host)], check=True)
     workspace_host.mkdir(parents=True, exist_ok=True)
 
     # Stop any prior sandbox, start a fresh one with the workspace mounted
@@ -658,15 +671,18 @@ def main():
         },
         temperature=args.temperature,
         stuck_threshold=args.stuck_threshold,
+        chat_template_kwargs={"enable_thinking": False} if args.no_think else None,
         max_iters=args.max_iters,
     )
     print(f"receipt -> {log_dir / 'receipt.json'}  (vllm containers logged: {len(receipt['vllm']['containers'])})")
 
+    chat_template_kwargs = {"enable_thinking": False} if args.no_think else None
     summary = agent_loop(api_url, args.model, system_prompt, task, log_dir,
                          max_iters=args.max_iters, temperature=args.temperature,
                          stuck_threshold=args.stuck_threshold,
                          require_files=require_files,
-                         require_git_tag=bool(args.require_git_tag))
+                         require_git_tag=bool(args.require_git_tag),
+                         chat_template_kwargs=chat_template_kwargs)
     print("\n=== SUMMARY ===")
     print(json.dumps(summary, indent=2))
 

@@ -18,10 +18,12 @@ if [ $# -lt 1 ]; then
 fi
 
 MODEL_LABEL="$1"
+NO_THINK_FLAG=""
 case "$MODEL_LABEL" in
-  27b)   MODEL_NAME="qwen3.6-27b-awq"; PORT=8000 ;;
-  coder) MODEL_NAME="qwen3-coder-next-awq"; PORT=8001 ;;
-  *)     echo "ERROR: unknown model label: $MODEL_LABEL"; exit 1 ;;
+  27b)         MODEL_NAME="qwen3.6-27b-awq"; PORT=8002 ;;
+  27b-nothink) MODEL_NAME="qwen3.6-27b-awq"; PORT=8002; NO_THINK_FLAG="--no-think" ;;
+  coder)       MODEL_NAME="qwen3-coder-next-awq"; PORT=8000 ;;
+  *)           echo "ERROR: unknown model label: $MODEL_LABEL"; exit 1 ;;
 esac
 
 BENCH="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -74,6 +76,7 @@ for entry in "${CELLS[@]}"; do
       --temperature 0.3 \
       --stuck-threshold 500 \
       $INPUT_FLAG \
+      $NO_THINK_FLAG \
       --docker-socket \
       --gpus all 2>&1 | tail -3 || echo "  WARN: harness exited non-zero for $run_name"
   done
