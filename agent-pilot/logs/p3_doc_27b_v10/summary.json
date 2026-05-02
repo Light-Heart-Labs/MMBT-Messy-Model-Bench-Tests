@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T04:53:29.399710+00:00",
+  "ended_at": "2026-05-02T05:03:25.537239+00:00",
+  "elapsed_s": 596.1,
+  "iterations": 18,
+  "total_completion_tokens": 12448,
+  "total_prompt_tokens": 152101,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Completed the executive brief for Nimbus Logistics, Inc. follow-on investment evaluation.\n\n**Deliverables produced:**\n- `brief.md` (643 words) \u2014 The primary deliverable: a PASS recommendation at the $560M valuation, synthesizing all five sources with inline citations\n- `key-facts.md` \u2014 Structured table of every material fact with source attribution\n- `research/notes.md` \u2014 Working notes with source-by-source summaries and tension analysis\n- `research/dead-ends.md` \u2014 Six abandoned ideas with rationale\n- `decisions/` \u2014 Four ADRs covering recommendation stance, ARR figure selection, source weighting, and valuation analysis\n- `README.md` \u2014 Navigation guide for the output\n\n**Key findings driving the PASS recommendation:**\n1. ARR discrepancy: $42M reported vs. $36-37M adjusted for churned contracts\n2. Customer concentration: Top 5 = 38% of ARR, with largest customer ($4.2M) lost\n3. Cash-flow negative: ~$500K/month net burn with breakeven target not until Q4 2026\n4. Valuation repricing: Round came down from $720M to $560M after Sundry non-renewal\n5. Organizational instability: Two rounds of layoffs in 12 months, international expansion deferred\n6. Strategic retreat: Berlin office cut 30%, Nimbus Lite tier sunset, expansion deferred to 2027"
+}
