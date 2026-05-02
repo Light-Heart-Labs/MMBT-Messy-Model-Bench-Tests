@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T07:19:06.655541+00:00",
+  "ended_at": "2026-05-02T08:03:14.334548+00:00",
+  "elapsed_s": 2647.7,
+  "iterations": 119,
+  "total_completion_tokens": 31122,
+  "total_prompt_tokens": 4371204,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Successfully stabilized the logalyzer codebase from v0.2.0 to v0.3.0. Here's what was accomplished:\n\n## Bugs Fixed (4 critical, 4 high)\n1. **ImportError on Python 3.10+**: Removed deprecated `from collections import Iterable`\n2. **status_filter never matched**: CLI passes strings, filter compared against ints \u2014 added `int()` conversion\n3. **url_regex_filter only matched at start**: Changed `re.match` to `re.search`\n4. **July dates crashed parser**: Added missing \"Jul\" to MONTH_NAMES\n5. **by_hour used system timezone**: Replaced `time.localtime()` with direct UTC hour access\n6. **to_json didn't escape special chars**: Replaced manual JSON building with `json.dumps()`\n7. **render_aggregate missing CSV support**: Added proper CSV output\n8. **Version mismatch**: Aligned pyproject.toml and __init__.py to 0.3.0\n\n## Performance Fixed\n- **io.load() O(n\u00b2) \u2192 O(n)**: Replaced char-by-char iteration with line-by-line. 50MB file: >300s \u2192 3.3s (~90x faster)\n- **ip_allowlist list \u2192 set**: O(n) \u2192 O(1) lookup\n\n## Dead Code Removed\n- `utils.format_legacy()`, `utils.chunked()`, `utils.format_bytes()` \u2014 never used\n\n## Documentation Fixed\n- Removed false claims about \"real-time tail mode\" and \"production-ready\"\n- Added security note about `--expr` flag\n- Added \"What was wrong, what got fixed\" section\n\n## Test Coverage\n- 65 tests (from 11), 96% coverage (was N/A \u2014 tests failed to collect)\n- 0 ruff issues (was 18)\n\n## Deliverables\n- `/audit/triage.md` \u2014 19 issues catalogued\n- `/audit/before-after.md` \u2014 numeric metrics table\n- `/architecture/` \u2014 2 ADRs\n- `/decisions/` \u2014 3 decision records\n- `/research/` \u2014 questions.md (7 entries), dead-ends.md (3 entries), notes/\n- `/CHANGELOG.md`, `/README.md` \u2014 updated\n- Tagged release: `v0.3.0`"
+}
