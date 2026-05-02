@@ -1,0 +1,138 @@
+{
+  "task": "extraction",
+  "verdict": "PASS",
+  "scores": {
+    "accuracy": 1.0,
+    "correct": 20,
+    "wrong": 0,
+    "missing": 0,
+    "extra_fields": 0
+  },
+  "thresholds": {
+    "accuracy": 0.8
+  },
+  "field_results": {
+    "company_name": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": "Veridyne Networks, Inc.",
+      "expected": "Veridyne Networks, Inc."
+    },
+    "ticker_symbol": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": "VRDN",
+      "expected": "VRDN"
+    },
+    "fiscal_period": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": "Q3 FY2026",
+      "expected": "Q3 FY2026"
+    },
+    "fiscal_period_end_date": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": "2026-02-28",
+      "expected": "2026-02-28"
+    },
+    "total_revenue_usd_millions": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 187.4,
+      "expected": 187.4
+    },
+    "revenue_yoy_growth_pct": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 38,
+      "expected": 38.0
+    },
+    "subscription_revenue_usd_millions": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 171.2,
+      "expected": 171.2
+    },
+    "gaap_gross_margin_pct": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 76.3,
+      "expected": 76.3
+    },
+    "non_gaap_operating_income_usd_millions": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 9.8,
+      "expected": 9.8
+    },
+    "total_customers": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 4117,
+      "expected": 4117
+    },
+    "customers_above_100k_arr": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 1082,
+      "expected": 1082
+    },
+    "customers_above_1m_arr": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 71,
+      "expected": 71
+    },
+    "net_dollar_retention_pct": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 124,
+      "expected": 124
+    },
+    "total_arr_usd_millions": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 710,
+      "expected": 710
+    },
+    "fte_count_end_of_q3": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 1847,
+      "expected": 1847
+    },
+    "stitchwise_acquisition_total_consideration_usd_millions": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 115,
+      "expected": 115
+    },
+    "stitchwise_close_date": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": "2026-01-22",
+      "expected": "2026-01-22"
+    },
+    "fy2026_revenue_guidance_low_usd_millions": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 722,
+      "expected": 722
+    },
+    "fy2026_revenue_guidance_high_usd_millions": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 726,
+      "expected": 726
+    },
+    "share_repurchase_authorization_usd_millions": {
+      "verdict": "correct",
+      "why": null,
+      "agent_value": 200,
+      "expected": 200
+    }
+  },
+  "extra_fields": [],
+  "agent_uncertain": []
+}

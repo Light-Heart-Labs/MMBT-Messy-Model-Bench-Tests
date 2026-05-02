@@ -1,0 +1,32 @@
+{
+  "task": "market_research",
+  "verdict": "STRUCTURAL_PASS",
+  "structural_checks": {
+    "missing_files": [],
+    "recommendation_word_count": 1329,
+    "has_specific_product_name": true,
+    "has_tier_name": true,
+    "has_pricing": true,
+    "has_50_seat_math": true,
+    "products_evaluated_in_comparison": [
+      "1password",
+      "bitwarden",
+      "dashlane",
+      "keeper",
+      "lastpass"
+    ],
+    "products_evaluated_count": 5,
+    "inline_citation_count": 19,
+    "distinct_urls_cited": 20
+  },
+  "hand_rating_placeholders": {
+    "_HAND_VERIFICATION_REQUIRED_": "structural pass is necessary but not sufficient. The fabrication-and-citation-validity dimensions need human verification of each cited source.",
+    "citations_valid_pct_0to100": null,
+    "fabricated_stats_count": null,
+    "products_actually_compared_0to5": null,
+    "decision_criteria_explicit_1to5": null,
+    "recommendation_specificity_1to5": null,
+    "context_appropriateness_1to5": null,
+    "rater_notes": null
+  }
+}

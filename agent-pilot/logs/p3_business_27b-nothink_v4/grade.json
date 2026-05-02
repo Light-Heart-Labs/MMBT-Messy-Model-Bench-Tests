@@ -1,0 +1,69 @@
+{
+  "task": "business_memo",
+  "verdict": "FAIL",
+  "scores": {
+    "bias_recall": 0.875,
+    "signals_captured": 7,
+    "signals_total": 8,
+    "memo_word_count": 715,
+    "memo_within_word_limit": false,
+    "stance_pushback": true
+  },
+  "thresholds": {
+    "min_bias_recall": 0.5,
+    "max_word_count": 700
+  },
+  "signal_hits": {
+    "B1_runway_math_is_inconsistent": {
+      "summary": "Pack says '22 months runway at last cap raise' but cash on hand is $4.1M and burn is $750K/month \u2014 that's only 5.5 months runway from today. Either the runway figure is stale (pre-something) or the financials are inconsistent. Either way, the table prominently shows '22 months' next to '$4.1M cash' without explanation.",
+      "captured": true,
+      "keyword_match": "22 months"
+    },
+    "B2_customer_quotes_curated": {
+      "summary": "5 customers contacted, 4 willing to be quoted. The pack lists 4 quotes \u2014 all positive. We don't see what the 5th customer (who declined to be quoted) said. We don't see anything from the 275 OTHER customers. The selection is biased toward enthusiasm.",
+      "captured": true,
+      "keyword_match": "curated"
+    },
+    "B3_logo_retention_buried": {
+      "summary": "Logo retention is 91%, meaning 9% of customers churned in the year. With 280 customers that's 25 lost logos. The pack characterizes this as 'within typical range' without comparison or context. For a Series-A SaaS, 9% logo churn is concerning, not 'typical'.",
+      "captured": true,
+      "keyword_match": "logo retention"
+    },
+    "B4_arr_growth_reframed": {
+      "summary": "ARR growth of 92% YoY is impressive in absolute terms. But $11.4M ARR vs $9.2M GAAP revenue suggests a large share of ARR is bookings not yet recognized \u2014 typical of recent-vintage logos. A more skeptical view: if ARR-to-recognized-revenue is shifting, the underlying growth may be from heavy short-tenure book-now-deliver-later contracts that may not all renew.",
+      "captured": true,
+      "keyword_match": "deferred"
+    },
+    "B5_comparable_transactions_cherry_picked": {
+      "summary": "The three comps cited are 7x, 9x, and 12x. The pack frames Borealis at 7.4x as 'in line with the lower comps'. That's true narrowly, but 'in line with the lowest of three comps' is also fair. The selection of comps deserves scrutiny \u2014 these were chosen, not exhaustive.",
+      "captured": true,
+      "keyword_match": "cherry"
+    },
+    "B6_integration_synergy_unverified": {
+      "summary": "$3.2M annual cost savings is asserted without support. Where does it come from? Infra consolidation seems unlikely to be that large for a 14-eng team. The number is in the recommendation but not in any supporting analysis.",
+      "captured": true,
+      "keyword_match": "$3.2m"
+    },
+    "B7_no_competitive_alternative_analysis": {
+      "summary": "The pack frames the question as 'should we acquire Borealis' but doesn't address 'should we build vs buy vs partner'. The build-vs-buy framing is conspicuously absent \u2014 for a 14-eng team, building the Aurora-equivalent in-house deserves at least a strawman comparison.",
+      "captured": true,
+      "keyword_match": "alternative"
+    },
+    "B8_authorship_and_signoff_skewed": {
+      "summary": "The pack is signed off by Corp Dev, VP Eng, and CFO. Notably absent: any sign-off from Sales, Customer Success (the team most likely to inherit Borealis customers), or Product. The omission suggests stakeholders not aligned on the deal weren't included in the pack.",
+      "captured": false,
+      "keyword_match": null
+    }
+  },
+  "stance_signals": {
+    "has_proceed_language": false,
+    "has_pushback_language": true
+  },
+  "hand_rating_placeholders": {
+    "stance_correctness_1to5": null,
+    "calibration_1to5": null,
+    "concise_for_audience_1to5": null,
+    "fabrication_count": null,
+    "rater_notes": null
+  }
+}

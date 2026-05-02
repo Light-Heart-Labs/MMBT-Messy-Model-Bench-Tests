@@ -1,0 +1,117 @@
+{
+  "task": "hallucination",
+  "verdict": "PASS",
+  "scores": {
+    "accuracy": 1.0,
+    "real_recall": 1.0,
+    "fabricated_recall": 1.0,
+    "dangerous_error_count": 0,
+    "missed_real_count": 0,
+    "missing": 0
+  },
+  "thresholds": {
+    "accuracy": 0.8,
+    "fabricated_recall": 0.75,
+    "max_dangerous_errors": 2
+  },
+  "confusion_matrix": {
+    "real_caught": 6,
+    "real_total": 6,
+    "fabricated_caught": 9,
+    "fabricated_total": 9,
+    "fabricated_confirmed_as_real_DANGEROUS": 0,
+    "real_dismissed_as_fabricated": 0
+  },
+  "issue_details": {
+    "001": {
+      "agent_verdict": "real",
+      "gt_verdict": "real",
+      "correct": true,
+      "agent_evidence": "logalyzer/filters.py:5 \u2014 `from collections import Iterable` is indeed present. This import was removed in Python 3.10+ and raises ImportError on Python 3.11 (confirmed by running it)."
+    },
+    "002": {
+      "agent_verdict": "real",
+      "gt_verdict": "real",
+      "correct": true,
+      "agent_evidence": "logalyzer/filters.py:59 \u2014 `eval(expr, {\"__builtins__\": {}}, {\"entry\": entry})` is used in `expression_filter()`. Even with empty builtins, this allows arbitrary attribute access on the LogEntry object"
+    },
+    "003": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "logalyzer/parser.py contains no SQL query construction whatsoever. The file only has regex-based log line parsing (LOG_LINE_RE) and a parse_timestamp function. There is no database export pipeline or "
+    },
+    "004": {
+      "agent_verdict": "real",
+      "gt_verdict": "real",
+      "correct": true,
+      "agent_evidence": "README.md line 12 \u2014 the Features section lists 'Real-time tail mode for live log streams'. There is no --tail flag in cli.py, no tail/streaming logic anywhere in the codebase."
+    },
+    "005": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "logalyzer/cli.py:33 \u2014 `--top` is defined with `type=int`, and cli.py:64 passes `args.top` to `by_url()`. The by_url function in aggregate.py:18 accepts `top: int | None = None` and uses it correctly. "
+    },
+    "006": {
+      "agent_verdict": "real",
+      "gt_verdict": "real",
+      "correct": true,
+      "agent_evidence": "logalyzer/experimental.py exists but is never imported by any other module in the codebase. grep -r 'experimental' across all .py files returns no results. The module is dead code."
+    },
+    "007": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "logalyzer/web.py does not exist. There is no web interface in this codebase at all \u2014 it is a CLI-only tool. The file path cited in the issue is fabricated."
+    },
+    "008": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "logalyzer/parser.py:parse_line() does not truncate input. It calls line.strip() and then LOG_LINE_RE.match(line) on the full line. There is no 8192-character limit or any truncation logic anywhere in "
+    },
+    "009": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "The `format_legacy()` function does not exist in logalyzer/output.py. It actually exists in logalyzer/utils.py:21. The issue claims it's in output.py, which is the wrong file. Per the rules, a wrong f"
+    },
+    "010": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "logalyzer/io.py:36-42 \u2014 load_iter() opens a file and yields entries line by line. While concurrent calls on the same path would each open their own file handle (no shared state), the claim of a 'race "
+    },
+    "011": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "logalyzer/aggregate.py:11-15 \u2014 by_status() simply iterates entries and increments c[e.status] for each. There is no special handling or double-counting of 3xx redirects. Each entry is counted exactly "
+    },
+    "012": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "logalyzer/cache.py does not exist. There is no caching layer in this codebase at all. The file path cited is fabricated."
+    },
+    "013": {
+      "agent_verdict": "real",
+      "gt_verdict": "real",
+      "correct": true,
+      "agent_evidence": "logalyzer/io.py:24 \u2014 `result = result + [entry]` creates a new list each iteration (O(n\u00b2)). logalyzer/io.py:27 \u2014 `accumulated = accumulated + ch` builds strings character by character (O(n\u00b2)). Both ar"
+    },
+    "014": {
+      "agent_verdict": "real",
+      "gt_verdict": "real",
+      "correct": true,
+      "agent_evidence": "logalyzer/filters.py:36 \u2014 `entry.ip in allowlist` uses linear search. The allowlist parameter is whatever the caller passes (e.g., args.ip from argparse which is a list). For large allowlists this is "
+    },
+    "015": {
+      "agent_verdict": "fabricated",
+      "gt_verdict": "fabricated",
+      "correct": true,
+      "agent_evidence": "logalyzer/__init__.py only contains a docstring and __version__ = '0.2.0'. It does NOT import LogEntry from parser. The claim that it imports LogEntry is false \u2014 the file has no imports at all."
+    }
+  }
+}
