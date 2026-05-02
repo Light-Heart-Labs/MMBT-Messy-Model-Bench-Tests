@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T11:44:31.000809+00:00",
+  "ended_at": "2026-05-02T12:00:18.007126+00:00",
+  "elapsed_s": 947.0,
+  "iterations": 82,
+  "total_completion_tokens": 27054,
+  "total_prompt_tokens": 2362130,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Successfully added high-value tests to the logalyzer codebase, increasing test coverage from 34% to 97%.\n\n**Results:**\n- **167 passing tests** (14 original + 153 new)\n- **3 pre-existing failures** (documented bugs in source code, not fixed per rules)\n- **Coverage: 34% \u2192 97%** (287 statements, only 8 missed)\n\n**New test files added (7 files, 153 tests):**\n1. `test_experimental.py` (16 tests) \u2014 anomaly detection edge cases, session windowing\n2. `test_io.py` (15 tests) \u2014 file loading with empty files, no trailing newline, mixed lines\n3. `test_output.py` (26 tests) \u2014 JSON/CSV/text formatters, render_aggregate\n4. `test_utils.py` (29 tests) \u2014 parse_iso_date, format_bytes boundaries, format_legacy, chunked\n5. `test_filters_extended.py` (20 tests) \u2014 expression_filter, combine_and, edge cases\n6. `test_parser_extended.py` (23 tests) \u2014 parse_lines, unicode URLs, IPv6, timezone edge cases\n7. `test_cli.py` (24 tests) \u2014 build_parser args, main() integration with temp files\n\n**Per-module coverage:**\n- experimental.py: 0% \u2192 100%\n- io.py: 0% \u2192 100%\n- output.py: 0% \u2192 100%\n- utils.py: 0% \u2192 100%\n- cli.py: 0% \u2192 90%\n- filters.py: 74% \u2192 100%\n- parser.py: 86% \u2192 96%\n\n**Documentation:** CHANGELOG.md, 2 ADRs, research notes, dead-ends.md documenting 3 pre-existing bugs.\n\n**Zero production code changes** \u2014 all `/logalyzer/` files are byte-identical to input."
+}

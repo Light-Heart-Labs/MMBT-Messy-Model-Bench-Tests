@@ -1,0 +1,14 @@
+{
+  "started_at": "2026-05-02T06:25:26.586191+00:00",
+  "ended_at": "2026-05-02T12:20:29.487279+00:00",
+  "elapsed_s": 21302.9,
+  "iterations": 2018,
+  "total_completion_tokens": 127326,
+  "total_prompt_tokens": 187241148,
+  "model": "qwen3-coder-next-awq",
+  "finish_reason": "wall_killed_low_progress_bash_loop",
+  "done_summary": null,
+  "operator_note": "SIGTERM by operator at 2026-05-02T12:20:29.487279+00:00: model spent 6+ hours in a curl-loop scraping same 5 URLs (1password/bitwarden/lastpass/dashlane/keeper) with incrementing filename suffixes (2017 files in research/). No deliverable files written. Stuck-detector missed it because each iter wrote a different filename (workspace hash kept changing).",
+  "kill_reason_class": "low_progress_bash_loop_diverse_filenames",
+  "research_dir_file_count": 2017
+}
