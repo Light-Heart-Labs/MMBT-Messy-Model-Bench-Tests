@@ -1,0 +1,7 @@
+{
+  "primary": "identical-call-loop",
+  "sub_labels": [],
+  "notes": "Harness wall-killed via finish_reason=wall_killed_identical_call_loop. Shard log captured no-progress climbing to 327/500 at iter 344 with wall_s≈83-108s per call (long thinking/generation between identical tool issuances). Same task family (p3_business) as the Phase B 1/10 wall_killed cell — extends that pattern to the no-think grid.",
+  "labeler": "human-via-operator-monitoring",
+  "labeled_at": "2026-05-02T22:45:00Z"
+}
