@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T08:26:37.074590+00:00",
+  "ended_at": "2026-05-02T08:57:16.410106+00:00",
+  "elapsed_s": 1839.3,
+  "iterations": 42,
+  "total_completion_tokens": 30725,
+  "total_prompt_tokens": 1924383,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Completed password manager evaluation and recommendation for a 50-person engineering team.\n\n**Deliverables produced:**\n- `recommendation.md` \u2014 1-2 page memo recommending **1Password Business** at $7.99/user/month ($4,794/year for 50 seats)\n- `comparison.md` \u2014 Side-by-side comparison of 5 products across pricing, security, compliance, SSO, developer tools, admin features, and platform coverage\n- `sources.md` \u2014 15 URLs fetched with SHA-256 hashes, timestamps, and descriptions\n- `research/notes.md` \u2014 Working notes with raw findings\n- `decisions/001-select-5-products.md` \u2014 ADR for product selection rationale\n- `README.md` \u2014 Guide to reading the output\n\n**Key findings:**\n1. **Recommended:** 1Password Business ($7.99/user/mo) \u2014 best developer tooling (CLI, SDKs, SSH, CI/CD), clean security record, SOC 2 Type 2, strong SSO integration\n2. **Runner-up:** Bitwarden Enterprise ($6.00/user/mo) \u2014 wins on price and open source, but weaker developer tooling\n3. **Disqualified:** LastPass ($7.00/user/mo) \u2014 8+ documented security incidents (2011\u20132026)\n4. **Too expensive:** Dashlane ($11.00/user/mo) \u2014 39% premium over 1Password without clear advantage\n5. **Opaque pricing:** Keeper \u2014 prices dynamically loaded, must contact sales\n\nAll factual claims are cited with numbered references to source URLs. The commit is tagged v1.0.0."
+}
