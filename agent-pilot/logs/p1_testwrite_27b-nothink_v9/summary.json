@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T13:11:59.277286+00:00",
+  "ended_at": "2026-05-02T13:29:43.401784+00:00",
+  "elapsed_s": 1064.1,
+  "iterations": 81,
+  "total_completion_tokens": 31039,
+  "total_prompt_tokens": 2558826,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Successfully added high-value tests for all under-covered modules in the logalyzer codebase:\n\n**Coverage improvement: 34% \u2192 99%** (184 new tests, all passing)\n\n**New test files added (8 files, 184 tests):**\n1. `test_output.py` (25 tests) \u2014 JSON, CSV, text rendering, render_aggregate\n2. `test_utils.py` (28 tests) \u2014 format_bytes, parse_iso_date, format_legacy, chunked\n3. `test_experimental.py` (18 tests) \u2014 detect_anomalies, session_window\n4. `test_io.py` (16 tests) \u2014 load, load_iter with temp files\n5. `test_cli.py` (20 tests) \u2014 CLI integration tests\n6. `test_parser_edge_cases.py` (25 tests) \u2014 edge cases for parsing\n7. `test_filters_edge_cases.py` (23 tests) \u2014 expression_filter, combine_and, edge cases\n8. `test_aggregate_edge_cases.py` (15 tests) \u2014 empty inputs, boundaries\n\n**Per-module coverage:**\n- experimental.py: 0% \u2192 100%\n- output.py: 0% \u2192 100%\n- utils.py: 0% \u2192 100%\n- io.py: 0% \u2192 100%\n- cli.py: 0% \u2192 98%\n- filters.py: 74% \u2192 100%\n- parser.py: 86% \u2192 96%\n\n**3 pre-existing test failures remain** (documented bugs in source code \u2014 not fixed per rules):\n1. `status_filter` doesn't convert string to int\n2. `url_regex_filter` uses `re.match` instead of `re.search`\n3. `MONTH_NAMES` missing \"Jul\" (cascading bug shifting Aug-Dec)\n\n**Source files are byte-identical to input.** All original tests preserved."
+}

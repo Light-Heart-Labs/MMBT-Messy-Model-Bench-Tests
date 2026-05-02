@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T12:33:51.536097+00:00",
+  "ended_at": "2026-05-02T12:54:39.936003+00:00",
+  "elapsed_s": 1248.4,
+  "iterations": 81,
+  "total_completion_tokens": 35777,
+  "total_prompt_tokens": 2645374,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Successfully added 168 high-value tests to the logalyzer codebase, increasing coverage from 34% to 98%.\n\n**New test files added (8 files, 168 tests):**\n1. `test_experimental.py` (16 tests) \u2014 anomaly detection z-score logic, session windowing with gaps\n2. `test_output.py` (22 tests) \u2014 JSON/CSV/text formatters, render_aggregate edge cases\n3. `test_utils.py` (29 tests) \u2014 parse_iso_date errors, format_bytes boundaries, chunked edge cases\n4. `test_io.py` (14 tests) \u2014 file loading with empty/malformed/no-newline files\n5. `test_cli.py` (26 tests) \u2014 argument parsing, output formats, aggregation, filtering\n6. `test_filters_extended.py` (19 tests) \u2014 expression_filter, combine_and short-circuit\n7. `test_parser_extended.py` (26 tests) \u2014 unicode URLs, IPv6, malformed input, timestamp offsets\n8. `test_aggregate_extended.py` (16 tests) \u2014 empty input, single entry, boundary conditions\n\n**Key edge cases tested:**\n- Empty inputs across all modules\n- Boundary conditions (chunk size=1, top=0, gap exactly at window boundary)\n- Error paths (file not found, invalid dates, malformed timestamps, unknown formats)\n- Unicode and special characters in URLs\n- IPv6 addresses, short-circuit behavior, generator vs list behavior\n\n**Pre-existing failing tests (3):** Documented in `research/dead-ends.md` \u2014 these test for behavior the source code doesn't implement (string-to-int conversion, regex search vs match, missing \"Jul\" in month list).\n\n**Source files:** Byte-identical to input (verified with diff).\n\n**Documentation:** ADRs in `decisions/`, working notes in `research/`, CHANGELOG.md with coverage delta."
+}
