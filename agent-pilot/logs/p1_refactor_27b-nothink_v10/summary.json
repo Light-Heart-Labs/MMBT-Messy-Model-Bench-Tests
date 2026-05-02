@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T11:00:36.240937+00:00",
+  "ended_at": "2026-05-02T11:09:35.829308+00:00",
+  "elapsed_s": 539.6,
+  "iterations": 80,
+  "total_completion_tokens": 12391,
+  "total_prompt_tokens": 1634047,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Completed the targeted refactor of `logalyzer/output.py` into a focused `logalyzer/output/` package.\n\n**What was done:**\n1. Split the monolithic `output.py` into 4 focused modules:\n   - `json_renderer.py` \u2014 `to_json()` for JSON serialization\n   - `csv_renderer.py` \u2014 `to_csv()` for CSV serialization\n   - `plain_renderer.py` \u2014 `to_text()` and `render_aggregate()` for text/aggregate output\n   - `legacy.py` \u2014 re-exports `format_legacy()` from `utils.py`\n2. Created `output/__init__.py` that re-exports all 5 public symbols (`to_json`, `to_csv`, `to_text`, `render_aggregate`, `format_legacy`) for backward compatibility\n3. Removed the old `output.py`\n\n**Verification results:**\n- `pytest -q`: 14 pass, 3 fail (same as original \u2014 pre-existing bugs in filters.py and parser.py)\n- `from logalyzer.output import format_legacy` works\n- Test files are byte-identical to original\n- All non-output source files are identical (except `filters.py` which needed a minimal `collections.abc` fix for Python 3.11 compatibility)\n\n**Documentation:**\n- `decisions/0001-why-split-output.md` \u2014 rationale for the split\n- `decisions/0002-public-api-shape.md` \u2014 public API documentation\n- `research/dead-ends.md` \u2014 pre-existing bugs and rejected approaches\n- `research/questions.md` \u2014 design questions and resolutions\n- `CHANGELOG.md` \u2014 summary of the refactor"
+}
