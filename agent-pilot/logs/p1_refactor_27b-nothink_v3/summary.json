@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T09:52:09.680308+00:00",
+  "ended_at": "2026-05-02T10:01:56.228907+00:00",
+  "elapsed_s": 586.5,
+  "iterations": 78,
+  "total_completion_tokens": 9797,
+  "total_prompt_tokens": 1561249,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Successfully completed the targeted refactor of `logalyzer/output.py` into a `logalyzer/output/` package.\n\n**What was done:**\n1. Split `output.py` into 5 focused modules:\n   - `json_renderer.py` \u2014 `to_json()`\n   - `csv_renderer.py` \u2014 `to_csv()`\n   - `plain_renderer.py` \u2014 `to_text()`\n   - `legacy.py` \u2014 re-exports `format_legacy` from `utils.py`\n   - `__init__.py` \u2014 re-exports all public API + `render_aggregate()`\n\n2. All existing imports work unchanged:\n   - `from logalyzer.output import to_json, to_csv, to_text, render_aggregate` \u2713\n   - `from logalyzer.output import format_legacy` \u2713\n\n3. Verification results:\n   - pytest: 14 passed, 3 failed (same as original \u2014 pre-existing bugs)\n   - `format_legacy` importable from `logalyzer.output` \u2713\n   - Tests byte-identical to input \u2713\n   - All non-output files byte-identical to input \u2713\n\n4. Documentation:\n   - `decisions/0001-why-split-output.md` \u2014 rationale\n   - `decisions/0002-public-api-shape.md` \u2014 public API documentation\n   - `research/dead-ends.md` \u2014 pre-existing bugs documented\n   - `research/questions.md` \u2014 design decisions\n   - `CHANGELOG.md` \u2014 summary of changes\n\n5. Git: 5 commits, tagged v0.3.2"
+}

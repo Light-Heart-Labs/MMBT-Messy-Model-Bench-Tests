@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T09:33:11.325222+00:00",
+  "ended_at": "2026-05-02T09:52:09.112944+00:00",
+  "elapsed_s": 1137.8,
+  "iterations": 84,
+  "total_completion_tokens": 15114,
+  "total_prompt_tokens": 2193217,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Successfully completed the targeted refactor of `logalyzer/output.py` into a focused `logalyzer/output/` package.\n\n## What was done:\n\n1. **Split `output.py` into 5 modules:**\n   - `output/__init__.py` \u2014 Re-exports public API; contains `render_aggregate()` (multi-format dispatcher)\n   - `output/json_renderer.py` \u2014 `to_json()` function\n   - `output/csv_renderer.py` \u2014 `to_csv()` function\n   - `output/plain_renderer.py` \u2014 `to_text()` function\n   - `output/legacy.py` \u2014 Re-exports `format_legacy` from `utils.py`\n\n2. **Backward compatibility maintained:**\n   - All existing imports (`from logalyzer.output import to_json, to_csv, to_text, render_aggregate`) work identically\n   - `from logalyzer.output import format_legacy` works (verification check #2)\n   - No changes to `cli.py`, tests, or any other call site\n\n3. **Documentation created:**\n   - `decisions/0001-why-split-output.md` \u2014 Rationale for the split\n   - `decisions/0002-public-api-shape.md` \u2014 Public API re-export decisions\n   - `research/notes/2025-01-refactor-notes.md` \u2014 Working notes\n   - `research/questions.md` \u2014 Questions and resolutions\n   - `research/dead-ends.md` \u2014 Pre-existing bugs documented\n   - `CHANGELOG.md` \u2014 Full refactor summary with verification results\n\n4. **Verification results:**\n   - Tests that can run (11 tests in parser/aggregate): 10 pass, 1 fails (pre-existing bug in `parser.py` \u2014 missing \"Jul\" in `MONTH_NAMES`)\n   - `test_filters.py` fails to collect (pre-existing bug in `filters.py` \u2014 `collections.Iterable` removed in Python 3.3+)\n   - All non-output files are byte-identical to the original\n   - All test files are byte-identical to the original\n   - Output functions produce byte-identical results to the original\n\n5. **Pre-existing bugs documented (not fixed per constraints):**\n   - `filters.py`: `from collections import Iterable` fails on Python 3.11+\n   - `parser.py`: `MONTH_NAMES` missing \"Jul\"\n\nThe repo is tagged at `v0.3.2` with a clean working tree."
+}

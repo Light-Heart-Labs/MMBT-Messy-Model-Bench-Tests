@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T10:20:43.078120+00:00",
+  "ended_at": "2026-05-02T10:29:30.896206+00:00",
+  "elapsed_s": 527.8,
+  "iterations": 59,
+  "total_completion_tokens": 9864,
+  "total_prompt_tokens": 1005795,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Completed the targeted refactor of `logalyzer/output.py` into a `logalyzer/output/` subpackage.\n\n**What was done:**\n1. Split `output.py` into 5 focused modules:\n   - `output/json_renderer.py` \u2014 `to_json()`\n   - `output/csv_renderer.py` \u2014 `to_csv()`\n   - `output/plain_renderer.py` \u2014 `to_text()`, `render_aggregate()`\n   - `output/legacy.py` \u2014 `format_legacy()` (re-exported from `utils.py`)\n   - `output/__init__.py` \u2014 re-exports all 5 public symbols for backward compatibility\n\n2. All existing import paths work: `from logalyzer.output import to_json, to_csv, to_text, render_aggregate, format_legacy`\n\n3. Output is byte-identical to the original `output.py` for all functions\n\n4. No tests were modified; no other source files were changed\n\n5. Documentation created:\n   - `decisions/0001-why-split-output.md` \u2014 rationale\n   - `decisions/0002-public-api-shape.md` \u2014 public API surface\n   - `research/notes/` \u2014 working notes\n   - `research/questions.md` \u2014 design decisions\n   - `research/dead-ends.md` \u2014 pre-existing bugs documented (not fixed)\n   - `CHANGELOG.md` \u2014 summary with verification results\n\n**Pre-existing bugs documented (not fixed per constraints):**\n- `filters.py`: `collections.Iterable` import removed in Python 3.10+\n- `parser.py`: `MONTH_NAMES` missing \"Jul\" (July)\n\n**Git history:** 3 commits (original + refactor + docs), tagged `v0.3.1-refactor`"
+}
