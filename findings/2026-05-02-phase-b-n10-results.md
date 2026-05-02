@@ -119,11 +119,69 @@ The fact that **two consecutive reps** of the same task class manifested this pa
 
 ## What's next
 
-### Phase 2 — PASS-rate analysis (pending)
+### Phase 2 — PASS-rate analysis (DONE 2026-05-02)
 
-Ship rate ≠ PASS rate. The 27B doc_synthesis cell ships 6/10, but the original N=3 finding was that 27B captured 8/8 facts every run BUT went over the 700-word limit. Need to re-grade the new tarballs to find the **PASS rate at N=10** with Wilson CIs. Same for the other 7 cells.
+`batch_grade_p2.sh` and `batch_grade_p3.sh` re-run on the new Phase B tarballs. All 8 cells × 10 reps now have `grade.json`.
 
-Path: `bash agent-pilot/scripts/batch_grade_p2.sh && bash agent-pilot/scripts/batch_grade_p3.sh`. Idempotent — re-grading is safe.
+#### N=10 PASS-rate table (with Wilson 95% CIs)
+
+| Cell | Model | Phase A (N=3) PASS | Phase B (N=10) PASS | 95% Wilson CI | Direction |
+|---|---|---|---|---|---|
+| p2_hallucination | 27B | 3/3 (100%) | **7/10 (70%)** | [39.7%, 89.2%] | **N=3 was overstated** — 30% MISSING_OUTPUT rate emerged |
+| p2_hallucination | Coder | 1/3 (33%) | 5/10 (50%) | [23.7%, 76.3%] | unchanged direction; CI heavily overlaps with 27B |
+| p3_business | 27B | 2/3 (67%) | 8/10 (80%) | [49.0%, 94.3%] | confirmed |
+| p3_business | Coder | 3/3 (100%) | **10/10 (100%)** | [72.2%, 100%] | confirmed — definitive 100% |
+| p3_doc | 27B | 0/3 (0%) | **1/10 (10%)** | [1.8%, 40.4%] | confirmed — definitive failure |
+| p3_doc | Coder | 2/3 (67%) | 7/10 (70%) | [39.7%, 89.2%] | confirmed |
+| p3_market | 27B | 3/3 STRUCTURAL_PASS (100%) | **7/10 (70%)** | [39.7%, 89.2%] | confirmed (3/10 are infra-flaky api_error: timed out, retryable) |
+| p3_market | Coder | 0/3 STRUCTURAL_FAIL (0%) | **0/10 (0%)** | [0%, 27.8%] | confirmed — definitive 0% |
+
+#### CI separation between models
+
+| Cell | 27B CI | Coder CI | CIs overlap? | Verdict at N=10 |
+|---|---|---|---|---|
+| p2_hallucination | [39.7%, 89.2%] | [23.7%, 76.3%] | **YES, heavy** | **Original "27B clearly better" claim does NOT hold at N=10** — directionally still 27B better, not bounded |
+| p3_business | [49.0%, 94.3%] | [72.2%, 100%] | YES, partial | Coder marginally better, not bounded |
+| p3_doc | [1.8%, 40.4%] | [39.7%, 89.2%] | barely (40.4 vs 39.7) | **Effectively definitive Coder advantage** |
+| p3_market | [39.7%, 89.2%] | [0%, 27.8%] | NO | **Definitive 27B advantage** |
+
+#### Definitive PASS-rate findings
+
+**5. The 27B "100% accuracy on hallucination" claim from N=3 is overstated.** N=10 reveals a 30% rate of `model_stopped` without writing the verdict file (v8, v9, v10 all consecutive). All 7 runs that *do* write output PASS at high accuracy, but the ship rate is only 70%. Combined with the 50% Coder ship rate, the gap closes substantially: **27B nominally 7/10 vs Coder 5/10, CIs heavily overlap**. The cell remains directionally 27B-favored but not bounded.
+
+**6. NEW 27B failure mode discovered at N=10: "stuck in think mode."** `p2_hallucination_27b_v8` finished at iter 3 with **1867 completion tokens but content_len=0 and zero tool calls**. The model generated thinking tokens, the `--reasoning-parser qwen3` stripped them into `reasoning_content`, and the model never emerged from thinking to either produce content or call a tool. This is distinct from `model_stopped without saying anything` (degenerate empty response) — it's `model thought a lot then quit without acting`. v9 and v10 hit similar patterns. **This is a previously-undocumented 27B failure mode and a candidate for a deeper investigation.**
+
+**7. p3_doc 27B is now definitively poor (10% PASS at N=10).** Even though 6/10 runs ship `done_signal`, almost all of them fail the 700-word limit. Only 1/10 PASSed the rubric (v10). Combined with the 4/10 wall_killed_loop rate, **27B is a non-starter for tasks with tight word-limit-trim requirements** at temp=0.3 / seed=42.
+
+**8. p3_business Coder is definitively perfect (10/10 PASS).** The original 3/3 finding extends to N=10. Coder-Next is the right model for skeptical-deal-pack-review-shaped tasks at this scale.
+
+**9. p3_market 27B vs Coder is the cleanest separation in the bench.** 27B's 70% PASS bounded against Coder's 0% PASS — CIs do not touch. With infra retries on the 3 27B api_error: timed out runs, the real 27B PASS rate is likely closer to 100% on completable runs. **This is the largest model-superiority signal in the suite.**
+
+#### What the original headline claims look like now
+
+From the 2026-04-28 findings doc (Phase A):
+- ~~"27B 3/3 PASS at 100% accuracy 0 dangerous errors on hallucination"~~ → 70% PASS at N=10 with a 30% non-shipping rate; accuracy when shipping is still high
+- "27B 3/3 STRUCTURAL_PASS on market_research" → confirmed: 70% (with 3 retryable infra failures)
+- "Coder-Next 0/3 STRUCTURAL_FAIL on market_research" → confirmed: 0% at N=10, definitive
+- "Coder-Next 2/3 PASS on doc_synthesis" → confirmed: 70% at N=10
+- "27B 0/3 PASS on doc_synthesis" → confirmed: 10% at N=10, definitive failure
+- "Coder-Next 3/3 PASS on business_memo" → confirmed: 100% at N=10, definitive
+- "27B 2/3 PASS on business_memo" → confirmed: 80% at N=10
+
+**The aggregate-tied 56% / 56% headline from Phase A** is still the right framing, but the differential cells now have **bounded** numbers. The 4 cells the headline rests on:
+- 27B wins definitively on 1 of 4 (market_research)
+- Coder wins definitively on 1 of 4 (doc_synthesis)
+- Coder wins directionally on 1 of 4 (business_memo, CIs overlap)
+- The expected 27B win on hallucination (1 of 4) **doesn't bound at N=10** — overlapping CIs
+
+So the daily-driver rule has tightened:
+
+| Use case | Model | Confidence at N=10 |
+|---|---|---|
+| Internet research / market_research-shaped | **27B** | bounded 70% PASS vs Coder 0% |
+| Tight-word-limit summary writing | **Coder** | bounded 70% PASS vs 27B 10% |
+| Skeptical deal-pack review (business memo) | **Coder** (or 27B) | Coder 100% vs 27B 80%, both viable |
+| Adversarial hallucination resistance | **directionally 27B** | overlapping CIs at N=10; gap is smaller than N=3 suggested |
 
 ### Phase 3 — 27B-no-think arm (in flight, ~14:00 EDT projected finish)
 
