@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T02:13:22.039522+00:00",
+  "ended_at": "2026-05-02T04:26:18.207344+00:00",
+  "elapsed_s": 7976.2,
+  "iterations": 110,
+  "total_completion_tokens": 134206,
+  "total_prompt_tokens": 7209265,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Produced a 1-page executive brief (~803 words) for an investor evaluating a follow-on investment in Nimbus Logistics, Inc.\n\n**Recommendation: PASS at current valuation; re-engage at Series C**\n\nThe brief synthesizes all five source documents and highlights key tensions:\n- ARR is inflated: $42M (press release) vs. $36\u201337M adjusted for churn (TechCrunch)\n- Valuation was repriced down from $720M to $560M after customer losses\n- Customer concentration risk: top 5 customers = ~38% of ARR; largest customer ($4.2M) departed\n- Company is net-burning cash (~$500K/month)\n- Aggressive restructuring underway: Berlin headcount cut 30%, international expansion deferred, Nimbus Lite tier sunset, $50M credit facility secured\n- 22 layoffs not publicly disclosed (governance concern)\n\n**Deliverables:**\n- `/workspace/brief.md` \u2014 Primary deliverable (executive brief)\n- `/workspace/key-facts.md` \u2014 Every material fact with source attribution\n- `/workspace/research/notes.md` \u2014 Working notes from source analysis\n- `/workspace/research/dead-ends.md` \u2014 Ideas considered and abandoned\n- `/workspace/decisions/adr-001-recommendation-framing.md` \u2014 ADR-style records for framing choices\n- `/workspace/README.md` \u2014 How to read the output"
+}

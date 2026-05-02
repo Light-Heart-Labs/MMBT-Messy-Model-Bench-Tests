@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T02:51:49.222973+00:00",
+  "ended_at": "2026-05-02T03:49:10.152868+00:00",
+  "elapsed_s": 3440.9,
+  "iterations": 180,
+  "total_completion_tokens": 10271,
+  "total_prompt_tokens": 25528628,
+  "model": "qwen3-coder-next-awq",
+  "finish_reason": "api_error: HTTP Error 400: Bad Request",
+  "done_summary": null
+}

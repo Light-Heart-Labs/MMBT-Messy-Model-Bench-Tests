@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T03:33:33.742857+00:00",
+  "ended_at": "2026-05-02T04:18:20.453608+00:00",
+  "elapsed_s": 2686.7,
+  "iterations": 119,
+  "total_completion_tokens": 27875,
+  "total_prompt_tokens": 4332174,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Successfully stabilized the logalyzer codebase. Here's what was accomplished:\n\n## Bugs Fixed (4 critical, 4 high)\n1. **ImportError on Python 3.11+**: Removed deprecated `from collections import Iterable`\n2. **O(n\u00b2) performance in load()**: Replaced character-by-character string concatenation with streaming line-by-line reading (10.7x speedup on 5MB, >95x on 50MB)\n3. **status_filter always returned False**: Fixed string/int comparison bug\n4. **July entries silently dropped**: Added missing \"Jul\" to MONTH_NAMES\n5. **by_hour() timezone-dependent**: Replaced `time.localtime()` with direct UTC hour access\n6. **URL regex too restrictive**: Changed `match()` to `search()`\n7. **Invalid JSON output**: Replaced manual JSON building with `json.dumps()`\n8. **IP allowlist O(n) lookup**: Converted to `set()` for O(1) lookups\n\n## Metrics\n- **Tests**: 0/11 (error) \u2192 74/74 passed\n- **Coverage**: 34% \u2192 96%\n- **Ruff issues**: 18 \u2192 0\n- **Benchmark 5MB**: 3.004s \u2192 0.272s (11x faster)\n- **Benchmark 50MB**: >300s \u2192 3.15s (>95x faster)\n\n## Documentation\n- Triage report with 18 issues catalogued\n- Before/after metrics with exact commands\n- 2 ADRs (experimental module, utils dead code)\n- 1 decision record (eval retention)\n- 3 dead ends documented\n- 7 research questions resolved\n- Updated README with \"what was wrong\" section\n- CHANGELOG with user-facing summary\n- Tagged release v0.3.0"
+}
