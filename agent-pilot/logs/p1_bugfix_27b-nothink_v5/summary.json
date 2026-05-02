@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T04:59:44.914515+00:00",
+  "ended_at": "2026-05-02T05:51:42.920988+00:00",
+  "elapsed_s": 3118.0,
+  "iterations": 139,
+  "total_completion_tokens": 38722,
+  "total_prompt_tokens": 5657177,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "## Summary: logalyzer v0.2.0 \u2192 v0.3.0 Stabilization\n\n### What was done\n\n**Bugs fixed (5 critical):**\n1. `from collections import Iterable` \u2014 removed in Python 3.10, prevented module import\n2. `status_filter` compared int to string \u2014 CLI passes strings, LogEntry has ints\n3. `url_regex_filter` used `re.match()` (anchored) instead of `re.search()`\n4. `MONTH_NAMES` missing `'Jul'` \u2014 July timestamps silently dropped\n5. `by_hour()` used `time.localtime()` (system timezone) instead of UTC\n\n**Security hardening:**\n- `expression_filter` now uses AST validation to prevent arbitrary code execution via `eval()`\n\n**Performance (50-95x speedup):**\n- Replaced O(n\u00b2) string concatenation in `io.load()` with streaming line-by-line reading\n- 50MB benchmark: >300s \u2192 ~3.1s\n- IP allowlist converted from list to set for O(1) lookup\n\n**Code quality:**\n- 17 \u2192 72 tests, ~50% \u2192 96% coverage\n- 103 \u2192 0 ruff issues\n- Removed dead code (`format_legacy`, `chunked`)\n- Modernized imports (`collections.abc`, `X | None` syntax)\n- JSON output now uses `json.dumps()` for proper escaping\n\n**Documentation:**\n- Removed false README claims (\"Real-time tail mode\", \"feature-complete\")\n- Added CHANGELOG, ADRs, triage report, before/after metrics, research notes, dead ends\n\n### Deliverables\n- `/audit/triage.md` \u2014 28 issues catalogued\n- `/audit/before-after.md` \u2014 Hard metrics with working\n- `/architecture/` \u2014 3 ADRs\n- `/research/` \u2014 5 session notes, 7 questions, 4 dead ends\n- `/decisions/` \u2014 3 decision records\n- `/CHANGELOG.md` and `/README.md` \u2014 Updated\n- Tagged release `v0.3.0`\n- 14 atomic commits with \"why\" messages"
+}

@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T05:51:45.334448+00:00",
+  "ended_at": "2026-05-02T06:33:24.569734+00:00",
+  "elapsed_s": 2499.2,
+  "iterations": 132,
+  "total_completion_tokens": 35880,
+  "total_prompt_tokens": 4525720,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Successfully stabilized the logalyzer codebase from v0.2.0 to v0.3.0. Here's what was accomplished:\n\n## Bugs Fixed (7)\n1. **ImportError on Python 3.11+**: Removed deprecated `from collections import Iterable`\n2. **July entries dropped**: Added missing \"Jul\" to MONTH_NAMES list\n3. **--status filter broken**: Fixed string/int comparison in status_filter\n4. **URL regex only matched at start**: Changed re.match() to re.search()\n5. **by_hour() used local timezone**: Replaced time.localtime() with direct UTC hour access\n6. **Manual JSON building**: Replaced with json.dumps() for proper escaping\n7. **Aggregate CSV silently downgraded**: Added proper CSV support to render_aggregate\n\n## Performance (1)\n- **20\u00d7 speedup**: Replaced O(n\u00b2) character-by-character file loading with O(n) line iteration\n\n## Dead Code Removed (2)\n- Deleted experimental.py (never imported, never tested)\n- Removed 3 unused functions from utils.py\n\n## Test Coverage\n- 84 tests (up from 17), 98% coverage (up from 34%)\n- Added test_cli.py, test_io.py, test_output.py, test_utils.py\n\n## Documentation\n- audit/triage.md: Full issue catalog (17 issues, ranked by severity)\n- audit/before-after.md: Numeric metrics with measurement methodology\n- CHANGELOG.md: User-facing change summary\n- README.md: Updated with accurate features and \"what was wrong\" section\n- architecture/ADR-001: Dead code removal rationale\n- decisions/: 2 decision records (eval sandbox, IP allowlist set)\n- research/: 10 questions, 4 dead ends, 3 session notes\n\n## Final Metrics\n- Tests: 84/84 pass (100%)\n- Coverage: 98%\n- Ruff: 0 issues\n- Benchmark: 3.1s for 50MB (~20\u00d7 faster than original)\n- Tagged as v0.3.0"
+}
