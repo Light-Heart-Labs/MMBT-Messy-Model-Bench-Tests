@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T20:28:49.060525+00:00",
+  "ended_at": "2026-05-02T20:30:23.827475+00:00",
+  "elapsed_s": 94.8,
+  "iterations": 14,
+  "total_completion_tokens": 5615,
+  "total_prompt_tokens": 89402,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Produced a 677-word executive brief recommending **PASS** on a follow-on investment in Nimbus Logistics. The brief synthesizes all five source documents, highlighting key tensions:\n\n- **ARR discrepancy**: $42M (company claim) vs. $36\u201337M adjusted for churn\n- **Valuation repricing**: Round came down from $720M to $560M after customer losses\n- **Negative unit economics**: ~$500K/month net burn\n- **Customer concentration**: Top 5 = 38% of ARR, lost 2 of 5 in one quarter\n- **Active restructuring**: Berlin headcount cut 30%, international expansion deferred, product tier sunset\n- **Hidden layoffs**: 22 people cut without public announcement\n\nThe brief is honest about source quality (press release = company narrative, TechCrunch = journalistic with unnamed sources, blog = one ex-employee's view, memo = credible but unconfirmed, SEC filing = factual but limited). All numbers trace to the five sources.\n\nSupporting files include key-facts.md (34 attributed facts), research notes, dead ends, and two ADRs documenting non-obvious framing choices."
+}

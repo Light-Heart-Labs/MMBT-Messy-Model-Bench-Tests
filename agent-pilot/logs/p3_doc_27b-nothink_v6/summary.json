@@ -1,0 +1,14 @@
+{
+  "started_at": "2026-05-02T19:35:03.757263+00:00",
+  "ended_at": "2026-05-02T20:24:34.983681+00:00",
+  "elapsed_s": 2971.2,
+  "iterations": 130,
+  "total_completion_tokens": 63940,
+  "total_prompt_tokens": 6799074,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "wall_killed_identical_call_loop",
+  "done_summary": null,
+  "operator_note": "SIGTERM by operator at 2026-05-02T20:24:34.983681+00:00: 27B-no-think word-limit-trim identical_call_loop on a brief.md 700-word-limit task. Killed at iter ~128 / 48 min wall. brief.md frozen at 737 words (target 700) for 25+ min while iter climbed 103\u2192128. Unambiguous loop signature; killed below conservative Rule 5 wall threshold (4hr) on direct loop evidence.",
+  "kill_reason_class": "word_limit_trim_identical_call_loop",
+  "no_think": true
+}

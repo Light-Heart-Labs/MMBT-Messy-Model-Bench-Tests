@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T20:27:08.350394+00:00",
+  "ended_at": "2026-05-02T20:28:48.510773+00:00",
+  "elapsed_s": 100.2,
+  "iterations": 14,
+  "total_completion_tokens": 5972,
+  "total_prompt_tokens": 92547,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Produced a 687-word executive brief recommending **PASS** on a follow-on investment in Nimbus Logistics, Inc.\n\nThe brief synthesizes all five source documents and highlights key tensions:\n- **ARR discrepancy**: Company reports $42M but adjusted run-rate is $36\u201337M after churn of two top-5 customers (Sundry Brands at $4.2M and Klatch)\n- **Valuation repricing**: Round was originally priced at $720M, came down to $560M after customer losses\n- **Burn exceeds revenue**: ~$4M/month burn vs. ~$3.5M/month revenue\n- **Restructuring contradicts public narrative**: International expansion deferred to 2027 despite press release touting it; Berlin headcount cut 30%; Nimbus Lite tier sunset\n- **Governance concerns**: 22 layoffs in Feb 2025 not publicly disclosed\n\nSupporting files include key-facts.md (all facts with source attribution), research notes, dead ends, and two ADRs documenting non-obvious framing choices."
+}

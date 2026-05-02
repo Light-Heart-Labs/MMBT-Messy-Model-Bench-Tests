@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T20:24:34.474859+00:00",
+  "ended_at": "2026-05-02T20:26:55.624066+00:00",
+  "elapsed_s": 141.1,
+  "iterations": 17,
+  "total_completion_tokens": 7633,
+  "total_prompt_tokens": 135436,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Completed the Nimbus Logistics follow-on investment executive brief. \n\n**Deliverables:**\n- `brief.md` (689 words) \u2014 Executive brief recommending **PASS** on follow-on investment at current terms\n- `key-facts.md` \u2014 All material facts with source attribution\n- `research/notes.md` \u2014 Working notes from source analysis\n- `research/dead-ends.md` \u2014 Ideas considered and abandoned\n- `decisions/adr-001-recommendation.md` \u2014 ADRs for key framing choices\n- `README.md` \u2014 How to read the output\n\n**Key findings synthesized across all five sources:**\n1. ARR is $36-37M adjusted (not $42M as claimed) after two top-5 customer losses\n2. Valuation was repriced down from $720M to $560M by lead investor\n3. Net burn of ~$500K/month with 36-month runway post-restructuring\n4. Customer concentration risk: top 5 = 38% of ARR, lost 2 of 5 in 6 months\n5. Strategic pivot: press release promises international expansion; leaked memo defers it to 2027\n6. 22-person layoff in Feb 2025 was not publicly announced\n\n**Recommendation: PASS** \u2014 The company has a real product and capable team, but is burning cash, losing concentrated customers, and pivoting away from the growth strategy that justified the Series B."
+}
