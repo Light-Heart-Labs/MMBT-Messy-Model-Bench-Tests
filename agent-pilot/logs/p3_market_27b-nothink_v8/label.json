@@ -1,0 +1,7 @@
+{
+  "primary": "identical-call-loop",
+  "sub_labels": [],
+  "notes": "Operator-SIGTERM at iter 116 (PID 2702051, 2026-05-02T23:08:50Z) — crossed the documented >30 same-content writes threshold. Trailing identical-template streak = 31 iters (86-116) running the same PCMag/LastPass-pricing scrape, differing only by digits (output filename suffix and slice offsets). Same scroll-loop signature as p3_market_27b-nothink_v1; second instance of the pattern in this chain confirms p3_market is a reproducible loop trap for 27B no-think. Receipt + transcript preserved; no workspace_final.tar.gz (SIGTERM bypassed teardown).",
+  "labeler": "human-via-operator-monitoring",
+  "labeled_at": "2026-05-02T23:09:00Z"
+}

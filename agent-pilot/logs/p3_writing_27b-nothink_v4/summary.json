@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T23:49:42.162758+00:00",
+  "ended_at": "2026-05-02T23:51:47.203896+00:00",
+  "elapsed_s": 125.0,
+  "iterations": 20,
+  "total_completion_tokens": 5910,
+  "total_prompt_tokens": 144246,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Produced three audience-tailored rewrites of the Friday outage incident:\n\n1. **ceo_brief.md** (193 words, \u2264250): Executive summary with one-line outage summary, impact scope (11,400 accounts, 28 enterprise with revenue impact), board signal (second 4+ hour outage in 2026), four remediations, and financial exposure. No engineering jargon, no named individuals.\n\n2. **customer_email.md** (260 words, \u2264350): Warm, accountable mass email with plain-language root cause, four commitments for improvement, explicit SLA credit offer with contact path (CSM/support). No named engineer, no \"second outage in 90 days\" framing, no engineering jargon.\n\n3. **legal_summary.md** (254 words, \u2264400): Dispassionate, factual summary for counsel with exact incident window (14:11\u201318:24 UTC), account counts and tier breakdown, SLA threshold (99.9%), four downstream-automation cases, and credit-request handling recommendation. Uses \"incident\" not \"outage.\" No marketing language, no named employees, no engineering details.\n\nAll rewrites use only facts from the source memo. Supporting files include an ADR documenting content omission decisions, working notes with extracted facts, and a README."
+}
