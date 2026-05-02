@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T06:05:10.736182+00:00",
+  "ended_at": "2026-05-02T07:19:33.265984+00:00",
+  "elapsed_s": 4462.5,
+  "iterations": 29,
+  "total_completion_tokens": 18489,
+  "total_prompt_tokens": 878949,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "api_error: timed out",
+  "done_summary": null
+}
