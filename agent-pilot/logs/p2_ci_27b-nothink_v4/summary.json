@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T13:45:58.372320+00:00",
+  "ended_at": "2026-05-02T13:47:43.226708+00:00",
+  "elapsed_s": 104.9,
+  "iterations": 22,
+  "total_completion_tokens": 4277,
+  "total_prompt_tokens": 155495,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "CI is now green. Fixed 4 issues:\n\n1. **Ruff F401**: Removed unused `import json` from `cart.py`.\n2. **`discount_amount` bug**: The v0.3.0 API change to percent (0-100) was incomplete \u2014 the implementation multiplied `price * percent_off` without dividing by 100. Fixed to `price * percent_off / 100`.\n3. **Stale test**: `test_line_count_matches_qty_sum` expected total quantity (5) but v0.3.0 changed `line_count()` to return number of lines (2). Updated the test to match the documented API.\n4. **Ruff lint issues**: Applied auto-fixes for import sorting (I001) and typing modernization (UP006, UP035, UP045).\n\nVerification:\n- `ruff check src/ tests/` \u2192 All checks passed (exit 0)\n- `pytest -q` \u2192 7 passed, 0 failed (exit 0)\n\nTagged as v0.3.2."
+}

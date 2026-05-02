@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T14:00:54.537452+00:00",
+  "ended_at": "2026-05-02T14:03:01.531604+00:00",
+  "elapsed_s": 127.0,
+  "iterations": 15,
+  "total_completion_tokens": 7094,
+  "total_prompt_tokens": 145048,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Completed triage of all 30 support tickets. Output files:\n\n- `/workspace/triage_results.json` \u2014 Structured JSON with per-ticket classification (category, urgency, duplicate_of), summary counts, duplicate clusters, and detailed notes.\n- `/workspace/README.md` \u2014 Human-readable summary with quick stats, recommended processing order, and notable decisions.\n- `/workspace/decisions/adr-001-extortion.md` \u2014 ADRs documenting non-obvious classification decisions.\n\n**Key results:**\n- 6 urgent tickets (security incident, 2 active incidents, 1 bug with 2 follow-ups)\n- 2 duplicate clusters: dashboard permissions (007/011) and API rate limits (014/023/030)\n- 4 spam/noise tickets (phishing, extortion, fictitious collectables, affiliate spam)\n- 7 bug reports, 4 billing refunds, 3 feature requests, 2 each of incident-active, account-management, auth-permissions, general-question, external-business\n- 1 security incident (active account compromise), 1 legal-compliance (GDPR request)\n\nAll validations passed: correct category/urgency vocabulary, matching counts, valid duplicate references, all 30 tickets accounted for."
+}

@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T13:56:21.428165+00:00",
+  "ended_at": "2026-05-02T13:57:12.649574+00:00",
+  "elapsed_s": 51.2,
+  "iterations": 6,
+  "total_completion_tokens": 3040,
+  "total_prompt_tokens": 29138,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Successfully extracted all 20 fields from the Veridyne Networks Q3 FY2026 press release into `/workspace/extraction_results.json`. \n\nKey results:\n- All 20 schema fields were found and extracted \u2014 no uncertain/null fields\n- Types validated: 2 dates (ISO 8601), 4 integers, 10 numbers, 4 strings\n- Units matched exactly (USD millions, percent)\n- Notable decisions documented:\n  - `total_arr_usd_millions`: Used 710 (stated figure) despite \"exceeded\" language\n  - `stitchwise_acquisition_total_consideration_usd_millions`: Used 115 (stated approximate)\n  - `non_gaap_operating_income_usd_millions`: Extracted positive 9.8 (income, not loss)\n  - `fy2026_revenue_guidance`: Used raised guidance range $722-$726M (not prior $702-$710M)\n\nAlso produced `/workspace/notes.md` with detailed field-by-field extraction rationale."
+}

@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T13:49:47.584030+00:00",
+  "ended_at": "2026-05-02T13:51:45.703286+00:00",
+  "elapsed_s": 118.1,
+  "iterations": 23,
+  "total_completion_tokens": 4839,
+  "total_prompt_tokens": 174203,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "CI is now green. Fixed 4 issues:\n\n1. **Ruff F401**: Removed unused `import json` from `cart.py`\n2. **discount_amount bug**: The v0.3.0 changelog announced a breaking API change from fraction (0.0\u20131.0) to percent (0\u2013100), but the implementation was never updated. Fixed `discount_amount` to divide by 100, which also fixed the cascading `apply_discount` failure.\n3. **Stale test**: `test_line_count_matches_qty_sum` expected total quantity (5) but v0.3.0 changed `line_count()` to return number of lines (2). Updated the test per the changelog's explicit instruction.\n4. **Ruff style fixes**: Applied auto-fixes for import sorting (I001) and typing modernization (UP006, UP035, UP045).\n\nVerification:\n- `ruff check src/ tests/` \u2192 All checks passed (exit 0)\n- `pytest -q` \u2192 7 passed, 0 failed (exit 0)\n\nTagged as v0.3.2 with full documentation in CHANGELOG.md, diagnosis.md, and decisions/adr-001-fixes.md."
+}

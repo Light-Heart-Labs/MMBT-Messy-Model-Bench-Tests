@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T13:55:27.495075+00:00",
+  "ended_at": "2026-05-02T13:56:20.848527+00:00",
+  "elapsed_s": 53.4,
+  "iterations": 6,
+  "total_completion_tokens": 3183,
+  "total_prompt_tokens": 29336,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Successfully extracted all 20 fields from the Veridyne Networks Q3 FY2026 press release into `/workspace/extraction_results.json`. \n\nKey results:\n- All 20 schema fields were found and extracted with correct types (string, integer, number, date)\n- All values are in the correct units as specified (USD millions, percent, ISO 8601 dates)\n- No uncertain fields \u2014 every field had a clear value in the press release\n- Revenue: $187.4M (38% YoY growth), Subscription: $171.2M\n- Non-GAAP operating income: $9.8M (positive, not loss)\n- 4,117 total customers, 1,082 above $100K ARR, 71 above $1M ARR\n- ARR: $710M, NDR: 124%\n- 1,847 FTEs at quarter end\n- Stitchwise acquisition: $115M total consideration, closed 2026-01-22\n- FY2026 revenue guidance raised to $722-$726M\n- $200M share repurchase authorization\n\nAlso produced `/workspace/notes.md` documenting all extraction decisions."
+}
