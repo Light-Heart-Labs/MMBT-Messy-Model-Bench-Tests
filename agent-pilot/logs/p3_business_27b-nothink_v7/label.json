@@ -1,0 +1,7 @@
+{
+  "primary": "identical-call-loop",
+  "sub_labels": [],
+  "notes": "Harness wall-killed via finish_reason=wall_killed_identical_call_loop. Same task family (p3_business) as the Phase B 1/10 wall_killed cell — extends that pattern to the no-think grid. Second of two such runs in this cell (paired with p3_business_27b-nothink_v5).",
+  "labeler": "human-via-operator-monitoring",
+  "labeled_at": "2026-05-03T01:15:00Z"
+}

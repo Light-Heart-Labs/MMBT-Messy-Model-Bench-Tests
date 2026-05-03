@@ -1,0 +1,7 @@
+{
+  "primary": "identical-call-loop",
+  "sub_labels": [],
+  "notes": "Harness wall-killed via finish_reason=wall_killed_identical_call_loop. Same task family (p3_doc) as the Phase B ~40% identical-call-loop cell (word-limit-trim loop on brief.md). Extends that finding to the no-think grid; p3_doc still produces 2/10 such loops without thinking enabled, vs 4/10 with thinking — partial improvement. Second of two such runs in this cell (paired with p3_doc_27b-nothink_v2).",
+  "labeler": "human-via-operator-monitoring",
+  "labeled_at": "2026-05-03T01:15:00Z"
+}
