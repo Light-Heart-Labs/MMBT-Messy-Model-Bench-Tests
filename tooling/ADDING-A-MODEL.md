@@ -4,6 +4,15 @@ End-to-end walkthrough: from "I have a HuggingFace model name" to "PR submitted 
 
 > **TL;DR**: Pull weights, add a launch command, smoke-test (5 min), full chain (3-7 hr), grade, summarize, write up. Half-day to one-day total operator time.
 
+## Two contribution shapes
+
+This walkthrough covers both:
+
+1. **New model entry** — a model that isn't currently in the comparison (any vLLM-supported local model with a working tool-call parser).
+2. **Same model, different quant** — re-running an existing comparison-arm model at a different precision (e.g. official Qwen FP8, Unsloth UD4 GGUF, BF16) of the same base model. This is currently the **highest-priority external contribution path** — see [`ROADMAP.md`](../ROADMAP.md) item 1, motivated by field reports that the published Cyankiwi 4-bit AWQ quants underperform other precisions of the same models.
+
+The mechanics are the same in both cases: only the HuggingFace model path and the vLLM launch flags change. Use a tag like `qwen3.6-27b-fp8` or `qwen3-coder-next-unsloth-ud4` so the result is comparable and clearly differentiated from the published Cyankiwi 4-bit AWQ entries.
+
 ## What you need
 
 **Hardware**: a Linux box with a CUDA-capable GPU. Tower2 (the published runs' hardware) has 2× RTX PRO 6000 Blackwell (96 GB each); the canonical flags assume that. **For smaller GPUs** (24-48 GB), drop `--max-model-len` to 32k-65k and `--gpu-memory-utilization` as needed. The tasks themselves rarely exceed 30k tokens of context — long context isn't needed.

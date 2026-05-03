@@ -68,6 +68,22 @@ Cost numbers in `cost.json` are upper-bound estimates (assume the GPU drew at it
 
 The local-model entries used 4-bit AWQ quantizations from the cyankiwi HuggingFace organization. Different quants of the same base model (FP8, BF16, different AWQ tools) will behave differently. The entries pin specific HuggingFace model paths in `launch-commands.md`; respect those when comparing.
 
+#### Cyankiwi 4-bit AWQ field reports
+
+As of 2026-05, multiple practitioners (in independent forum / community discussions) have reported that the Cyankiwi 4-bit AWQ quants of Qwen3.6-27B and Qwen3-Coder-Next underperform the official Qwen FP8 quants and Unsloth UD4 GGUFs of the same base models in their workflows. The reports describe degraded output coherence and increased loop pathologies on certain task shapes.
+
+This benchmark uses Cyankiwi 4-bit AWQ throughout for three reasons:
+1. Reproducible community release with stable HuggingFace paths
+2. Fits the available VRAM-throughput envelope on Tower2 with room for `--max-model-len 262144` and large concurrency batches in the hardware-tests sweep
+3. Consistent across all three model arms (apples-to-apples within the quant)
+
+What this means for the data here:
+- **Within-quant comparisons (Coder-Next vs 27B at the same Cyankiwi 4-bit AWQ) remain informative.** Differential behaviors — Coder-Next's `p3_market` 0/10 collapse, 27B's word-trim loop, the `--no-think` ship-rate jump — are model-mechanism findings that are unlikely to disappear at higher precision.
+- **Absolute model capability at higher precisions (FP8 / Unsloth UD4 / BF16) is not characterized.** Headline numbers like "27B-no-think 95.8% ship rate" are quant-specific.
+- **The ranking of cells where models tie at this quant could shift at FP8.** The both-ship cells (p2_ci, p2_extract, p2_triage) are the most likely to be sensitive.
+
+The FP8 re-run of the same 12-cell grid is the highest-priority follow-up — see [`ROADMAP.md`](ROADMAP.md). Contributors with FP8-capable hardware are welcome to PR results via the [`tooling/ADDING-A-MODEL.md`](tooling/ADDING-A-MODEL.md) flow (which now explicitly covers the "same model, different quant" contribution path).
+
 ### Cloud-LLM hardware is different
 
 Cloud entries (`Opus-4.7/`, `GPT-5.5/`) ran on the providers' inference infrastructure, not Tower2. Cross-comparison should account for that — "the cloud LLM is better" partly reflects "different hardware + different quantization-strategy + different inference engine," not just model differences.
