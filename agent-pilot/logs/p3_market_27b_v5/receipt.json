@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "run_name": "p3_market_27b_v5",
-  "captured_at": "2026-05-02T06:05:10.549624+00:00",
+  "captured_at": "2026-05-03T00:52:10.503244+00:00",
   "host": {
     "hostname": "Tower2",
     "kernel": "6.17.0-22-generic",
@@ -9,7 +9,7 @@
   },
   "harness": {
     "path": "/home/michael/bench/agent-pilot/harness.py",
-    "git_sha": "c25e2fd401967c3fb70de524d845e666dba61c1f",
+    "git_sha": "aba8a5225f53d2a470a91ac018ca15898b1df036",
     "git_dirty": true,
     "file_sha256": "d4d0eddb8be171e8ed5272f2229fe6517588e6d5b8a582b8c830f06b70a09f4b"
   },
@@ -22,6 +22,64 @@
     "served_model_name": "qwen3.6-27b-awq",
     "api_url": "http://127.0.0.1:8002/v1/chat/completions",
     "containers": [
+      {
+        "name": "vllm-qwen36-awq-gpu1",
+        "image_ref": "sha256:2622f38a0aa646c15ccc27bd5033911a58fd94ac69fd8f86aba0692d77cfe5b9",
+        "image_digest": "vllm/vllm-openai@sha256:2622f38a0aa646c15ccc27bd5033911a58fd94ac69fd8f86aba0692d77cfe5b9",
+        "container_id": "3f863c485b234e8d0324b0b483d1efdb327269b5af44a4df7c738b82600148ab",
+        "started_at": "2026-05-02T12:40:04.021425379Z",
+        "args": [
+          "serve",
+          "--model",
+          "/models/cyankiwi-Qwen3.6-27B-AWQ-INT4",
+          "--served-model-name",
+          "qwen3.6-27b-awq",
+          "--host",
+          "0.0.0.0",
+          "--port",
+          "8000",
+          "--tensor-parallel-size",
+          "1",
+          "--max-model-len",
+          "262144",
+          "--gpu-memory-utilization",
+          "0.92",
+          "--reasoning-parser",
+          "qwen3",
+          "--enable-auto-tool-choice",
+          "--tool-call-parser",
+          "qwen3_xml"
+        ],
+        "cmd": [
+          "--model",
+          "/models/cyankiwi-Qwen3.6-27B-AWQ-INT4",
+          "--served-model-name",
+          "qwen3.6-27b-awq",
+          "--host",
+          "0.0.0.0",
+          "--port",
+          "8000",
+          "--tensor-parallel-size",
+          "1",
+          "--max-model-len",
+          "262144",
+          "--gpu-memory-utilization",
+          "0.92",
+          "--reasoning-parser",
+          "qwen3",
+          "--enable-auto-tool-choice",
+          "--tool-call-parser",
+          "qwen3_xml"
+        ],
+        "port_bindings": {
+          "8000/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "8003"
+            }
+          ]
+        }
+      },
       {
         "name": "vllm-qwen36-awq",
         "image_ref": "sha256:2622f38a0aa646c15ccc27bd5033911a58fd94ac69fd8f86aba0692d77cfe5b9",
@@ -79,58 +137,6 @@
             }
           ]
         }
-      },
-      {
-        "name": "vllm-coder-next",
-        "image_ref": "sha256:2622f38a0aa646c15ccc27bd5033911a58fd94ac69fd8f86aba0692d77cfe5b9",
-        "image_digest": "vllm/vllm-openai@sha256:2622f38a0aa646c15ccc27bd5033911a58fd94ac69fd8f86aba0692d77cfe5b9",
-        "container_id": "29ec1b1ec9cdc1992ad1abda817bbf7c3ee4feaa3179ca5b1df760ec7456874f",
-        "started_at": "2026-05-02T01:00:57.47058735Z",
-        "args": [
-          "serve",
-          "/models/cyankiwi-Qwen3-Coder-Next-AWQ-4bit",
-          "--served-model-name",
-          "qwen3-coder-next-awq",
-          "--host",
-          "0.0.0.0",
-          "--port",
-          "8000",
-          "--tensor-parallel-size",
-          "1",
-          "--max-model-len",
-          "262144",
-          "--gpu-memory-utilization",
-          "0.92",
-          "--enable-auto-tool-choice",
-          "--tool-call-parser",
-          "qwen3_coder"
-        ],
-        "cmd": [
-          "/models/cyankiwi-Qwen3-Coder-Next-AWQ-4bit",
-          "--served-model-name",
-          "qwen3-coder-next-awq",
-          "--host",
-          "0.0.0.0",
-          "--port",
-          "8000",
-          "--tensor-parallel-size",
-          "1",
-          "--max-model-len",
-          "262144",
-          "--gpu-memory-utilization",
-          "0.92",
-          "--enable-auto-tool-choice",
-          "--tool-call-parser",
-          "qwen3_coder"
-        ],
-        "port_bindings": {
-          "8000/tcp": [
-            {
-              "HostIp": "127.0.0.1",
-              "HostPort": "8000"
-            }
-          ]
-        }
       }
     ]
   },
@@ -148,8 +154,8 @@
   },
   "hardware": {
     "nvidia_smi": [
-      "0, NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 590.48.01, 500.00 W, 504.69 W, 75, 91475 MiB, 97887 MiB, 2775 MHz",
-      "1, NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 590.48.01, 500.00 W, 499.85 W, 84, 93791 MiB, 97887 MiB, 1995 MHz"
+      "0, NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 590.48.01, 500.00 W, 105.55 W, 65, 91475 MiB, 97887 MiB, 2610 MHz",
+      "1, NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 590.48.01, 500.00 W, 499.97 W, 86, 92924 MiB, 97887 MiB, 1980 MHz"
     ]
   },
   "inference_request_defaults": {
