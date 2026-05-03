@@ -1,0 +1,7 @@
+{
+  "primary": "partial-no-spec-output",
+  "sub_labels": ["model-exceeded-max-tokens"],
+  "notes": "Run terminated naturally with finish_reason=model_exceeded_max_tokens_137855 — the model emitted a single response exceeding the harness's 137855 output-token budget. Workspace was archived (1.38MB) and contains research notes drafted before the runaway generation, but the spec output (recommendation.md / verdict) was not finalized because generation cut mid-stream. This is a NEW pathology not yet in agent-pilot/FAILURE-TAXONOMY.md — distinct from identical-call-loop (no tool-call repetition; the model never emitted another tool call after iter 67), distinct from timeout (the harness's HTTP timeout is 3600s and was not reached), distinct from api-error (vLLM returned a successful long response). Recommend adding either a `runaway-generation` primary label or a `model-exceeded-max-tokens` sub-label to taxonomy.",
+  "labeler": "human-via-operator-monitoring",
+  "labeled_at": "2026-05-03T01:10:00Z"
+}
