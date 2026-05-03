@@ -1,0 +1,7 @@
+{
+  "primary": "identical-call-loop",
+  "sub_labels": [],
+  "notes": "Operator-SIGTERM at iter 228 (PID 2492424, 2026-05-02T22:34:26Z). Trailing identical-template streak = 155 iters (74-228) running the same 758-char bash command, differing only by Python slice offset (content[N:N+20000]) walking one PCMag HTML response looking for LastPass pricing. Last harness no-progress print was 205/500 at iter 207. Run did not reach the harness's 500-no-progress trigger but was unambiguously stuck. Receipt + transcript preserved; no workspace_final.tar.gz because SIGTERM bypassed teardown.",
+  "labeler": "human-via-operator-monitoring",
+  "labeled_at": "2026-05-02T22:45:00Z"
+}

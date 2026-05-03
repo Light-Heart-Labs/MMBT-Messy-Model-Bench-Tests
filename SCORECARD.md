@@ -118,6 +118,17 @@
 
 > ★ `p3_doc` 27B-no-think 8/10 is the standout finding. Disabling thinking drops the word-limit-trim loop rate from 4/10 → 2/10. Trade-off: ship rate climbs but PASS rate may not — no-think briefs may exceed 700 words more often than thinking-mode polished output. PASS-rate grader sweep is on the follow-up list.
 
+### Cost per shipped run (4 differential cells)
+
+| Cell | Coder-Next | 27B (thinking) | 27B (no-think) |
+|---|---:|---:|---:|
+| p2_hallucination | $0.032/ship (5/10) | $0.0045 (7/10) | **$0.0023** (10/10) |
+| p3_business | **$0.0006** (10/10) | $0.0039 (9/9) | $0.0536 (8/10) |
+| p3_doc | **$0.0007** (10/10) | $0.0712 (6/8) | $0.0495 (8/10) |
+| p3_market | ∞ (0/10) | $0.046 (8/10) | $0.049 (7/8) |
+
+> Cheapest-per-ship is task-class-specific: 27B-no-think wins on `p2_hallucination` (14× vs Coder-Next), Coder-Next wins on `p3_business` / `p3_doc` (60-100× vs 27B variants). For `p3_market`, Coder-Next is unusable at any cost. Cost numbers are upper-bound (wall × power.limit at $0.13/kWh); see [`benchmarks/microbench-phase-b-2026-05-02/findings.md`](benchmarks/microbench-phase-b-2026-05-02/findings.md) § "Cost and wall time" for medians, p95s, and the cost-of-failure premium.
+
 ### Headline reads (updates to the picture above)
 
 - **27B-no-think is the most reliable shipper of the three on like-for-like cells** (86.8% vs 75% vs 62.5%). The pre-Phase-B framing of "27B vs Coder-Next" needs a third arm — for tasks where ship rate matters more than thinking-mode polish, no-think 27B is the operational pick.

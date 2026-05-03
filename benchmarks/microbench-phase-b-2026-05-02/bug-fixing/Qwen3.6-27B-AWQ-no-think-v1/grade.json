@@ -1,0 +1,29 @@
+{
+  "task": "bugfix",
+  "verdict": "PASS",
+  "criteria": {
+    "pass_rate_improved": true,
+    "ruff_no_regression": true,
+    "bench_no_major_regression": true
+  },
+  "before": {
+    "passed": 0,
+    "total": 1,
+    "cov": null,
+    "ruff": 0,
+    "bench_s": null
+  },
+  "after": {
+    "passed": 78,
+    "total": 78,
+    "cov": null,
+    "ruff": 0,
+    "bench_s": null
+  },
+  "delta": {
+    "passed": 78,
+    "cov": null,
+    "ruff": 0,
+    "bench_s": null
+  }
+}

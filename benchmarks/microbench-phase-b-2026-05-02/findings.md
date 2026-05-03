@@ -94,6 +94,64 @@ The 27B-no-think aggregate is inflated by the 70 P1+P2 runs where it scored 100%
 
 **`p3_market` is a mess for all three models.** Coder-Next: 0/10. 27B-thinking: 8/10 done but 2 of those originally were `api_error: timed out` that the chain orchestrator retried. 27B-no-think: 7/10 done + 1 `runaway-generation` (137K-token single response) + 2 operator-SIGTERM'd `scroll-loops` (155-iter and 31-iter streaks of the same PCMag-pricing scrape with only the page-slice offset changing). **Three distinct pathologies in 10 runs for one cell — only seen for 27B-no-think on `p3_market`.**
 
+## Cost and wall time
+
+> All cost numbers are upper-bound estimates from `tooling/scripts/extract_cost.py` — wall time × power.limit (500 W cap on Tower2 since 2026-04-28) at $0.13/kWh residential rate. Real GPU draw is lower (idle between calls, peaks during decode) so these are *ceilings*, not point estimates. Use for *ranking*, not for absolute economics.
+
+### Median wall and cost per run
+
+| Cell | Coder-Next wall / cost | 27B (thinking) wall / cost | 27B (no-think) wall / cost |
+|---|---|---|---|
+| p1_bugfix         |    683 s / $0.0148 | 1078 s / $0.0233 | **2582 s** / $0.0466 |
+| p1_refactor       |    322 s / $0.0070 |  322 s / $0.0070 | 562 s / $0.0101 |
+| p1_testwrite      |    839 s / $0.0182 |  573 s / $0.0124 | 1186 s / $0.0214 |
+| p2_ci             |     69 s / $0.0015 |  127 s / $0.0027 | 110 s / $0.0020 |
+| p2_extract        |     17 s / $0.0004 |   71 s / $0.0015 |  49 s / $0.0009 |
+| p2_hallucination  |    422 s / $0.0092 |  171 s / $0.0037 | 127 s / $0.0023 |
+| p2_triage         |     62 s / $0.0013 |  197 s / $0.0043 | 154 s / $0.0028 |
+| p3_business       |     31 s / $0.0006 |  163 s / $0.0035 | 171 s / $0.0031 |
+| p3_doc            |     37 s / $0.0007 | 1113 s / $0.0201 | 144 s / $0.0026 |
+| p3_market         |   2294 s / $0.0435 | 1720 s / $0.0330 | 2277 s / $0.0411 |
+| p3_pm             |     16 s / $0.0003 |   80 s / $0.0017 |  68 s / $0.0012 |
+| p3_writing        |     24 s / $0.0005 |  166 s / $0.0036 | 125 s / $0.0023 |
+
+Three patterns from the medians:
+
+1. **Coder-Next is dramatically faster on the cheap-task cells** — 5-10× faster than either 27B variant on `p3_business`, `p3_doc`, `p3_pm`, `p3_writing`, `p2_extract`. When a task is well-bounded and Coder-Next can ship it, throughput economics favor Coder-Next by an order of magnitude.
+2. **No-think doesn't always reduce wall time vs thinking-mode.** On most cells it's faster (or tied), but on `p1_bugfix` and `p1_testwrite` it's actually 2× slower. The mechanism: thinking-mode 27B fails fast (`model_stopped` at low iter count) on those cells, while no-think 27B works through to a full `done_signal` over many iters. Faster-because-failed isn't a win; the 27B-no-think wall is the real "doing the task" wall.
+3. **`p3_market` is expensive for everyone.** All three models spend 28-38 minutes per attempt. For Coder-Next, that money is wasted (0/10 ship). For 27B variants, ~70-80% of attempts ship.
+
+### Cost-of-failure premium (p95 wall)
+
+p95 wall reveals what pathological runs cost. The standout numbers:
+
+| Cell | Model | Median wall | p95 wall | Failure mechanism on p95 |
+|---|---|---|---|---|
+| p3_business | 27B-no-think | 171 s | **3155 s** (53 min) | wall_killed_identical_call_loop ran 500 iters before harness gave up |
+| p3_doc      | 27B-no-think | 144 s | **2971 s** (50 min) | same |
+| p3_doc      | 27B (thinking) | 1113 s | **7976 s** (133 min) | identical-call-loop on word-trim, even longer |
+| p2_hallucination | Coder-Next | 422 s | **1660 s** (28 min) | stuck_no_workspace_change_for_500_iters |
+
+The 27B-thinking p95 of 7976 s ($0.144) for `p3_doc` is the single most expensive failure mode in this dataset.
+
+### Expected cost per shipped run (the decision number)
+
+For the 4 N=10 differential cells, total spend ÷ shipped runs gives the *true* cost of getting a usable artifact:
+
+| Cell | Coder-Next | 27B (thinking) | 27B (no-think) |
+|---|---:|---:|---:|
+| p2_hallucination | 5/10 ships @ $0.0318/ship | 7/10 @ $0.0045 | 10/10 **@ $0.0023** |
+| p3_business      | 10/10 **@ $0.0006**         | 9/9 @ $0.0039  | 8/10 @ $0.0536 |
+| p3_doc           | 10/10 **@ $0.0007**         | 6/8 @ $0.0712  | 8/10 @ $0.0495 |
+| p3_market        | 0/10 @ ∞                | 8/10 @ $0.0459 | 7/8 **@ $0.0493** |
+
+**Headline: the cheapest-per-shipped-run model is task-class-specific.**
+- For `p2_hallucination`, **27B-no-think is 14× cheaper per ship than Coder-Next** (which stucks half the time at full per-attempt cost).
+- For `p3_business` and `p3_doc`, **Coder-Next is 60-100× cheaper per ship** than either 27B variant — when it ships, it ships fast.
+- For `p3_market`, Coder-Next is unusable at any cost (∞ per ship); 27B variants are roughly tied at ~$0.05 per ship.
+
+The "Coder-Next 4-12× cheaper" headline from `microbench-2026-04-28` survives at N=10 — but only on the cells where Coder-Next ships. On adversarial-hallucination, the equation flips.
+
 ## Failure-mode distribution by model
 
 | Failure mode | Coder-Next | 27B (thinking) | 27B (no-think) |
@@ -160,6 +218,31 @@ Carrying forward [`microbench-2026-04-28/findings.md`](../microbench-2026-04-28/
 - **27B-thinking on `p3_doc`** if ship rate matters more than polish — 6/10. Use 27B-no-think instead.
 - **27B-no-think on `p3_market`** without operator monitoring — 30% pathological rate (1 runaway, 2 scroll-loops). The scroll-loops in particular don't trip the harness's stuck detector for 30+ minutes.
 
+## How this drop relates to prior MMBT entries
+
+### Strengthens claims from `microbench-2026-04-28`
+
+| Prior claim (N=3 hint) | What this drop adds | Status |
+|---|---|---|
+| "27B is reliable at tight-schema tasks" — Phase 2 12/12 PASS | 27B-no-think 70/70 on P1+P2 at N=10 | **Strengthened** — no longer a small-N hint, bounded with Wilson [83.7%, 100%]. |
+| "27B drives internet-research workflows that Coder-Next doesn't" — `p3_market` 27B 3/3 vs Coder 0/3 | Coder 0/10 at N=10 (Wilson 95% [0%, 27.8%]); 27B-thinking 8/10; 27B-no-think 7/10 | **Strengthened** — Coder collapse confirmed reproducible. 27B-no-think also drives this workflow, with caveat: scroll-loop pathology requires operator monitoring to keep wall time bounded. |
+| "Coder-Next has a real hallucination-resistance gap" — 1/3 PASS on `p2_hallucination`, 2 confirmed-fabrications-as-real | Coder 5/10 stuck at N=10 (Wilson 95% [23.7%, 76.3%]); 27B-thinking 7/10; 27B-no-think 10/10 | **Strengthened + extended** — gap is now bounded as ~50% stuck rate. 27B-no-think (10/10) is the cleanest of the three on this cell. |
+| "27B has a documented word-limit-trim failure mode" — `p3_doc` 0/3 PASS, 2 of 3 stuck in identical-call-loops | 27B-thinking 4/10 wall_killed at N=10 (Wilson [16.8%, 68.7%]); 27B-no-think 2/10 wall_killed | **Strengthened + partially mitigated** — bounded as a stable ~40% failure shape for thinking-mode; **disabling thinking drops it to ~20%**. |
+| "Both miss multi-week risks on PM-synthesis" | 27B-no-think 10/10 ship on `p3_pm`, but PASS rate (risk recall) not yet re-graded | **Holds at ship-rate level**; PASS-rate re-grading pending. |
+
+### Relates to `dreamserver-1-pr-audit` and `dreamserver-75-pr-audit`
+
+The dreamserver PR audits are multi-hour research/audit tasks at much larger scope than the 5-30 minute microbench. Findings from those runs ("27B's analysis is high-quality but verdicts under-deliver"; "Coder-Next produces zero deliverable on the 75-PR audit") are about a **different operating regime** than this entry's data covers.
+
+- **27B-no-think on long-form audits is untested** in this entry. The substance-monitoring methodology proven here (digit-stripped templates + tail-streak SIGTERM) could be applied to a future dreamserver-scale 27B-no-think run, and the no-think mode's word-budget improvements on `p3_doc` *suggest* it might also help with the verdict.md production issue 27B-thinking had on the dreamserver audits — but that's a hypothesis, not a finding.
+- **Coder-Next's `p3_market` 0/10 collapse is consistent with its dreamserver-75-pr-audit failure** — both involve long-running research-shaped workflows where the model can't converge on a structured deliverable. The failure modes match: `stuck_no_workspace_change`, `identical-call-loop`, `cyclic-name-slop` (per the dreamserver entry), and `api_error: HTTP Error 400` (this entry).
+
+The microbench gives bounded statistical evidence on 5-30 minute tasks. The dreamserver audits give existence proofs at multi-hour scope. They're complementary; neither generalizes to the other without explicit re-testing.
+
+### Relates to `wallstreet-intern-test`
+
+The wallstreet investment-memo task (N=3 per model on the original entry) showed 27B 1/3 ships and Coder-Next 1/3 ships, with both arms producing structurally complete memo repos when they shipped. The Phase B + no-think data doesn't include the wallstreet task class. **27B-no-think on wallstreet is untested.** Given the no-think mode's clean shipping on the microbench's `p3_business` (8/10) and `p3_doc` (8/10), there's reason to expect it would also handle a wallstreet-shaped multi-section memo cleanly — but again, hypothesis only.
+
 ## Recommended follow-ups
 
 1. **PASS-rate grader sweep** on the no-think tarballs — promotes ship-rate findings to PASS-rate. Pending.
@@ -172,3 +255,4 @@ Carrying forward [`microbench-2026-04-28/findings.md`](../microbench-2026-04-28/
 - **Harness drift across batches.** N=3 baselines used file_sha256 `7698067...`; the no-think grid used `7ea9592...`. The 4 N=10 differential cells share a single harness across all three model arms (consistent comparison). Cross-batch P1 numbers may include harness-related effects.
 - **Operator-SIGTERM'd runs (2 of 27B-no-think `p3_market`)** are labeled `scroll-loop` in their `label.json` files (in the source bench's `submit/phase-b-overnight-2026-05-02` branch). They're counted as failures in this doc's denominators (hence 7/10 not 7/8 for the headline `p3_market` rate). Their transcripts are preserved; their `summary.json` and `workspace_final.tar.gz` are absent because operator-SIGTERM bypasses the harness teardown.
 - **Wilson 95% CI** is conservative for small N; on the N=3 cells, CIs are wide and not reported here.
+- **Phase B make-up turbulence** (the 27B-thinking arm specifically). The chain orchestrator's "end-of-night phase" detected three `api_error` failures in the original Phase B 27B-thinking runs (`p3_market_27b_v5/v6/v9`) and cleaned them for retry by deleting their `summary.json` + `workspace_final.tar.gz`. The retry loop ran v5 to clean `done_signal` (this is the published v5 data); v6 and v9 retries were stopped before completion and their original `api_error: timed out` (v6) / `api_error: HTTP Error 400: Bad Request` (v9) data was restored from the pre-makeup commit (`aba8a52` on the source bench's submit branch). The three runs in the published 27B-thinking `p3_market` data therefore reflect: v5 = retry (success), v6 / v9 = original (failure). The 27B-thinking p3_market 8/10 ship rate counts the v5 retry as a ship; if you want the pre-retry baseline rate, deduct one from that numerator.

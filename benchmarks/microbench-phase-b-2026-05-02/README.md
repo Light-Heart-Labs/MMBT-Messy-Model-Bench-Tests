@@ -59,6 +59,8 @@ The earlier `microbench-2026-04-28` entry is **not superseded** by this one — 
 
 ## Cross-references
 
+- [`findings.md`](findings.md) — the consolidated cross-task writeup with per-cell tables, Wilson CIs, cost analysis, and "When to use which model" guidance
+- [`findings-pairwise-quality-three-model.md`](findings-pairwise-quality-three-model.md) — three-model pairwise quality study (extends `findings/2026-04-28-pairwise-quality-study.md` to add 27B-no-think; corrects the `p2_ci` regression attribution)
 - [`microbench-2026-04-28/findings.md`](../microbench-2026-04-28/findings.md) — the N=3 baseline this drop expands
 - [`tooling/FAILURE-TAXONOMY.md`](../../tooling/FAILURE-TAXONOMY.md) — updated with `scroll-loop` and `runaway-generation`
 - [`KNOWN-LIMITATIONS.md`](../../KNOWN-LIMITATIONS.md) — applies to this entry as well; the harness-drift caveat below extends it
