@@ -52,6 +52,21 @@ tooling/
     extract_cost.py                 Post-hoc cost/throughput metrics
                                     extraction from receipt + transcript.
                                     Produces cost.json sibling.
+    check_substance.py              Operator-monitoring helper. Reads a
+                                    transcript.jsonl and reports whether
+                                    the run is in a `scroll-loop` or
+                                    `runaway-generation` pathology — both
+                                    of which the harness's own stuck-
+                                    detector misses. Run every 5 min on
+                                    every active transcript during long
+                                    chains; SIGTERM the harness PID on
+                                    exit code 1. See
+                                    SUBSTANCE-MONITORING-WORKFLOW.md.
+    SUBSTANCE-MONITORING-WORKFLOW.md  Workflow doc for check_substance.py:
+                                    when to run, what exit codes mean,
+                                    what counts as operator action,
+                                    quantified GPU-hours saved on the
+                                    microbench-phase-b chain.
     apply_labels.py                 The hand-labeling script for failure
                                     modes. Run-name → label mapping is
                                     in the script body. Re-run after

@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-04-28T04:26:59.227160+00:00",
+  "ended_at": "2026-04-28T04:27:35.702950+00:00",
+  "elapsed_s": 36.5,
+  "iterations": 10,
+  "total_completion_tokens": 5643,
+  "total_prompt_tokens": 60814,
+  "model": "qwen3-coder-next-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "I have completed the executive brief for evaluating a follow-on investment in Nimbus Logistics, Inc. The deliverables are:\n\n1. **`brief.md`** \u2014 A 700-word executive brief with a clear recommendation: **Pass** on the follow-on investment, unless the investor can verify net retention >110%, stable/growing adjusted ARR ($36\u201337M), and fully signed new $1M+ ARR contracts.\n\n2. **`key-facts.md`** \u2014 A comprehensive list of every material fact incorporated into the brief, with source attribution.\n\n3. **`research/notes.md`** \u2014 Working notes summarizing the five sources, key tensions, and source quality assessment.\n\n4. **`decisions/adr.md`** \u2014 ADR-style records for framing choices (e.g., why \"Pass\" instead of \"More Diligence Needed\").\n\n5. **`README.md`** \u2014 Instructions for reading the output.\n\nThe brief leads with the recommendation, synthesizes all five sources (press release, TechCrunch, blog post, leaked memo, SEC Form D), highlights contradictions (e.g., $42M ARR vs. $36\u201337M adjusted, international expansion vs. EMEA retreat), and cites sources inline. The final commit is tagged as release v1.0.0."
+}

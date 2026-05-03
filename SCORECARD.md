@@ -90,6 +90,68 @@
 - **Cost-per-attempt: Coder-Next is 4-12× cheaper** when it ships. When it doesn't ship (stuck-detector cases), it spends 25+ minutes and ~$0.03 producing nothing, which inverts the economics for hallucination-resistance-required tasks.
 - **Both miss multi-week risks on PM-synthesis.** Project management: workstream + decision recall is excellent (6/6 + 3-4/4 every run for both models), but risks 2-3/6 across all runs and both models — multi-week-spanning risks systematically dropped.
 
+> **Update (2026-05-02):** [`microbench-phase-b-2026-05-02`](benchmarks/microbench-phase-b-2026-05-02/) bumps the four highest-signal cells of this table to N=10 with proper Wilson 95% CIs, and adds **27B-no-think** as a third arm across the full 12-family grid. Several N=3 hints from the table above are now bounded — see § "microbench-phase-b-2026-05-02" below.
+
+---
+
+## microbench-phase-b-2026-05-02 (N=10 expansion + 27B-no-think third arm)
+
+> Bumps the 4 differential cells from N=3 → N=10 and adds 27B-no-think across all 12 families. ~240 runs total. See [`benchmarks/microbench-phase-b-2026-05-02/findings.md`](benchmarks/microbench-phase-b-2026-05-02/findings.md) for full breakdown.
+
+### Headline ship rates (done_signal — *not* PASS rate; PASS pending grader sweep)
+
+| Model | Coverage | Ship rate | Wilson 95% CI |
+|---|---|---|---|
+| Qwen3-Coder-Next-AWQ | 4 cells × N=10 + 8 cells × N=3 = 63 runs | 47/63 = 74.6% | [62.5%, 83.9%] |
+| Qwen3.6-27B-AWQ (thinking) | 4 cells × N=10 + 8 cells × N=3 = 62 runs | 46/62 = 74.2% | [62.0%, 83.7%] |
+| **Qwen3.6-27B-AWQ (no-think)** | **12 cells × N=10 = 118 graded + 2 op-labeled** | **113/118 = 95.8%** | **[90.5%, 98.2%]** |
+
+### Integrated decision table — 4 differential cells × 3 models at N=10
+
+> Single row per (cell × model) with ship rate, median wall, median cost, $/shipped-run, and primary failure mode. Cost numbers are upper-bound (wall × power.limit at $0.13/kWh).
+
+| Cell | Model | Ship | Median wall | Median $ | $/ship | Primary failure mode |
+|---|---|:---:|---:|---:|---:|---|
+| p2_hallucination | Coder-Next | 5/10 | 422 s | $0.0092 | $0.032 | `stuck_no_workspace_change_for_500_iters` (5/10) |
+| p2_hallucination | 27B (thinking) | 7/10 | 171 s | $0.0037 | $0.0045 | (none on the 7 ships; 3 model_stopped) |
+| p2_hallucination | **27B (no-think)** | **10/10** | 127 s | $0.0023 | **$0.0023** | none |
+| p3_business | **Coder-Next** | **10/10** | 31 s | $0.0006 | **$0.0006** | none |
+| p3_business | 27B (thinking) | 9/10 | 163 s | $0.0035 | $0.0039 | 1 `wall_killed_identical_call_loop` |
+| p3_business | 27B (no-think) | 8/10 | 171 s | $0.0031 | $0.0536 | 2 `wall_killed_identical_call_loop` |
+| p3_doc | **Coder-Next** | **10/10** | 37 s | $0.0007 | **$0.0007** | none |
+| p3_doc | 27B (thinking) | 6/10 | 1113 s | $0.0201 | $0.0712 | **4 `wall_killed_identical_call_loop`** (word-trim) |
+| p3_doc | 27B (no-think) | 8/10 ★ | 144 s | $0.0026 | $0.0495 | 2 `wall_killed_identical_call_loop` (word-trim, halved) |
+| p3_market | Coder-Next | 0/10 | 2294 s | $0.0435 | **∞** | 5 stuck + 4 `api_error: HTTP 400` + 1 wall_killed |
+| p3_market | **27B (thinking)** | **8/10** | 1720 s | $0.0330 | $0.046 | 2 `api_error: timed out` (transient) |
+| p3_market | 27B (no-think) | 7/10 | 2277 s | $0.0411 | $0.049 | 1 runaway-gen + 2 op-SIGTERM scroll-loop |
+
+> ★ `p3_doc` 27B-no-think 8/10 vs 6/10 thinking-mode is the standout finding — disabling thinking halves the word-limit-trim loop rate (4/10 → 2/10).
+
+**Reading the table for a deployment decision:**
+
+- Lowest $/ship for a given cell:
+  - `p2_hallucination` → 27B-no-think
+  - `p3_business` → Coder-Next (60-100× cheaper than 27B variants)
+  - `p3_doc` → Coder-Next (70× cheaper than 27B variants)
+  - `p3_market` → 27B-thinking (Coder-Next is unusable; 27B-no-think slightly cheaper but with higher pathology rate)
+- Highest reliability per cell: 27B-no-think on `p2_hallucination` (10/10), Coder-Next on `p3_business`/`p3_doc` (10/10), 27B-thinking on `p3_market` (8/10).
+- No single model wins all four cells. **Mixed-model deployment is justified by this data** if you care about either ship rate or $/ship across all four.
+
+### Headline reads (updates to the picture above)
+
+- **27B-no-think is the most reliable shipper of the three on like-for-like cells** (86.8% vs 75% vs 62.5%). The pre-Phase-B framing of "27B vs Coder-Next" needs a third arm — for tasks where ship rate matters more than thinking-mode polish, no-think 27B is the operational pick.
+- **27B-no-think rescues `p3_doc`** from the documented 27B word-trim loop (4/10 wall_killed → 2/10 wall_killed).
+- **Coder-Next's `p3_market` 0/3 → 0/10 at N=10** confirmed as a stable failure shape, Wilson 95% [0%, 27.8%]. Coder-Next does not drive internet-research workflows.
+- **Coder-Next's `p2_hallucination` 1/3 PASS → 5/10 stuck at N=10**, Wilson 95% [23.7%, 76.3%] — bounded as a real ~50% failure shape, not a 1-of-N flake.
+- **Two new pathologies surfaced** (now in [`tooling/FAILURE-TAXONOMY.md`](tooling/FAILURE-TAXONOMY.md)):
+  - `scroll-loop` (sub-label of `identical-call-loop`) — model walks an HTML response in fixed-byte slices; raw command hashes differ so the harness's content-hash same-content guard doesn't fire. Caught in `p3_market_27b-nothink_v1` (155 iters) and `_v8` (31 iters).
+  - `runaway-generation` (new primary) — single model response exceeds the harness's max-output-tokens budget without stopping. Caught in `p3_market_27b-nothink_v5` (137,855 tokens).
+
+### Caveats (in addition to those on the original microbench table)
+
+- Ship rate ≠ PASS rate. PASS-rate analysis pending the batch-grader sweep against the no-think tarballs.
+- Cross-batch comparisons on N=3 P1 cells include harness-drift effects (different file_sha256 between batches). Within the 4 N=10 differential cells, harness is consistent across all three model arms.
+
 ---
 
 ## What the data supports

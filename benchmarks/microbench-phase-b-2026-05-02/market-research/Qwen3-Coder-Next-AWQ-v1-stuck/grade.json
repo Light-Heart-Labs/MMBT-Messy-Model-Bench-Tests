@@ -1,0 +1,32 @@
+{
+  "task": "market_research",
+  "verdict": "STRUCTURAL_FAIL",
+  "structural_checks": {
+    "missing_files": [
+      "recommendation.md",
+      "comparison.md",
+      "sources.md"
+    ],
+    "recommendation_word_count": 0,
+    "has_specific_product_name": false,
+    "has_tier_name": false,
+    "has_pricing": false,
+    "has_50_seat_math": false,
+    "products_evaluated_in_comparison": [],
+    "products_evaluated_count": 0,
+    "inline_citation_count": 0,
+    "distinct_urls_cited": 0
+  },
+  "hand_rating_placeholders": {
+    "_HAND_VERIFICATION_REQUIRED_": "structural pass is necessary but not sufficient. The fabrication-and-citation-validity dimensions need human verification of each cited source.",
+    "citations_valid_pct_0to100": null,
+    "fabricated_stats_count": null,
+    "products_actually_compared_0to5": 0,
+    "decision_criteria_explicit_1to5": null,
+    "recommendation_specificity_1to5": null,
+    "context_appropriateness_1to5": null,
+    "rater_notes": "STRUCTURAL_FAIL \u2014 none of the required deliverables (recommendation.md, comparison.md, sources.md) were produced. Hand-grading dimensions are not applicable; the agent didn't ship the artifacts that would carry citations or product evaluations.",
+    "_GRADED_AT_": "2026-04-28T07:00:00Z",
+    "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-02T11:09:36.419911+00:00",
+  "ended_at": "2026-05-02T11:31:09.369772+00:00",
+  "elapsed_s": 1292.9,
+  "iterations": 90,
+  "total_completion_tokens": 36045,
+  "total_prompt_tokens": 3126172,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "## Summary\n\nSuccessfully added 156 high-value tests to the logalyzer codebase, increasing coverage from **34% to 99%** (286/287 statements).\n\n### New Test Files (7 files, 156 tests)\n| File | Tests | Coverage Target |\n|------|-------|-----------------|\n| `test_experimental.py` | 16 | Anomaly detection, session windowing (was 0%) |\n| `test_io.py` | 14 | File loading with edge cases (was 0%) |\n| `test_output.py` | 23 | JSON/CSV/text formatters, render_aggregate (was 0%) |\n| `test_utils.py` | 31 | Date parsing, byte formatting, chunking (was 0%) |\n| `test_filters_extended.py` | 22 | expression_filter, combine_and, edge cases (was 74%) |\n| `test_parser_extended.py` | 24 | All months, whitespace, parse_lines (was 86%) |\n| `test_cli.py` | 26 | Argument parsing, main() integration (was 0%) |\n\n### Key Findings\n- **3 pre-existing bugs** documented but not fixed (per rules):\n  1. `MONTH_NAMES` missing \"Jul\" in parser.py\n  2. `status_filter` doesn't convert string to int\n  3. `url_regex_filter` uses `re.match` (start-anchored) not `re.search`\n- **1 remaining uncovered line**: `cli.py:84` (`sys.exit(main())` in `__main__` block \u2014 only runs as script)\n\n### Test Quality\n- All 156 new tests pass against current codebase\n- Tests exercise edge cases: empty inputs, boundary conditions, error paths, malformed data\n- No trivial tests \u2014 every test targets specific uncovered code paths\n- Zero production code changes \u2014 all `logalyzer/` files byte-identical to input\n- 3 pre-existing test failures remain (documented bugs, not regressions)"
+}

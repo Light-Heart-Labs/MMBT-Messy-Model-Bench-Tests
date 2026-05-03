@@ -1,0 +1,10 @@
+{
+  "started_at": null,
+  "ended_at": "2026-04-28T06:49:53.327123+00:00",
+  "elapsed_s": 8128.7,
+  "iterations": 159,
+  "total_completion_tokens": 0,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "wall_killed_identical_call_loop",
+  "done_summary": "KILLED at iter 159 \u2014 agent stuck in identical-call-loop, writing same brief.md (775 words) repeatedly for 30+ iters. Manual SIGTERM advanced chain to v3 rather than waiting for stuck-detector at iter ~659."
+}
