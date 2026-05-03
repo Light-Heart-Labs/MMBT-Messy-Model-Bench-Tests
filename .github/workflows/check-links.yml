@@ -1,0 +1,52 @@
+name: Check internal markdown links
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '.github/workflows/check-links.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.md'
+      - '.github/workflows/check-links.yml'
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan for broken relative markdown links
+        run: |
+          python3 - <<'PY'
+          import re, sys
+          from pathlib import Path
+
+          missing = []
+          checked = 0
+          for md in Path('.').rglob('*.md'):
+              if '.git' in md.parts:
+                  continue
+              text = md.read_text(encoding='utf-8', errors='ignore')
+              for m in re.finditer(r'\[([^\]]+)\]\(([^)]+)\)', text):
+                  link = m.group(2)
+                  if link.startswith(('http', 'mailto:', '#')):
+                      continue
+                  link_path = link.split('#')[0]
+                  if not link_path:
+                      continue
+                  target = (md.parent / link_path).resolve()
+                  checked += 1
+                  if not target.exists():
+                      missing.append((md, link))
+
+          print(f'checked={checked}  missing={len(missing)}')
+          for md, link in missing:
+              print(f'  {md} -> {link}')
+
+          if missing:
+              sys.exit(1)
+          PY

@@ -16,6 +16,29 @@
 
 If you have to pick **one** arm without knowing your task: **27B-no-think**. It dominates raw ship rate, matches thinking-mode on substantive quality (per the [pairwise study](benchmarks/microbench-phase-b-2026-05-02/findings-pairwise-quality-three-model.md)), and has no cell where it's clearly the worst of the three.
 
+## Decision tree
+
+```mermaid
+flowchart TD
+    Start([Pick a local model for your task])
+
+    Start --> Q1{Does wrong-output<br/>cause real harm?<br/>e.g. security review,<br/>fact-cited research}
+    Q1 -->|Yes| A1["27B-no-think<br/>10/10 ship · 100% accuracy<br/>0 dangerous errors<br/>on adversarial-hallucination"]
+
+    Q1 -->|No| Q2{Internet research<br/>+ live citations?}
+    Q2 -->|Yes| A2["27B-thinking<br/>8/10 on p3_market<br/>Coder-Next 0/10 reproducible"]
+
+    Q2 -->|No| Q3{Bounded structured output<br/>+ speed/cost critical?<br/>e.g. business memo,<br/>doc synthesis, triage}
+    Q3 -->|Yes| A3["Coder-Next<br/>10/10 ship<br/>60-100x cheaper per ship<br/>than 27B variants"]
+
+    Q3 -->|No| A4["27B-no-think default<br/>95.8% overall ship rate<br/>Wilson 95% 90.5% – 98.2%"]
+
+    Start -.if either applies.-> Q5{Long-horizon &gt;30 min<br/>OR high-stakes single-shot,<br/>no verifier?}
+    Q5 -->|Yes| A5["None of these single-shot<br/>Use cloud + verifier<br/>OR break into smaller tasks"]
+```
+
+The dotted path is independent of the main flow — even if your task fits the "main path" answers, if it *also* meets the long-horizon-or-high-stakes condition, the local-model answer collapses to "use cloud or add a verifier."
+
 ---
 
 ## The three arms
@@ -79,20 +102,22 @@ If you must use a local model for long-horizon work, structure it as many small 
 
 ### Headline ship rates (phase-b, [source](benchmarks/microbench-phase-b-2026-05-02/findings.md))
 
+Bars show ship rate as a fraction (each bar is 10 segments regardless of N), so N=3 cells stay visually comparable to N=10 cells.
+
 | Cell | Coder-Next | 27B (thinking) | 27B (no-think) | Cell winner |
-|---|:---:|:---:|:---:|---|
-| p1_bugfix | 2/2 | 0/3 *† | **10/10** | 27B-no-think |
-| p1_refactor | 3/3 | 1/3 *† | **10/10** | 27B-no-think |
-| p1_testwrite | 2/3 | 0/3 *† | **10/10** | 27B-no-think |
-| p2_ci (CI debugging) | 3/3 | 3/3 | **10/10** | 27B-no-think (also wins on quality, see below) |
-| p2_extract (20-field extraction) | 3/3 | 3/3 | **10/10** | tied on ship; 27B more accurate |
-| p2_hallucination | 5/10 | 7/10 | **10/10** | 27B-no-think |
-| p2_triage | 3/3 | 3/3 | **10/10** | tied on ship; **Coder-Next more accurate** (96.7% vs 86.7%) |
-| p3_business | **10/10** | 9/10 | 8/10 | Coder-Next |
-| p3_doc | **10/10** | 6/10 | 8/10 | Coder-Next (ship); see PASS-rate caveat below |
-| p3_market | 0/10 | **8/10** | 7/10 | 27B-thinking |
-| p3_pm | 3/3 | 3/3 | **10/10** | 27B-no-think (ship); all miss multi-week risks (PASS) |
-| p3_writing | 3/3 | 3/3 | **10/10** | 27B-no-think (ship); see [microbench-2026-04-28/findings.md](benchmarks/microbench-2026-04-28/findings.md) for cell-specific quality |
+|---|---|---|---|---|
+| p1_bugfix       | ██████████ 2/2  | ░░░░░░░░░░ 0/3 *† | ██████████ 10/10 | 27B-no-think |
+| p1_refactor     | ██████████ 3/3  | ███░░░░░░░ 1/3 *† | ██████████ 10/10 | 27B-no-think |
+| p1_testwrite    | ███████░░░ 2/3  | ░░░░░░░░░░ 0/3 *† | ██████████ 10/10 | 27B-no-think |
+| p2_ci           | ██████████ 3/3  | ██████████ 3/3   | ██████████ 10/10 | tied ship; 27B wins quality (CHANGELOG) |
+| p2_extract      | ██████████ 3/3  | ██████████ 3/3   | ██████████ 10/10 | tied ship; 27B more accurate |
+| p2_hallucination| █████░░░░░ 5/10 | ███████░░░ 7/10  | ██████████ 10/10 | **27B-no-think** |
+| p2_triage       | ██████████ 3/3  | ██████████ 3/3   | ██████████ 10/10 | tied ship; **Coder-Next** more accurate (96.7% vs 86.7%) |
+| p3_business     | ██████████ 10/10| █████████░ 9/10  | ████████░░ 8/10  | **Coder-Next** |
+| p3_doc          | ██████████ 10/10| ██████░░░░ 6/10  | ████████░░ 8/10  | **Coder-Next** (ship); PASS-rate caveat below |
+| p3_market       | ░░░░░░░░░░ 0/10 | ████████░░ 8/10  | ███████░░░ 7/10  | **27B-thinking** |
+| p3_pm           | ██████████ 3/3  | ██████████ 3/3   | ██████████ 10/10 | 27B-no-think (ship); all miss multi-week risks |
+| p3_writing      | ██████████ 3/3  | ██████████ 3/3   | ██████████ 10/10 | 27B-no-think (ship); see [findings](benchmarks/microbench-2026-04-28/findings.md) |
 
 *† 27B-thinking N=3 baselines used an older harness sha. The 1/9 P1 ship rate may include harness-related effects; see [phase-b caveats](benchmarks/microbench-phase-b-2026-05-02/findings.md#caveats).*
 
