@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-03T00:50:00.080707+00:00",
+  "ended_at": "2026-05-03T00:52:04.818265+00:00",
+  "elapsed_s": 124.7,
+  "iterations": 21,
+  "total_completion_tokens": 6676,
+  "total_prompt_tokens": 160312,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Produced three audience-tailored rewrites of the internal outage memo:\n\n1. **ceo_brief.md** (220 words, \u2264250 limit) \u2014 Concise executive brief with outage summary, impact scope (11,400 accounts, 28 enterprise), second-in-90-days board signal, four remediations, and financial exposure. No engineering jargon, no named individuals.\n\n2. **customer_email.md** (298 words, \u2264350 limit) \u2014 Warm, accountable mass email with plain-language root cause, commitments for improvement, explicit SLA-credit offer with contact path. No named engineer, no \"second outage in 90 days\" framing, no internal candor.\n\n3. **legal_summary.md** (285 words, \u2264400 limit) \u2014 Dispassionate, factual summary for in-house counsel with exact incident window, account counts, SLA threshold (99.9%), four downstream cases, and credit-handling recommendations. No speculation, no named employees, no marketing language.\n\nSupporting materials include ADR-style omission records (`decisions/adr-001-omissions.md`), working notes (`research/notes.md`), and a README explaining the output structure. All facts drawn exclusively from the source memo; no invented data."
+}

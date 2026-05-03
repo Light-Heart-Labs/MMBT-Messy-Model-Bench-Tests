@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-05-03T00:48:07.020500+00:00",
+  "ended_at": "2026-05-03T00:49:59.503560+00:00",
+  "elapsed_s": 112.5,
+  "iterations": 19,
+  "total_completion_tokens": 6149,
+  "total_prompt_tokens": 137134,
+  "model": "qwen3.6-27b-awq",
+  "finish_reason": "done_signal",
+  "done_summary": "Produced three audience-tailored rewrites of the internal outage memo:\n\n1. **ceo_brief.md** (232 words, \u2264250 limit) \u2014 Concise executive summary with board-level framing. Includes outage summary, impact scope (11,400 accounts, 28 enterprise, 4 downstream failures), the \"second incident in 90 days\" board signal, and four remediations. No engineering jargon, no named individuals, no informal apologies.\n\n2. **customer_email.md** (268 words, \u2264350 limit) \u2014 Warm, accountable mass email. Includes clear acknowledgment, plain-language root cause, four commitments for improvement, explicit SLA credit offer with contact path. No named engineers (Marcus omitted), no \"second outage in 90 days\" framing, no engineering jargon.\n\n3. **legal_summary.md** (268 words, \u2264400 limit) \u2014 Precise, dispassionate factual record. Includes exact incident window (14:11\u201318:24 UTC), scope breakdown, 99.9% SLA threshold and breach determination, the 4 downstream-automation cases, and credit-handling recommendations. No speculation, no named employees, no marketing language, no engineering remediation details.\n\nSupporting files: ADR documenting omission decisions, working notes with extracted facts, and a README explaining the output structure. All facts sourced exclusively from the original memo \u2014 zero fabrications."
+}
