@@ -14,6 +14,10 @@ but I'm making it public so that other people can use it too.
 | How to benchmark a new local model | [`tooling/ADDING-A-MODEL.md`](tooling/ADDING-A-MODEL.md) |
 | How to replay a specific past run | [`tooling/REPRODUCING.md`](tooling/REPRODUCING.md) |
 
+## Operating point (read before quoting)
+
+All published runs use **Cyankiwi 4-bit AWQ** quants on **2× RTX PRO 6000 Blackwell at 500 W cap**. Other quants (official FP8, Unsloth UD4 GGUF, BF16), other VRAM tiers (24 GB / 48 GB), other hardware classes (Mac M-series unified memory), and languages other than Python are **not characterized** here. See [`COMPARISON.md` § What this benchmark doesn't characterize](COMPARISON.md#what-this-benchmark-doesnt-characterize) for the full validity-boundary list, and [`ROADMAP.md`](ROADMAP.md) for what's queued to fill those gaps.
+
 ## Layout
 
 ```text

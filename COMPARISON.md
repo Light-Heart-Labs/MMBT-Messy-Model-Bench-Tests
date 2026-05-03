@@ -6,6 +6,8 @@
 >
 > **Last updated**: 2026-05-02 — reflects [`microbench-phase-b-2026-05-02`](benchmarks/microbench-phase-b-2026-05-02/) (N=10 + 27B-no-think third arm). Pre-no-think readers: the picture has shifted.
 
+> **Operating point**: All arms are **Cyankiwi 4-bit AWQ** on **2× RTX PRO 6000 Blackwell at 500 W cap**. Other quants, VRAM tiers, hardware classes, and languages are **not characterized** — see [What this benchmark doesn't characterize](#what-this-benchmark-doesnt-characterize) below. The within-quant comparison here is informative; absolute model capability at higher precisions is a separate question.
+
 ## TL;DR
 
 **No model is overall best.** The three arms have orthogonal strengths and statistically indistinguishable headline ship rates (74–96%). Pick by task class:
@@ -226,6 +228,39 @@ These would tighten the picture:
 3. **27B-no-think on wallstreet.** Untested. Given 8/10 ship on `p3_business` and `p3_doc`, plausible it would handle the multi-section memo cleanly — but unmeasured.
 4. **Citation validity at full sample on `p3_market` 27B.** 18/33 URLs sampled, 75% valid. Remaining 15 unverified.
 5. **Per-claim rubric on cloud entries.** Cloud Opus-4.7 / GPT-5.5 entries weren't graded with the same methodology as local entries; cloud-vs-local comparison is currently *categorical* only ("cloud ships, local mostly doesn't"), not per-claim accuracy. See [KNOWN-LIMITATIONS.md § Comparison-to-cloud](KNOWN-LIMITATIONS.md#comparison-to-cloud-caveats).
+
+---
+
+## What this benchmark doesn't characterize
+
+The findings above apply to a single operating point. Outside this point, the picture shifts in ways this study doesn't measure. Each item below is a real follow-up that contributors are welcome to pick up — see [`ROADMAP.md`](ROADMAP.md) for the prioritized list.
+
+### Other quants of the same models
+
+All three arms use **Cyankiwi 4-bit AWQ** community quants. Multiple field reports (see [`KNOWN-LIMITATIONS.md` § Cyankiwi 4-bit AWQ field reports](KNOWN-LIMITATIONS.md#quantization-specificity)) suggest these specific quants underperform the official Qwen FP8 quants and Unsloth UD4 GGUFs of the same base models — describing degraded output coherence and increased loop pathologies on certain task shapes.
+
+What this means for the data here:
+- Within-quant comparison (Coder-Next vs 27B at the same Cyankiwi 4-bit AWQ) **is** informative — the differential is a model-behavior gap, not a quant artifact.
+- Absolute model capability at higher precision (FP8 / UD4 / BF16) is **not** characterized.
+- Effects that depend on a thinking-mechanism (the `--no-think` ship-rate jump, the word-trim loop reduction) are **unlikely to be quant-specific** — they're about the trace, not the weights' precision.
+
+The FP8 re-run is the highest-priority follow-up.
+
+### Other VRAM tiers
+
+Tested at 96 GB-per-GPU. The published vLLM flags (`--max-model-len 262144`, `--gpu-memory-utilization 0.92`) will OOM on consumer 24-48 GB cards. At those tiers the choice isn't "which model wins at 4-bit AWQ" — it's "27B Q8 fits cleanly but Coder-Next needs Q4-with-CPU-offload, which dominates the wall time." That's a different study entirely; this one doesn't address it.
+
+### Other hardware classes
+
+Comparison is **Nvidia/dense-VRAM** operating point. On Mac M-series unified memory the dense-vs-MoE compute tradeoff inverts: 3B-active wins on tokens-per-second (Coder-Next looks much better), full-dense compute is the bottleneck (27B looks much worse). The harness is portable — only the vLLM launch swaps for MLX — so this is a sibling study someone with M-series hardware could run.
+
+### Languages other than Python
+
+Phase 1 coding tasks (`p1_bugfix`, `p1_refactor`, `p1_testwrite`) all use a Python project (`logalyzer`). No C, JavaScript, systems-programming, browser front-end, or low-level work tested. Coder-Next is code-specialized; its relative performance on languages it's tuned harder for is plausibly different from what shows up here. Phase 2 / Phase 3 tasks are mostly business/text and language-agnostic.
+
+### Single-rig hardware
+
+All measurements on one Blackwell rig at 500 W cap. Cross-rig variance not bounded. Power-cap effects are characterized separately in [`hardware-tests/vllm-power-sweep-2026-04-29/`](hardware-tests/vllm-power-sweep-2026-04-29/) but only on this rig.
 
 ---
 

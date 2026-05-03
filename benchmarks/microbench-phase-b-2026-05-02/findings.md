@@ -304,9 +304,14 @@ The wallstreet investment-memo task (N=3 per model on the original entry) showed
 
 ## Recommended follow-ups
 
+> Maintained list — see [`ROADMAP.md`](../../ROADMAP.md) for the consolidated cross-doc view with prioritization and contributor-welcome flags.
+
 1. **PASS-rate grader sweep** on the no-think tarballs — promotes ship-rate findings to PASS-rate. Pending.
 2. **Re-run N=3 P1 cells for 27B-thinking on the current harness** — definitively settle whether the 1/9 P1 ship rate is harness-drift or real model regression.
-3. **Pairwise quality study extension** — add 27B-no-think as a third arm to the existing `pairwise-quality-study.md`.
+3. **Pairwise quality study extension** — add 27B-no-think as a third arm to the existing `pairwise-quality-study.md`. (Partially addressed by [`findings-pairwise-quality-three-model.md`](findings-pairwise-quality-three-model.md) on the 3 both-ship cells; the 4 differential cells are still open.)
+4. **FP8 re-run of the same 12-cell grid.** Highest-priority external validation. Multiple field reports (see [`KNOWN-LIMITATIONS.md` § Cyankiwi 4-bit AWQ field reports](../../KNOWN-LIMITATIONS.md#quantization-specificity)) suggest the Cyankiwi 4-bit AWQ underperforms official FP8 / Unsloth UD4 of the same base models. Re-running on FP8 would let the ship-rate findings either generalize across quants or be bounded as quant-specific. Contributor-welcome via [`tooling/ADDING-A-MODEL.md`](../../tooling/ADDING-A-MODEL.md).
+5. **M-series Mac sibling study.** The dense-vs-MoE compute tradeoff inverts on unified memory — Coder-Next (3B-active) wins on tokens-per-second; 27B (full-dense compute) becomes the bottleneck. Harness is portable; only the vLLM launch swaps for MLX. Contributor-welcome.
+6. **Language-mix expansion for Phase 1.** Current Phase 1 cells (`p1_bugfix`, `p1_refactor`, `p1_testwrite`) all use a Python project (`logalyzer`). Adding C, JavaScript, or systems-programming starters would test whether Coder-Next's specialization manifests differently outside Python. Task-design work, not just a re-run.
 
 ## Caveats
 
