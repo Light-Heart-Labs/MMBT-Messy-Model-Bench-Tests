@@ -204,6 +204,24 @@ The microbench tables below alternate between p-codes (used in receipt names and
 - **Tasks where truthfulness matters more than artifact obedience.** 27B's failures are usually "didn't finish" or "didn't write the spec-required file"; it doesn't fabricate confident-but-wrong claims with citations.
 - **Tasks where you control the downstream consumption.** If your pipeline expects markdown notes (not a structured `verdict.md` JSON), 27B's output is usable as-is.
 
+### When to use **Qwen3.6-27B-AWQ with `--no-think`** (added in phase-b)
+
+The third arm introduced in [`microbench-phase-b-2026-05-02`](benchmarks/microbench-phase-b-2026-05-02/) — same base model as 27B-thinking, but with the `<think>` trace disabled. **Has become the recommended default for many cells** based on the N=10 expansion data:
+
+- **Default for most non-coding tasks at N=10 ship-rate grain.** 27B-no-think hit 95.8% across the full 12-cell grid (Wilson 95% [90.5%, 98.2%]) and 86.8% on the 4 hardest cells. If you're picking a single local model for a bulk run and you're not specifically trying to extract a polished reasoning narrative, no-think 27B ships more reliably than either thinking-mode 27B or Coder-Next.
+- **Doc synthesis with a tight word limit.** Halves the documented 27B word-trim loop rate (4/10 wall_killed → 2/10 on `p3_doc`). The mechanism: thinking-mode amplifies "deliberate-without-progressing" loops; no-think writes once and commits.
+- **Adversarial hallucination.** 27B-no-think 10/10 ship at $0.0023/run — the cleanest result of any arm on this cell. Beats thinking-mode 7/10 and Coder-Next 5/10.
+- **Anything where you'd otherwise pick 27B-thinking.** Per the [pairwise quality study](benchmarks/microbench-phase-b-2026-05-02/findings-pairwise-quality-three-model.md), no-think and thinking are substantively equivalent on hand-graded deliverable correctness — the difference is verbosity of reasoning prose, not output decisions. For decision-making, treat them as one "27B model" with a thinking-flag for prose density.
+
+**When to prefer thinking over no-think**:
+- When you specifically want dense reasoning prose alongside the deliverable (e.g. for human reviewers tracing the model's logic). No-think output is leaner.
+- On `p3_business` at the margin (9/10 thinking vs 8/10 no-think — within sampling noise; either works).
+
+**Caveats**:
+- **PASS rate not yet measured on no-think tarballs** — the higher ship rate could be paying real PASS rate or could be shipping briefs/memos that don't quite meet spec (e.g. exceeding word limits). Grader sweep pending. This makes the no-think headline provisional on the harder cells.
+- **Two new pathologies surfaced during the no-think grid**: `scroll-loop` (model walks an HTML response in fixed-byte slices) and `runaway-generation` (single response exceeds max-output-tokens budget). Both are caught by [`tooling/scripts/check_substance.py`](tooling/scripts/check_substance.py) but not by the harness's own stuck-detector — operator monitoring required on long chains.
+- **Untested at dreamserver-scope** — the no-think arm hasn't been run against the 1-PR or 75-PR audit. Hypothesized to help with the verdict.md production issue 27B-thinking had on PR #1057, but unmeasured.
+
 ### When to use **Qwen3-Coder-Next-AWQ**
 
 - **Pipelines where artifact shape is required and a verifier exists.** If your downstream consumes `verdict.md`/`tag`/`done()` and you have a separate check for correctness (a second model, a human pass, regression tests), Coder-Next ships reliably and is ~4× cheaper than 27B.
