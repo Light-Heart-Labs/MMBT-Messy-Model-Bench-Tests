@@ -1,21 +1,22 @@
 # Business memo
 
-> Read an acquisition deal pack; catch 8 planted bias signals; push back; ≤700 words.
+> Read an acquisition deal pack on Borealis Analytics with 8 planted bias signals; write an investment memo for the buy-side committee within 700 words.
 
-## Results — N=10 for `27b-nothink`; N=3 or N=10 for thinking/Coder per `microbench-2026-04-28`
+## Results — N=10 across all three model arms
 
-| Model | done_signal ship rate |
-|---|---:|
-| Qwen3-Coder-Next-AWQ | 10/10 |
-| Qwen3.6-27B-AWQ (thinking) | 9/10 |
-| **Qwen3.6-27B-AWQ (no-think)** | **8/10** |
+| Model | Ship rate | Pathology profile | Lean entry |
+|---|---|---|---|
+| Qwen3-Coder-Next-AWQ | 10/10 done_signal | 0 pathology — fastest at $0.0006/ship | [v1/](Qwen3-Coder-Next-AWQ-v1/) |
+| Qwen3.6-27B-AWQ (thinking) | 9/10 done_signal | 1 wall_killed_identical_call_loop | [v1/](Qwen3.6-27B-AWQ-v1/) |
+| Qwen3.6-27B-AWQ (no-think) | 8/10 done_signal | 2 wall_killed_identical_call_loop | [v1/](Qwen3.6-27B-AWQ-no-think-v1/) |
 
-> † See [`../findings.md`](../findings.md) § "Per-cell results" — N=3 baselines on this cell used an older harness sha; cross-batch comparisons may include harness-drift effects.
+## Headline
 
-> ★ Two additional `p3_market` 27B-no-think runs were operator-SIGTERM'd at >30 identical-template iters per the documented methodology rule. Including them: 7/10. See [`./Qwen3.6-27B-AWQ-no-think-v1-scroll-loop/`](./Qwen3.6-27B-AWQ-no-think-v1-scroll-loop/), [`./Qwen3.6-27B-AWQ-no-think-v8-scroll-loop/`](./Qwen3.6-27B-AWQ-no-think-v8-scroll-loop/), and [`./Qwen3.6-27B-AWQ-no-think-v5-runaway-generation/`](./Qwen3.6-27B-AWQ-no-think-v5-runaway-generation/).
+Coder-Next wins this cell — 10/10 ship at ~$0.0006/ship (60-100× cheaper than either 27B variant). Both 27B variants hit a small wall_killed_identical_call_loop rate (10-20%), making them less reliable on this task class even when they ship cleanly. **For business-memo workloads where ship rate matters more than reasoning depth, Coder-Next is the clear pick.**
 
 ## Cross-references
 
-- [`../findings.md`](../findings.md) — task-family discussion in context with other 11 task families (the cross-cutting writeup)
-- [`microbench-2026-04-28/business-memo/`](../../microbench-2026-04-28/business-memo/) — earlier N=3 entry; this drop expands sample size and adds the no-think arm
-- [`../../../tooling/tasks/task_business.md`](../../../tooling/tasks/) — the task spec
+- [`../findings.md`](../findings.md) — task-family discussion in context with other 11 task families
+- [`../findings-pairwise-quality-three-model.md`](../findings-pairwise-quality-three-model.md) — three-model quality study with hand-graded axes (only `p2_ci`, `p2_extract`, `p2_triage` graded so far; this cell deferred to follow-up)
+- [`../../microbench-2026-04-28/business-memo/`](../../microbench-2026-04-28/business-memo/) — earlier N=3 entry with full per-model READMEs at the smaller sample size
+- [`../../../tooling/FAILURE-TAXONOMY.md`](../../../tooling/FAILURE-TAXONOMY.md) — failure-mode definitions

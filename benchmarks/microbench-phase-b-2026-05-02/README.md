@@ -2,6 +2,16 @@
 
 > Bumps the [`microbench-2026-04-28`](../microbench-2026-04-28/) sample size from N=3 → N=10 on the four highest-signal task families, and adds **27B-no-think** (`--no-think` flag, no other changes) as a third arm across the **full 12-family grid**. Together, ~240 runs across three models.
 
+## How to read this entry
+
+This entry has multiple docs and many small lean-entry directories. Suggested reading order:
+
+1. **Start with [`findings.md`](findings.md)** — the consolidated cross-task writeup. Per-cell tables, Wilson CIs, cost analysis, the three identical-call-loop subclasses (`scroll-loop`, `word-trim-loop`, `rewrite-loop`), the "When to use which model" decision framework, and cross-references to prior MMBT entries.
+2. **Drill into a specific cell** — every task family has its own directory (e.g., [`adversarial-hallucination/`](adversarial-hallucination/), [`market-research/`](market-research/), [`p3_doc → doc-synthesis/`](doc-synthesis/), etc.) with a per-cell README and one or more model-arm lean entries. The 4 differential cells (`adversarial-hallucination`, `business-memo`, `doc-synthesis`, `market-research`) have all three model arms represented.
+3. **Read [`findings-pairwise-quality-three-model.md`](findings-pairwise-quality-three-model.md)** for hand-graded quality differences on the both-ship cells (`p2_ci`, `p2_extract`, `p2_triage`). **Includes a load-bearing correction to the 2026-04-28 study's `p2_ci` regression attribution.**
+4. **The pathology lean entries under [`market-research/`](market-research/)** — `Qwen3.6-27B-AWQ-no-think-v1-scroll-loop`, `-v5-runaway-generation`, `-v8-scroll-loop`, plus Coder-Next's `-v1-stuck` and `-v3-api-error` — are the canonical examples for the new failure-mode entries in [`tooling/FAILURE-TAXONOMY.md`](../../tooling/FAILURE-TAXONOMY.md).
+5. **For operators reproducing**: [`tooling/scripts/SUBSTANCE-MONITORING-WORKFLOW.md`](../../tooling/scripts/SUBSTANCE-MONITORING-WORKFLOW.md) is the substance-check workflow that surfaced the new pathologies. It saved ~5.8 GPU-hours on this chain alone (concrete numbers in `findings.md` § "Operator-monitoring ROI").
+
 ## What this entry is
 
 Two distinct experiments, presented together because the data complements:

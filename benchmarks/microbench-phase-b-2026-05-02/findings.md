@@ -94,6 +94,53 @@ The 27B-no-think aggregate is inflated by the 70 P1+P2 runs where it scored 100%
 
 **`p3_market` is a mess for all three models.** Coder-Next: 0/10. 27B-thinking: 8/10 done but 2 of those originally were `api_error: timed out` that the chain orchestrator retried. 27B-no-think: 7/10 done + 1 `runaway-generation` (137K-token single response) + 2 operator-SIGTERM'd `scroll-loops` (155-iter and 31-iter streaks of the same PCMag-pricing scrape with only the page-slice offset changing). **Three distinct pathologies in 10 runs for one cell — only seen for 27B-no-think on `p3_market`.**
 
+## All identical-call-loops are not the same — three subclasses
+
+> Audit performed 2026-05-03 against the 6 `wall_killed_identical_call_loop` runs in this chain (4 in 27B-no-think + 2 in 27B-thinking) plus the operator-SIGTERM'd p3_market runs. The original audit hypothesis — that all `wall_killed_identical_call_loop` runs follow the `scroll-loop` pattern — was **wrong**. Three distinct subclasses turned up:
+
+### Subclass 1 — `scroll-loop`
+Model walks a data source in fixed-byte slices via repeated bash. Same tool template, different numeric offset per iter. Found in 2 runs:
+- `p3_market_27b-nothink_v1` (155-iter streak): walking PCMag HTML response in 20K-byte slices for LastPass pricing
+- `p3_market_27b-nothink_v8` (31-iter streak): same task, same template, different output filename per iter
+
+This is the new pathology now in [`tooling/FAILURE-TAXONOMY.md`](../../tooling/FAILURE-TAXONOMY.md) as the `scroll-loop` sub-label.
+
+### Subclass 2 — `word-trim-loop` (write-recount cycle)
+Model alternates between writing the deliverable and counting its words, trying to satisfy the ≤700-word constraint. **Tool sequence is alternating** — single-template streak is low (often 1) but the digit-stripped *template count* over a 30-iter window is small (2-3 unique templates):
+
+| Run | Last-30 template mix |
+|---|---|
+| `p3_business_27b-nothink_v5` | `15× write_file: memo.md` ⇄ `15× bash: wc -w memo.md` |
+| `p3_doc_27b-nothink_v2` | `15× write_file: brief.md` ⇄ `15× bash: wc -w brief.md` |
+| `p3_doc_27b-nothink_v6` | `10× write_file` + `10× wc -w` + `10× awk word-counter` |
+
+This is the documented "27B word-limit-trim failure" from `microbench-2026-04-28/findings.md`. It manifests in both 27B-thinking (4/10 of the wall_killed `p3_doc` runs at N=10) and 27B-no-think (2/10 — the loop rate is *lower* without thinking but still nonzero).
+
+### Subclass 3 — `rewrite-loop` (single-template-spam)
+Model emits the same `write_file` or bash heredoc 30 times in a row, just re-rewriting the deliverable identically without any read or check between iters:
+
+| Run | Last-30 template mix |
+|---|---|
+| `p3_business_27b-nothink_v7` | `30× bash: cat > /workspace/memo.md << 'ENDOFMEMO' # Executive Committee...` (same heredoc) |
+| `p3_doc_27b_v2` | `30× write_file: /workspace/brief.md` (same content path, same content) |
+| `p3_business_27b_v5` | `29× write_file: /workspace/memo.md` + 1 word-count call (essentially a degenerate word-trim) |
+| `p3_doc_27b_v3` | `29× write_file: /workspace/brief.md` + 1 length check |
+| `p3_doc_27b_v4` | `23× write_file: /workspace/brief.md` + 3 length checks |
+| `p3_doc_27b_v6` | `26× write_file: /workspace/brief.md` + 2 word counts |
+
+This pattern *would* be caught by the harness's content-hash same-content guard (because the writes are byte-identical), but it isn't, because the workspace state hash *does* technically advance per file write (the file is overwritten with the same content but the inode update is enough to dirty the workspace hash). It runs to the harness's 500-iter no-progress threshold instead.
+
+### Detection coverage by subclass
+
+The new [`tooling/scripts/check_substance.py`](../../tooling/scripts/check_substance.py) catches subclasses 1 and 3 via tail-streak ≥ 30 of the same digit-stripped template. **It does NOT catch subclass 2 (word-trim-loop) reliably** — that pathology has tail-streak = 1 (templates alternate). A future refinement could add a "low template diversity over a 30-iter window" check (e.g., ≤ 3 unique templates over 30 iters → flag) to catch alternating-pattern stuck-loops. Recommended methodology extension.
+
+### Why subclasses matter
+
+For decisions:
+- **`scroll-loop`** is task-specific (web research with non-rendered content) and operator-detectable early (~iter 30 of streak → SIGTERM).
+- **`word-trim-loop`** is a 27B-family pattern that thinking-mode amplifies — disabling thinking helps (4/10 → 2/10 on `p3_doc`) but doesn't eliminate. For tight word-budget tasks, expect a non-zero loop rate even with no-think.
+- **`rewrite-loop`** is the catch-all pathology when the model has decided it's "done" but the harness disagrees. The model just keeps emitting the same deliverable. No methodology fix; needs a model-side improvement (e.g., better stop-token discipline).
+
 ## Cost and wall time
 
 > All cost numbers are upper-bound estimates from `tooling/scripts/extract_cost.py` — wall time × power.limit (500 W cap on Tower2 since 2026-04-28) at $0.13/kWh residential rate. Real GPU draw is lower (idle between calls, peaks during decode) so these are *ceilings*, not point estimates. Use for *ranking*, not for absolute economics.
@@ -191,6 +238,18 @@ The same pattern showed up in `p3_market_27b-nothink_v8` at 31 iters and likely 
 In `p3_market_27b-nothink_v5`, the model went silent at iter 67 — no new tool calls, no stuck-detector firing, transcripts stale for 17+ minutes despite the harness alive and vLLM healthy on port 8002. When the run finally finished, the finish_reason was `model_exceeded_max_tokens_137855` — a single model response that exhausted the harness's 137,855 output-token budget without stopping. No tool-call repetition because the model never emitted another tool call after the runaway response began.
 
 This is distinct from `timeout` (HTTP didn't fire — well under the 3600s limit), `api-error` (vLLM returned a successful long response), and `identical-call-loop` (no tool-call repetition). Now `runaway-generation` is a primary label in `tooling/FAILURE-TAXONOMY.md`.
+
+### Operator-monitoring ROI on this chain
+
+Concrete numbers from the runs caught by [`tooling/scripts/check_substance.py`](../../tooling/scripts/check_substance.py) during the final ~3 hours of the no-think chain:
+
+- `p3_market_27b-nothink_v1` SIGTERM'd at iter 228 with no-progress = 205 / 500. Without intervention, the harness would have run another ~272 iters at ~30 s/iter ≈ **135 min GPU-time saved**.
+- `p3_market_27b-nothink_v8` SIGTERM'd at iter 116 with no-progress ≈ 67 / 500. ~430 iters at ~30 s/iter ≈ **215 min GPU-time saved**.
+- 4 `wall_killed_identical_call_loop` runs in `p3_business` and `p3_doc` ran to the harness's own 500-iter threshold (the substance-check workflow wasn't yet documented when those ran). With the workflow in place, they would have been SIGTERM'd at ~iter 30 of the streak.
+
+**Aggregate savings on this chain**: roughly **5.8 GPU-hours** wall-time saved on the 2 caught scroll-loops alone. Projected savings if the workflow had been applied to all stuck-detector-eligible runs across the full no-think + Phase B chain (4 wall_killed in no-think + 2 SIGTERM'd + 5 wall_killed in 27B-thinking): ~10-14 GPU-hours / chain pass. At Tower2's 500 W cap and $0.13/kWh residential rate, that's roughly $0.65-0.91 in electricity — but the schedule benefit (cells unblock for the next run sooner) is the larger operational win on multi-day chains.
+
+For new operators: this is the why-bother-running-substance-check number. The workflow is ~10 lines of cron, costs negligible CPU, and recovers GPU-hours per chain. See [`tooling/scripts/SUBSTANCE-MONITORING-WORKFLOW.md`](../../tooling/scripts/SUBSTANCE-MONITORING-WORKFLOW.md).
 
 ## When to use which model — updated
 

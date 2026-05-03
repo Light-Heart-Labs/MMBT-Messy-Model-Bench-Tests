@@ -106,28 +106,36 @@
 | Qwen3.6-27B-AWQ (thinking) | 4 cells × N=10 + 8 cells × N=3 = 62 runs | 46/62 = 74.2% | [62.0%, 83.7%] |
 | **Qwen3.6-27B-AWQ (no-think)** | **12 cells × N=10 = 118 graded + 2 op-labeled** | **113/118 = 95.8%** | **[90.5%, 98.2%]** |
 
-### Like-for-like on the 4 differential cells
+### Integrated decision table — 4 differential cells × 3 models at N=10
 
-| Cell | Coder-Next | 27B (thinking) | 27B (no-think) |
-|---|---|---|---|
-| p2_hallucination | 5/10 | 7/10 | **10/10** |
-| p3_business      | **10/10** | 9/10 | 8/10 |
-| p3_doc           | **10/10** | 6/10 | **8/10** ★ |
-| p3_market        | 0/10 | 8/10 | 7/10 (+2 op-labeled `scroll-loop`) |
-| **Subtotal**     | **25/40** (62.5%) | **30/40** (75.0%) | **33/38** (86.8%) |
+> Single row per (cell × model) with ship rate, median wall, median cost, $/shipped-run, and primary failure mode. Cost numbers are upper-bound (wall × power.limit at $0.13/kWh).
 
-> ★ `p3_doc` 27B-no-think 8/10 is the standout finding. Disabling thinking drops the word-limit-trim loop rate from 4/10 → 2/10. Trade-off: ship rate climbs but PASS rate may not — no-think briefs may exceed 700 words more often than thinking-mode polished output. PASS-rate grader sweep is on the follow-up list.
+| Cell | Model | Ship | Median wall | Median $ | $/ship | Primary failure mode |
+|---|---|:---:|---:|---:|---:|---|
+| p2_hallucination | Coder-Next | 5/10 | 422 s | $0.0092 | $0.032 | `stuck_no_workspace_change_for_500_iters` (5/10) |
+| p2_hallucination | 27B (thinking) | 7/10 | 171 s | $0.0037 | $0.0045 | (none on the 7 ships; 3 model_stopped) |
+| p2_hallucination | **27B (no-think)** | **10/10** | 127 s | $0.0023 | **$0.0023** | none |
+| p3_business | **Coder-Next** | **10/10** | 31 s | $0.0006 | **$0.0006** | none |
+| p3_business | 27B (thinking) | 9/10 | 163 s | $0.0035 | $0.0039 | 1 `wall_killed_identical_call_loop` |
+| p3_business | 27B (no-think) | 8/10 | 171 s | $0.0031 | $0.0536 | 2 `wall_killed_identical_call_loop` |
+| p3_doc | **Coder-Next** | **10/10** | 37 s | $0.0007 | **$0.0007** | none |
+| p3_doc | 27B (thinking) | 6/10 | 1113 s | $0.0201 | $0.0712 | **4 `wall_killed_identical_call_loop`** (word-trim) |
+| p3_doc | 27B (no-think) | 8/10 ★ | 144 s | $0.0026 | $0.0495 | 2 `wall_killed_identical_call_loop` (word-trim, halved) |
+| p3_market | Coder-Next | 0/10 | 2294 s | $0.0435 | **∞** | 5 stuck + 4 `api_error: HTTP 400` + 1 wall_killed |
+| p3_market | **27B (thinking)** | **8/10** | 1720 s | $0.0330 | $0.046 | 2 `api_error: timed out` (transient) |
+| p3_market | 27B (no-think) | 7/10 | 2277 s | $0.0411 | $0.049 | 1 runaway-gen + 2 op-SIGTERM scroll-loop |
 
-### Cost per shipped run (4 differential cells)
+> ★ `p3_doc` 27B-no-think 8/10 vs 6/10 thinking-mode is the standout finding — disabling thinking halves the word-limit-trim loop rate (4/10 → 2/10).
 
-| Cell | Coder-Next | 27B (thinking) | 27B (no-think) |
-|---|---:|---:|---:|
-| p2_hallucination | $0.032/ship (5/10) | $0.0045 (7/10) | **$0.0023** (10/10) |
-| p3_business | **$0.0006** (10/10) | $0.0039 (9/9) | $0.0536 (8/10) |
-| p3_doc | **$0.0007** (10/10) | $0.0712 (6/8) | $0.0495 (8/10) |
-| p3_market | ∞ (0/10) | $0.046 (8/10) | $0.049 (7/8) |
+**Reading the table for a deployment decision:**
 
-> Cheapest-per-ship is task-class-specific: 27B-no-think wins on `p2_hallucination` (14× vs Coder-Next), Coder-Next wins on `p3_business` / `p3_doc` (60-100× vs 27B variants). For `p3_market`, Coder-Next is unusable at any cost. Cost numbers are upper-bound (wall × power.limit at $0.13/kWh); see [`benchmarks/microbench-phase-b-2026-05-02/findings.md`](benchmarks/microbench-phase-b-2026-05-02/findings.md) § "Cost and wall time" for medians, p95s, and the cost-of-failure premium.
+- Lowest $/ship for a given cell:
+  - `p2_hallucination` → 27B-no-think
+  - `p3_business` → Coder-Next (60-100× cheaper than 27B variants)
+  - `p3_doc` → Coder-Next (70× cheaper than 27B variants)
+  - `p3_market` → 27B-thinking (Coder-Next is unusable; 27B-no-think slightly cheaper but with higher pathology rate)
+- Highest reliability per cell: 27B-no-think on `p2_hallucination` (10/10), Coder-Next on `p3_business`/`p3_doc` (10/10), 27B-thinking on `p3_market` (8/10).
+- No single model wins all four cells. **Mixed-model deployment is justified by this data** if you care about either ship rate or $/ship across all four.
 
 ### Headline reads (updates to the picture above)
 

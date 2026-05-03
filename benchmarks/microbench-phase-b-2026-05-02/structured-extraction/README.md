@@ -1,21 +1,29 @@
 # Structured extraction
 
-> Schema-bound 20-field extraction with per-field exact-match.
+> Read a Veridyne Networks Q3 FY2026 press release; produce JSON matching a 20-field schema with hedging-language disambiguation per field-specific rules. Programmatic grader: per-field exact-match (with tolerance).
 
-## Results — N=10 for `27b-nothink`; N=3 or N=10 for thinking/Coder per `microbench-2026-04-28`
+## Results
 
-| Model | done_signal ship rate |
-|---|---:|
-| Qwen3-Coder-Next-AWQ | 3/3 |
-| Qwen3.6-27B-AWQ (thinking) | 3/3 |
-| **Qwen3.6-27B-AWQ (no-think)** | **10/10** |
+| Model | Ship rate | Notes |
+|---|---|---|
+| Qwen3-Coder-Next-AWQ | 3/3 done | 0.3 min median; $0.0004 — fastest; ~92% accuracy on 20 fields |
+| Qwen3.6-27B-AWQ (thinking) | 3/3 done | 1.2 min median; $0.0015 — 100% accuracy; dense inline reasoning |
+| **Qwen3.6-27B-AWQ (no-think)** | **10/10 done** | 0.8 min median; $0.0009 — 100% accuracy; sparse reasoning prose |
 
-> † See [`../findings.md`](../findings.md) § "Per-cell results" — N=3 baselines on this cell used an older harness sha; cross-batch comparisons may include harness-drift effects.
+## Headline
 
-> ★ Two additional `p3_market` 27B-no-think runs were operator-SIGTERM'd at >30 identical-template iters per the documented methodology rule. Including them: 7/10. See [`./Qwen3.6-27B-AWQ-no-think-v1-scroll-loop/`](./Qwen3.6-27B-AWQ-no-think-v1-scroll-loop/), [`./Qwen3.6-27B-AWQ-no-think-v8-scroll-loop/`](./Qwen3.6-27B-AWQ-no-think-v8-scroll-loop/), and [`./Qwen3.6-27B-AWQ-no-think-v5-runaway-generation/`](./Qwen3.6-27B-AWQ-no-think-v5-runaway-generation/).
+All three ship reliably. **27B has a higher accuracy ceiling (100% vs ~92% for Coder-Next)** but Coder-Next is 4× faster and cheaper. No-think preserves 27B's accuracy advantage with leaner output. For downstream JSON consumers, choose by speed/cost; for human readers tracing per-field reasoning, prefer 27B-thinking.
+
+## What's published here
+
+The 12-family no-think drop publishes one representative `done_signal` lean entry per cell (under `Qwen3.6-27B-AWQ-no-think-v1/`) with the standard 5-file metadata. Per-run transcripts and workspace tarballs are in the source bench's `submit/phase-b-overnight-2026-05-02` branch; readers reproducing the bench will produce equivalent artifacts via the [`tooling/`](../../../tooling/) reproduction pack.
+
+Phase B (27B-thinking + Coder-Next) and the original N=3 baselines for this cell are in [`microbench-2026-04-28/structured-extraction/`](../../microbench-2026-04-28/structured-extraction/) where applicable.
 
 ## Cross-references
 
-- [`../findings.md`](../findings.md) — task-family discussion in context with other 11 task families (the cross-cutting writeup)
-- [`microbench-2026-04-28/structured-extraction/`](../../microbench-2026-04-28/structured-extraction/) — earlier N=3 entry; this drop expands sample size and adds the no-think arm
-- [`../../../tooling/tasks/task_extract.md`](../../../tooling/tasks/) — the task spec
+- [`../findings.md`](../findings.md) — task-family discussion in context with other 11 task families
+- [`../findings-pairwise-quality-three-model.md`](../findings-pairwise-quality-three-model.md) — three-model hand-graded quality study (covers `p2_ci`, `p2_extract`, `p2_triage` in depth)
+- [`../../microbench-2026-04-28/structured-extraction/`](../../microbench-2026-04-28/structured-extraction/) — the earlier N=3 entry
+- [`../../../tooling/tasks/task_extraction.md`](../../../tooling/tasks/task_extraction.md) — task spec
+- [`../../../tooling/FAILURE-TAXONOMY.md`](../../../tooling/FAILURE-TAXONOMY.md) — failure-mode definitions
