@@ -2,7 +2,28 @@
 
 > Single-table comparison across the published entries. The detail lives in entry READMEs and findings docs; this is the synthesis.
 >
+> **For a head-to-head decision between Coder-Next, 27B-thinking, and 27B-no-think organized by task class, see [`COMPARISON.md`](COMPARISON.md).** This SCORECARD is the grand summary; COMPARISON is the model-selection synthesis.
+>
 > **Read [`KNOWN-LIMITATIONS.md`](KNOWN-LIMITATIONS.md) before quoting any cell.** Several columns are hand-graded against ground truth where it exists, "not graded" where it doesn't. Confidence levels are noted per column.
+
+## Cell-name legend (microbench)
+
+The microbench tables below alternate between p-codes (used in receipt names and tooling) and human-readable names (used in folder names). Mapping:
+
+| p-code | Human name | What it tests |
+|---|---|---|
+| `p1_bugfix` | bug-fixing | Fix planted bugs in `logalyzer/` |
+| `p1_refactor` | refactoring | Refactor `logalyzer/` per spec |
+| `p1_testwrite` | test-writing | Write tests for `logalyzer/` |
+| `p2_ci` | ci-failure-debugging | Diagnose + fix CI failures in `discountkit/` |
+| `p2_extract` | structured-extraction | 20-field JSON extraction from press release |
+| `p2_hallucination` | adversarial-hallucination | Distinguish 6 real bugs from 9 fabricated |
+| `p2_triage` | customer-support-triage | Closed-vocab classification + dup-cluster recall |
+| `p3_business` | business-memo | Bias-detection memo from a deal pack |
+| `p3_doc` | doc-synthesis | 700-word brief from 5 source docs |
+| `p3_market` | market-research | 5-product comparison with cited live URLs |
+| `p3_pm` | project-management | Workstream + risk synthesis from meeting notes |
+| `p3_writing` | writing-editing | 3-audience rewrite of a post-mortem |
 
 ## What the columns mean
 
