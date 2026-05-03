@@ -1,5 +1,21 @@
 # DreamServer 75 PR Audit Benchmark
 
+## Comparisons this supports
+
+This benchmark answers **"can this model complete a 75-PR audit at all?"** It is a categorical-pass-or-fail at multi-hour scope, not a fine-grained model-quality differentiator.
+
+**What it does support**:
+- Cloud-vs-local *categorical* gap: both cloud entries (Opus-4.7, GPT-5.5) ship complete deliverables; both local entries fail in different ways
+- Long-horizon agentic failure-mode taxonomy — 27B writes 75/75 verdict files but only 3 are real reviews (72 are template stubs); Coder-Next produces no deliverable across 5 attempts (3 distinct degenerate failure modes)
+- Existence proof that 30B-class quantized local models break at this task scope
+
+**What it does NOT support**:
+- Per-PR ground-truth accuracy comparison (would need 75 hand-graded ground-truth verdicts; we don't have them)
+- Cloud-vs-cloud quality comparison at the per-claim level
+- Model-vs-model differentiation between Coder-Next and 27B at this scope (both fail; the failure shapes differ but neither ships a real audit)
+
+For the 5-minute model-selection question, see [`../../COMPARISON.md`](../../COMPARISON.md). This benchmark contributes the "long-horizon agentic regime" data point.
+
 ## Prompt
 
 Audit all 75 open pull requests against `Light-Heart-Labs/DreamServer` and

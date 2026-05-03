@@ -1,5 +1,22 @@
 # Wallstreet Intern Test Benchmark
 
+## Comparisons this supports
+
+This benchmark answers **"can this model produce a structurally complete, source-traceable investment memo?"** Recommendations (BUY/HOLD/SELL) are **opinion, not graded as right/wrong** — the verifiable axes here are spec compliance, source traceability, and fabrication count.
+
+**What it does support**:
+- Spec compliance: did the agent produce all the required artifacts (memo, three-statement model, raw/, extracted/, analysis/, sources.md, tool-log.md, ADRs)?
+- Cloud-vs-local *shipping rate*: cloud entries ship reliably; local entries 1/3 each (cherry-picked best of 3)
+- Source-traceability: every number in the memo traceable from raw source → extracted data → model → memo
+- For Coder-Next specifically: a verdict-reliability caveat carried over from the [PR-audit benchmark](../dreamserver-1-pr-audit/Qwen3-Coder-Next-AWQ/) — the same fabrication risk that made it 2/3 wrong on PR review extends to investment-memo BUY calls
+
+**What it does NOT support**:
+- "Is this BUY/HOLD/SELL the *right* call?" — that's opinion; only verifiable in market hindsight
+- Cross-model recommendation comparison — different companies pick (YETI / GitLab / DocuSign / etc) so each entry's deliverable shape is comparable but the verdicts are not
+- Per-claim accuracy of the financial models — not graded with a uniform rubric
+
+For the 5-minute model-selection question, see [`../../COMPARISON.md`](../../COMPARISON.md). This benchmark contributes the "single-shot multi-section deliverable" data point.
+
 ## Prompt
 
 Build a complete investment memo on any publicly traded US company with a market cap between $1B and $10B. The deliverable must be a git repository with a final memo, three-statement model, raw primary sources, extracted data, analysis, questions, dead ends, decision records, source hashes, and a tool log. Every number in the memo must be traceable from raw source to model to memo.

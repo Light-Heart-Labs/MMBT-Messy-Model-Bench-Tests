@@ -2,6 +2,23 @@
 
 A scaled-down sibling of the [`dreamserver-75-pr-audit`](../dreamserver-75-pr-audit/) benchmark. Same task shape (audit a real public PR; produce a traceable maintainer-facing review with verdict + line-by-line review + diff analysis + tests + research notes + ADRs + tagged release), but reduced to a single PR.
 
+## Comparisons this supports
+
+This benchmark answers **"on a single PR with a known-correct verdict, does the model get the verdict right and produce the spec-required artifacts?"** It's the floor of an escalation ladder, designed to surface failure modes when scope isn't the issue.
+
+**What it does support** (strong evidence — single PR with hand-verified ground truth):
+- **Verdict accuracy**: PR #1057 has a known-correct MERGE verdict (canonical hand-written review + Opus-4.7 audit + the actual public diff all agree). Each model's verdict can be graded right/wrong against this ground truth
+- **Spec compliance**: did the agent produce the 13 required artifacts (verdict.md, review.md, diff-analysis.md, tests/, etc.)?
+- **Fabrication count**: hand-graded — citing line numbers for issues that aren't in the diff, asserting behavior the code doesn't have, inventing test scripts. Coder-Next v3 fabricated 4 such claims; 27B 0 fabrications
+- **The spec-compliance ⊥ verdict-accuracy distinction**: Coder-Next 100% spec / 33% accuracy vs 27B 0% spec / 100% accuracy — same task, opposite axes
+
+**What it does NOT support**:
+- Generalization to other PR shapes — only one PR; PR #1057's catalog-handling architectural distinction is a specific kind of trap
+- Quantitative reliability claims at population-grade — N=3 per model
+- Higher-precision quantizations of 35B-A3B (which floor-fails at 4-bit; FP8/BF16 untested)
+
+For the 5-minute model-selection question, see [`../../COMPARISON.md`](../../COMPARISON.md). This benchmark contributes the most rigorous head-to-head verdict-accuracy data point in the repo.
+
 ## Why this benchmark exists
 
 The 75-PR variant pushes models hard on long-horizon agentic work. Several model classes — particularly local 30B-class quantized models — collapse into degenerate failure modes (loops, slop, stuck-in-research) before producing any deliverable. That tells you "this model can't do 75 PRs in one run" but doesn't tell you *where its complexity ceiling actually is*.
