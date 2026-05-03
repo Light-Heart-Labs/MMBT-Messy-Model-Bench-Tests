@@ -33,7 +33,7 @@ This benchmark has 12 task families and would produce 60+ per-model folders if e
 | [`writing-editing/`](writing-editing/) | 0/3 | 2/3 PASS | 27B's 0/3 is a single-keyword miss on customer email (CEO + legal pass 5/5 every run) |
 | [`project-management/`](project-management/) | 0/3 | 1/3 PASS | Both excellent on workstreams + decisions, both 2-3/6 on multi-week risks |
 
-For the 9 lean entries, transcripts and deliverable artifacts are not mirrored in MMBT (to keep repo size manageable) but the **task prompts, input starters, ground truth, and grader scripts are all in `tooling/`** — meaning a reader with the right hardware can rerun any of these task families and produce their own transcripts + deliverables. See [`tooling/REPRODUCING.md`](../../../tooling/REPRODUCING.md) § "Reproducing the microbench" for the walkthrough.
+For the 9 lean entries, transcripts and deliverable artifacts are not mirrored in MMBT (to keep repo size manageable) but the **task prompts, input starters, ground truth, and grader scripts are all in `tooling/`** — meaning a reader with the right hardware can rerun any of these task families and produce their own transcripts + deliverables. See [`tooling/REPRODUCING.md`](../../tooling/REPRODUCING.md) § "Reproducing the microbench" for the walkthrough.
 
 ## Per-entry layout
 

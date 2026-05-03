@@ -15,14 +15,12 @@ This run is `v1`, which entered stuck-in-research. The other two runs failed sim
 
 ## What's in this folder
 
-- [`research/`](deliverable/research/) — the agent's working notes (this is what it did produce, just not the structured deliverables)
-- [`decisions/`](deliverable/decisions/) — ADRs from the agent's run
-- [`README.md`](deliverable/README.md) — the agent's own readme
+- [`deliverable/README.md`](deliverable/README.md) — the only file the agent wrote into its deliverable folder; no structured outputs (no `recommendation.md`, `comparison.md`, `sources.md`, no `research/` notes, no `decisions/` ADRs) were produced
 - [`grade.json`](grade.json) — verdict + missing-files list
 - [`label.json`](label.json) — `stuck-in-research`
 - [`receipt.json`](receipt.json), [`summary.json`](summary.json), [`cost.json`](cost.json), [`transcript.jsonl`](transcript.jsonl)
 
-The transcript is the most useful artifact for understanding the failure. The agent reads the same kinds of pages 27B does (vendor pricing, comparison articles), takes notes, but never moves to the "produce the structured `recommendation.md` + `comparison.md` + `sources.md`" stage. The workspace_state_hash detects no progress eventually and the stuck-detector fires.
+The transcript is the most useful artifact for understanding the failure. The agent reads the same kinds of pages 27B does (vendor pricing, comparison articles), takes notes inside the transcript, but never moves to the "produce the structured `recommendation.md` + `comparison.md` + `sources.md`" stage — and the working-notes/ADR scaffolding never lands on disk either. The workspace_state_hash detects no progress eventually and the stuck-detector fires.
 
 ## How to read this
 

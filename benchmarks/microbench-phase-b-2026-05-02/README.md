@@ -1,5 +1,13 @@
 # microbench-phase-b-2026-05-02 — N=10 expansion + 27B-no-think third arm
 
+> **How this entry relates to [`microbench-2026-04-28`](../microbench-2026-04-28/)**: this entry is the *current* picture for the 4 differential cells (p2_hallucination, p3_business, p3_doc, p3_market) at N=10 across all three model arms, and the *first* picture for 27B-no-think across the full 12-family grid (N=10). The 2026-04-28 entry remains the current N=3 baseline for the other 8 cells on Coder-Next + 27B-thinking — it is **not superseded**, and many cross-references in this entry point back to it. **Read both for the full picture.**
+>
+> **Of the ~240 runs in this batch, this entry publishes one representative run per (cell × model arm) — 22 representatives total.** Per-run artifacts (cost.json / grade.json / label.json / summary.json / receipt.json) for the remaining ~220 runs live on the source bench's `submit/phase-b-overnight-2026-05-02` branch (sibling branch in this repo), which preserves the full transcripts + workspace tarballs for reproducibility.
+>
+> **For the head-to-head comparison this enables, see [`../../COMPARISON.md`](../../COMPARISON.md).**
+>
+> ---
+>
 > Bumps the [`microbench-2026-04-28`](../microbench-2026-04-28/) sample size from N=3 → N=10 on the four highest-signal task families, and adds **27B-no-think** (`--no-think` flag, no other changes) as a third arm across the **full 12-family grid**. Together, ~240 runs across three models.
 
 ## How to read this entry

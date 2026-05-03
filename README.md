@@ -4,6 +4,16 @@ This repository stores messy, real-world benchmark outputs from different
 hardware and LLM tests in my lab.  It's my messy research, and exists for my personal use
 but I'm making it public so that other people can use it too.
 
+## Five-minute answers
+
+| If you want to know… | Read |
+|---|---|
+| **"Coder-Next or 27B (or 27B-no-think) for my task?"** | [`COMPARISON.md`](COMPARISON.md) — head-to-head decision doc |
+| The full single-table comparison across all entries | [`SCORECARD.md`](SCORECARD.md) |
+| What this evidence can and can't support | [`KNOWN-LIMITATIONS.md`](KNOWN-LIMITATIONS.md) |
+| How to benchmark a new local model | [`tooling/ADDING-A-MODEL.md`](tooling/ADDING-A-MODEL.md) |
+| How to replay a specific past run | [`tooling/REPRODUCING.md`](tooling/REPRODUCING.md) |
+
 ## Layout
 
 ```text
@@ -48,7 +58,12 @@ hardware-tests/
 
 ## At a glance
 
-[`SCORECARD.md`](SCORECARD.md) is the single-table comparison across all entries — spec compliance, factual accuracy (where graded), fabricated-claim count, tests run, wall, cost upper bound, failure mode, and a "when to use which" guide. Read it after this README and before drilling into a specific entry.
+Two synthesis docs sit between this README and the per-entry detail:
+
+- [`COMPARISON.md`](COMPARISON.md) — **head-to-head decision doc** for the three local model arms (Coder-Next vs 27B-thinking vs 27B-no-think). Organized by task class with cell-level evidence. Read this if your question is "which one should I use?"
+- [`SCORECARD.md`](SCORECARD.md) — single-table summary across all entries (spec compliance, factual accuracy, fabricated-claim count, tests run, wall, cost upper bound, failure mode, "when to use which" guide). Read this if your question is "what's the full picture?"
+
+Both link back to the per-entry artifacts they cite.
 
 ## Reproducing the runs
 
@@ -103,3 +118,10 @@ The repo keeps the failures because the *kinds* of failure are themselves the co
 - [`market-research/`](benchmarks/microbench-2026-04-28/market-research/) — 5-product enterprise password manager comparison + pricing math + cited sources. Inversion of the prior "both fail at internet research" expectation: 27B 3/3 STRUCTURAL_PASS (12-18 cites to 29-33 distinct URLs), Coder-Next 0/3 STRUCTURAL_FAIL.
 - [`doc-synthesis/`](benchmarks/microbench-2026-04-28/doc-synthesis/) — 1-page executive brief from 5 source documents, 700-word limit. Documents a 27B failure mode: 8/8 facts captured every run, but model can't trim to length (765-775 words across N=3, two runs entered identical-call-loops on `brief.md`).
 - [`findings.md`](benchmarks/microbench-2026-04-28/findings.md) — cross-cutting writeup spanning all 12 task families (3 published full + 9 summarized).
+
+**microbench-phase-b-2026-05-02:**
+- [Qwen3-Coder-Next-AWQ](benchmarks/microbench-phase-b-2026-05-02/) — N=10 expansion across 4 differential cells. Headline: 0/10 STRUCTURAL_FAIL on `p3_market` (Wilson 95% [0%, 27.8%]) confirmed reproducible.
+- [Qwen3.6-27B-AWQ (thinking)](benchmarks/microbench-phase-b-2026-05-02/) — N=10 expansion. Word-trim loop on `p3_doc` bounded as a stable ~40% failure shape (4/10 wall_killed).
+- **[Qwen3.6-27B-AWQ (no-think)](benchmarks/microbench-phase-b-2026-05-02/) — new third arm**, full 12-family grid × N=10. 95.8% ship rate (Wilson 95% [90.5%, 98.2%]) — most reliable shipper of the three. Halves the `p3_doc` word-trim loop rate (4/10 → 2/10).
+- [`findings.md`](benchmarks/microbench-phase-b-2026-05-02/findings.md) — full per-cell breakdown with Wilson CIs, three identical-call-loop subclasses, cost-per-shipped-run analysis, "when to use which" updates.
+- [`findings-pairwise-quality-three-model.md`](benchmarks/microbench-phase-b-2026-05-02/findings-pairwise-quality-three-model.md) — hand-graded deliverable quality study; 27B-thinking and 27B-no-think substantively equivalent on shipped output.
