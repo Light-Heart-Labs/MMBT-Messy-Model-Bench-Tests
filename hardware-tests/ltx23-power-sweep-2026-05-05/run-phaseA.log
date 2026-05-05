@@ -1,0 +1,169 @@
+[sudo] password for michael: LTX-2.3 GPU0 power-cap sweep
+Caps:        600, 590, 580, 570, 560, 550, 540, 530, 520, 510, 500, 490, 480, 470, 460, 450, 440, 430, 420, 410, 400 W
+N per cap:   3
+Total runs:  63
+ETA:         ~46 min
+Output:      /home/michael/dream-expo/scripts/bench/output/ltx-power-sweep-2026-05-05T12-36-41.csv
+COMFY_URL:   http://127.0.0.1:8188
+Initial cap: 500 W
+
+(node:424153) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/michael/dream-expo/scripts/bench/ltx-power-sweep.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/michael/dream-expo/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+--- Cap = 600 W ---
+[1/63] cap=600W run=1/3  render=36.11s  peak=601W  avg=537W  t_start=29°C t_peak=66°C  wall=36.3s  ok
+[2/63] cap=600W run=2/3  render=36.73s  peak=601W  avg=548W  t_start=49°C t_peak=75°C  wall=37.3s  ok
+[3/63] cap=600W run=3/3  render=37.58s  peak=600W  avg=542W  t_start=58°C t_peak=79°C  wall=38.3s  ok
+
+--- Cap = 590 W ---
+[4/63] cap=590W run=1/3  render=37.63s  peak=596W  avg=543W  t_start=60°C t_peak=80°C  wall=38.3s  ok
+[5/63] cap=590W run=2/3  render=37.75s  peak=590W  avg=547W  t_start=64°C t_peak=82°C  wall=38.3s  ok
+[6/63] cap=590W run=3/3  render=38.08s  peak=590W  avg=540W  t_start=65°C t_peak=83°C  wall=38.3s  ok
+
+--- Cap = 580 W ---
+[7/63] cap=580W run=1/3  render=38.21s  peak=580W  avg=536W  t_start=64°C t_peak=82°C  wall=38.3s  ok
+[8/63] cap=580W run=2/3  render=38.22s  peak=581W  avg=537W  t_start=66°C t_peak=82°C  wall=38.3s  ok
+[9/63] cap=580W run=3/3  render=38.25s  peak=581W  avg=539W  t_start=66°C t_peak=83°C  wall=38.3s  ok
+
+--- Cap = 570 W ---
+[10/63] cap=570W run=1/3  render=39.07s  peak=576W  avg=529W  t_start=64°C t_peak=82°C  wall=39.3s  ok
+[11/63] cap=570W run=2/3  render=38.72s  peak=571W  avg=521W  t_start=66°C t_peak=82°C  wall=39.3s  ok
+[12/63] cap=570W run=3/3  render=38.73s  peak=571W  avg=526W  t_start=67°C t_peak=82°C  wall=39.3s  ok
+
+--- Cap = 560 W ---
+[13/63] cap=560W run=1/3  render=39.09s  peak=561W  avg=520W  t_start=64°C t_peak=82°C  wall=39.3s  ok
+[14/63] cap=560W run=2/3  render=39.27s  peak=565W  avg=507W  t_start=66°C t_peak=82°C  wall=40.3s  ok
+[15/63] cap=560W run=3/3  render=39.07s  peak=562W  avg=518W  t_start=66°C t_peak=82°C  wall=39.3s  ok
+
+--- Cap = 550 W ---
+[16/63] cap=550W run=1/3  render=39.58s  peak=552W  avg=501W  t_start=64°C t_peak=81°C  wall=40.3s  ok
+[17/63] cap=550W run=2/3  render=39.33s  peak=551W  avg=503W  t_start=65°C t_peak=82°C  wall=40.3s  ok
+[18/63] cap=550W run=3/3  render=39.58s  peak=550W  avg=510W  t_start=65°C t_peak=82°C  wall=40.5s  ok
+
+--- Cap = 540 W ---
+[19/63] cap=540W run=1/3  render=39.64s  peak=540W  avg=500W  t_start=64°C t_peak=79°C  wall=40.3s  ok
+[20/63] cap=540W run=2/3  render=39.67s  peak=540W  avg=499W  t_start=65°C t_peak=81°C  wall=40.3s  ok
+[21/63] cap=540W run=3/3  render=39.78s  peak=540W  avg=501W  t_start=65°C t_peak=81°C  wall=40.3s  ok
+
+--- Cap = 530 W ---
+[22/63] cap=530W run=1/3  render=40.08s  peak=530W  avg=493W  t_start=64°C t_peak=81°C  wall=40.3s  ok
+[23/63] cap=530W run=2/3  render=40.12s  peak=530W  avg=494W  t_start=65°C t_peak=81°C  wall=40.3s  ok
+[24/63] cap=530W run=3/3  render=40.58s  peak=531W  avg=492W  t_start=66°C t_peak=80°C  wall=41.3s  ok
+
+--- Cap = 520 W ---
+[25/63] cap=520W run=1/3  render=40.58s  peak=522W  avg=478W  t_start=64°C t_peak=80°C  wall=41.3s  ok
+[26/63] cap=520W run=2/3  render=40.58s  peak=520W  avg=479W  t_start=64°C t_peak=80°C  wall=41.3s  ok
+[27/63] cap=520W run=3/3  render=41.07s  peak=520W  avg=478W  t_start=65°C t_peak=79°C  wall=41.3s  ok
+
+--- Cap = 510 W ---
+[28/63] cap=510W run=1/3  render=40.78s  peak=511W  avg=474W  t_start=63°C t_peak=78°C  wall=41.3s  ok
+[29/63] cap=510W run=2/3  render=41.08s  peak=510W  avg=473W  t_start=65°C t_peak=79°C  wall=41.3s  ok
+[30/63] cap=510W run=3/3  render=41.10s  peak=510W  avg=474W  t_start=64°C t_peak=79°C  wall=41.3s  ok
+
+--- Cap = 500 W ---
+[31/63] cap=500W run=1/3  render=41.21s  peak=504W  avg=467W  t_start=62°C t_peak=78°C  wall=41.3s  ok
+[32/63] cap=500W run=2/3  render=41.57s  peak=500W  avg=463W  t_start=64°C t_peak=77°C  wall=42.3s  ok
+[33/63] cap=500W run=3/3  render=41.28s  peak=500W  avg=463W  t_start=63°C t_peak=78°C  wall=42.3s  ok
+
+--- Cap = 490 W ---
+[34/63] cap=490W run=1/3  render=41.69s  peak=492W  avg=454W  t_start=62°C t_peak=77°C  wall=42.3s  ok
+[35/63] cap=490W run=2/3  render=42.20s  peak=492W  avg=461W  t_start=62°C t_peak=77°C  wall=42.3s  ok
+[36/63] cap=490W run=3/3  render=42.08s  peak=490W  avg=456W  t_start=63°C t_peak=77°C  wall=42.3s  ok
+
+--- Cap = 480 W ---
+[37/63] cap=480W run=1/3  render=42.09s  peak=482W  avg=450W  t_start=61°C t_peak=76°C  wall=42.3s  ok
+[38/63] cap=480W run=2/3  render=42.25s  peak=480W  avg=449W  t_start=63°C t_peak=77°C  wall=42.3s  ok
+[39/63] cap=480W run=3/3  render=42.20s  peak=482W  avg=450W  t_start=63°C t_peak=77°C  wall=42.3s  ok
+
+--- Cap = 470 W ---
+[40/63] cap=470W run=1/3  render=42.82s  peak=482W  avg=437W  t_start=62°C t_peak=76°C  wall=43.3s  ok
+[41/63] cap=470W run=2/3  render=42.57s  peak=470W  avg=434W  t_start=63°C t_peak=76°C  wall=43.4s  ok
+[42/63] cap=470W run=3/3  render=42.58s  peak=472W  avg=438W  t_start=62°C t_peak=76°C  wall=43.3s  ok
+
+--- Cap = 460 W ---
+[43/63] cap=460W run=1/3  render=43.07s  peak=463W  avg=430W  t_start=61°C t_peak=75°C  wall=43.3s  ok
+[44/63] cap=460W run=2/3  render=43.20s  peak=463W  avg=434W  t_start=62°C t_peak=75°C  wall=43.3s  ok
+[45/63] cap=460W run=3/3  render=43.09s  peak=479W  avg=432W  t_start=62°C t_peak=75°C  wall=43.3s  ok
+
+--- Cap = 450 W ---
+[46/63] cap=450W run=1/3  render=43.65s  peak=451W  avg=421W  t_start=60°C t_peak=74°C  wall=44.3s  ok
+[47/63] cap=450W run=2/3  render=43.74s  peak=455W  avg=421W  t_start=61°C t_peak=74°C  wall=44.3s  ok
+[48/63] cap=450W run=3/3  render=43.68s  peak=467W  avg=420W  t_start=61°C t_peak=74°C  wall=44.3s  ok
+
+--- Cap = 440 W ---
+[49/63] cap=440W run=1/3  render=44.20s  peak=442W  avg=414W  t_start=59°C t_peak=73°C  wall=44.3s  ok
+[50/63] cap=440W run=2/3  render=44.22s  peak=440W  avg=416W  t_start=60°C t_peak=73°C  wall=44.4s  ok
+[51/63] cap=440W run=3/3  render=44.17s  peak=453W  avg=414W  t_start=61°C t_peak=74°C  wall=44.3s  ok
+
+--- Cap = 430 W ---
+[52/63] cap=430W run=1/3  render=45.07s  peak=434W  avg=402W  t_start=59°C t_peak=73°C  wall=45.3s  ok
+[53/63] cap=430W run=2/3  render=44.73s  peak=430W  avg=407W  t_start=60°C t_peak=73°C  wall=45.3s  ok
+[54/63] cap=430W run=3/3  render=45.06s  peak=447W  avg=403W  t_start=60°C t_peak=73°C  wall=45.3s  ok
+
+--- Cap = 420 W ---
+[55/63] cap=420W run=1/3  render=45.66s  peak=422W  avg=391W  t_start=59°C t_peak=72°C  wall=46.3s  ok
+[56/63] cap=420W run=2/3  render=45.59s  peak=420W  avg=390W  t_start=59°C t_peak=72°C  wall=46.3s  ok
+[57/63] cap=420W run=3/3  render=45.58s  peak=422W  avg=392W  t_start=59°C t_peak=72°C  wall=46.4s  ok
+
+--- Cap = 410 W ---
+[58/63] cap=410W run=1/3  render=46.08s  peak=418W  avg=386W  t_start=58°C t_peak=71°C  wall=46.3s  ok
+[59/63] cap=410W run=2/3  render=46.08s  peak=426W  avg=384W  t_start=59°C t_peak=71°C  wall=46.3s  ok
+[60/63] cap=410W run=3/3  render=46.07s  peak=410W  avg=387W  t_start=59°C t_peak=72°C  wall=46.3s  ok
+
+--- Cap = 400 W ---
+[61/63] cap=400W run=1/3  render=46.73s  peak=400W  avg=370W  t_start=58°C t_peak=70°C  wall=47.4s  ok
+[62/63] cap=400W run=2/3  render=46.58s  peak=421W  avg=374W  t_start=58°C t_peak=71°C  wall=47.4s  ok
+[63/63] cap=400W run=3/3  render=46.58s  peak=409W  avg=369W  t_start=58°C t_peak=70°C  wall=47.3s  ok
+
+[exit] sweep complete
+[exit] restored GPU0 cap to 500W
+
+=== Summary ===
+cap_w  n  mean_ms  median_ms  min_ms  max_ms  mean_peak_w  mean_avg_w  peak_temp_c
+600  3  36808  36732  36111  37580  601  542  79
+590  3  37820  37747  37630  38083  592  543  83
+580  3  38228  38223  38214  38247  581  537  83
+570  3  38839  38726  38717  39073  573  526  82
+560  3  39144  39093  39074  39266  563  515  82
+550  3  39499  39581  39332  39583  551  504  82
+540  3  39700  39673  39644  39784  540  500  81
+530  3  40261  40121  40077  40584  530  493  81
+520  3  40745  40581  40579  41074  521  478  80
+510  3  40989  41080  40785  41102  510  473  79
+500  3  41352  41280  41208  41568  501  464  78
+490  3  41992  42078  41693  42204  491  457  77
+480  3  42179  42196  42093  42248  481  450  77
+470  3  42657  42581  42571  42820  475  436  76
+460  3  43124  43094  43073  43204  468  432  75
+450  3  43687  43677  43646  43737  458  421  74
+440  3  44195  44202  44166  44216  445  415  74
+430  3  44955  45064  44730  45071  437  404  73
+420  3  45607  45587  45575  45660  421  391  72
+410  3  46074  46075  46073  46075  418  386  72
+400  3  46631  46581  46581  46732  410  371  71
+
+Speedup vs 500W baseline (mean=41352ms):
+  600W  36808ms  +10.99%
+  590W  37820ms  +8.54%
+  580W  38228ms  +7.55%
+  570W  38839ms  +6.08%
+  560W  39144ms  +5.34%
+  550W  39499ms  +4.48%
+  540W  39700ms  +3.99%
+  530W  40261ms  +2.64%
+  520W  40745ms  +1.47%
+  510W  40989ms  +0.88%
+  490W  41992ms  -1.55%
+  480W  42179ms  -2.00%
+  470W  42657ms  -3.16%
+  460W  43124ms  -4.28%
+  450W  43687ms  -5.65%
+  440W  44195ms  -6.87%
+  430W  44955ms  -8.71%
+  420W  45607ms  -10.29%
+  410W  46074ms  -11.42%
+  400W  46631ms  -12.77%
+
+CSV: /home/michael/dream-expo/scripts/bench/output/ltx-power-sweep-2026-05-05T12-36-41.csv
