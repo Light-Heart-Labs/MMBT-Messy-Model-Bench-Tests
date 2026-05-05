@@ -1,0 +1,248 @@
+=== BIOS info ===
+# dmidecode 3.5
+Getting SMBIOS data from sysfs.
+SMBIOS 3.7.0 present.
+# SMBIOS implementations newer than version 3.5.0 are not
+# fully supported by this version of dmidecode.
+
+Handle 0x0000, DMI type 0, 26 bytes
+BIOS Information
+	Vendor: American Megatrends Inc.
+	Version: 1203
+	Release Date: 07/18/2025
+	Address: 0xF0000
+	Runtime Size: 64 kB
+	ROM Size: 32 MB
+	Characteristics:
+		PCI is supported
+		BIOS is upgradeable
+		BIOS shadowing is allowed
+		Boot from CD is supported
+		Selectable boot is supported
+		BIOS ROM is socketed
+		EDD is supported
+		Japanese floppy for NEC 9800 1.2 MB is supported (int 13h)
+		Japanese floppy for Toshiba 1.2 MB is supported (int 13h)
+		5.25"/360 kB floppy services are supported (int 13h)
+		5.25"/1.2 MB floppy services are supported (int 13h)
+		3.5"/720 kB floppy services are supported (int 13h)
+		3.5"/2.88 MB floppy services are supported (int 13h)
+		Print screen service is supported (int 5h)
+		Serial services are supported (int 14h)
+		Printer services are supported (int 17h)
+		CGA/mono video services are supported (int 10h)
+		ACPI is supported
+		USB legacy is supported
+		BIOS boot specification is supported
+		Targeted content distribution is supported
+		UEFI is supported
+	BIOS Revision: 12.3
+
+Handle 0x0084, DMI type 13, 22 bytes
+BIOS Language Information
+	Language Description Format: Long
+	Installable Languages: 9
+		en|US|iso8859-1
+		fr|FR|iso8859-1
+		zh|TW|unicode
+		zh|CN|unicode
+		ja|JP|unicode
+		de|DE|iso8859-1
+		es|ES|iso8859-1
+		ru|RU|iso8859-5
+		ko|KR|unicode
+	Currently Installed Language: en|US|iso8859-1
+
+
+=== System info ===
+# dmidecode 3.5
+Getting SMBIOS data from sysfs.
+SMBIOS 3.7.0 present.
+# SMBIOS implementations newer than version 3.5.0 are not
+# fully supported by this version of dmidecode.
+
+Handle 0x0001, DMI type 1, 27 bytes
+System Information
+	Manufacturer: ASUS
+	Product Name: System Product Name
+	Version: System Version
+	Serial Number: System Serial Number
+	UUID: <redacted>
+	Wake-up Type: Power Switch
+	SKU Number: SKU
+	Family: To be filled by O.E.M.
+
+Handle 0x0005, DMI type 12, 5 bytes
+System Configuration Options
+	Option 1: SMI:00B26C
+
+=== Baseboard ===
+# dmidecode 3.5
+Getting SMBIOS data from sysfs.
+SMBIOS 3.7.0 present.
+# SMBIOS implementations newer than version 3.5.0 are not
+# fully supported by this version of dmidecode.
+
+Handle 0x0002, DMI type 2, 15 bytes
+Base Board Information
+	Manufacturer: ASUSTeK COMPUTER INC.
+	Product Name: Pro WS WRX90E-SAGE SE
+	Version: Rev 1.xx
+	Serial Number: <redacted>
+	Asset Tag: Default string
+	Features:
+		Board is a hosting board
+		Board is replaceable
+	Location In Chassis: Default string
+	Chassis Handle: 0x0003
+	Type: Motherboard
+	Contained Object Handles: 0
+
+Handle 0x000C, DMI type 10, 6 bytes
+On Board Device Information
+	Type: Ethernet
+	Status: Enabled
+
+=== Processor ===
+# dmidecode 3.5
+Getting SMBIOS data from sysfs.
+SMBIOS 3.7.0 present.
+# SMBIOS implementations newer than version 3.5.0 are not
+# fully supported by this version of dmidecode.
+
+Handle 0x0016, DMI type 4, 48 bytes
+Processor Information
+	Socket Designation: SP6
+	Type: Central Processor
+	Family: Zen
+	Manufacturer: Advanced Micro Devices, Inc.
+	ID: 81 0F A1 00 FF FB 8B 17
+	Signature: Family 25, Model 24, Stepping 1
+	Flags:
+		FPU (Floating-point unit on-chip)
+		VME (Virtual mode extension)
+		DE (Debugging extension)
+		PSE (Page size extension)
+		TSC (Time stamp counter)
+		MSR (Model specific registers)
+		PAE (Physical address extension)
+		MCE (Machine check exception)
+		CX8 (CMPXCHG8 instruction supported)
+		APIC (On-chip APIC hardware supported)
+		SEP (Fast system call)
+		MTRR (Memory type range registers)
+		PGE (Page global enable)
+		MCA (Machine check architecture)
+		CMOV (Conditional move instruction supported)
+		PAT (Page attribute table)
+		PSE-36 (36-bit page size extension)
+		CLFSH (CLFLUSH instruction supported)
+		MMX (MMX technology supported)
+		FXSR (FXSAVE and FXSTOR instructions supported)
+		SSE (Streaming SIMD extensions)
+		SSE2 (Streaming SIMD extensions 2)
+		HTT (Multi-threading)
+	Version: AMD Ryzen Threadripper PRO 7965WX 24-Cores     
+	Voltage: 1.2 V
+	External Clock: 100 MHz
+	Max Speed: 5350 MHz
+	Current Speed: 4200 MHz
+	Status: Populated, Enabled
+	Upgrade: <OUT OF SPEC>
+	L1 Cache Handle: 0x0013
+	L2 Cache Handle: 0x0014
+	L3 Cache Handle: 0x0015
+	Serial Number: Unknown
+	Asset Tag: Unknown
+	Part Number: Unknown
+	Core Count: 24
+	Core Enabled: 24
+	Thread Count: 48
+	Characteristics:
+		64-bit capable
+		Multi-Core
+		Hardware Thread
+		Execute Protection
+		Enhanced Virtualization
+		Power/Performance Control
+
+
+=== Memory devices (size + speed only) ===
+	Size: 32 GB
+	Speed: 4800 MT/s
+	Manufacturer: Samsung
+	Part Number: M321R4GA3BB6-CQKVG            
+	Configured Memory Speed: 4800 MT/s
+	Non-Volatile Size: None
+	Volatile Size: 32 GB
+	Cache Size: None
+	Logical Size: None
+	Size: 32 GB
+	Speed: 4800 MT/s
+	Manufacturer: Samsung
+	Part Number: M321R4GA3BB6-CQKVG            
+	Configured Memory Speed: 4800 MT/s
+	Non-Volatile Size: None
+	Volatile Size: 32 GB
+	Cache Size: None
+	Logical Size: None
+	Size: 32 GB
+	Speed: 4800 MT/s
+	Manufacturer: Samsung
+	Part Number: M321R4GA3BB6-CQKVG            
+	Configured Memory Speed: 4800 MT/s
+	Non-Volatile Size: None
+	Volatile Size: 32 GB
+	Cache Size: None
+	Logical Size: None
+	Size: 32 GB
+	Speed: 4800 MT/s
+	Manufacturer: Samsung
+	Part Number: M321R4GA3BB6-CQKVG            
+	Configured Memory Speed: 4800 MT/s
+	Non-Volatile Size: None
+	Volatile Size: 32 GB
+	Cache Size: None
+	Logical Size: None
+	Size: 32 GB
+	Speed: 4800 MT/s
+	Manufacturer: Samsung
+	Part Number: M321R4GA3BB6-CQKVG            
+	Configured Memory Speed: 4800 MT/s
+	Non-Volatile Size: None
+	Volatile Size: 32 GB
+	Cache Size: None
+	Logical Size: None
+	Size: 32 GB
+	Speed: 4800 MT/s
+	Manufacturer: Samsung
+	Part Number: M321R4GA3BB6-CQKVG            
+	Configured Memory Speed: 4800 MT/s
+
+=== intel-rapl powercap constraints (CPU package) ===
+constraint_*_*: 
+
+=== Live energy_uj read ===
+864897090
+
+=== Turbostat 3 samples (mid-bench) ===
+Avg_MHz	Busy%	Bzy_MHz	CorWatt	PkgWatt
+4668	99.94	4671	281.80	349.67
+4633	100.00	4633	11.25	348.95
+4630	99.95	4633
+4633	100.00	4633	11.41
+4633	100.00	4633
+4633	100.00	4633	11.45
+4633	100.00	4633
+4630	99.94	4633	11.51
+4633	100.00	4633
+4633	100.00	4633	11.36
+4633	100.00	4633
+4633	100.00	4633	11.38
+4633	100.00	4633
+4635	100.00	4635	11.61
+4635	100.00	4635
+4635	100.00	4635	11.29
+4635	100.00	4635
+4635	100.00	4635	11.75
+4635	100.00	4635

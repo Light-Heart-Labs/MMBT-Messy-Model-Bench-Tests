@@ -1,0 +1,95 @@
+=== Stressor: stress-ng --matrix 0 --matrix-method all  (AVX-heavy, all 48 threads) ===
+=== GPU baseline (should stay near idle through the run) ===
+0, 28, 16.24 W, 0 %
+1, 34, 81.83 W, 7 %
+=== Starting logger -> /home/michael/thermal-tests/run-2026-05-05-1024-cpu-fullpower-2026-05-05.csv ===
+=== LOAD START 10:24:58 (300s, stress-ng) ===
+--- t+30s 10:25:28 ---
+Composite:    +36.9°C  (low  = -273.1°C, high = +80.8°C)
+Composite:    +33.9°C  (low  = -273.1°C, high = +83.8°C)
+Tctl:         +84.4°C  
+Tccd1:        +82.6°C  
+Tccd2:        +83.5°C  
+Tccd3:        +80.9°C  
+Tccd4:        +81.2°C  
+CPU avg: 4706 MHz across 48 threads
+0, 28, 15.98 W
+1, 35, 84.61 W
+--- t+60s 10:25:58 ---
+Composite:    +35.9°C  (low  = -273.1°C, high = +80.8°C)
+Composite:    +33.9°C  (low  = -273.1°C, high = +83.8°C)
+Tctl:         +86.6°C  
+Tccd1:        +84.1°C  
+Tccd2:        +85.9°C  
+Tccd3:        +84.0°C  
+Tccd4:        +83.9°C  
+CPU avg: 4663 MHz across 48 threads
+0, 28, 16.82 W
+1, 35, 80.86 W
+--- t+120s 10:26:58 ---
+Composite:    +35.9°C  (low  = -273.1°C, high = +80.8°C)
+Composite:    +33.9°C  (low  = -273.1°C, high = +83.8°C)
+Tctl:         +88.2°C  
+Tccd1:        +85.5°C  
+Tccd2:        +87.2°C  
+Tccd3:        +85.4°C  
+Tccd4:        +86.1°C  
+CPU avg: 4680 MHz across 48 threads
+0, 28, 15.04 W
+1, 36, 85.78 W
+--- t+180s 10:27:58 ---
+Composite:    +35.9°C  (low  = -273.1°C, high = +80.8°C)
+Composite:    +33.9°C  (low  = -273.1°C, high = +83.8°C)
+Tctl:         +89.5°C  
+Tccd1:        +86.5°C  
+Tccd2:        +87.8°C  
+Tccd3:        +85.9°C  
+Tccd4:        +87.0°C  
+CPU avg: 4663 MHz across 48 threads
+0, 28, 16.20 W
+1, 36, 85.12 W
+--- t+240s 10:28:58 ---
+Composite:    +35.9°C  (low  = -273.1°C, high = +80.8°C)
+Composite:    +33.9°C  (low  = -273.1°C, high = +83.8°C)
+Tctl:         +89.5°C  
+Tccd1:        +87.4°C  
+Tccd2:        +88.6°C  
+Tccd3:        +86.8°C  
+Tccd4:        +87.0°C  
+CPU avg: 4665 MHz across 48 threads
+0, 28, 19.40 W
+1, 36, 86.47 W
+--- t+300s 10:29:58 ---
+Composite:    +35.9°C  (low  = -273.1°C, high = +80.8°C)
+Composite:    +33.9°C  (low  = -273.1°C, high = +83.8°C)
+Tctl:         +88.1°C  
+Tccd1:        +56.2°C  
+Tccd2:        +57.5°C  
+Tccd3:        +56.0°C  
+Tccd4:        +56.1°C  
+CPU avg: 3138 MHz across 48 threads
+0, 28, 15.09 W
+1, 36, 86.64 W
+=== STOP LOAD 10:29:58 ===
+--- cooldown+30s 10:30:28 ---
+Composite:    +35.9°C  (low  = -273.1°C, high = +80.8°C)
+Composite:    +33.9°C  (low  = -273.1°C, high = +83.8°C)
+Tctl:         +59.6°C  
+Tccd1:        +44.8°C  
+Tccd2:        +47.8°C  
+Tccd3:        +45.8°C  
+Tccd4:        +46.4°C  
+--- cooldown+60s 10:30:58 ---
+Composite:    +35.9°C  (low  = -273.1°C, high = +80.8°C)
+Composite:    +33.9°C  (low  = -273.1°C, high = +83.8°C)
+Tctl:         +55.6°C  
+Tccd1:        +43.8°C  
+Tccd2:        +46.0°C  
+Tccd3:        +43.9°C  
+Tccd4:        +45.0°C  
+=== PEAKS ===
+CPU     Tctl 92.0 C   Tccd 93.4 C   peak avg MHz 4782
+GPU     g0 28 C   g1 36 C  (should stay near idle)
+NVMe    38.9 C (hottest)
+=== DONE — CSV: /home/michael/thermal-tests/run-2026-05-05-1024-cpu-fullpower-2026-05-05.csv  LOG: /home/michael/thermal-tests/run-2026-05-05-1024-cpu-fullpower-2026-05-05.log ===
+--- cleanup ---
