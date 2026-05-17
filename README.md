@@ -8,9 +8,12 @@ but I'm making it public so that other people can use it too.
 
 | If you want to know… | Read |
 |---|---|
+| **First-time reader: how to weigh anything in here** | [`HOW-TO-READ.md`](HOW-TO-READ.md) — repo layout, status vocabulary, reading order |
+| Every claim in this repo with a status tag | [`claims.yaml`](claims.yaml) — strong / provisional / held / retracted matrix |
+| What we **didn't** measure (and where PRs are welcome) | [`NOT-HERE-YET.md`](NOT-HERE-YET.md) |
+| What this evidence can and can't support | [`KNOWN-LIMITATIONS.md`](KNOWN-LIMITATIONS.md) — caveats on what we did measure |
 | **"Coder-Next or 27B (or 27B-no-think) for my task?"** | [`COMPARISON.md`](COMPARISON.md) — head-to-head decision doc |
 | The full single-table comparison across all entries | [`SCORECARD.md`](SCORECARD.md) |
-| What this evidence can and can't support | [`KNOWN-LIMITATIONS.md`](KNOWN-LIMITATIONS.md) |
 | How to benchmark a new local model | [`tooling/ADDING-A-MODEL.md`](tooling/ADDING-A-MODEL.md) |
 | How to replay a specific past run | [`tooling/REPRODUCING.md`](tooling/REPRODUCING.md) |
 

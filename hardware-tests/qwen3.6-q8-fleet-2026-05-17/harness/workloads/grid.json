@@ -1,0 +1,10 @@
+{
+  "contexts": [1024, 4096, 16384, 32768],
+  "gen_lengths": [128, 512, 2048],
+  "concurrencies": [1, 4, 8],
+  "n_per_cell": 10,
+  "warmup_discard": 2,
+  "sustained_seconds": 1800,
+  "fixed_seed": 42,
+  "note": "Cell = one (context, gen_length, concurrency) tuple. Within a cell, the same model is loaded once and N prompts are issued. First `warmup_discard` are excluded from the headline aggregates. Concurrency means simultaneous in-flight requests (llama-server -np). Fixed seed kills sampler randomness for the semantic-equivalence cross-check."
+}
