@@ -50,3 +50,11 @@ Do not mix those two tables in a cross-host ranking.
 - Total cost of ownership without plug-metered wall power on every host.
 
 For the active gap list, read [`../NOT-HERE-YET.md`](../NOT-HERE-YET.md).
+
+## Storage Posture
+
+The hardware-test tree is the current repo-size hotspot because it preserves
+raw sampler CSVs, JSONL inference traces, and audit bundles. That is useful for
+trust, but it should stay intentional. See [`../REPO-SPACE.md`](../REPO-SPACE.md)
+for the measured size breakdown and the recommended path for compressing or
+externalizing future raw artifacts.

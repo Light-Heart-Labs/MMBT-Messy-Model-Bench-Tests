@@ -12,8 +12,10 @@ but I'm making it public so that other people can use it too.
 | Every claim in this repo with a status tag | [`claims.yaml`](claims.yaml) — strong / provisional / held / retracted matrix |
 | What we **didn't** measure (and where PRs are welcome) | [`NOT-HERE-YET.md`](NOT-HERE-YET.md) |
 | What this evidence can and can't support | [`KNOWN-LIMITATIONS.md`](KNOWN-LIMITATIONS.md) — caveats on what we did measure |
+| Where the benchmark folders start | [`benchmarks/README.md`](benchmarks/README.md) — agent-task benchmark landing page |
 | **"Coder-Next or 27B (or 27B-no-think) for my task?"** | [`COMPARISON.md`](COMPARISON.md) — head-to-head decision doc |
 | The full single-table comparison across all entries | [`SCORECARD.md`](SCORECARD.md) |
+| How repo size is managed | [`REPO-SPACE.md`](REPO-SPACE.md) — storage hotspots and artifact policy |
 | How to benchmark a new local model | [`tooling/ADDING-A-MODEL.md`](tooling/ADDING-A-MODEL.md) |
 | How to replay a specific past run | [`tooling/REPRODUCING.md`](tooling/REPRODUCING.md) |
 
@@ -25,6 +27,7 @@ The agent-task benchmark entries use **Cyankiwi 4-bit AWQ** quants on **2× RTX 
 
 ```text
 benchmarks/
+  README.md                    agent-task benchmark landing page and navigation map
   dreamserver-75-pr-audit/
     GPT-5.5/                   cloud, full audit
     Opus-4.7/                  cloud, full audit
@@ -57,6 +60,9 @@ hardware-tests/
 | [`wallstreet-intern-test`](benchmarks/wallstreet-intern-test/) | Build a traceable investment memo repo with raw sources, extracted data, a three-statement model, valuation, and recommendation. | `GPT-5.5`, `Opus-4.7`, `Qwen3.6-27B-AWQ`, `Qwen3-Coder-Next-AWQ`, `Qwen3.6-35B-A3B-AWQ` (failure-mode entry) |
 | [`microbench-2026-04-28`](benchmarks/microbench-2026-04-28/) | 12 smaller-scope task families (5-30 min deliverables) split across 3 phases — coding (Phase 1), structured business tasks (Phase 2), unbounded business/writing (Phase 3). Designed to surface task-class-specific differences between local 30B-class quantizations. N=3 per cell. Three highest-signal task families published as full per-model entries: adversarial-hallucination, market-research, doc-synthesis. | `Qwen3.6-27B-AWQ`, `Qwen3-Coder-Next-AWQ` |
 | [`microbench-phase-b-2026-05-02`](benchmarks/microbench-phase-b-2026-05-02/) | Bumps the four highest-signal cells of `microbench-2026-04-28` from N=3 → N=10 to bound the headline failure rates with proper Wilson CIs, and adds **27B-no-think** as a third arm across the **full 12-family grid** (~240 runs total). Settles the `p3_doc` 27B word-trim loop as a stable ~40% failure shape, and bounds Coder-Next's `p3_market` 0/3 STRUCTURAL_FAIL as 0/10 at N=10 (Wilson 95% [0%, 27.8%]). | `Qwen3.6-27B-AWQ` (thinking), `Qwen3.6-27B-AWQ` (no-think), `Qwen3-Coder-Next-AWQ` |
+
+For the benchmark landing page and per-folder navigation map, start with
+[`benchmarks/README.md`](benchmarks/README.md).
 
 ## Hardware tests
 
