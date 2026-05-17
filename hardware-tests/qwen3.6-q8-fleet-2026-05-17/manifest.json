@@ -2,7 +2,7 @@
   "$schema_note": "MMBT benchmark-bundle manifest. Read this BEFORE drawing conclusions from any data in this directory. Status vocabulary: canonical = load-bearing for the report's claims; preliminary = labeled, present, not yet conclusive; retracted = present for transparency but excluded from claims; archive = older drafts kept for history.",
   "bundle_id": "hardware-tests/qwen3.6-q8-fleet-2026-05-17",
   "snapshot_date_utc": "2026-05-17",
-  "claim_scope": "Single-user (conc=1) decode + prefill performance and chassis-class thermal behavior of two Qwen3.6 Q8 models across four hardware platforms under one pinned llama.cpp source SHA. Multi-user (conc≥4) cells are held; cross-engine / quality / cross-day variance / wider hardware sampling are explicitly out of scope (see ../NOT-HERE-YET.md).",
+  "claim_scope": "Single-user (conc=1) decode + prefill performance and chassis-class thermal behavior of two Qwen3.6 Q8 models across four hardware platforms under one pinned llama.cpp source SHA. Multi-user (conc\u22654) cells are held; cross-engine / quality / cross-day variance / wider hardware sampling are explicitly out of scope (see ../NOT-HERE-YET.md).",
   "models": [
     {
       "name": "qwen3.6-27b",
@@ -40,9 +40,22 @@
     "note": "Also published at workloads/prompts.jsonl (same SHA)."
   },
   "grid": {
-    "contexts": [1024, 4096, 16384, 32768],
-    "gen_lengths": [128, 512, 2048],
-    "concurrencies": [1, 4, 8],
+    "contexts": [
+      1024,
+      4096,
+      16384,
+      32768
+    ],
+    "gen_lengths": [
+      128,
+      512,
+      2048
+    ],
+    "concurrencies": [
+      1,
+      4,
+      8
+    ],
     "n_per_cell": 10,
     "warmup_discard": 2
   },
@@ -51,10 +64,14 @@
       "name": "tower2",
       "display": "Blackwell 6000 Tower",
       "chassis": "Custom workstation tower (ASUS WRX90E, 1600 W titanium PSU)",
-      "silicon": "2× NVIDIA RTX PRO 6000 Blackwell (sm_120). Cross-host bench uses GPU 0 only at 600 W cap.",
+      "silicon": "2\u00d7 NVIDIA RTX PRO 6000 Blackwell (sm_120). Cross-host bench uses GPU 0 only at 600 W cap.",
       "os": "Linux 6.17 / Ubuntu 24.04",
       "arch": "x86_64",
-      "backends_run": ["cuda", "cuda-vllm", "cuda-dual-card"]
+      "backends_run": [
+        "cuda",
+        "cuda-vllm",
+        "cuda-dual-card"
+      ]
     },
     {
       "name": "strix-halo",
@@ -63,8 +80,12 @@
       "silicon": "AMD Ryzen AI MAX+ 395 / Strix Halo (gfx1151), 124 GB unified",
       "os": "Linux / Ubuntu 24.04",
       "arch": "x86_64",
-      "backends_run": ["vulkan"],
-      "backends_broken": ["rocm"]
+      "backends_run": [
+        "vulkan"
+      ],
+      "backends_broken": [
+        "rocm"
+      ]
     },
     {
       "name": "spark",
@@ -73,7 +94,9 @@
       "silicon": "NVIDIA GB10 Grace Blackwell (sm_121), 121 GB unified",
       "os": "Linux / Ubuntu 24.04",
       "arch": "aarch64",
-      "backends_run": ["cuda-aarch64"]
+      "backends_run": [
+        "cuda-aarch64"
+      ]
     },
     {
       "name": "m5-mbp",
@@ -82,7 +105,9 @@
       "silicon": "Apple M5 Max, 128 GB unified",
       "os": "macOS 26.4 / Darwin 25.4.0",
       "arch": "arm64",
-      "backends_run": ["metal"]
+      "backends_run": [
+        "metal"
+      ]
     }
   ],
   "datasets": [
@@ -99,8 +124,10 @@
       "status": "appendix",
       "cells_present": 36,
       "cells_planned": 36,
-      "load_bearing_for": "Supplementary: dual-card pipeline-parallel 27B; NOT in cross-host ranking. 3 cells (32K conc≥4) are skip-marked as the same engine-bound timeout class documented in AUDIT B23.",
-      "known_gaps": ["3 cells at ctx=32K, conc≥4 are skip-marked; see .skip-reason in each cell dir."]
+      "load_bearing_for": "Supplementary: dual-card pipeline-parallel 27B; NOT in cross-host ranking. 3 cells (32K conc\u22654) are skip-marked as the same engine-bound timeout class documented in AUDIT B23.",
+      "known_gaps": [
+        "3 cells at ctx=32K, conc\u22654 are skip-marked; see .skip-reason in each cell dir."
+      ]
     },
     {
       "path": "tower2/qwen3.6-27b/cuda-vllm/",
@@ -108,22 +135,26 @@
       "cells_present": 14,
       "cells_planned": 36,
       "load_bearing_for": "Engine-comparison appendix: shows vLLM/FP8 vs llama.cpp/Q8 on the same Blackwell hardware. 14/36 cells; load-bearing claim is the ctx=16K conc=1 row (decode collapses under llama.cpp/CUDA, recovers under vLLM/FP8).",
-      "known_gaps": ["22 cells unrun; appendix only."]
+      "known_gaps": [
+        "22 cells unrun; appendix only."
+      ]
     },
     {
       "path": "tower2/qwen3.6-35b-a3b/cuda/",
       "status": "retracted",
       "cells_present": 36,
       "cells_planned": 36,
-      "load_bearing_for": "Nothing — every cell is zero-throughput due to a llama.cpp+sm_120 SOFT_MAX kernel bug for MoE Q8 (see findings.md § Two backend-bug findings, Finding 2). Cells are kept for transparency.",
-      "known_gaps": ["All 36 cells are zero-throughput; bench-host marked .done because crash happened after server-ready, before first decode token."]
+      "load_bearing_for": "Nothing \u2014 every cell is zero-throughput due to a llama.cpp+sm_120 SOFT_MAX kernel bug for MoE Q8 (see findings.md \u00a7 Two backend-bug findings, Finding 2). Cells are kept for transparency.",
+      "known_gaps": [
+        "All 36 cells are zero-throughput; bench-host marked .done because crash happened after server-ready, before first decode token."
+      ]
     },
     {
       "path": "tower2/qwen3.6-35b-a3b/cuda-vllm/",
       "status": "canonical",
       "cells_present": 36,
       "cells_planned": 36,
-      "load_bearing_for": "Tower2 35B-A3B row in the cross-host ranking (since the llama.cpp path is broken on this model). FP8 quant; semantic-equivalence audit defends the FP8↔Q8 substitution.",
+      "load_bearing_for": "Tower2 35B-A3B row in the cross-host ranking (since the llama.cpp path is broken on this model). FP8 quant; semantic-equivalence audit defends the FP8\u2194Q8 substitution.",
       "known_gaps": []
     },
     {
@@ -132,7 +163,9 @@
       "cells_present": 33,
       "cells_planned": 36,
       "load_bearing_for": "Strix Halo 27B row in the cross-host ranking. Single-user (conc=1) cells fully present.",
-      "known_gaps": ["3 cells at ctx=32K, conc=8 skip-marked as engine-bound timeout class (AUDIT B23). Not retried."]
+      "known_gaps": [
+        "3 cells at ctx=32K, conc=8 skip-marked as engine-bound timeout class (AUDIT B23). Not retried."
+      ]
     },
     {
       "path": "strix-halo/qwen3.6-35b-a3b/vulkan/",
@@ -140,7 +173,9 @@
       "cells_present": 23,
       "cells_planned": 36,
       "load_bearing_for": "Strix Halo 35B-A3B row in the cross-host ranking (single-user, low-conc, and low-ctx cells).",
-      "known_gaps": ["13 cells skip-marked as OOM hardware ceiling (ctx=32K conc≥4 + ctx=4K/16K certain conc=4/8 cells). KV cache for 35B-A3B Q8 at these configs exceeds the 124 GB unified pool."]
+      "known_gaps": [
+        "13 cells skip-marked as OOM hardware ceiling (ctx=32K conc\u22654 + ctx=4K/16K certain conc=4/8 cells). KV cache for 35B-A3B Q8 at these configs exceeds the 124 GB unified pool."
+      ]
     },
     {
       "path": "spark/qwen3.6-27b/cuda-aarch64/",
@@ -179,8 +214,10 @@
       "status": "preliminary",
       "cells_present": 3,
       "cells_planned": 8,
-      "load_bearing_for": "Nothing in this PR. The substantive thermal data is the psychrometer field measurements in findings.md § Sustained thermal field measurements, not this directory. The 30-min sustained tier is queued as a follow-up.",
-      "known_gaps": ["One cell each on tower2/27b, spark/35b-a3b, m5-mbp/35b-a3b. Strix and Tower2-35B-A3B sustained tier not started."]
+      "load_bearing_for": "Nothing in this PR. The substantive thermal data is the psychrometer field measurements in findings.md \u00a7 Sustained thermal field measurements, not this directory. The 30-min sustained tier is queued as a follow-up.",
+      "known_gaps": [
+        "One cell each on tower2/27b, spark/35b-a3b, m5-mbp/35b-a3b. Strix and Tower2-35B-A3B sustained tier not started."
+      ]
     },
     {
       "path": "audit/",
@@ -192,11 +229,42 @@
     }
   ],
   "generated_tables": [
-    {"path": "aggregate/headline.csv", "type": "cross-host ranking (single-user)"},
-    {"path": "aggregate/headline.json", "type": "same data, structured form"},
-    {"path": "aggregate/cells.jsonl", "type": "per-cell summaries across all (host, model, backend)"},
-    {"path": "aggregate/all-inferences.jsonl", "type": "per-request records with content SHAs"},
-    {"path": "aggregate/determinism.tsv", "type": "cross-host SHA equality table"}
+    {
+      "path": "aggregate/canonical-headline.csv",
+      "type": "cross-host ranking \u2014 same-source-SHA, native llama.cpp backend per host (the canonical table to cite)"
+    },
+    {
+      "path": "aggregate/canonical-headline.json",
+      "type": "same as above, structured form"
+    },
+    {
+      "path": "aggregate/appendix-headline.csv",
+      "type": "supplementary + engine-comparison rows; each row tagged appendix_status. NOT part of the cross-host ranking."
+    },
+    {
+      "path": "aggregate/appendix-headline.json",
+      "type": "same as above, structured form"
+    },
+    {
+      "path": "aggregate/headline.csv",
+      "type": "DEPRECATED: union of canonical + appendix. Kept for backwards compatibility. See aggregate/README.md."
+    },
+    {
+      "path": "aggregate/headline.json",
+      "type": "DEPRECATED: union of canonical + appendix. See aggregate/README.md."
+    },
+    {
+      "path": "aggregate/cells.jsonl",
+      "type": "per-cell summaries across all (host, model, backend) \u2014 356 rows"
+    },
+    {
+      "path": "aggregate/all-inferences.jsonl",
+      "type": "per-request records with content SHAs"
+    },
+    {
+      "path": "aggregate/determinism.tsv",
+      "type": "cross-host SHA equality table"
+    }
   ],
   "raw_data_complete": false,
   "raw_data_omissions": [
@@ -204,7 +272,7 @@
     "Per-host build-*.log files were also excluded for size. Build invocations (the inputs to those logs) are in harness/README.md."
   ],
   "deferred_to_follow_up": [
-    "Full sustained-thermal tier (30 min × 4 hosts × 2 models)",
+    "Full sustained-thermal tier (30 min \u00d7 4 hosts \u00d7 2 models)",
     "MMBT Phase B Q8 task-quality companion",
     "EVO X2 ROCm retry sub-study with longer wait-ready / smaller bootstrap",
     "Tower2 35B-A3B native CUDA PTX-JIT retry (same b9151 SHA, different -DCMAKE_CUDA_ARCHITECTURES)",

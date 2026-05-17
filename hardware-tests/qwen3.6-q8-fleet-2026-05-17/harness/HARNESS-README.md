@@ -1,6 +1,12 @@
 # Vendored harness snapshot
 
-This directory is the `bench-fleet` harness as used to produce every cell in `../{tower2,strix-halo,spark,m5-mbp,sustained,aggregate,audit}/`. It's a frozen snapshot — the bench-fleet repo continues to evolve in the maintainer's workspace; **this copy is the one that produced the published data**.
+This directory is the `bench-fleet` harness as a **frozen snapshot anchored to the published-data SHA**. Read this section before citing the harness as the exact code that produced any cell:
+
+- **The grid-running scripts** (`lib/bench-host.sh`, `lib/bench-cell.py`, `engines/llama-server.sh`, `lib/probe-power.sh`, `lib/probe-thermals.sh`, etc.) **are byte-identical to the version that produced the published data**. Those produce the data; they were not touched between the data run and this snapshot.
+- **One file was added after the data run finished**: a parent-SIGTERM/SIGINT trap in `lib/bench-host.sh` (lines 46–63, `_cleanup_parent` plus the two `trap` lines). This trap improves the *teardown* behavior on orchestrator pause, not the data the bench produces during a successful run. See "Known harness issues — Fixed in this snapshot" below for the why.
+- **Other improvements** (e.g. `auto-pr.sh` stash workaround, `live-snapshot.sh` headline rendering) are NOT yet fixed; the snapshot is the same as what produced the data on those.
+
+In other words: the harness that produced the data IS this snapshot, with the single addition of a teardown trap that does not affect produced data. Anyone reproducing on this harness will get equivalent data; they will also get the cleaner pause/resume behavior.
 
 ## Provenance
 
