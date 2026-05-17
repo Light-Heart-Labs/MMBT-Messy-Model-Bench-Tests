@@ -61,7 +61,7 @@ Current generated output, using the bundled price/spec assumptions:
 | System | Price | Usable AI GB | GB/s | `$/GB` | `$/GB/s` | 27B Q8 decode | `$/decode tok/s` |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Blackwell 6000 Tower, single-RTX-6000 anchor | $12,000 | 96 | 1792 | $125.00 | $6.70 | 49.78 | $241.04 |
-| Blackwell 6000 Tower, as-configured server | $33,000 | 96 | 1792 | $343.75 | $18.42 | 49.78 | $662.86 |
+| Blackwell 6000 Tower, as-configured server | $33,000 | 190 | 3584 | $173.68 | $9.21 | 49.78 | $662.86 |
 | M5 Max MacBook Pro 16 | $4,850 | 128 | 614 | $37.89 | $7.90 | 16.78 | $288.97 |
 | NVIDIA DGX Spark | $4,699 | 121 | 273 | $38.83 | $17.21 | 7.60 | $618.21 |
 | EVO X2 / Strix Halo | $3,000 | 124 | 256 | $24.19 | $11.72 | 7.82 | $383.59 |
@@ -91,8 +91,12 @@ is ecosystem, not raw memory value: Metal/macOS is not CUDA/Linux, and that
 matters for some serving stacks.
 
 The Blackwell 6000 Tower is the opposite profile: expensive capacity, excellent
-bandwidth, excellent measured speed. It is a speed purchase, not the cheapest
-way to buy 100 GB-class memory.
+bandwidth, excellent measured speed. The as-configured server row now values
+the actual two-GPU memory asset: two 96 GB RTX PRO 6000 Blackwell cards,
+modeled as 190 GB conservative usable aggregate VRAM and 3584 GB/s aggregate
+bandwidth. Its measured `$/decode tok/s` still uses the one-GPU canonical
+MMBT row, so do not quote the aggregate-memory row as aggregate-speed evidence
+until a measured dual-GPU or sharded row is available.
 
 ## What this can and cannot settle
 

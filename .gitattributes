@@ -26,9 +26,11 @@
 # JSONL: data files where byte-identity matters. We pin as `binary` (rather
 # than `text eol=lf`) so SHAs match across platforms without depending on
 # git's autocrlf settings being correct on the reproducer's side.
+.gitattributes text eol=lf
 *.jsonl      binary
 
 # Generated/raw artifacts — also pin as binary.
 *.log        binary
 power.csv    binary
 thermals.csv binary
+*.gz         binary

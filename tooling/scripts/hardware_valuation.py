@@ -128,7 +128,7 @@ def valuation_row(
 
     measurement_source = ""
     if measured:
-        measurement_source = f"{headline_path}::{key[0]}/{key[1]}/{key[2]}"
+        measurement_source = f"{headline_path.as_posix()}::{key[0]}/{key[1]}/{key[2]}"
 
     return {
         "system_id": system["system_id"],
@@ -168,7 +168,7 @@ def main() -> None:
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=OUTPUT_COLUMNS)
+        writer = csv.DictWriter(f, fieldnames=OUTPUT_COLUMNS, lineterminator="\n")
         writer.writeheader()
         for system in systems:
             writer.writerow(valuation_row(system, measurements, args.headline))

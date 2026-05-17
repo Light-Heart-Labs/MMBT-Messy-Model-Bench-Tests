@@ -12,21 +12,24 @@ but I'm making it public so that other people can use it too.
 | Every claim in this repo with a status tag | [`claims.yaml`](claims.yaml) — strong / provisional / held / retracted matrix |
 | What we **didn't** measure (and where PRs are welcome) | [`NOT-HERE-YET.md`](NOT-HERE-YET.md) |
 | What this evidence can and can't support | [`KNOWN-LIMITATIONS.md`](KNOWN-LIMITATIONS.md) — caveats on what we did measure |
+| Where the benchmark folders start | [`benchmarks/README.md`](benchmarks/README.md) — agent-task benchmark landing page |
 | **"Coder-Next or 27B (or 27B-no-think) for my task?"** | [`COMPARISON.md`](COMPARISON.md) — head-to-head decision doc |
 | The full single-table comparison across all entries | [`SCORECARD.md`](SCORECARD.md) |
+| How repo size is managed | [`REPO-SPACE.md`](REPO-SPACE.md) — storage hotspots and artifact policy |
 | How to benchmark a new local model | [`tooling/ADDING-A-MODEL.md`](tooling/ADDING-A-MODEL.md) |
 | How to replay a specific past run | [`tooling/REPRODUCING.md`](tooling/REPRODUCING.md) |
 
 ## Operating point (read before quoting)
 
-Agent-task benchmarks under [`benchmarks/`](benchmarks/) all use **Cyankiwi 4-bit AWQ** quants on **2× RTX PRO 6000 Blackwell at 500 W cap**. Other quants (official FP8, Unsloth UD4 GGUF, BF16), other VRAM tiers (24 GB / 48 GB), other hardware classes (Mac M-series unified memory), and languages other than Python are **not characterized** by those entries. See [`COMPARISON.md` § What this benchmark doesn't characterize](COMPARISON.md#what-this-benchmark-doesnt-characterize) for the full validity-boundary list, and [`ROADMAP.md`](ROADMAP.md) for what's queued to fill those gaps.
+Agent-task benchmarks under [`benchmarks/`](benchmarks/) all use **Cyankiwi 4-bit AWQ** quants on **2x RTX PRO 6000 Blackwell at 500 W cap** unless an entry README says otherwise. Other quants, other VRAM tiers, other hardware classes, and languages other than Python are **not characterized** by those entries. See [`COMPARISON.md` section "What this benchmark doesn't characterize"](COMPARISON.md#what-this-benchmark-doesnt-characterize) for the model-benchmark validity boundaries, and [`ROADMAP.md`](ROADMAP.md) for what's queued to fill those gaps.
 
-Rig-characterisation studies under [`hardware-tests/`](hardware-tests/) have their own operating-point scope — see each study's README. In particular, [`hardware-tests/qwen3.6-q8-fleet-2026-05-17/`](hardware-tests/qwen3.6-q8-fleet-2026-05-17/) ranks four hardware classes on **Q8_0 GGUF** under llama.cpp (with a Tower2 vLLM-FP8 appendix row for the model the llama.cpp/CUDA path crashes on).
+Rig-characterisation studies under [`hardware-tests/`](hardware-tests/) have their own operating-point scope. Start with [`hardware-tests/README.md`](hardware-tests/README.md) before quoting hardware claims. In particular, [`hardware-tests/qwen3.6-q8-fleet-2026-05-17/`](hardware-tests/qwen3.6-q8-fleet-2026-05-17/) ranks four hardware classes on **Q8_0 GGUF** dense and MoE workloads under llama.cpp, with a Tower2 vLLM-FP8 appendix row for the MoE model the llama.cpp/CUDA path crashes on.
 
 ## Layout
 
 ```text
 benchmarks/
+  README.md                    agent-task benchmark landing page and navigation map
   dreamserver-75-pr-audit/
     GPT-5.5/                   cloud, full audit
     Opus-4.7/                  cloud, full audit
@@ -44,7 +47,10 @@ benchmarks/
     Qwen3-Coder-Next-AWQ/      local, full memo repo (DOCU BUY, 1 of 3 runs shipped — verdict reliability caveat in README)
     Qwen3.6-35B-A3B-AWQ/       local, no usable deliverable (0 of 3 runs shipped, kept as failure-mode entry)
 hardware-tests/
+  README.md                       hardware-test landing page: coverage matrix, settled vs held questions
   vllm-power-sweep-2026-04-29/ rig characterisation: vLLM throughput vs GPU power cap, 28-cell sweep with raw CSVs + audit notes
+  qwen3.6-q8-fleet-2026-05-17/ cross-platform dense + MoE Q8 hardware comparison
+  local-ai-hardware-valuation-2026-05-17/ recomputable buyer valuation worksheet
 ```
 
 ## Benchmarks
@@ -57,9 +63,12 @@ hardware-tests/
 | [`microbench-2026-04-28`](benchmarks/microbench-2026-04-28/) | 12 smaller-scope task families (5-30 min deliverables) split across 3 phases — coding (Phase 1), structured business tasks (Phase 2), unbounded business/writing (Phase 3). Designed to surface task-class-specific differences between local 30B-class quantizations. N=3 per cell. Three highest-signal task families published as full per-model entries: adversarial-hallucination, market-research, doc-synthesis. | `Qwen3.6-27B-AWQ`, `Qwen3-Coder-Next-AWQ` |
 | [`microbench-phase-b-2026-05-02`](benchmarks/microbench-phase-b-2026-05-02/) | Bumps the four highest-signal cells of `microbench-2026-04-28` from N=3 → N=10 to bound the headline failure rates with proper Wilson CIs, and adds **27B-no-think** as a third arm across the **full 12-family grid** (~240 runs total). Settles the `p3_doc` 27B word-trim loop as a stable ~40% failure shape, and bounds Coder-Next's `p3_market` 0/3 STRUCTURAL_FAIL as 0/10 at N=10 (Wilson 95% [0%, 27.8%]). | `Qwen3.6-27B-AWQ` (thinking), `Qwen3.6-27B-AWQ` (no-think), `Qwen3-Coder-Next-AWQ` |
 
+For the benchmark landing page and per-folder navigation map, start with
+[`benchmarks/README.md`](benchmarks/README.md).
+
 ## Hardware tests
 
-`hardware-tests/` holds rig characterisation runs — power, throughput, and thermal sweeps on the lab hardware itself, separate from agent-task benchmarks. They support the same evidence base (e.g. validating the operating power cap a model run was conducted under), but they live in their own tree because they answer hardware questions, not model questions.
+`hardware-tests/` holds rig characterisation runs — power, throughput, and thermal sweeps on the lab hardware itself, separate from agent-task benchmarks. Start with [`hardware-tests/README.md`](hardware-tests/README.md): it makes the dense-vs-MoE coverage, backend exceptions, and "settled vs held" boundaries explicit.
 
 | Test | Shape | What it measures |
 |---|---|---|

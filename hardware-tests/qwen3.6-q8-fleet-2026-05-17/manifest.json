@@ -122,13 +122,13 @@
     {
       "path": "tower2/qwen3.6-27b/cuda-dual-card/",
       "status": "appendix",
-      "cells_present": 35,
+      "cells_present": 33,
       "cells_planned": 36,
-      "load_bearing_for": "Supplementary: dual-card pipeline-parallel 27B; NOT in cross-host ranking. The three ctx=32K conc\u22654 cells at the engine-bound timeout regime (AUDIT B23) did not complete cleanly \u2014 see known_gaps for the per-cell state.",
+      "load_bearing_for": "Supplementary: dual-card pipeline-parallel 27B; NOT in cross-host ranking. The three ctx=32K conc>=4 cells at the engine-bound timeout regime (AUDIT B23) did not complete cleanly; see known_gaps for the per-cell state.",
       "known_gaps": [
-        "ctx32768_gen0512_conc8: .error (bench-cell-failed) \u2014 engine-bound timeout class (AUDIT B23).",
-        "ctx32768_gen2048_conc4: cell dir present but no .done / .error marker \u2014 run did not finish cleanly.",
-        "ctx32768_gen2048_conc8: cell dir absent \u2014 never executed."
+        "ctx32768_gen0512_conc8: .error (bench-cell-failed) - engine-bound timeout class (AUDIT B23).",
+        "ctx32768_gen2048_conc4: cell dir present but no .done / .error marker and no cell.json - run did not finish cleanly.",
+        "ctx32768_gen2048_conc8: cell dir absent - never executed."
       ]
     },
     {
@@ -166,7 +166,7 @@
       "cells_planned": 36,
       "load_bearing_for": "Strix Halo 27B row in the cross-host ranking. Single-user (conc=1) cells fully present.",
       "known_gaps": [
-        "3 cells at ctx=32K, conc=8 skip-marked as engine-bound timeout class (AUDIT B23). Not retried."
+        "3 cells at ctx=32K, conc=8 have .error markers for the engine-bound timeout class (AUDIT B23). Not retried."
       ]
     },
     {
@@ -176,7 +176,7 @@
       "cells_planned": 36,
       "load_bearing_for": "Strix Halo 35B-A3B row in the cross-host ranking (single-user, low-conc, and low-ctx cells).",
       "known_gaps": [
-        "13 cells skip-marked as OOM hardware ceiling (ctx=32K conc\u22654 + ctx=4K/16K certain conc=4/8 cells). KV cache for 35B-A3B Q8 at these configs exceeds the 124 GB unified pool."
+        "13 planned cells are absent or have .error markers from the documented OOM / timeout ceiling (ctx=32K conc\u22654 + ctx=4K/16K certain conc=4/8 cells). KV cache for 35B-A3B Q8 at these configs exceeds the 124 GB unified pool."
       ]
     },
     {
@@ -276,7 +276,7 @@
   "deferred_to_follow_up": [
     "Full sustained-thermal tier (30 min \u00d7 4 hosts \u00d7 2 models)",
     "MMBT Phase B Q8 task-quality companion",
-    "EVO X2 ROCm retry on a newer engine SHA / newer ROCm runtime (the b9151 + ROCm 6.4.4 combination is now CONFIRMED broken via 3-config retry — see AUDIT.md B4)",
+    "EVO X2 ROCm retry sub-study with longer wait-ready / smaller bootstrap",
     "Tower2 35B-A3B native CUDA PTX-JIT retry (same b9151 SHA, different -DCMAKE_CUDA_ARCHITECTURES)",
     "Cross-engine multi-user concurrent serving study under properly batched engines"
   ],
