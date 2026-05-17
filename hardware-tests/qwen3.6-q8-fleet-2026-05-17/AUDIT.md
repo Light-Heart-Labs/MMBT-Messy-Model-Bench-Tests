@@ -190,7 +190,7 @@ The MoE-specific failure on a Blackwell-native build points at the expert-router
 
 **What this study reports for Tower2 A3B under llama.cpp/CUDA**:
 - All 36 cells are **retracted** from the headline performance comparison
-- The crashes are documented in the published llama-server logs in the reproducibility bundle
+- The crashes are reproduced verbatim from per-cell `bench-cell.log` (the harness driver's log). Per-cell `llama-server-*.log` files themselves are NOT vendored in this bundle to keep its size under ~110 MB — they are regeneratable from the pinned llama.cpp source SHA in `harness/VENDORED-FROM-SHA.txt` and the per-cell `cell.meta.json` (server invocation captured).
 - This audit category (B21) is the canonical statement
 
 **What is queued to replace it** (follow-up sub-study):
@@ -266,17 +266,22 @@ The Strix **35B-A3B/vulkan** leg (separate from this B23) reached 23/36 cells be
 
 ## Reproducibility bundle published
 
-- llama.cpp source SHA `67b2b7f2f2d6dac7962b219168a4c7a20c7359b7`
-- Per-host build invocations (`build-<backend>.configure.log`, `build-<backend>.build.log`)
+- llama.cpp source SHA `67b2b7f2f2d6dac7962b219168a4c7a20c7359b7` (vendored harness pins it; see `harness/VENDORED-FROM-SHA.txt`)
 - Per-host environment snapshot (`env.json`) per (host, model, backend)
-- Per-cell full server log (`llama-server-<port>.log`)
-- Per-cell meta (`cell.meta.json`)
+- Per-cell meta (`cell.meta.json`) — captures the exact llama-server invocation used
 - Per-cell raw inferences (`inferences.jsonl`)
 - Per-cell raw batches (`batches.jsonl`)
-- Per-cell 1Hz power CSV (`power.csv`)
-- Per-cell 1Hz thermal CSV (`thermals.csv`)
+- Per-cell driver log (`bench-cell.log`) — the harness's view of the cell
+- Per-cell 1 Hz power CSV (`power.csv`)
+- Per-cell 1 Hz thermal CSV (`thermals.csv`)
 - Prompt corpus + SHA (`workloads/prompts.jsonl`, `workloads/prompts.jsonl.sha256`)
 - Grid spec (`workloads/grid.json`)
+- Vendored harness (`harness/lib/`, `harness/run.sh`, `harness/targets.json`, etc.)
+
+NOT included in the bundle (regeneratable):
+
+- Per-cell `llama-server-<port>.log` — excluded to keep the bundle ~110 MB; regeneratable from the pinned SHA + per-cell `cell.meta.json` server invocation.
+- Per-host `build-<backend>.configure.log` and `build-<backend>.build.log` — excluded for size; the build invocations themselves are in `harness/HARNESS-README.md`.
 - Aggregation + report scripts (`lib/aggregate.sh`, `lib/report.sh`)
 - This audit (`AUDIT.md`)
 

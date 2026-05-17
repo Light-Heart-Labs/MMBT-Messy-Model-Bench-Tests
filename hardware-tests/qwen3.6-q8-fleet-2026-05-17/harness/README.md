@@ -7,7 +7,7 @@ Cross-platform reference benchmark for **Qwen3.6-27B-Q8** and **Qwen3.6-35B-A3B-
 | Host       | Hardware                                  | Engine (canonical)              | Notes                                            |
 |------------|-------------------------------------------|---------------------------------|--------------------------------------------------|
 | Tower2     | RTX PRO 6000 Blackwell Workstation (96 GB VRAM, x86_64, 252 GB sys) | llama.cpp CUDA                  | Single-card canonical run on GPU 0 @ 600 W (matches 5090 TGP envelope); dual-card supplementary run separate |
-| Strix Halo | AMD Ryzen AI MAX+ 395, x86_64, 124 GB UMA | llama.cpp ROCm/HIP **+ Vulkan** | AMD APU; both backends run, ROCm canonical       |
+| Strix Halo | AMD Ryzen AI MAX+ 395, x86_64, 124 GB UMA | llama.cpp **Vulkan** (canonical) | AMD APU. **ROCm 6.4.4 segfaulted in our environment** (see `../findings.md § Two backend-bug findings, Finding 1` and `AUDIT.md B4`); Vulkan is the working path and the row that appears in the cross-host ranking. A ROCm retry sub-study is queued. |
 | Spark      | NVIDIA GB10 Grace Blackwell, aarch64, 121 GB UMA | llama.cpp CUDA-aarch64    | DGX Spark; aarch64                               |
 | M5 MBP     | Apple M5 Max, arm64, 128 GB UMA           | llama.cpp Metal                 | New maxed MBP; passively cooled chassis          |
 
@@ -52,7 +52,7 @@ Tower2 uses the **RTX PRO 6000 Blackwell Workstation Edition** — same Blackwel
   - Generation lengths: **128, 512, 2048 tokens**
   - Concurrencies: **1, 4, 8**
   - **N=10 per cell**, first 2 discarded as warmup
-  - 4 × 3 × 3 × 10 = 360 inferences per (host, model). 4 hosts × 2 models × ~360 ≈ **2,880 inferences** for the main grid. Strix Halo runs the same grid twice (ROCm and Vulkan), adding ~720 more.
+  - 4 × 3 × 3 × 10 = 360 inferences per (host, model). 4 hosts × 2 models × ~360 ≈ **2,880 inferences** for the main grid. Strix Halo was planned to run twice (ROCm and Vulkan); in practice ROCm 6.4.4 segfaulted and only Vulkan completed — see `../findings.md § Two backend-bug findings, Finding 1`. The ROCm retry is queued as a follow-up sub-study.
 
 ### Sustained-thermal sub-study
 
@@ -98,8 +98,8 @@ bench-fleet/
 │   └── publish.sh                   # branch + PR to MMBT
 ├── engines/
 │   ├── llama-cpp-cuda.sh            # Tower2
-│   ├── llama-cpp-rocm.sh            # Strix Halo (canonical)
-│   ├── llama-cpp-vulkan.sh          # Strix Halo (second backend)
+│   ├── llama-cpp-rocm.sh            # Strix Halo (broken in our env; see findings.md Finding 1)
+│   ├── llama-cpp-vulkan.sh          # Strix Halo (canonical — the working path)
 │   ├── llama-cpp-cuda-aarch64.sh    # Spark
 │   ├── llama-cpp-metal.sh           # M5
 │   ├── vllm.sh                      # appendix (Tower2)
