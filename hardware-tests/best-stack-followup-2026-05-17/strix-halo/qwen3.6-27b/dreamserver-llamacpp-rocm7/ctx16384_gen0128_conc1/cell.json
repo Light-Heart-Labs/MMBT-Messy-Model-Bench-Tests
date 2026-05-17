@@ -1,0 +1,32 @@
+{
+  "ctx": 16384,
+  "gen": 128,
+  "conc": 1,
+  "model": "extra.Qwen3.6-27B-Q8_0.gguf",
+  "engine": "dreamserver-llamacpp-rocm7",
+  "per_slot": {
+    "n": 8,
+    "n_total_including_warmup": 10,
+    "decode_tps_mean": 7.061935241792033,
+    "decode_tps_median": 7.061911563689259,
+    "decode_tps_min": 7.058820544983961,
+    "decode_tps_max": 7.065387066190754,
+    "decode_tps_sd": 0.0019122093975534238,
+    "prefill_tps_mean": 84.0803218736663,
+    "ttft_ms_mean": 185572.5645,
+    "elapsed_s_mean": 203.71655470862498,
+    "prompt_tokens_max": 15603,
+    "gen_tokens_total": 1024
+  },
+  "aggregate": {
+    "aggregate_decode_tps_mean": 0.6283237760935565,
+    "batch_wall_s_mean": 203.716637769125
+  },
+  "cold_start": {
+    "decode_tps": 7.05950612136394,
+    "wall_s": 204.550888273
+  },
+  "n_batches": 10,
+  "warmup_batches": 2,
+  "engine_note": "dream-server bundled llama.cpp at /opt/llama-custom/llama-server linked against libamdhip64.so.7 (ROCm 7) + custom librocblas/libhipblaslt; version string b1 (ff5ef82). Fronted by Lemonade Server OpenAI-compatible API on port 11434."
+}

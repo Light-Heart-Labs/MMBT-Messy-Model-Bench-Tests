@@ -1,0 +1,42 @@
+{
+  "ctx": 4096,
+  "gen": 512,
+  "conc": 1,
+  "model_path": "/Users/conta/models/mlx/Qwen3.6-27B-8bit",
+  "engine": "mlx",
+  "engine_version": "0.31.3",
+  "load_time_s": 1.376275917,
+  "per_slot": {
+    "n": 8,
+    "n_total_including_warmup": 10,
+    "decode_tps_mean": 17.606901800278248,
+    "decode_tps_median": 17.613372241596686,
+    "decode_tps_min": 17.58133507570732,
+    "decode_tps_max": 17.623561517680542,
+    "decode_tps_sd": 0.01646450738691244,
+    "prefill_tps_mean": 712.4432929357645,
+    "ttft_ms_mean": 5577.753651125,
+    "elapsed_s_mean": 34.6698105885,
+    "prompt_tokens_max": 3911,
+    "gen_tokens_total": 4096
+  },
+  "aggregate": {
+    "aggregate_decode_tps_mean": 14.767566962711815,
+    "batch_wall_s_mean": 34.670601302,
+    "n_batches_total": 10,
+    "n_batches_body": 8,
+    "aggregate_decode_tps_median": 14.763354013636778
+  },
+  "cold_start": {
+    "decode_tps": 17.63760968792015,
+    "wall_s": 33.90886125,
+    "aggregate_decode_tps": 15.098981825079845,
+    "per_slot_decode_tps_mean": 17.63760968792015
+  },
+  "n_batches": 10,
+  "warmup_batches": 2,
+  "seed": 42,
+  "started": "2026-05-17T15:08:42.771684+00:00",
+  "inferences_path": "inferences.jsonl",
+  "batches_path": "batches.jsonl"
+}

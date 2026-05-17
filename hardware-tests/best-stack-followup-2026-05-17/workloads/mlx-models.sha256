@@ -1,0 +1,31 @@
+# MLX model file SHA-256 pins captured at snapshot time (2026-05-17).
+# These pin EXACTLY the bytes used in m5-mbp/qwen3.6-{27b,35b-a3b}/mlx/ cells.
+# `hf download mlx-community/Qwen3.6-27B-8bit` may resolve to a different
+# revision in the future; check these hashes after downloading.
+#
+# Run from inside the model dir:
+#   shasum -a 256 -c mlx-models.sha256
+
+# === mlx-community/Qwen3.6-27B-8bit ===
+f824099df8957f3d5e773c2faad5316ed6e43cdc8e41497e4f6c96bb87bb160d  Qwen3.6-27B-8bit/model-00001-of-00006.safetensors
+6b0ac8faafe5ed25f5c19ffe74b5ea9980c18d04baf4d98169db1c67a2ed35e5  Qwen3.6-27B-8bit/model-00002-of-00006.safetensors
+4923f72bbfcfab5749a9a8d88f654515bbf15e3f6f01f3199ff67a5f50c58f85  Qwen3.6-27B-8bit/model-00003-of-00006.safetensors
+e0ee725dd0fc3cc7ca2a94734f18f9ab5ea3bdfa0c749353687d6f3442c0ab64  Qwen3.6-27B-8bit/model-00004-of-00006.safetensors
+e6731a152f2ec3773526354b7104e9be1231b2bc9b1ec9cd033e2cc4470480ec  Qwen3.6-27B-8bit/model-00005-of-00006.safetensors
+5c8550886d4bd9249079cf1cb1e4cd572e8e491f5db60ae8a78e957be1dadb24  Qwen3.6-27B-8bit/model-00006-of-00006.safetensors
+4301ca600788afb2a45c0aa367140d6144ecf617d0a51a8187fc6755d65301f8  Qwen3.6-27B-8bit/model.safetensors.index.json
+93f5fa0d6c683b2278a5505337d0d756bbf4e633f9432dd15633aac50a87e55e  Qwen3.6-27B-8bit/config.json
+87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4  Qwen3.6-27B-8bit/tokenizer.json
+
+# === mlx-community/Qwen3.6-35B-A3B-8bit ===
+ae1ced7360792820cfc12f2e0c8e1ca4d95c712c122e08ebb474b197dee3edaf  Qwen3.6-35B-A3B-8bit/model-00001-of-00008.safetensors
+b8fdc3700f7339dc29d0e8504d15bc61e9beda7dc69eea037084cfa4067f1b26  Qwen3.6-35B-A3B-8bit/model-00002-of-00008.safetensors
+8a7851d9152dd39369026ab0ac7c369e4e62ce67ea1e3836862ff0c651176675  Qwen3.6-35B-A3B-8bit/model-00003-of-00008.safetensors
+3ad6623bb7ff4ddf39ee3854d473d66543ea8fdffc48f03ae4a1dc866da34b36  Qwen3.6-35B-A3B-8bit/model-00004-of-00008.safetensors
+ec9d987a3c499146e6e8edd92afb3943dfd35c908a3de0685346c1ea6901e383  Qwen3.6-35B-A3B-8bit/model-00005-of-00008.safetensors
+9a843214e1e72bfbae1d2c61283e25ee5930b5ccdbe15dccc7d72fba3a5812c4  Qwen3.6-35B-A3B-8bit/model-00006-of-00008.safetensors
+0a1ed4b82de64955eefb212b2eda57acfa1c2330a4258448e5c7f0f8aaf3649a  Qwen3.6-35B-A3B-8bit/model-00007-of-00008.safetensors
+41a1d955de1a9a97de3abebc40b5519b02d542adf266fefbd33b24dc674aef39  Qwen3.6-35B-A3B-8bit/model-00008-of-00008.safetensors
+3db12edeebeb65cab9a6eeb63cd74be4e0c74139a75f672701290b98230501cf  Qwen3.6-35B-A3B-8bit/model.safetensors.index.json
+5da49c3a84c5a4a751b720b62b9f8703bdb8a0796b5fc55df3278f8b9d6ce296  Qwen3.6-35B-A3B-8bit/config.json
+87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4  Qwen3.6-35B-A3B-8bit/tokenizer.json

@@ -171,6 +171,67 @@ claims:
       - "Strix Halo's measured row uses Vulkan; ROCm was broken in this snapshot."
       - "M5 Max's measured row uses Metal/macOS, not a CUDA/Linux serving stack."
 
+  # ─── Best-stack follow-up: vendor productized stacks vs canonical llama.cpp
+  #     (hardware-tests/best-stack-followup-2026-05-17) ───
+
+  - id: hw.best-stack.m5.mlx-beats-metal
+    text: >
+      On the M5 Max MacBook Pro 16", Apple's productized MLX stack
+      (mlx-lm 0.31.3) running mlx-community Qwen3.6-27B-8bit and
+      Qwen3.6-35B-A3B-8bit beats vanilla llama.cpp Metal at canonical
+      pin b9151 across every measured single-user (conc=1) cell.
+      Peak decode lift: +6.0% on the dense 27B (17.78 vs 16.78 tok/s),
+      +15.6% on the 35B-A3B MoE (102.71 vs 88.87 tok/s). Peak prefill
+      lift: +35.2% on 27B (773.2 vs 571.8 tok/s), +53.6% on 35B-A3B
+      (4124.6 vs 2684.9 tok/s). The lift is larger on MoE than dense,
+      consistent with MLX shipping more specialized sparse/batched
+      kernels than b9151's generic Metal path.
+    status: provisional
+    scope: single-user, conc=1, Qwen3.6 dense + MoE, M5 Max, ~8-bit quant
+    evidence: "hardware-tests/best-stack-followup-2026-05-17/findings.md § Finding 1 + aggregate/headline.csv"
+    caveats:
+      - "MLX 8-bit uses a different quantization scheme than GGUF Q8_0; same-precision-different-bytes. No quality diff measured."
+      - "Vanilla llama.cpp Metal pin is b9151. A newer llama.cpp build may have caught up; not tested."
+      - "Single study, single host. Independent reproducer welcomed."
+    promote_to_strong_when:
+      - "Independent M5-class reproducer publishes the same lift on the same model class"
+      - "MLX-vs-newer-llama.cpp-Metal comparison still shows MLX ahead"
+
+  - id: hw.best-stack.strix.rocm7-works
+    text: >
+      ROCm 7 (libamdhip64.so.7), as bundled by the dream-server
+      dream-lemonade-server:latest container's custom llama.cpp build
+      at /opt/llama-custom/llama-server, loads and serves
+      Qwen3.6-27B-Q8 on Strix Halo. The canonical study's
+      [hw.q8.engine.rocm-strix-halo-segfault] failure is specific to
+      ROCm 6.4.4 + llama.cpp b9151; updating to ROCm 7 and dream-server's
+      downstream patch set resolves the loading bug. Six cells at
+      ctx≤4K plus ctx=16K gen=128 confirm: decode runs to completion,
+      output content SHAs are non-empty, no crash.
+    status: provisional
+    scope: ROCm 7, Strix Halo gfx1151, dream-server's bundled llama.cpp (commit ff5ef82), Q8 GGUF
+    evidence: "hardware-tests/best-stack-followup-2026-05-17/findings.md § Finding 2 + AUDIT.md BA7"
+    caveats:
+      - "We did not isolate whether the fix is in the ROCm 7 runtime itself or in dream-server's downstream patches. Vanilla llama.cpp b9151 against ROCm 7 is a queued follow-up."
+      - "Bundled engine is older (commit ff5ef82) than canonical's b9151. This bundle's results therefore mix a ROCm-runtime-version effect with a llama.cpp-vintage effect."
+
+  - id: hw.best-stack.strix.no-prefill-lift
+    text: >
+      AMD's productized Linux stack on Strix Halo (dream-server's
+      bundled custom llama.cpp + ROCm 7, fronted by Lemonade Server)
+      delivers no decode lift over vanilla llama.cpp Vulkan at b9151
+      (7.67 vs 7.82 tok/s peak, within run-to-run noise) and is
+      substantially slower on prefill (120 vs 292 tok/s peak,
+      ~2.4× behind). The prefill cost is attributable to engine
+      vintage (bundled build at upstream commit ff5ef82 vs canonical's
+      b9151) rather than a ROCm-vs-Vulkan effect.
+    status: provisional
+    scope: conc=1, Qwen3.6-27B-Q8 GGUF (byte-identical to canonical), Strix Halo Linux
+    evidence: "hardware-tests/best-stack-followup-2026-05-17/findings.md § Finding 2 + AUDIT.md BA1"
+    caveats:
+      - "Strix Halo's productized acceleration story is the Lemonade OGA/NPU path on Windows + DirectML + INT4, which we did NOT test (no Windows Strix host available)."
+      - "Pure Lemonade SDK on Linux with its own bundled Vulkan binary (vs dream-server's custom downstream build) is a queued follow-up."
+
   # ─── Power-sweep studies (hardware-tests/vllm-power-sweep-2026-04-29,
   #     hardware-tests/ltx23-power-sweep-2026-05-05, cpu-fullpower) ───
 
