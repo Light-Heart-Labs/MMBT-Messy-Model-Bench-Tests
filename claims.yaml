@@ -137,6 +137,40 @@ claims:
       - "Cost figures are approximate retail (2026-05-15)."
       - "The right anchor depends on what the buyer actually purchases — see § Dual-anchor sensitivity."
 
+  - id: hw.value.local-ai-valuation-framework
+    text: >
+      Local-AI hardware valuation should separate at least three buyer questions:
+      model-fit capacity ($/usable AI GB), bandwidth value ($/GB/s), and
+      measured workload value ($/measured tok/s). A single blended
+      price-performance score is not stable across model size, context length,
+      concurrency, software stack, or market price.
+    status: provisional
+    scope: derived valuation framework for local inference hardware
+    evidence: "hardware-tests/local-ai-hardware-valuation-2026-05-17/README.md + outputs/valuation.csv"
+    caveats:
+      - "This is a valuation framework, not a new benchmark run."
+      - "Prices are explicitly time-bound inputs and must be refreshed before quoting a purchase conclusion."
+      - "Measured tok/s rows inherit all caveats from hardware-tests/qwen3.6-q8-fleet-2026-05-17."
+
+  - id: hw.value.snapshot.spark-strix-m5
+    text: >
+      In the 2026-05-17 valuation snapshot, DGX Spark is weaker than M5 Max
+      MacBook Pro on bandwidth-dollar ($17.21 per GB/s vs $7.90 per GB/s)
+      and measured 27B Q8 decode-dollar ($618.21 per decode tok/s vs $288.97
+      per decode tok/s). EVO X2 / Strix Halo is cheaper than DGX Spark on
+      usable-memory-dollar ($24.19/GB vs $38.83/GB) and bandwidth-dollar
+      ($11.72 per GB/s vs $17.21 per GB/s), while landing in the same measured
+      dense-27B Q8 decode band (7.82 vs 7.60 tok/s).
+    status: provisional
+    scope: >
+      Price snapshot dated 2026-05-17 for DGX Spark; MMBT 2026-05-15 anchors
+      for EVO X2 and M5 Max; MMBT Qwen3.6-27B Q8 single-user headline rows.
+    evidence: "hardware-tests/local-ai-hardware-valuation-2026-05-17/outputs/valuation.csv"
+    caveats:
+      - "Spark may still be worth its premium for CUDA, DGX OS, ConnectX, support, or other NVIDIA-stack requirements."
+      - "Strix Halo's measured row uses Vulkan; ROCm was broken in this snapshot."
+      - "M5 Max's measured row uses Metal/macOS, not a CUDA/Linux serving stack."
+
   # ─── Power-sweep studies (hardware-tests/vllm-power-sweep-2026-04-29,
   #     hardware-tests/ltx23-power-sweep-2026-05-05, cpu-fullpower) ───
 
