@@ -23,7 +23,7 @@ This is an early publication while the grids are still running. **Read `findings
 |---|---:|---:|---|
 | `m5-mbp/qwen3.6-27b/mlx/` | 12 | 12 | complete |
 | `m5-mbp/qwen3.6-35b-a3b/mlx/` | 12 | 12 | complete |
-| `strix-halo/qwen3.6-27b/dreamserver-llamacpp-rocm7/` | 7 | 12 | preliminary (ctx≤4K + ctx=16K gen=128 present; ctx=16K gen=512/2048 and ctx=32K cells still running, will land in follow-up commits) |
+| `strix-halo/qwen3.6-27b/dreamserver-llamacpp-rocm7/` | 8 | 12 | preliminary (ctx≤4K + ctx=16K gen=128/512 present; ctx=16K gen=2048 and ctx=32K cells still running, will land in follow-up commits) |
 
 Multi-user (`conc≥4`) cells are out of scope here exactly as in the canonical study; they would not change the buyer story this bundle settles.
 

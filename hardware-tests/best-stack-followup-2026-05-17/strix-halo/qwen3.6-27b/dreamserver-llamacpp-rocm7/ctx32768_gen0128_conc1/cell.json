@@ -1,0 +1,25 @@
+{
+  "ctx": 32768,
+  "gen": 128,
+  "conc": 1,
+  "n_batches": 10,
+  "warmup_batches": 2,
+  "seed": 42,
+  "started": "2026-05-17T18:42:05.607907+00:00",
+  "model": "extra.Qwen3.6-27B-Q8_0.gguf",
+  "engine": "dreamserver-llamacpp-rocm7",
+  "per_slot": {
+    "n": 0,
+    "decode_tps_mean": null
+  },
+  "aggregate": {
+    "n_batches_total": 10,
+    "n_batches_body": 8,
+    "aggregate_decode_tps_mean": 0.0,
+    "aggregate_decode_tps_median": 0.0,
+    "batch_wall_s_mean": 299.989707052375
+  },
+  "cold_start": null,
+  "inferences_path": "inferences.jsonl",
+  "batches_path": "batches.jsonl"
+}
