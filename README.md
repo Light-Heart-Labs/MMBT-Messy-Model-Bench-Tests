@@ -19,7 +19,9 @@ but I'm making it public so that other people can use it too.
 
 ## Operating point (read before quoting)
 
-All published runs use **Cyankiwi 4-bit AWQ** quants on **2× RTX PRO 6000 Blackwell at 500 W cap**. Other quants (official FP8, Unsloth UD4 GGUF, BF16), other VRAM tiers (24 GB / 48 GB), other hardware classes (Mac M-series unified memory), and languages other than Python are **not characterized** here. See [`COMPARISON.md` § What this benchmark doesn't characterize](COMPARISON.md#what-this-benchmark-doesnt-characterize) for the full validity-boundary list, and [`ROADMAP.md`](ROADMAP.md) for what's queued to fill those gaps.
+Agent-task benchmarks under [`benchmarks/`](benchmarks/) all use **Cyankiwi 4-bit AWQ** quants on **2× RTX PRO 6000 Blackwell at 500 W cap**. Other quants (official FP8, Unsloth UD4 GGUF, BF16), other VRAM tiers (24 GB / 48 GB), other hardware classes (Mac M-series unified memory), and languages other than Python are **not characterized** by those entries. See [`COMPARISON.md` § What this benchmark doesn't characterize](COMPARISON.md#what-this-benchmark-doesnt-characterize) for the full validity-boundary list, and [`ROADMAP.md`](ROADMAP.md) for what's queued to fill those gaps.
+
+Rig-characterisation studies under [`hardware-tests/`](hardware-tests/) have their own operating-point scope — see each study's README. In particular, [`hardware-tests/qwen3.6-q8-fleet-2026-05-17/`](hardware-tests/qwen3.6-q8-fleet-2026-05-17/) ranks four hardware classes on **Q8_0 GGUF** under llama.cpp (with a Tower2 vLLM-FP8 appendix row for the model the llama.cpp/CUDA path crashes on).
 
 ## Layout
 

@@ -122,11 +122,13 @@
     {
       "path": "tower2/qwen3.6-27b/cuda-dual-card/",
       "status": "appendix",
-      "cells_present": 36,
+      "cells_present": 35,
       "cells_planned": 36,
-      "load_bearing_for": "Supplementary: dual-card pipeline-parallel 27B; NOT in cross-host ranking. 3 cells (32K conc\u22654) are skip-marked as the same engine-bound timeout class documented in AUDIT B23.",
+      "load_bearing_for": "Supplementary: dual-card pipeline-parallel 27B; NOT in cross-host ranking. The three ctx=32K conc\u22654 cells at the engine-bound timeout regime (AUDIT B23) did not complete cleanly \u2014 see known_gaps for the per-cell state.",
       "known_gaps": [
-        "3 cells at ctx=32K, conc\u22654 are skip-marked; see .skip-reason in each cell dir."
+        "ctx32768_gen0512_conc8: .error (bench-cell-failed) \u2014 engine-bound timeout class (AUDIT B23).",
+        "ctx32768_gen2048_conc4: cell dir present but no .done / .error marker \u2014 run did not finish cleanly.",
+        "ctx32768_gen2048_conc8: cell dir absent \u2014 never executed."
       ]
     },
     {
@@ -255,7 +257,7 @@
     },
     {
       "path": "aggregate/cells.jsonl",
-      "type": "per-cell summaries across all (host, model, backend) \u2014 356 rows"
+      "type": "per-cell summaries across all (host, model, backend) \u2014 355 rows"
     },
     {
       "path": "aggregate/all-inferences.jsonl",
@@ -274,7 +276,7 @@
   "deferred_to_follow_up": [
     "Full sustained-thermal tier (30 min \u00d7 4 hosts \u00d7 2 models)",
     "MMBT Phase B Q8 task-quality companion",
-    "EVO X2 ROCm retry sub-study with longer wait-ready / smaller bootstrap",
+    "EVO X2 ROCm retry on a newer engine SHA / newer ROCm runtime (the b9151 + ROCm 6.4.4 combination is now CONFIRMED broken via 3-config retry — see AUDIT.md B4)",
     "Tower2 35B-A3B native CUDA PTX-JIT retry (same b9151 SHA, different -DCMAKE_CUDA_ARCHITECTURES)",
     "Cross-engine multi-user concurrent serving study under properly batched engines"
   ],

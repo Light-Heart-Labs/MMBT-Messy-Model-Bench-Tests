@@ -64,7 +64,7 @@ cmake --build build-<backend> -j
 #    sample power + thermals at 1 Hz throughout
 ```
 
-The harness used to drive all of this is at <https://github.com/Light-Heart-Labs/MMBT-Messy-Model-Bench-Tests>'s author repo `bench-fleet` (not vendored here to keep the PR focused on the data; we can vendor on request).
+The harness used to drive all of this is vendored at [`harness/`](harness/) (snapshot of the author's `bench-fleet` repo at the SHA recorded in `harness/VENDORED-FROM-SHA.txt`). Per-host build invocations and the resume entry point are in `harness/HARNESS-README.md`.
 
 ## Where this fits in MMBT
 
