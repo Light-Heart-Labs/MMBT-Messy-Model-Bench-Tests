@@ -1,0 +1,4 @@
+"host","model","backend","cells_present_conc1","peak_prefill_tps","at_cell_prefill","peak_decode_tps","peak_decode_tps_sd","at_cell_decode","decode_tps_at_ctx16k","decode_tps_at_ctx16k_sd","ttft_ms_at_ctx16k","engine"
+"m5-mbp","qwen3.6-27b","mlx",12,773.164,"ctx04096_gen0128_conc1",17.776,0.0353,"ctx01024_gen0128_conc1",17.138,0.018,20397.0,"mlx"
+"m5-mbp","qwen3.6-35b-a3b","mlx",12,4124.576,"ctx04096_gen2048_conc1",102.705,0.6559,"ctx01024_gen0128_conc1",95.728,0.558,4429.0,"mlx"
+"strix-halo","qwen3.6-27b","dreamserver-llamacpp-rocm7",6,119.968,"ctx01024_gen0128_conc1",7.666,0.003,"ctx01024_gen0128_conc1","","","","dreamserver-llamacpp-rocm7"

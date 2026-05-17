@@ -1,0 +1,41 @@
+{
+  "ctx": 4096,
+  "gen": 2048,
+  "conc": 1,
+  "model": "extra.Qwen3.6-27B-Q8_0.gguf",
+  "engine": "dreamserver-llamacpp-rocm7",
+  "per_slot": {
+    "n": 8,
+    "n_total_including_warmup": 10,
+    "decode_tps_mean": 7.439261356031021,
+    "decode_tps_median": 7.439363957151846,
+    "decode_tps_min": 7.438743420011003,
+    "decode_tps_max": 7.439572306952991,
+    "decode_tps_sd": 0.0002870983966669607,
+    "prefill_tps_mean": 111.94117470035334,
+    "ttft_ms_mean": 34937.99525,
+    "elapsed_s_mean": 270.98968936,
+    "prompt_tokens_max": 3911,
+    "gen_tokens_total": 14048
+  },
+  "aggregate": {
+    "aggregate_decode_tps_mean": 6.479949436134327,
+    "batch_wall_s_mean": 270.989769003375,
+    "n_batches_total": 10,
+    "n_batches_body": 8,
+    "aggregate_decode_tps_median": 6.479921164653275
+  },
+  "cold_start": {
+    "decode_tps": 7.439166302291556,
+    "wall_s": 271.02289885,
+    "aggregate_decode_tps": 6.479155028144148,
+    "per_slot_decode_tps_mean": 7.439166302291556
+  },
+  "n_batches": 10,
+  "warmup_batches": 2,
+  "seed": 42,
+  "started": "2026-05-17T16:34:47.747652+00:00",
+  "inferences_path": "inferences.jsonl",
+  "batches_path": "batches.jsonl",
+  "engine_note": "dream-server bundled llama.cpp at /opt/llama-custom/llama-server linked against libamdhip64.so.7 (ROCm 7) + custom librocblas/libhipblaslt; version string b1 (ff5ef82). Fronted by Lemonade Server OpenAI-compatible API on port 11434."
+}

@@ -1,0 +1,12 @@
+loaded /Users/conta/models/mlx/Qwen3.6-35B-A3B-8bit in 1.8s
+batch 0: wall=2.70s agg=47.41 tok/s
+batch 1: wall=2.30s agg=55.56 tok/s
+batch 2: wall=2.30s agg=55.66 tok/s
+batch 3: wall=2.30s agg=55.58 tok/s
+batch 4: wall=2.30s agg=55.62 tok/s
+batch 5: wall=2.30s agg=55.61 tok/s
+batch 6: wall=2.31s agg=55.42 tok/s
+batch 7: wall=2.30s agg=55.55 tok/s
+batch 8: wall=2.31s agg=55.44 tok/s
+batch 9: wall=2.33s agg=54.90 tok/s
+cell done: per_slot_decode_mean=101.97724982871026

@@ -1,0 +1,136 @@
+{
+  "$schema_note": "MMBT benchmark-bundle manifest. Read this BEFORE drawing conclusions from any data in this directory. Status vocabulary: appendix = vendor-stack comparison, NOT part of the canonical cross-host ranking; preliminary = data present but grid not yet fully complete.",
+  "bundle_id": "hardware-tests/best-stack-followup-2026-05-17",
+  "snapshot_date_utc": "2026-05-17",
+  "claim_scope": "Vendor productized inference stack (Apple MLX, AMD dream-server bundled custom llama.cpp + ROCm 7) vs vanilla llama.cpp at b9151 on the SAME hardware that the canonical study measured. Single-user (conc=1) only. Multi-user, cross-host ranking, and cross-engine quality are out of scope.",
+  "relates_to": "hardware-tests/qwen3.6-q8-fleet-2026-05-17 — this bundle answers the auditor's 'best-stack matrix' ask for Apple and AMD only. NVIDIA productized stack (vLLM/TensorRT-LLM) is covered by the canonical study's Tower2 vLLM appendix and is not re-covered here.",
+  "models": [
+    {
+      "name": "qwen3.6-27b-mlx-8bit",
+      "hf_id": "mlx-community/Qwen3.6-27B-8bit",
+      "quant": "MLX-native 8-bit",
+      "architecture": "dense",
+      "used_by": ["m5-mbp/qwen3.6-27b/mlx/"]
+    },
+    {
+      "name": "qwen3.6-35b-a3b-mlx-8bit",
+      "hf_id": "mlx-community/Qwen3.6-35B-A3B-8bit",
+      "quant": "MLX-native 8-bit",
+      "architecture": "MoE (35B total, ~3B active)",
+      "used_by": ["m5-mbp/qwen3.6-35b-a3b/mlx/"]
+    },
+    {
+      "name": "qwen3.6-27b",
+      "filename": "Qwen3.6-27B-Q8_0.gguf",
+      "quant": "Q8_0 GGUF (byte-identical to canonical study)",
+      "size_bytes": 28595763424,
+      "sha256": "f93f517f38e696d35a1a7df2c0e3155a64f4c4dcd662107a146ae263f7fb14ce",
+      "architecture": "dense",
+      "used_by": ["strix-halo/qwen3.6-27b/dreamserver-llamacpp-rocm7/"]
+    }
+  ],
+  "engines": [
+    {
+      "id": "mlx",
+      "name": "Apple MLX (mlx-lm Python API)",
+      "version_at_snapshot": "0.31.3",
+      "note": "Driven via mlx_lm.stream_generate. Each cell's cell.json.engine_version records the installed version."
+    },
+    {
+      "id": "dreamserver-llamacpp-rocm7",
+      "name": "dream-server bundled custom llama.cpp build",
+      "binary_path": "/opt/llama-custom/llama-server (inside dream-llama-server container)",
+      "upstream_commit": "ff5ef82",
+      "version_string": "version: 1 (ff5ef82)",
+      "rocm_runtime": "ROCm 7 (libamdhip64.so.7, custom librocblas/libhipblaslt/librocroller)",
+      "fronted_by": "Lemonade Server OpenAI-compatible API on port 11434, started with --llamacpp rocm flag",
+      "note": "NOT to be conflated with vanilla Lemonade SDK's bundled Vulkan binary at /opt/lemonade/llama/vulkan/; those directories exist but are empty in this container. The --llamacpp rocm flag routes Lemonade to /opt/llama-custom/, which is dream-server's downstream patch set."
+    }
+  ],
+  "prompt_corpus": {
+    "path": "workloads/prompts.jsonl",
+    "sha256_pin": "matches qwen3.6-q8-fleet-2026-05-17 corpus byte-for-byte",
+    "note": "Same SHA-pinned natural-English prompt corpus the canonical study used. Used here in both MLX and dream-server-rocm7 grids for direct comparability with canonical cells."
+  },
+  "grid": {
+    "contexts": [1024, 4096, 16384, 32768],
+    "gen_lengths": [128, 512, 2048],
+    "concurrencies": [1],
+    "n_per_cell": 10,
+    "warmup_discard": 2,
+    "scope_note": "conc=1 only on purpose — buyer-relevant single-user claim. Multi-user (conc>=4) is out of scope here as in canonical."
+  },
+  "datasets": [
+    {
+      "path": "m5-mbp/qwen3.6-27b/mlx/",
+      "status": "appendix-complete",
+      "cells_present": 12,
+      "cells_planned": 12,
+      "load_bearing_for": "Apple-MLX-vs-canonical-Metal lift claim for the 27B dense model.",
+      "known_gaps": []
+    },
+    {
+      "path": "m5-mbp/qwen3.6-35b-a3b/mlx/",
+      "status": "appendix-complete",
+      "cells_present": 12,
+      "cells_planned": 12,
+      "load_bearing_for": "Apple-MLX-vs-canonical-Metal lift claim for the 35B-A3B MoE model. The MLX lift is larger here than on the dense 27B, which is the more interesting half of the finding.",
+      "known_gaps": []
+    },
+    {
+      "path": "strix-halo/qwen3.6-27b/dreamserver-llamacpp-rocm7/",
+      "status": "appendix-preliminary",
+      "cells_present": 6,
+      "cells_planned": 12,
+      "load_bearing_for": "Demonstrates that ROCm 7 (dream-server's bundled build) loads and serves Qwen3.6-27B-Q8 on Strix Halo where the canonical study's pinned llama.cpp b9151 + ROCm 6.4.4 segfaulted. Also shows that this path's decode matches vanilla Vulkan within noise while prefill is significantly slower because the bundled engine is at an older upstream commit than b9151.",
+      "known_gaps": [
+        "ctx=16K cells still running (3 cells)",
+        "ctx=32K cells not yet started (3 cells)",
+        "When all 12 land they will arrive in follow-up commits to this bundle."
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "aggregate/headline.csv",
+      "type": "per (host, model, backend) peak prefill, peak decode, decode-at-ctx-16K for conc=1. Regenerated from cell.json files via harness/lib/build-headline.py."
+    },
+    {
+      "path": "workloads/prompts.jsonl",
+      "type": "Same SHA-pinned natural-English prompt corpus as canonical study."
+    },
+    {
+      "path": "<host>/<model>/<backend>/<cell>/cell.json",
+      "type": "Per-cell summary. Schema is MMBT-canonical (matches qwen3.6-q8-fleet-2026-05-17 cells)."
+    },
+    {
+      "path": "<host>/<model>/<backend>/<cell>/inferences.jsonl",
+      "type": "Per-inference records with timing + content SHA."
+    },
+    {
+      "path": "<host>/<model>/<backend>/<cell>/batches.jsonl",
+      "type": "Per-batch wall and aggregate throughput."
+    },
+    {
+      "path": "harness/lib/",
+      "type": "Vendored bench scripts (bench-cell-mlx.py, bench-cell-lemonade.py, grid runners, canon-backfill.py, build-headline.py). Source SHA in harness/VENDORED-FROM-SHA.txt."
+    }
+  ],
+  "raw_data_complete": false,
+  "raw_data_omissions": [
+    "Per-cell server logs (lemonade + dream-server llama.cpp stderr) not included for brevity; regenerable from the bundled scripts.",
+    "Power and thermals samplers were not run alongside this bundle's cells; chassis-class thermal data still lives in qwen3.6-q8-fleet-2026-05-17."
+  ],
+  "deferred_to_follow_up": [
+    "Strix dream-server-rocm7 ctx=16K and ctx=32K cells (running at snapshot — 6/12 cells in this commit)",
+    "True Lemonade SDK on Strix Linux with Lemonade's own --llamacpp vulkan bundled binary — separates the Lemonade-wrapper question from the dream-server-downstream-build question",
+    "Lemonade on Windows + DirectML + INT4 OGA NPU path — the actual unique productized acceleration AMD is selling on Ryzen AI silicon (requires a Windows Strix Halo host we did not have)",
+    "Vanilla llama.cpp b9151 against ROCm 7 — isolates whether the ROCm-loading fix is in the v7 runtime or in dream-server's downstream patches",
+    "MLX vs Apple's MPSGraph llama.cpp build, if the user has both installed"
+  ],
+  "see_also": {
+    "canonical_study": "../qwen3.6-q8-fleet-2026-05-17/",
+    "audit": "../qwen3.6-q8-fleet-2026-05-17/AUDIT.md (B4 ROCm finding context)",
+    "not_here_yet": "../../NOT-HERE-YET.md"
+  }
+}
