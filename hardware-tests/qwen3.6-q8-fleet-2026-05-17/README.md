@@ -8,6 +8,12 @@ Same model file bytes, same llama.cpp source SHA, four different hardware platfo
 - Engine pin: `llama.cpp` tag `b9151` SHA `67b2b7f2f2d6dac7962b219168a4c7a20c7359b7`, built per-host with its native backend
 - Plus: vLLM appendix on the Blackwell 6000 Tower (FP8) for engine-comparison and to cover the model the llama.cpp/CUDA path crashes on (see `findings.md § Two backend-bug findings`)
 
+In plain English: this bundle covers both **dense 27B** and **MoE 35B-A3B**
+hardware behavior across the fleet. The Tower2 MoE native-Q8 llama.cpp row is
+retracted because it crashes on Blackwell sm_120; the published Tower2 MoE row
+is a clearly labeled vLLM FP8 exception defended in
+`audit/SEMANTIC-EQUIVALENCE-35B-A3B.md`.
+
 This is an early publication — the headline data is in, two companion sub-studies (full sustained-thermal tier, MMBT Phase B Q8 task-quality) are deferred. **Read `findings.md § Status of this PR` first** for the exact what-is-shipped-vs-deferred picture before reading any numbers.
 
 ## Read order
@@ -21,7 +27,7 @@ This is an early publication — the headline data is in, two companion sub-stud
 7. **`sustained/`** — preliminary throttle-curve samples (one cell each on three of four hosts). The load-bearing sustained-thermal data for this PR is the psychrometer-anchored section in `findings.md`, not this subdirectory. Full sustained tier is a follow-up.
 8. **`<host>/<model>/<backend>/<cell>/`** — per-cell raw: `cell.json` (summary), `batches.jsonl`, `inferences.jsonl` (per-request with content SHAs), `power.csv` + `thermals.csv` (1 Hz time series), `cell.meta.json`, `bench-cell.log`. llama-server debug logs are not included; they're regeneratable from the same SHA pins.
 
-## Headline at a glance — single-user 27B Q8, conc=1
+## Dense headline at a glance — single-user 27B Q8, conc=1
 
 | host | backend | peak prefill tok/s | peak decode tok/s ± SD | decode @ ctx=16 K | TTFT @ ctx=16 K | silicon W (gpu-only) |
 |---|---|---:|---:|---:|---:|---:|
@@ -30,6 +36,19 @@ This is an early publication — the headline data is in, two companion sub-stud
 | M5 Max MacBook Pro | metal | 571.8 | 16.78 ± 0.19 | 16.10 | 30.8 s | 20.97 |
 | DGX Spark | cuda-aarch64 | 750.6 | 7.60 ± 0.00 | 7.38 | 20.7 s | 41.74 |
 | EVO X2 (Strix Halo) | vulkan | 292.3 | 7.82 ± 0.00 | 7.50 | 59.3 s | 114.4 |
+
+## MoE headline at a glance — single-user 35B-A3B, conc=1
+
+| host | backend | peak prefill tok/s | peak decode tok/s ± SD | decode @ ctx=16 K | TTFT @ ctx=16 K | note |
+|---|---|---:|---:|---:|---:|---|
+| Blackwell 6000 Tower | cuda-vllm | 37847.1 | 240.48 ± 0.04 | 227.97 | 0.4 s | FP8 vLLM exception; native Q8 llama.cpp row retracted |
+| M5 Max MacBook Pro | metal | 2684.9 | 88.87 ± 0.12 | 80.28 | 7.8 s | Q8 GGUF |
+| DGX Spark | cuda-aarch64 | 1738.4 | 54.90 ± 0.02 | 51.12 | 9.1 s | Q8 GGUF |
+| EVO X2 (Strix Halo) | vulkan | 944.4 | 51.24 ± 0.26 | 20.42 | 123.7 s | Q8 GGUF, partial grid |
+
+The MoE table is intentionally adjacent to the dense table so readers do not
+mistake this bundle for a 27B-only study. For citation-grade details, use
+`aggregate/canonical-headline.csv` plus the manifest status for each row.
 
 Three things worth noting before you read the rest:
 
@@ -64,7 +83,10 @@ cmake --build build-<backend> -j
 #    sample power + thermals at 1 Hz throughout
 ```
 
-The harness used to drive all of this is at <https://github.com/Light-Heart-Labs/MMBT-Messy-Model-Bench-Tests>'s author repo `bench-fleet` (not vendored here to keep the PR focused on the data; we can vendor on request).
+The harness used to drive all of this is vendored in `harness/`, with provenance
+pinned in `harness/VENDORED-FROM-SHA.txt`. The upstream author repo is
+`bench-fleet`; this bundle keeps the snapshot needed to reproduce the published
+data.
 
 ## Where this fits in MMBT
 

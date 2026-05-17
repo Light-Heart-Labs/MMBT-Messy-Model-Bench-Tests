@@ -19,7 +19,7 @@ but I'm making it public so that other people can use it too.
 
 ## Operating point (read before quoting)
 
-All published runs use **Cyankiwi 4-bit AWQ** quants on **2× RTX PRO 6000 Blackwell at 500 W cap**. Other quants (official FP8, Unsloth UD4 GGUF, BF16), other VRAM tiers (24 GB / 48 GB), other hardware classes (Mac M-series unified memory), and languages other than Python are **not characterized** here. See [`COMPARISON.md` § What this benchmark doesn't characterize](COMPARISON.md#what-this-benchmark-doesnt-characterize) for the full validity-boundary list, and [`ROADMAP.md`](ROADMAP.md) for what's queued to fill those gaps.
+The agent-task benchmark entries use **Cyankiwi 4-bit AWQ** quants on **2× RTX PRO 6000 Blackwell at 500 W cap** unless an entry README says otherwise. The hardware-test tree is separate: the 2026-05-17 cross-platform fleet study runs both **Qwen3.6-27B Q8 dense** and **Qwen3.6-35B-A3B Q8/FP8 MoE** across Blackwell 6000 Tower, DGX Spark, EVO X2 / Strix Halo, and M5 Max MacBook Pro. See [`hardware-tests/README.md`](hardware-tests/README.md) before quoting hardware claims, and see [`COMPARISON.md` § What this benchmark doesn't characterize](COMPARISON.md#what-this-benchmark-doesnt-characterize) for the model-benchmark validity boundaries.
 
 ## Layout
 
@@ -42,7 +42,10 @@ benchmarks/
     Qwen3-Coder-Next-AWQ/      local, full memo repo (DOCU BUY, 1 of 3 runs shipped — verdict reliability caveat in README)
     Qwen3.6-35B-A3B-AWQ/       local, no usable deliverable (0 of 3 runs shipped, kept as failure-mode entry)
 hardware-tests/
+  README.md                       hardware-test landing page: coverage matrix, settled vs held questions
   vllm-power-sweep-2026-04-29/ rig characterisation: vLLM throughput vs GPU power cap, 28-cell sweep with raw CSVs + audit notes
+  qwen3.6-q8-fleet-2026-05-17/ cross-platform dense + MoE Q8 hardware comparison
+  local-ai-hardware-valuation-2026-05-17/ recomputable buyer valuation worksheet
 ```
 
 ## Benchmarks
@@ -57,7 +60,7 @@ hardware-tests/
 
 ## Hardware tests
 
-`hardware-tests/` holds rig characterisation runs — power, throughput, and thermal sweeps on the lab hardware itself, separate from agent-task benchmarks. They support the same evidence base (e.g. validating the operating power cap a model run was conducted under), but they live in their own tree because they answer hardware questions, not model questions.
+`hardware-tests/` holds rig characterisation runs — power, throughput, and thermal sweeps on the lab hardware itself, separate from agent-task benchmarks. Start with [`hardware-tests/README.md`](hardware-tests/README.md): it makes the dense-vs-MoE coverage, backend exceptions, and "settled vs held" boundaries explicit.
 
 | Test | Shape | What it measures |
 |---|---|---|

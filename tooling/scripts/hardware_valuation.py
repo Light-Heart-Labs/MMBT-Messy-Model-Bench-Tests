@@ -16,7 +16,7 @@ DEFAULT_SYSTEMS = Path(
     "hardware-tests/local-ai-hardware-valuation-2026-05-17/inputs/systems.csv"
 )
 DEFAULT_HEADLINE = Path(
-    "hardware-tests/qwen3.6-q8-fleet-2026-05-17/aggregate/headline.csv"
+    "hardware-tests/qwen3.6-q8-fleet-2026-05-17/aggregate/canonical-headline.csv"
 )
 DEFAULT_OUTPUT = Path(
     "hardware-tests/local-ai-hardware-valuation-2026-05-17/outputs/valuation.csv"
@@ -56,7 +56,7 @@ OUTPUT_COLUMNS = [
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate hardware valuation ratios from systems.csv and MMBT headline.csv."
+        description="Generate hardware valuation ratios from systems.csv and MMBT canonical-headline.csv."
     )
     parser.add_argument("--systems", type=Path, default=DEFAULT_SYSTEMS)
     parser.add_argument("--headline", type=Path, default=DEFAULT_HEADLINE)
@@ -128,7 +128,7 @@ def valuation_row(
     measurement_source = ""
     if measured:
         measurement_source = (
-            f"hardware-tests/qwen3.6-q8-fleet-2026-05-17/aggregate/headline.csv"
+            f"hardware-tests/qwen3.6-q8-fleet-2026-05-17/aggregate/canonical-headline.csv"
             f"::{key[0]}/{key[1]}/{key[2]}"
         )
 
@@ -170,7 +170,7 @@ def main() -> None:
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=OUTPUT_COLUMNS)
+        writer = csv.DictWriter(f, fieldnames=OUTPUT_COLUMNS, lineterminator="\n")
         writer.writeheader()
         for system in systems:
             writer.writerow(valuation_row(system, measurements))

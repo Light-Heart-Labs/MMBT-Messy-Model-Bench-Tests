@@ -122,11 +122,11 @@
     {
       "path": "tower2/qwen3.6-27b/cuda-dual-card/",
       "status": "appendix",
-      "cells_present": 36,
+      "cells_present": 33,
       "cells_planned": 36,
-      "load_bearing_for": "Supplementary: dual-card pipeline-parallel 27B; NOT in cross-host ranking. 3 cells (32K conc\u22654) are skip-marked as the same engine-bound timeout class documented in AUDIT B23.",
+      "load_bearing_for": "Supplementary: dual-card pipeline-parallel 27B; NOT in cross-host ranking. Three planned cells are absent or error-marked in the same engine-bound timeout class documented in AUDIT B23.",
       "known_gaps": [
-        "3 cells at ctx=32K, conc\u22654 are skip-marked; see .skip-reason in each cell dir."
+        "Only 33 of 36 cell.json files are present; ctx=32768 gen=0512 conc=8 has a .error marker and two planned ctx=32768 cells are absent from the published tree."
       ]
     },
     {
@@ -164,7 +164,7 @@
       "cells_planned": 36,
       "load_bearing_for": "Strix Halo 27B row in the cross-host ranking. Single-user (conc=1) cells fully present.",
       "known_gaps": [
-        "3 cells at ctx=32K, conc=8 skip-marked as engine-bound timeout class (AUDIT B23). Not retried."
+        "3 cells at ctx=32K, conc=8 have .error markers for the engine-bound timeout class (AUDIT B23). Not retried."
       ]
     },
     {
@@ -174,7 +174,7 @@
       "cells_planned": 36,
       "load_bearing_for": "Strix Halo 35B-A3B row in the cross-host ranking (single-user, low-conc, and low-ctx cells).",
       "known_gaps": [
-        "13 cells skip-marked as OOM hardware ceiling (ctx=32K conc\u22654 + ctx=4K/16K certain conc=4/8 cells). KV cache for 35B-A3B Q8 at these configs exceeds the 124 GB unified pool."
+        "13 planned cells are absent or have .error markers from the documented OOM / timeout ceiling (ctx=32K conc\u22654 + ctx=4K/16K certain conc=4/8 cells). KV cache for 35B-A3B Q8 at these configs exceeds the 124 GB unified pool."
       ]
     },
     {
@@ -255,7 +255,7 @@
     },
     {
       "path": "aggregate/cells.jsonl",
-      "type": "per-cell summaries across all (host, model, backend) \u2014 356 rows"
+      "type": "per-cell summaries across all (host, model, backend) \u2014 355 rows"
     },
     {
       "path": "aggregate/all-inferences.jsonl",
