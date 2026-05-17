@@ -60,10 +60,15 @@ cd harness
 
 You need `ssh_alias` resolvable to each remote host (with passwordless key auth) and the harness installed at `$HOME/bench-fleet` on each. `lib/prepare-host.sh` rsyncs the harness + models to each remote on `--phase prepare`. See `README.md § Cross-host orchestration` for the long-form walkthrough.
 
-## Known harness issues (not yet fixed in the snapshot above)
+## Known harness issues
 
-- `bench-host.sh` cleanup_cell trap historically didn't fire on parent SIGTERM — children reparented to init on orchestrator pause. A trap fix landed on the bench-fleet upstream after this snapshot was taken; will appear in the next vendored bundle.
+### Fixed in this snapshot
+
+- `bench-host.sh` parent SIGTERM/SIGINT trap (`_cleanup_parent`, lines 46–63 of `lib/bench-host.sh`). Without it, an orchestrator pause/SIGTERM leaves grandchildren (llama-server, bench-cell.py, probes) reparented to init. The trap is present in this vendored copy; the published `qwen3.6-q8-fleet-2026-05-17` data was produced *before* the trap was added (so any orphans from that run had to be cleaned manually — see the bundle's pause notes), but anyone reproducing the harness from this directory has the trap.
+
+### Still not fixed in this snapshot
+
 - `auto-pr.sh` stashes its own fix when the pending changes are the only dirty files. Manual `git add + commit + push` workaround.
-- `live-snapshot.sh` headline section sometimes prints null cells — script bug, the underlying `aggregate/headline.json` is correct.
+- `live-snapshot.sh` headline section sometimes prints null cells — script bug. The underlying `aggregate/headline.json` is the source of truth and is correct.
 
 Document these so reproducers know what behavior to expect and can apply local patches.
