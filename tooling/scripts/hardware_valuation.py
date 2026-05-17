@@ -16,7 +16,7 @@ DEFAULT_SYSTEMS = Path(
     "hardware-tests/local-ai-hardware-valuation-2026-05-17/inputs/systems.csv"
 )
 DEFAULT_HEADLINE = Path(
-    "hardware-tests/qwen3.6-q8-fleet-2026-05-17/aggregate/headline.csv"
+    "hardware-tests/qwen3.6-q8-fleet-2026-05-17/aggregate/canonical-headline.csv"
 )
 DEFAULT_OUTPUT = Path(
     "hardware-tests/local-ai-hardware-valuation-2026-05-17/outputs/valuation.csv"
@@ -100,6 +100,7 @@ def headline_index(rows: list[dict[str, str]]) -> dict[tuple[str, str, str], dic
 def valuation_row(
     system: dict[str, str],
     measurements: dict[tuple[str, str, str], dict[str, str]],
+    headline_path: Path,
 ) -> dict[str, str]:
     price = as_float(system.get("price_usd"))
     memory_gb = as_float(system.get("memory_gb_for_value"))
@@ -127,10 +128,7 @@ def valuation_row(
 
     measurement_source = ""
     if measured:
-        measurement_source = (
-            f"hardware-tests/qwen3.6-q8-fleet-2026-05-17/aggregate/headline.csv"
-            f"::{key[0]}/{key[1]}/{key[2]}"
-        )
+        measurement_source = f"{headline_path}::{key[0]}/{key[1]}/{key[2]}"
 
     return {
         "system_id": system["system_id"],
@@ -173,7 +171,7 @@ def main() -> None:
         writer = csv.DictWriter(f, fieldnames=OUTPUT_COLUMNS)
         writer.writeheader()
         for system in systems:
-            writer.writerow(valuation_row(system, measurements))
+            writer.writerow(valuation_row(system, measurements, args.headline))
 
 
 if __name__ == "__main__":
