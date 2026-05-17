@@ -81,12 +81,13 @@
       "path": "strix-halo/qwen3.6-27b/dreamserver-llamacpp-rocm7/",
       "status": "appendix-partial-with-ceiling-finding",
       "cells_present": 8,
-      "cells_with_error_marker": 1,
+      "cells_with_error_marker": 2,
       "cells_planned": 12,
       "load_bearing_for": "Demonstrates that ROCm 7 (dream-server's bundled build) loads and serves Qwen3.6-27B-Q8 on Strix Halo where the canonical study's pinned llama.cpp b9151 + ROCm 6.4.4 segfaulted. Also shows that this path's decode matches vanilla Vulkan within noise while prefill is significantly slower because the bundled engine is at an older upstream commit than b9151. The ctx=16K cells confirm the long-context behavior holds: TTFT ≈ 186 s at gen=128 (vs canonical Vulkan ttft ~30 s at the same cell), decode steady ~7.0 tok/s through gen=128/512. ctx=16K gen=2048 and the entire ctx=32K tier exceed a 300 s server-side response timeout in this dream-server lemonade stack — see known_gaps.",
       "known_gaps": [
         "ctx=16384_gen2048_conc1 has a .error marker (no .done). All 10 batches timed out at exactly 300.0 s wall time per request. Estimated request length at this cell: ~186 s prefill (84 tok/s × 15603 prompt tokens) + ~293 s decode (2048 / 7 tok/s) = ~480 s, well over the 300 s ceiling.",
-        "ctx=32K cells (gen=128/512/2048) are similarly expected to hit the same 300 s ceiling; at ctx=32K, prefill alone is ~371 s.",
+        "ctx=32768_gen0128_conc1 has a .error marker (no .done). Same 300 s ceiling: prefill at ctx=32K is ~371 s (84 tok/s × 31186 prompt tokens), already over the ceiling before any decode begins.",
+        "ctx=32K gen=512 and gen=2048 cells are running at snapshot and are expected to fail the same way (will be pulled in as .error cells if they do).",
         "The 300 s timeout appears to be a Lemonade Server / FastAPI default; not yet investigated whether it is tunable. Documented as a buyer-relevant ceiling: under the dream-server lemonade stack on Strix Halo Linux, single-user requests longer than ~5 min fail."
       ]
     }
