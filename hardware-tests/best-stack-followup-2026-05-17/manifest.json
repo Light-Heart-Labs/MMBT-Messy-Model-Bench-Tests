@@ -80,11 +80,11 @@
     {
       "path": "strix-halo/qwen3.6-27b/dreamserver-llamacpp-rocm7/",
       "status": "appendix-preliminary",
-      "cells_present": 6,
+      "cells_present": 7,
       "cells_planned": 12,
-      "load_bearing_for": "Demonstrates that ROCm 7 (dream-server's bundled build) loads and serves Qwen3.6-27B-Q8 on Strix Halo where the canonical study's pinned llama.cpp b9151 + ROCm 6.4.4 segfaulted. Also shows that this path's decode matches vanilla Vulkan within noise while prefill is significantly slower because the bundled engine is at an older upstream commit than b9151.",
+      "load_bearing_for": "Demonstrates that ROCm 7 (dream-server's bundled build) loads and serves Qwen3.6-27B-Q8 on Strix Halo where the canonical study's pinned llama.cpp b9151 + ROCm 6.4.4 segfaulted. Also shows that this path's decode matches vanilla Vulkan within noise while prefill is significantly slower because the bundled engine is at an older upstream commit than b9151. The ctx=16K cell adds a long-context data point: TTFT = 185.6 s (vs canonical Vulkan ttft ~30 s at the same cell) — the older-engine prefill cost shows up most dramatically at long context.",
       "known_gaps": [
-        "ctx=16K cells still running (3 cells)",
+        "ctx=16K gen=512 and gen=2048 cells still running (2 cells)",
         "ctx=32K cells not yet started (3 cells)",
         "When all 12 land they will arrive in follow-up commits to this bundle."
       ]
