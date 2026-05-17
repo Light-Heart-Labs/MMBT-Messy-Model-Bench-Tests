@@ -130,7 +130,9 @@
   ],
   "see_also": {
     "canonical_study": "../qwen3.6-q8-fleet-2026-05-17/",
-    "audit": "../qwen3.6-q8-fleet-2026-05-17/AUDIT.md (B4 ROCm finding context)",
+    "this_bundle_audit": "./AUDIT.md (locked-vs-varied inputs and apples-to-apples boundaries for THIS bundle)",
+    "canonical_audit": "../qwen3.6-q8-fleet-2026-05-17/AUDIT.md (B4 ROCm 6.4.4 finding that this bundle narrows)",
+    "claims_matrix": "../../claims.yaml (claim IDs hw.best-stack.m5.mlx-beats-metal, hw.best-stack.strix.rocm7-works, hw.best-stack.strix.no-prefill-lift)",
     "not_here_yet": "../../NOT-HERE-YET.md"
   }
 }

@@ -66,11 +66,14 @@ f93f517f38e696d35a1a7df2c0e3155a64f4c4dcd662107a146ae263f7fb14ce  Qwen3.6-27B-Q8
 EOF
 
 # 2. MLX models (different format from GGUF — this is the point of the comparison)
-hf download mlx-community/Qwen3.6-27B-8bit --local-dir ~/models/mlx/Qwen3.6-27B-8bit
+hf download mlx-community/Qwen3.6-27B-8bit     --local-dir ~/models/mlx/Qwen3.6-27B-8bit
 hf download mlx-community/Qwen3.6-35B-A3B-8bit --local-dir ~/models/mlx/Qwen3.6-35B-A3B-8bit
+# Verify against the byte-pinned SHAs we ran against (HF refs are floating):
+cd ~/models/mlx && shasum -a 256 -c <path-to-this-bundle>/workloads/mlx-models.sha256
 
 # 3. Same prompt corpus as canonical, SHA-pinned
-sha256sum --check workloads/prompts.jsonl.sha256
+cd <path-to-this-bundle> && sha256sum -c workloads/prompts.jsonl.sha256
+# (or `shasum -a 256 -c workloads/prompts.jsonl.sha256` on macOS)
 
 # 4. MLX driver (M5): see harness/lib/bench-cell-mlx.py + harness/lib/run-mlx-grid.sh
 # 5. Lemonade-via-dream-server driver (Strix): see harness/lib/bench-cell-lemonade.py + harness/lib/run-lemonade-grid.sh
@@ -86,7 +89,7 @@ Harness is vendored at `harness/lib/` (snapshot of `bench-fleet` at the SHA in `
 
 - **Cross-host ranking.** The canonical study owns that. Different engines + different quants make this bundle appendix-only.
 - **NVIDIA productized stack on Tower2.** The canonical study already shows vLLM/FP8 on Tower2; this bundle does not re-cover that ground.
-- **Apple MLX on the 35B at the absolute longest cell.** The last cell (ctx=32K gen=2048 conc=1) was still running when this snapshot was taken; updated as soon as it lands.
+- **Apple MLX on the 35B at the absolute longest cell.** Complete in this snapshot — the early-publication caveat is now closed for both MLX grids.
 - **Lemonade's other backends.** We measured the path dream-server users actually run on Strix Halo Linux. The Windows + DirectML + INT4 NPU path (the actual reason to buy a Ryzen AI laptop) requires a Windows host we did not have available.
 - **Multi-user (conc≥4) cells.** Out of scope here as in the canonical study.
 
