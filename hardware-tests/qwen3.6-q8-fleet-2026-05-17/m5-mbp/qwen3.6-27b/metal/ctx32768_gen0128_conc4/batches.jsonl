@@ -1,0 +1,10 @@
+{"batch": 0, "conc": 4, "ok_slots": 4, "wall_s": 319.156490583, "total_gen_tokens": 512, "aggregate_decode_tps": 1.6042286937819585, "per_slot_decode_tps_mean": 3.300423125618324}
+{"batch": 1, "conc": 4, "ok_slots": 4, "wall_s": 323.867622541, "total_gen_tokens": 512, "aggregate_decode_tps": 1.5808928227618164, "per_slot_decode_tps_mean": 3.118757307005597}
+{"batch": 2, "conc": 4, "ok_slots": 4, "wall_s": 324.178187416, "total_gen_tokens": 512, "aggregate_decode_tps": 1.5793783168482542, "per_slot_decode_tps_mean": 3.1112411854714077}
+{"batch": 3, "conc": 4, "ok_slots": 4, "wall_s": 319.631996375, "total_gen_tokens": 512, "aggregate_decode_tps": 1.6018421366029612, "per_slot_decode_tps_mean": 3.034180954574404}
+{"batch": 4, "conc": 4, "ok_slots": 4, "wall_s": 322.98714375, "total_gen_tokens": 512, "aggregate_decode_tps": 1.585202414113116, "per_slot_decode_tps_mean": 3.0450023098883174}
+{"batch": 5, "conc": 4, "ok_slots": 4, "wall_s": 321.879412666, "total_gen_tokens": 512, "aggregate_decode_tps": 1.5906578049192592, "per_slot_decode_tps_mean": 3.146953215136861}
+{"batch": 6, "conc": 4, "ok_slots": 4, "wall_s": 322.083168417, "total_gen_tokens": 512, "aggregate_decode_tps": 1.5896515254628745, "per_slot_decode_tps_mean": 3.1309761901732154}
+{"batch": 7, "conc": 4, "ok_slots": 4, "wall_s": 322.750185167, "total_gen_tokens": 512, "aggregate_decode_tps": 1.5863662471179587, "per_slot_decode_tps_mean": 3.0384463770682943}
+{"batch": 8, "conc": 4, "ok_slots": 4, "wall_s": 327.651349792, "total_gen_tokens": 512, "aggregate_decode_tps": 1.5626366267834038, "per_slot_decode_tps_mean": 3.0066521395720986}
+{"batch": 9, "conc": 4, "ok_slots": 4, "wall_s": 332.425509333, "total_gen_tokens": 512, "aggregate_decode_tps": 1.5401946770791144, "per_slot_decode_tps_mean": 2.9843610822876654}

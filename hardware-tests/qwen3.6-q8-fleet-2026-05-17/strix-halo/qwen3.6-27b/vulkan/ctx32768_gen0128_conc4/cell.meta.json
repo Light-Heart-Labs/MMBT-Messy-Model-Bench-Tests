@@ -1,0 +1,12 @@
+{
+  "backend": "vulkan",
+  "ctx": 32768, "gen": 128, "conc": 4,
+  "model_path": "/home/michael/models/bench-fleet/Qwen3.6-27B-Q8_0.gguf",
+  "ctx_size_total": 132096,
+  "parallel_slots": 4,
+  "n_gpu_layers": 99,
+  "flash_attention": "",
+  "llama_build": "",
+  "wait_ready_used_s": "captured",
+  "server_log": "llama-server-19818.log"
+}

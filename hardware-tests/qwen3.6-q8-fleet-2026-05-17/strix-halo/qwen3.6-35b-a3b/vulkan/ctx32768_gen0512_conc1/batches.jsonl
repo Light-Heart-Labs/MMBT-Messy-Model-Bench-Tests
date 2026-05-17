@@ -1,0 +1,2 @@
+{"batch": 0, "conc": 1, "ok_slots": 1, "wall_s": 373.632414032, "total_gen_tokens": 512, "aggregate_decode_tps": 1.3703307870824866, "per_slot_decode_tps_mean": 11.849706835475615}
+{"batch": 1, "conc": 1, "ok_slots": 1, "wall_s": 344.967753614, "total_gen_tokens": 512, "aggregate_decode_tps": 1.484196695592887, "per_slot_decode_tps_mean": 13.505518138412041}

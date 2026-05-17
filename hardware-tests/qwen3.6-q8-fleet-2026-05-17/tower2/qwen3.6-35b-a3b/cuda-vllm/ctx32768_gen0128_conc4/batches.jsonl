@@ -1,0 +1,3 @@
+{"batch": 0, "conc": 4, "ok_slots": 4, "wall_s": 4.916252437, "total_gen_tokens": 512, "aggregate_decode_tps": 104.14436739388287, "per_slot_decode_tps_mean": 73.73508683816696}
+{"batch": 1, "conc": 4, "ok_slots": 4, "wall_s": 4.908625589, "total_gen_tokens": 512, "aggregate_decode_tps": 104.30618321091103, "per_slot_decode_tps_mean": 73.69366364135418}
+{"batch": 2, "conc": 4, "ok_slots": 4, "wall_s": 4.932393433, "total_gen_tokens": 512, "aggregate_decode_tps": 103.80356047319391, "per_slot_decode_tps_mean": 73.66962169686711}

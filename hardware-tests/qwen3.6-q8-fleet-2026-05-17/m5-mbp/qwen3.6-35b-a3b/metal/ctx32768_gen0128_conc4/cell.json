@@ -1,0 +1,37 @@
+{
+  "ctx": 32768,
+  "gen": 128,
+  "conc": 4,
+  "n_batches": 10,
+  "warmup_batches": 2,
+  "seed": 42,
+  "started": "2026-05-14T23:50:19Z",
+  "cold_start": {
+    "wall_s": 86.618787417,
+    "aggregate_decode_tps": 5.910957833375462,
+    "per_slot_decode_tps_mean": 11.767034150638311
+  },
+  "per_slot": {
+    "n": 32,
+    "n_total_including_warmup": 40,
+    "decode_tps_mean": 11.189051892247175,
+    "decode_tps_median": 3.984727714932285,
+    "decode_tps_min": 1.852212727847308,
+    "decode_tps_max": 35.71431560908115,
+    "decode_tps_sd": 13.65925951758682,
+    "prefill_tps_mean": 1290.4160298982285,
+    "ttft_ms_mean": 24317.62353125,
+    "elapsed_s_mean": 88.702425556,
+    "prompt_tokens_max": 31186,
+    "gen_tokens_total": 4096
+  },
+  "aggregate": {
+    "n_batches_total": 10,
+    "n_batches_body": 8,
+    "aggregate_decode_tps_mean": 5.747936770124579,
+    "aggregate_decode_tps_median": 5.716595966350839,
+    "batch_wall_s_mean": 89.132971099125
+  },
+  "inferences_path": "inferences.jsonl",
+  "batches_path": "batches.jsonl"
+}
