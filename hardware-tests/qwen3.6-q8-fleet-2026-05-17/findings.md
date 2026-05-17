@@ -116,7 +116,7 @@ Each row is a single (host, model, backend) tuple. Two models are present: Qwen3
 | DGX Spark | qwen3.6-27b | cuda-aarch64 | 750.6 | 7.6 ± 0 | 7.38 ± 0 | 7.6 | 20.7 s | 41.74 | gpu_die | 70.0 |
 | DGX Spark | qwen3.6-35b-a3b | cuda-aarch64 | 1738.4 | 54.89 ± 0.01 | 51.12 ± 0.04 | 54.86 | 9 s | 43.25 | gpu_die | 68.0 |
 | EVO X2 | qwen3.6-27b | vulkan | 292.3 | 7.82 ± 0 | 7.5 ± 0 | 7.81 | 59.3 s | 114.44 | gpu_edge | 85.0 |
-| EVO X2 | qwen3.6-35b-a3b | vulkan | 914.3 | 51.24 ± 0.25 | — | 49.84 | — | 119.03 | gpu_edge | 85.0 |
+| EVO X2 | qwen3.6-35b-a3b | vulkan | 944.4 | 51.24 ± 0.25 | 20.42 ± 0.08 | 49.84 | 123.7 s | 119.03 | gpu_edge | 85.0 |
 | Blackwell 6000 Tower | qwen3.6-27b | cuda | 2230.8 | 49.78 ± 0.08 | 19.84 ± 0 | 49.63 | 21.3 s | 500.44 | gpu_die | 58.0 |
 | Blackwell 6000 Tower | qwen3.6-27b | cuda-vllm | 6944 | 51.29 ± 0 | 49.32 ± 0 | 51.29 | 2.3 s | — | unknown | — |
 | Blackwell 6000 Tower | qwen3.6-35b-a3b | cuda-vllm | 38124.3 | 239.9 ± 0.18 | 227.71 ± 0.12 | 240.38 | 0.4 s | — | unknown | — |
@@ -275,13 +275,13 @@ Per AUDIT.md B12, the $12 k single-RTX-6000 anchor is the right answer for *infe
 
 | host | anchor ($k) | decode tok/s/$1 k | prefill tok/s/$1 k |
 |---|---:|---:|---:|
-| Blackwell 6000 Tower ($12k single-RTX-6000) | 12.0 | **4.23** | **464.1** |
-| Blackwell 6000 Tower ($33k as-configured) | 33.0 | **1.54** | **168.8** |
+| Blackwell 6000 Tower ($12k single-RTX-6000) | 12.0 | **4.12** | **181.81** |
+| Blackwell 6000 Tower ($33k as-configured) | 33.0 | **1.50** | **66.11** |
 | EVO X2 | 3.0 | **2.59** | **89.7** |
 | DGX Spark | 4.7 | **1.62** | **139.1** |
 | M5 Max MacBook Pro | 4.8 | **3.46** | **110.4** |
 
-Under the $33 k anchor, Tower2's decode tok/s/$k drops from 4.1 to ~1.5 — still positive but no longer top — and prefill drops from ~186 to ~68. The skeptical reader's right question is **"which anchor matches my purchase?"**: if they would buy a workstation with dual ECC GPUs and 1600 W titanium PSU because they need those things, use $33 k. If they would buy a one-GPU machine because their workload is one-GPU, use $12 k. The right number depends on the budget the comparison is informing.
+Under the $33 k anchor, Tower2's decode tok/s/$k drops from 4.12 to 1.50 — still positive but no longer top — and prefill drops from ~182 to ~66. The skeptical reader's right question is **"which anchor matches my purchase?"**: if they would buy a workstation with dual ECC GPUs and 1600 W titanium PSU because they need those things, use $33 k. If they would buy a one-GPU machine because their workload is one-GPU, use $12 k. The right number depends on the budget the comparison is informing.
 
 ### 5-year total cost of ownership under continuous load
 
