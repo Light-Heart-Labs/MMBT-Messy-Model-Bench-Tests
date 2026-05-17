@@ -70,6 +70,12 @@ This bundle exercises a different combination on the same hardware:
 - The productized AMD Linux stack does not deliver speedups beyond upstream `llama.cpp` Vulkan. On the prefill axis it is significantly slower because of engine vintage.
 - The Strix Halo NPU acceleration story (the actual unique-selling-point of Ryzen AI silicon) lives on the Windows + DirectML + INT4 OGA path through Lemonade's official `oga-load` backend, which we did not test here. That, not ROCm Linux, is what AMD is selling.
 
+### Additional finding: 300 s server-side request ceiling
+
+`ctx=16384 gen=2048` and the entire `ctx=32K` tier exceed a 300 s response timeout in the dream-server Lemonade Server stack on Strix Halo. All 10 batches at `ctx16384_gen2048_conc1` errored at exactly 300.0 s wall time per request, producing a `.error` marker (no `.done`). Estimated true request length at that cell: ~186 s prefill (84 tok/s × 15,603 prompt tokens) + ~293 s decode (2048 / 7 tok/s) ≈ 480 s, well over the 300 s ceiling. At `ctx=32K`, prefill alone is ~371 s, so all `ctx=32K` cells are expected to hit the same ceiling.
+
+This is itself a buyer-relevant ceiling: under the **dream-server lemonade stack as-shipped on Strix Halo Linux**, single-user requests longer than ~5 min fail. Vanilla `llama-server` from `b9151` does not have this ceiling (the canonical study's Strix Vulkan ctx=32K gen=2048 cell completes in ~250 s and decode is ~7 tok/s × 2048 = 293 s). The ceiling appears to be a Lemonade Server / FastAPI default; not yet investigated whether tunable.
+
 ## § Engine identification — why this took some unwinding
 
 We initially set up bench cells expecting to measure "Lemonade SDK on Strix" — Lemonade's own Vulkan-bundled binary against the same Q8 GGUF. The numbers came back close to canonical Vulkan and we wrote down "Lemonade ≈ vanilla Vulkan on Linux" as the headline.
