@@ -5,7 +5,7 @@
 - **Shipped at snapshot:**
   - M5 MLX 27B grid (12/12 conc=1 cells, complete)
   - M5 MLX 35B-A3B grid (12/12 conc=1 cells, complete)
-  - Strix dream-server ROCm 7 partial grid (7/12 conc=1 cells covering ctx=1024 + 4096 + ctx=16K gen=128; ctx=16K gen=512/2048 and ctx=32K cells still running, will land in follow-up commits)
+  - Strix dream-server ROCm 7 partial grid (8/12 conc=1 cells covering ctx=1024 + 4096 + ctx=16K gen=128/512; ctx=16K gen=2048 and ctx=32K cells still running, will land in follow-up commits)
   - Engine identification + reproducibility bundle for both paths
 - **Preliminary:** Strix dream-server ROCm 7 cells at ctx≥16K. Same engine, just slower cells. Update as they land.
 - **Deferred** (see `manifest.json.deferred_to_follow_up`):
