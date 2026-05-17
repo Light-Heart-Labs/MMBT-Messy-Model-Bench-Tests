@@ -23,7 +23,7 @@ This is an early publication while the grids are still running. **Read `findings
 |---|---:|---:|---|
 | `m5-mbp/qwen3.6-27b/mlx/` | 12 | 12 | complete |
 | `m5-mbp/qwen3.6-35b-a3b/mlx/` | 12 | 12 | complete |
-| `strix-halo/qwen3.6-27b/dreamserver-llamacpp-rocm7/` | 6 | 12 | preliminary (ctx≤4K cells; ctx=16K + 32K still running, will land in follow-up commit) |
+| `strix-halo/qwen3.6-27b/dreamserver-llamacpp-rocm7/` | 7 | 12 | preliminary (ctx≤4K + ctx=16K gen=128 present; ctx=16K gen=512/2048 and ctx=32K cells still running, will land in follow-up commits) |
 
 Multi-user (`conc≥4`) cells are out of scope here exactly as in the canonical study; they would not change the buyer story this bundle settles.
 
@@ -33,7 +33,7 @@ Multi-user (`conc≥4`) cells are out of scope here exactly as in the canonical 
 |---|---|---|---:|---:|---:|
 | M5 Max MBP | Qwen3.6-27B | mlx | 773.2 | **17.78 ± 0.04** | 17.14 |
 | M5 Max MBP | Qwen3.6-35B-A3B | mlx | **4124.6** | **102.71 ± 0.66** | 95.73 |
-| EVO X2 (Strix Halo) | Qwen3.6-27B | dreamserver-rocm7 | 120.0 | 7.67 ± 0.003 | _ctx=16K cell pending_ |
+| EVO X2 (Strix Halo) | Qwen3.6-27B | dreamserver-rocm7 | 120.0 | 7.67 ± 0.003 | 7.06 |
 
 vs the canonical-study numbers (`qwen3.6-q8-fleet-2026-05-17/aggregate/canonical-headline.csv`) for the same hardware on llama.cpp:
 

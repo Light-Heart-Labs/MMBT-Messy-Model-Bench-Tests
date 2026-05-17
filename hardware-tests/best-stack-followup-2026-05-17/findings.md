@@ -5,7 +5,7 @@
 - **Shipped at snapshot:**
   - M5 MLX 27B grid (12/12 conc=1 cells, complete)
   - M5 MLX 35B-A3B grid (12/12 conc=1 cells, complete)
-  - Strix dream-server ROCm 7 partial grid (6/12 conc=1 cells covering ctx=1024 + 4096; ctx=16K and 32K still running, will land in follow-up commits)
+  - Strix dream-server ROCm 7 partial grid (7/12 conc=1 cells covering ctx=1024 + 4096 + ctx=16K gen=128; ctx=16K gen=512/2048 and ctx=32K cells still running, will land in follow-up commits)
   - Engine identification + reproducibility bundle for both paths
 - **Preliminary:** Strix dream-server ROCm 7 cells at ctx≥16K. Same engine, just slower cells. Update as they land.
 - **Deferred** (see `manifest.json.deferred_to_follow_up`):
@@ -95,7 +95,7 @@ Either of those changes would individually disqualify these rows from the canoni
 ## § Reproducibility
 
 - Prompt corpus: same SHA as canonical (`9a27eba85a8da9443d7fcf74e281b011831806c4b24aaaada3915463d5c13cd8`), see `workloads/prompts.jsonl`.
-- MLX models: `mlx-community/Qwen3.6-27B-8bit` and `mlx-community/Qwen3.6-35B-A3B-8bit` (HuggingFace IDs; HF will resolve to current revisions; weight-shard SHAs are not pinned in this bundle).
+- MLX models: `mlx-community/Qwen3.6-27B-8bit` and `mlx-community/Qwen3.6-35B-A3B-8bit`. HuggingFace IDs are floating refs, so the per-shard SHAs of the exact bytes we ran against are pinned in `workloads/mlx-models.sha256` (every safetensors weight shard + config + tokenizer + index file). Run `shasum -a 256 -c workloads/mlx-models.sha256` from a parent dir containing both model dirs to verify before reproducing.
 - Strix model file: `Qwen3.6-27B-Q8_0.gguf` SHA `f93f517f...` — byte-identical to canonical study.
 - Driver scripts: `harness/lib/bench-cell-mlx.py`, `harness/lib/bench-cell-lemonade.py`, with grid runners and `canon-backfill.py` for adding MMBT-canonical schema fields. Source SHA in `harness/VENDORED-FROM-SHA.txt`.
 - Engine SHAs (where available):

@@ -26,7 +26,7 @@ This bundle **can** support claims about:
 
 - **MLX vs llama.cpp Metal** on the SAME M5 hardware for Qwen3.6 dense + MoE at ~8-bit quantization, single user. Decode and prefill numbers are directly comparable in tok/s, and the model is the same model concept at the same nominal precision.
 - **dream-server ROCm 7 vs llama.cpp Vulkan b9151** on the SAME Strix Halo hardware for Qwen3.6-27B-Q8 GGUF (byte-identical file), single user. Decode is comparable directly; prefill cost can be attributed to engine vintage because the bundled custom llama.cpp build is older than canonical's pin.
-- **ROCm 7 loads where ROCm 6.4.4 did not** for the canonical workload on Strix Halo. This narrows (does not invalidate) the canonical "ROCm broken" claim — see `[hw.best-stack.strix-halo.rocm7-works]` in `claims.yaml`.
+- **ROCm 7 loads where ROCm 6.4.4 did not** for the canonical workload on Strix Halo. This narrows (does not invalidate) the canonical "ROCm broken" claim — see `[hw.best-stack.strix.rocm7-works]` in `claims.yaml`.
 
 This bundle **cannot** support claims about:
 

@@ -122,7 +122,7 @@
     "Power and thermals samplers were not run alongside this bundle's cells; chassis-class thermal data still lives in qwen3.6-q8-fleet-2026-05-17."
   ],
   "deferred_to_follow_up": [
-    "Strix dream-server-rocm7 ctx=16K and ctx=32K cells (running at snapshot — 6/12 cells in this commit)",
+    "Strix dream-server-rocm7 remaining cells: ctx=16K gen=512/2048, ctx=32K all three gen lengths (7/12 cells in this commit; rest running at snapshot)",
     "True Lemonade SDK on Strix Linux with Lemonade's own --llamacpp vulkan bundled binary — separates the Lemonade-wrapper question from the dream-server-downstream-build question",
     "Lemonade on Windows + DirectML + INT4 OGA NPU path — the actual unique productized acceleration AMD is selling on Ryzen AI silicon (requires a Windows Strix Halo host we did not have)",
     "Vanilla llama.cpp b9151 against ROCm 7 — isolates whether the ROCm-loading fix is in the v7 runtime or in dream-server's downstream patches",
