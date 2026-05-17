@@ -51,10 +51,14 @@ This bundle exercises a different combination on the same hardware:
 | cell | dream-server ROCm 7 (this bundle) | canonical Vulkan b9151 |
 |---|---:|---:|
 | ctx=1024 gen=128 decode | 7.666 ± 0.003 | ~7.82 peak |
-| ctx=1024 gen=512 decode | 7.614 ± 0.001 | — |
-| ctx=1024 gen=2048 decode | 7.575 ± 0.004 | — |
-| ctx=4096 gen=128 decode | 7.525 ± 0.002 | — |
+| ctx=1024 gen=512 decode | 7.614 ± 0.001 | 7.784 ± 0.004 |
+| ctx=1024 gen=2048 decode | 7.575 ± 0.004 | 7.780 ± 0.001 |
+| ctx=4096 gen=128 decode | 7.525 ± 0.002 | 7.771 ± 0.003 |
+| ctx=4096 gen=512 decode | 7.472 ± 0.001 | 7.724 ± 0.001 |
+| ctx=4096 gen=2048 decode | 7.439 ± 0.0003 | 7.706 ± 0.001 |
+| ctx=16384 gen=128 decode | 7.062 ± 0.002 | 7.549 ± 0.003 |
 | ctx=4096 gen=128 **prefill** | **111.94 ± 0.002** | **~292** (peak across cells) |
+| ctx=16384 gen=128 **TTFT / prefill** | **185.6 s / 84.08 tok/s** | **59.3 s / 263.1 tok/s** |
 
 **Decode:** essentially the same as canonical Vulkan within run-to-run noise. ROCm 7 isn't faster, isn't slower.
 
