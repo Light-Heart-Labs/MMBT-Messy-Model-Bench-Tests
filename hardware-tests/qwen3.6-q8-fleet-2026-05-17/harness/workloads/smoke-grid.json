@@ -1,0 +1,10 @@
+{
+  "contexts": [1024],
+  "gen_lengths": [128],
+  "concurrencies": [1],
+  "n_per_cell": 3,
+  "warmup_discard": 1,
+  "sustained_seconds": 0,
+  "fixed_seed": 42,
+  "note": "Tiny grid (1 cell × 3 inferences) for smoke validation. Goal: confirm llama-server launches, model loads, /completion returns timings, samplers stream."
+}

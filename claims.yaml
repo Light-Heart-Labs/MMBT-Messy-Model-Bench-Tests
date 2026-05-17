@@ -1,0 +1,211 @@
+# claims.yaml — machine-readable claim matrix for MMBT
+#
+# Every conclusion drawn anywhere in this repo should appear here with an
+# explicit status. The status vocabulary is:
+#
+#   strong       Multiple independent reproducers, full audit trail, no known
+#                methodology gaps that could invalidate the claim.
+#   provisional  Single-study evidence, methodology is sound but narrow; the
+#                claim would benefit from independent reproduction or wider
+#                conditions.
+#   held         The data exists in the repo but the report deliberately
+#                does NOT draw a conclusion from it (usually because an
+#                upstream factor like engine implementation is the binding
+#                constraint, masking the question we want to answer).
+#   retracted    Was claimed in an earlier version of the repo, now withdrawn.
+#                Kept here so readers chasing an old citation can find it.
+#
+# Add new claims as PRs land. Removed claims become retracted; never delete an
+# entry once it's been published.
+
+schema_version: 0.1
+last_updated: "2026-05-17"
+
+claims:
+
+  # ─── Cross-platform hardware (hardware-tests/qwen3.6-q8-fleet-2026-05-17) ───
+
+  - id: hw.q8.27b.blackwell-wins-prefill
+    text: >
+      At single-user (conc=1) operation on Qwen3.6-27B-Q8 GGUF under
+      llama.cpp tag b9151, the NVIDIA Blackwell 6000 Tower wins peak prefill
+      throughput by 3-8× over the other three platforms (M5 Max, DGX Spark,
+      EVO X2/Strix Halo) at every measured context length.
+    status: provisional
+    scope: single-user, llama.cpp, Q8_0, dense 27B, conc=1
+    evidence: "hardware-tests/qwen3.6-q8-fleet-2026-05-17/findings.md § Headline hardware ranking"
+    caveats:
+      - "Single study, single source SHA. Cross-engine and cross-day variance not characterized."
+      - "Other Blackwell parts (5090, etc.) read-across via shared silicon; PRO 6000's VRAM is larger."
+    promote_to_strong_when:
+      - "Independent reproducer publishes the same headline with a different prompt corpus"
+      - "Cross-day variance characterized; tok/s SD across days remains <2%"
+
+  - id: hw.q8.27b.blackwell-wins-decode-short-ctx
+    text: >
+      At single-user short-context (ctx≤4 K) operation on 27B Q8, the Blackwell
+      6000 Tower wins peak decode rate 3× over M5 Max and 6× over Spark/EVO X2.
+    status: provisional
+    scope: single-user, llama.cpp, Q8_0, dense 27B, ctx≤4096, conc=1
+    evidence: "hardware-tests/qwen3.6-q8-fleet-2026-05-17/findings.md § Long-context single-user behavior"
+    caveats:
+      - "Decode lead narrows at long ctx under llama.cpp/CUDA (collapses to 19.8 tok/s at ctx=16K). This is engine-side, not silicon — see [hw.q8.engine.blackwell-cuda-long-ctx-broken]."
+
+  - id: hw.q8.engine.blackwell-cuda-long-ctx-broken
+    text: >
+      At ctx=16 K under llama.cpp/CUDA on Blackwell sm_120, single-user decode
+      collapses to ~40 % of its short-ctx rate (19.8 tok/s vs 49.4). The same
+      hardware under vLLM 0.21.0 with FP8 weights at the same ctx=16 K
+      single-user operating point sustains 49.3 tok/s. The gap is engine-side
+      (llama.cpp's CUDA path on this silicon), not silicon-bound.
+    status: provisional
+    scope: ctx=16K, conc=1, Blackwell sm_120, llama.cpp b9151 vs vLLM 0.21.0
+    evidence: "hardware-tests/qwen3.6-q8-fleet-2026-05-17/findings.md § Long-context single-user behavior + AUDIT.md B22"
+    caveats:
+      - "vLLM uses FP8 (different number format than Q8 GGUF); the gap could be partly attributed to quant scheme. Audit B22 enumerates the disaggregation that we have NOT done."
+
+  - id: hw.q8.engine.softmax-blackwell-moe
+    text: >
+      llama.cpp tag b9151 built with -DCMAKE_CUDA_ARCHITECTURES=120-real
+      crashes for Qwen3.6-35B-A3B-Q8 at the startup capability probe with
+      SOFT_MAX kernel "invalid argument". Reproduces across flag variations,
+      single-GPU or dual-GPU, with or without flash-attention, full or short
+      ctx. The same source SHA on sm_121 (DGX Spark) runs the model cleanly;
+      the same Tower2 binary runs dense 27B cleanly.
+    status: provisional
+    scope: llama.cpp b9151, sm_120-real, Qwen3.6-MoE-Q8
+    evidence: "hardware-tests/qwen3.6-q8-fleet-2026-05-17/findings.md § Two backend-bug findings, Finding 2"
+    caveats:
+      - "PTX-JIT rebuild with -DCMAKE_CUDA_ARCHITECTURES=120 (no -real) has not yet been tested. If it succeeds, the claim narrows to a specific build-flag path."
+    promote_to_strong_when:
+      - "Independent Blackwell sm_120 reproducer confirms the crash on the same SHA"
+      - "Or: upstream llama.cpp issue/fix lands referencing this kernel-launch path"
+
+  - id: hw.q8.engine.rocm-strix-halo-segfault
+    text: >
+      ROCm 6.4.4 (libamdhip64.so.6.4.60404) segfaults at offset 0x3a4e52,
+      fault address 0x18, when loading Qwen3.6-27B-Q8 GGUF via llama.cpp
+      tag b9151 on the EVO X2's Strix Halo APU. Vulkan on the same hardware
+      and binary works cleanly. Reproduces on at least six independent
+      attempts.
+    status: provisional
+    scope: ROCm 6.4.4, Strix Halo gfx1151, llama.cpp b9151, Q8 GGUF
+    evidence: "hardware-tests/qwen3.6-q8-fleet-2026-05-17/findings.md § Two backend-bug findings, Finding 1"
+    caveats:
+      - "Has not been retried with longer wait-ready window, smaller bootstrap model, or fresh stderr+dmesg capture. Reviewers with Strix Halo hardware invited to reproduce or refute."
+
+  - id: hw.q8.chassis-thermal-class
+    text: >
+      Under sustained ~15 h continuous benchmark operation, chassis exhaust-air
+      temperature above room ambient is +4 °F on the Blackwell 6000 Tower
+      (workstation tower) and the M5 Max MacBook Pro 16" (laptop), +40 °F on
+      the DGX Spark (compact desktop), and +60 °F on the EVO X2 (NUC-class
+      mini-PC). Within-cell instrumentation on the EVO X2 confirms the SoC is
+      thermally governed at its design ceiling, not throttling.
+    status: provisional
+    scope: psychrometer field measurement, single time point per host, ~15.5 h into operation
+    evidence: "hardware-tests/qwen3.6-q8-fleet-2026-05-17/findings.md § Sustained thermal field measurements + AUDIT.md B14, B20"
+    caveats:
+      - "One reading per host. Replication welcomed."
+      - "Intake air NOT instrumented; only exhaust + room ambient."
+      - "Methodology uses a HVAC-spec psychrometer for chassis exhaust — uncommon in the LLM-bench literature; reviewers invited to push back."
+
+  - id: hw.q8.multi-user-conc4plus.held
+    text: >
+      Multi-user concurrent serving (conc≥4) cross-host conclusions are held.
+      At ctx=16K conc=8 all four hosts come in at 4.6 % / 14 % / 32 % / 19 %
+      of their respective memory-bandwidth ceilings, with the Blackwell 6000
+      Tower at the 4.6 % floor. That gap cannot be silicon — the binding
+      constraint is upstream of the GPU. Most likely cause: llama.cpp
+      --parallel N slots scheduling at long context.
+    status: held
+    scope: conc≥4, llama.cpp b9151
+    evidence: "hardware-tests/qwen3.6-q8-fleet-2026-05-17/findings.md § Held: multi-user concurrent serving + AUDIT.md B15"
+
+  - id: hw.q8.cost-throughput.decode-per-dollar
+    text: >
+      At peak short-ctx single-user (ctx=1024 gen=2048 conc=1), decode tok/s
+      per $1 k hardware: Blackwell 6000 Tower (single-RTX-6000 build, $12 k)
+      4.12 / EVO X2 ($3 k) 2.59 / DGX Spark ($4.7 k) 1.62 / M5 Max MacBook Pro
+      ($4.85 k) 3.46. Under the as-configured Tower2 anchor ($33 k for the
+      dual-GPU server build), Tower2 drops to 1.54 tok/s per $1 k — still
+      positive, no longer top.
+    status: provisional
+    scope: single-user short-ctx decode, retail prices as of 2026-05-15
+    evidence: "hardware-tests/qwen3.6-q8-fleet-2026-05-17/findings.md § Cost-throughput at single-user peak + AUDIT.md B12"
+    caveats:
+      - "Cost figures are approximate retail (2026-05-15)."
+      - "The right anchor depends on what the buyer actually purchases — see § Dual-anchor sensitivity."
+
+  # ─── Power-sweep studies (hardware-tests/vllm-power-sweep-2026-04-29,
+  #     hardware-tests/ltx23-power-sweep-2026-05-05, cpu-fullpower) ───
+
+  - id: hw.power.vllm-llm-plateau
+    text: >
+      For vLLM serving Qwen3.6-27B-AWQ on Tower2 RTX PRO 6000 Blackwell, the
+      500 W power cap is within 3.3 % of the throughput-optimal cap across
+      the firmware range. LLM serving is memory-bandwidth-bound on this
+      silicon under these conditions.
+    status: provisional
+    scope: vLLM, Qwen3.6-27B-AWQ, Tower2 single-card
+    evidence: "hardware-tests/vllm-power-sweep-2026-04-29/findings.md"
+
+  - id: hw.power.ltx-diffusion-binds
+    text: >
+      For LTX-2.3 two-stage video generation on the same Tower2 silicon, the
+      power cap genuinely binds across the firmware range. Lifting from 500 W
+      to 600 W buys +11 % per-gen throughput; dropping to 300 W costs +41 %.
+    status: provisional
+    scope: LTX-2.3 video gen, Tower2 single-card
+    evidence: "hardware-tests/ltx23-power-sweep-2026-05-05/findings.md"
+
+  - id: hw.cpu.tr-pro-7965wx-sustained-tdp
+    text: >
+      AMD Threadripper PRO 7965WX sustains 349.4 W mean (99.8 % of 350 W
+      rated TDP) at 90.1 °C Tctl across a 22-min stress-ng matrix on the
+      Tower2 chassis. All 48 threads held 4.66 GHz; no throttle observed.
+    status: provisional
+    scope: TR PRO 7965WX, factory PPT (no PBO), Tower2 chassis cooling
+    evidence: "hardware-tests/cpu-fullpower-2026-05-05/findings.md"
+
+  # ─── Microbench / model-comparison (benchmarks/microbench-2026-04-28) ───
+
+  - id: bench.microbench.27b-vs-coder-next.aggregate-tied
+    text: >
+      Qwen3.6-27B and Qwen3-Coder-Next on the MMBT Phase B 12-task-family
+      suite at N=10 produce aggregate-tied ship-rates (56 %/56 %). Task-class
+      strengths are complementary (each model wins different families).
+      Coder-Next is 2-5× faster wall-clock and 4-12× cheaper per task.
+    status: provisional
+    scope: MMBT Phase B suite, N=10, vLLM serving
+    evidence: "benchmarks/microbench-2026-04-28/findings.md (latest)"
+    caveats:
+      - "Pairwise quality study found one 27B CI-fix grader regression that the binary grader missed."
+
+# ─── Retracted ────────────────────────────────────────────────────────────────
+
+retracted:
+
+  - id: hw.q8.27b.tower2-decode-narrows-at-long-ctx
+    formerly_claimed: >
+      Tower2's decode lead narrows from 3× at short-ctx to 1.2× at ctx=16K
+      against M5 Max — implying Apple Silicon catches up on long-context decode.
+    status: retracted
+    retracted_in: "hardware-tests/qwen3.6-q8-fleet-2026-05-17 (replaced by [hw.q8.engine.blackwell-cuda-long-ctx-broken])"
+    reason: >
+      The 'narrowing' was llama.cpp/CUDA engine-side breakdown on Blackwell at
+      long context, not silicon. Under vLLM/FP8 on the same hardware, ctx=16K
+      decode is 49.3 tok/s — the lead doesn't narrow at all. The earlier
+      framing misattributed engine behavior to hardware.
+
+  - id: hw.q8.total-tokps-composite
+    formerly_claimed: >
+      Earlier drafts synthesized prefill, decode, and TTFT into a single
+      "total tok/s = (prompt + gen) / batch_wall" composite.
+    status: retracted
+    retracted_in: "hardware-tests/qwen3.6-q8-fleet-2026-05-17"
+    reason: >
+      Mathematically defensible but reads misleadingly — at ctx=4 K with
+      mostly-prefill work, total-tok/s lands near the prefill rate (~187)
+      even though decode-streaming is ~48 tok/s. Replaced by the three-column
+      headline (prefill / decode / TTFT) with no composite. See AUDIT B19.

@@ -1,0 +1,258 @@
+{
+  "$schema_note": "Hosts the bench-fleet study covers. ssh_alias must be resolvable from Tower2 via ~/.ssh/config. local=true means run commands directly with bash, not via ssh. Each host lists the backends to build + bench.",
+  "study": {
+    "models": [
+      {
+        "name": "qwen3.6-27b",
+        "filename": "Qwen3.6-27B-Q8_0.gguf",
+        "hf_repo": "unsloth/Qwen3.6-27B-GGUF",
+        "hf_file": "Qwen3.6-27B-Q8_0.gguf",
+        "size_gb_approx": 28.6,
+        "sha256": "f93f517f38e696d35a1a7df2c0e3155a64f4c4dcd662107a146ae263f7fb14ce"
+      },
+      {
+        "name": "qwen3.6-35b-a3b",
+        "filename": "Qwen3.6-35B-A3B-Q8_0.gguf",
+        "hf_repo": "unsloth/Qwen3.6-35B-A3B-GGUF",
+        "hf_file": "Qwen3.6-35B-A3B-Q8_0.gguf",
+        "size_gb_approx": 36.9,
+        "sha256": "d1a395809f65a43a13ad119eb4e7acdef1ac6d68120f39902c8ab96e72794a59"
+      }
+    ],
+    "bonus_model": {
+      "name": "qwen3-coder-next",
+      "hf_repo": "unsloth/Qwen3-Coder-Next-GGUF",
+      "hf_path": "Q8_0/",
+      "format": "split-gguf",
+      "size_gb_approx": 90,
+      "hosts": [
+        "tower2"
+      ],
+      "notes": "Large MoE, Q8_0 is a split-file set. Bonus study, Blackwell-only. Spark aarch64 has a separate garbage-token bug \u2014 try then document."
+    },
+    "llama_cpp_sha": "67b2b7f2f2d6dac7962b219168a4c7a20c7359b7",
+    "llama_cpp_tag": "b9151",
+    "llama_cpp_repo": "https://github.com/ggml-org/llama.cpp",
+    "grid": {
+      "contexts": [
+        1024,
+        4096,
+        16384,
+        32768
+      ],
+      "gen_lengths": [
+        128,
+        512,
+        2048
+      ],
+      "concurrencies": [
+        1,
+        4,
+        8
+      ],
+      "n_per_cell": 10,
+      "warmup_discard": 2
+    },
+    "sustained": {
+      "duration_seconds": 1800
+    },
+    "sampler_hz": 1,
+    "environment": {
+      "measurement_time_into_test": "~15.5 h into continuous 27B run (2026-05-15 ~13:00Z)",
+      "instrument": "Fieldpiece PRH2 digital pocket psychrometer",
+      "rooms": {
+        "main_room": {
+          "hosts": [
+            "tower2",
+            "strix-halo",
+            "spark"
+          ],
+          "circuit": "shared 20 A breaker",
+          "ambient_f": 78
+        },
+        "m5_room": {
+          "hosts": [
+            "m5-mbp"
+          ],
+          "circuit": "separate 20 A breaker (different room, isolated to avoid trips)",
+          "ambient_f": 77
+        }
+      },
+      "exhaust_measurements_f": {
+        "m5_mbp": {
+          "exhaust_f": 81,
+          "ambient_f": 77,
+          "delta_f": 4,
+          "note": "MBP exhaust essentially room-temperature \u2014 laptop cooling has massive headroom on this workload"
+        },
+        "tower2": {
+          "exhaust_f": 82,
+          "ambient_f": 78,
+          "delta_f": 4,
+          "note": "Workstation tower with 14\u00d7 Noctua 120 mm + open panel \u2014 exhaust at room temperature, cooling system massively over-provisioned"
+        },
+        "spark": {
+          "exhaust_f": 118,
+          "ambient_f": 78,
+          "delta_f": 40,
+          "note": "DGX Spark compact desktop chassis pushing 40\u00b0F above ambient at sustained load"
+        },
+        "strix_halo": {
+          "exhaust_f": 138,
+          "ambient_f": 78,
+          "delta_f": 60,
+          "note": "GMKtec EVO X2 NUC-class chassis pushing 60\u00b0F above ambient \u2014 small surface area limit visible, consistent with sustained 98\u00b0C edge sensor readings"
+        }
+      },
+      "interpretation": "Tower2 and M5 are exhausting essentially room temperature air despite running the same workload at much higher silicon power than Strix/Spark \u2014 their cooling systems are sized for the workload, not stressed by it. Spark's compact-desktop chassis works moderately hard (40\u00b0F delta). Strix's NUC-class chassis is the limiting factor (60\u00b0F delta, chassis surface area is the binding constraint, not silicon). This is the chassis-class story the headline thermal data implies."
+    }
+  },
+  "hosts": [
+    {
+      "name": "tower2",
+      "display_name": "Blackwell 6000 Tower",
+      "ssh_alias": null,
+      "local": true,
+      "os": "linux",
+      "arch": "x86_64",
+      "chassis": "Custom workstation tower (ASUS WRX90E, 1600 W titanium PSU, 8\u00d7 Noctua 120 mm intake + 6\u00d7 exhaust = 14-fan airflow, open-air panel)",
+      "cpu": "AMD Threadripper PRO 7965WX (24 cores / 48 threads, 350 W rated TDP)",
+      "gpus": "2\u00d7 NVIDIA RTX PRO 6000 Blackwell Workstation (96 GB GDDR7 each). gpu0 is the bench GPU at 600 W cap; gpu1 idles during the cross-host run (~17 W board) but is present and contributing to wall draw.",
+      "cost_usd_approx": {
+        "as_configured": 33000,
+        "as_configured_note": "Built ground-up as a 1600 W professional dual-GPU inference server: TR PRO CPU, server-grade WRX90E board, ECC RAM (2\u00d7+ vs standard), 1600 W titanium PSU, redundant cooling. Most of the over-spec is for dual-GPU + workstation reliability, not for cross-host inference comparison.",
+        "reasonable_single_rtx6000_build": 12000,
+        "reasonable_build_note": "What a fair cross-host comparison should anchor on \u2014 same gpu0 silicon, consumer/prosumer parts elsewhere. Performs the same on single-GPU inference workloads; the rest of the workstation overhead is configuration choice, not inference requirement. Anchored at $12k (deliberately on the generous side \u2014 covers a quality consumer board, capable PSU, decent cooling, NVMe, and quality RAM, with margin) so the comparison doesn't underestimate the discrete-GPU build cost.",
+        "anchor_for_tok_per_dollar": "reasonable_single_rtx6000_build"
+      },
+      "system_overhead_breakdown_at_compute_light_cell": {
+        "wall_measured_w": 445,
+        "psu_loss_w_est": 28,
+        "gpu0_bench_w_measured": 193.8,
+        "gpu1_idle_w_measured": 16.1,
+        "gpu1_idle_w_range_across_cell": "13.7\u201320.8",
+        "cpu_under_low_util_w_est": "80\u2013110",
+        "ddr5_8ch_under_bench_w_est": "25\u201335",
+        "fans_14x_noctua_120mm_w_est": "15\u201320",
+        "chipset_nvme_usb_w_est": "30\u201350",
+        "note": "Workstation 'presence tax' is ~150\u2013200 W even before GPU work starts. Important context for any wall-AC efficiency comparison against laptop/NUC-class hosts."
+      },
+      "single_gpu_equivalent_calibration": {
+        "rationale": "To compare Tower2 fairly against single-GPU hosts (M5, Spark, Strix), subtract gpu1's idle contribution from the wall reading. gpu1 idle is measured at 16.1 W (mean, range 13.7-20.8 W) \u2014 not 50 W; that higher number applies to active/warm-clocked states, not P8 idle.",
+        "single_gpu_wall_at_this_cell_w": "445 - (16.1 / 0.94 PSU eff) = ~428 W",
+        "single_gpu_estimated_peak_cell_wall_w": "~722 W (vs ~800 W dual-GPU)",
+        "single_gpu_estimated_peak_tok_per_w_wall": 0.175,
+        "m5_to_tower2_efficiency_ratio_single_gpu": "M5 wins by ~1.46\u00d7 at wall AC for a single-RTX-6000 comparison (vs ~1.61\u00d7 dual-GPU)"
+      },
+      "psu_efficiency_class": "titanium (~94% AC\u2192DC at typical loads)",
+      "wall_calibration": {
+        "method": "permanent dedicated plug meter on Tower2 outlet",
+        "data_point_1": {
+          "wall_w": 445,
+          "during_cell": "qwen3.6-27b/cuda/ctx32768_gen2048_conc4 (compute-light regime, silicon ~32% of cap)",
+          "nvidia_smi_gpu0_w": 193.8,
+          "nvidia_smi_gpu1_w_idle_estimate": 17,
+          "system_overhead_dc_w_derived": "~207 W (CPU + RAM + chipset + fans + NVMe + misc, after 94% PSU efficiency)",
+          "wall_tok_per_w_at_this_cell": 0.019,
+          "note": "This is a compute-light cell so wall efficiency at this cell is low; need a peak-cell reading (ctx=1024 conc=8 gen=2048) for the honest cross-host efficiency comparison."
+        },
+        "still_needed": "Wall reading at peak silicon cell (ctx=1024 conc=8 gen=2048). The 27B leg's peak cells completed early in the run before plug-meter calibration; will recapture during Tower2's 35B-A3B leg which re-runs short-ctx high-conc cells.",
+        "idle_baseline_needed": true
+      },
+      "user_home": "$HOME",
+      "models_dir": "$HOME/models/bench-fleet",
+      "llama_cpp_dir": "$HOME/bench-fleet-llama-cpp",
+      "backends": [
+        "cuda"
+      ],
+      "power_sampler": "nvidia-smi",
+      "thermal_sampler": "nvidia-smi+sensors",
+      "gpu_devices": "0",
+      "gpu_power_cap_w": 600,
+      "notes": "2\u00d7 RTX PRO 6000 Blackwell Workstation (96 GB each, GDDR7). For the parallel cross-host run, ONLY GPU 0 is used (CUDA_VISIBLE_DEVICES=0) at 600W cap \u2014 keeps the room breaker safe when all four hosts run concurrently. GPU 0 600W \u2248 5090 575W TGP, so single-card numbers read across to a 5090 within a few percent (excluding VRAM-ceiling effects: 32GB on 5090 vs 96GB on PRO 6000). Dual-card supplementary run executes SEQUENTIALLY after the parallel sweep clears. dream-llama-server must be stopped before bench runs. M5 is in a different room \u2014 not on the same breaker."
+    },
+    {
+      "name": "strix-halo",
+      "display_name": "EVO X2",
+      "ssh_alias": "strix-halo",
+      "local": false,
+      "os": "linux",
+      "arch": "x86_64",
+      "chassis": "GMKtec EVO X2 mini-PC (NUC-class small-form-factor enclosure)",
+      "cost_usd_approx": 3000,
+      "cost_note": "GMKtec EVO X2 retail as of 2026-05-15.",
+      "user_home": "$HOME",
+      "models_dir": "$HOME/models/bench-fleet",
+      "llama_cpp_dir": "$HOME/bench-fleet-llama-cpp",
+      "backends": [
+        "vulkan"
+      ],
+      "canonical_backend": "vulkan",
+      "broken_backends": [
+        "rocm"
+      ],
+      "broken_rocm_finding": "PRELIMINARY (single-attempt) \u2014 ROCm 6.4.4 (libamdhip64.so.6.4.60404) failed to bring llama-server to a ready state on Qwen3.6-27B-Q8 load in our one smoke cell. Detailed failure mode (offset 0x3a4e52 / fault addr 0x18, HSA_OVERRIDE_GFX_VERSION tries) was logged opportunistically and not yet re-verified with longer wait-ready, smaller model, or fresh stderr/dmesg capture. Vulkan backend works fine on the same hardware. Until a proper retry sub-study with longer wait-ready, smaller bootstrap, and fresh stderr/dmesg capture completes, treat 'ROCm broken on Strix Halo' as unconfirmed \u2014 the published study claim is Vulkan numbers only, not a comparative claim against ROCm.",
+      "broken_rocm_finding_status": "preliminary-pending-retry",
+      "power_sampler": "rocm-smi",
+      "thermal_sampler": "rocm-smi+sensors",
+      "thermal_sensor_caveat": "rocm-smi on this kernel/driver exposes ONLY 'Temperature (Sensor edge)'. No junction sensor is exposed by the AMD kernel driver on Strix Halo. Junction is typically 10\u201315 \u00b0C hotter than edge.",
+      "notes": "AMD Ryzen AI MAX+ 395, 124 GB unified, in a GMKtec EVO X2 mini-PC chassis. Vulkan currently canonical pending ROCm retry sub-study. Form factor is a small NUC-class enclosure, NOT a workstation \u2014 compare power/thermal numbers in that light."
+    },
+    {
+      "name": "spark",
+      "display_name": "DGX Spark",
+      "ssh_alias": "spark",
+      "local": false,
+      "os": "linux",
+      "arch": "aarch64",
+      "chassis": "NVIDIA DGX Spark reference desktop (compact desktop form factor)",
+      "cost_usd_approx": 4700,
+      "cost_note": "DGX Spark retail as of 2026-05-15.",
+      "user_home": "$HOME",
+      "models_dir": "$HOME/models/bench-fleet",
+      "llama_cpp_dir": "$HOME/bench-fleet-llama-cpp",
+      "backends": [
+        "cuda-aarch64"
+      ],
+      "power_sampler": "nvidia-smi",
+      "thermal_sampler": "nvidia-smi+sensors",
+      "cuda_path": "/usr/local/cuda",
+      "notes": "DGX Spark GB10 Grace Blackwell, 121 GB unified, aarch64. NOT a Jetson \u2014 tegrastats does not apply; use nvidia-smi for power+thermals same as Tower2. CUDA 13.0 at /usr/local/cuda (not in default PATH). Coder-Next has known aarch64 garbage-token bug; Qwen3.6-27B + 35B-A3B verified fine."
+    },
+    {
+      "name": "m5-mbp",
+      "display_name": "M5 Max MacBook Pro",
+      "ssh_alias": "m5-mbp",
+      "local": false,
+      "os": "macos",
+      "arch": "arm64",
+      "chassis": "Apple MacBook Pro 16\" (M5 Max, laptop/notebook form factor)",
+      "cost_usd_approx": 4850,
+      "cost_note": "Configured 16\" MBP, M5 Max, 128 GB unified, retail as of 2026-05-15.",
+      "wall_calibration": {
+        "method": "portable plug meter inserted between M5 power adapter and outlet during bench",
+        "data_point_1": {
+          "wall_w": 142,
+          "during_cell": "qwen3.6-27b/metal/ctx16384_gen2048_conc8 (multi-user-throughput regime)",
+          "battery_state": "fully charged (100%) \u2014 confirmed, so no battery-charging current included in wall reading",
+          "macmon_sys_w": 127.8,
+          "macmon_gpu_w": 33.4,
+          "delta_wall_minus_macmon_sys_w": 14.2,
+          "validates": "macmon `sys` reading is within ~10% of true wall AC (PSU loss + display + USB + misc not seen by macmon). macmon sys \u2248 0.9 \u00d7 wall, or wall \u2248 1.11 \u00d7 macmon sys.",
+          "wall_tok_per_w_at_this_cell": 0.255
+        },
+        "idle_baseline_needed": true
+      },
+      "user_home": "$HOME",
+      "models_dir": "$HOME/models/bench-fleet",
+      "llama_cpp_dir": "$HOME/bench-fleet-llama-cpp",
+      "backends": [
+        "metal"
+      ],
+      "power_sampler": "powermetrics",
+      "thermal_sampler": "powermetrics",
+      "notes": "Apple M5 Max, 128 GB unified, 18-core, macOS 26.4. Username 'conta'. WiFi-attached (NOT switch-wired). 1.7 TB free disk. Also runs MLX appendix."
+    }
+  ],
+  "$sanitized_note": "user_home/models_dir/llama_cpp_dir replaced with $HOME placeholders for publication. Resolve to your local paths when reproducing."
+}

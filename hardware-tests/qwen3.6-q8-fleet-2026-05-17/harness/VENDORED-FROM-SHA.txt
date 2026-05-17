@@ -1,0 +1,19 @@
+79774cc62a081cb0b1ab739a84e8680fbe96787f
+
+Vendored on 2026-05-17T10:21:28Z from /home/michael/bench-fleet/ at the SHA above.
+
+79774cc62a081cb0b1ab739a84e8680fbe96787f
+
+bench-host: add parent SIGTERM/SIGINT trap to prevent grandchild orphan leaks on pause
+
+bench-host.sh had a per-cell cleanup trap inside run_cell (kills probes
+between cells) but NO trap on the bench-host process itself. When the
+orchestrator SIGTERMs bench-host (eg the 2026-05-16 pause+commit),
+llama-server, bench-cell.py, and the power/thermal probes reparented to
+init and continued running. The orchestrator's "stopped" state was a
+lie — manual `pkill` was needed on each host to clear the orphans.
+
+Fix: parent-level trap on SIGTERM/SIGINT that wipes the bench-host
+process group with -KILL, stops the engine helper, and belt-and-
+suspenders kills any straggling probe/bench-cell processes by name.
+

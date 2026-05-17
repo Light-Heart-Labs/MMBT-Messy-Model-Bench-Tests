@@ -115,8 +115,8 @@
   },
   {
     "host": "tower2",
-    "model": "27b",
-    "backend": "cuda",
+    "model": "qwen3.6-27b",
+    "backend": "cuda-dual-card",
     "cells_complete_conc1": 12,
     "peak_prefill_tps": 2417.8129015257673,
     "at_cell_prefill": "ctx=4096 gen=128 conc=1",
@@ -130,7 +130,8 @@
     "power_w_silicon_at_peak_decode": 292.74,
     "power_w_wall_at_peak_decode": null,
     "temp_sensor": "gpu_die",
-    "temp_c_max_at_peak_decode": 45.0
+    "temp_c_max_at_peak_decode": 45.0,
+    "note": "dual-card supplementary appendix \u2014 NOT part of the canonical cross-host ranking, which uses the single-card cuda row."
   },
   {
     "host": "tower2",
