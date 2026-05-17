@@ -1,0 +1,12 @@
+{
+  "backend": "cuda-tower2",
+  "ctx": 16384, "gen": 2048, "conc": 1,
+  "model_path": "/home/michael/models/bench-fleet/Qwen3.6-27B-Q8_0.gguf",
+  "ctx_size_total": 17408,
+  "parallel_slots": 1,
+  "n_gpu_layers": 99,
+  "flash_attention": "",
+  "llama_build": "",
+  "wait_ready_used_s": "captured",
+  "server_log": "llama-server-19699.log"
+}

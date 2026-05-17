@@ -1,0 +1,6 @@
+{"batch": 0, "conc": 8, "ok_slots": 2, "wall_s": 1200.257201068, "total_gen_tokens": 256, "aggregate_decode_tps": 0.2132876184972761, "per_slot_decode_tps_mean": 0.13460932254656882}
+{"batch": 1, "conc": 8, "ok_slots": 1, "wall_s": 1200.095737825, "total_gen_tokens": 128, "aggregate_decode_tps": 0.10665815731666665, "per_slot_decode_tps_mean": 0.12310691831431445}
+{"batch": 2, "conc": 8, "ok_slots": 0, "wall_s": 1200.10081781, "total_gen_tokens": 0, "aggregate_decode_tps": 0.0, "per_slot_decode_tps_mean": null}
+{"batch": 3, "conc": 8, "ok_slots": 0, "wall_s": 1200.102896749, "total_gen_tokens": 0, "aggregate_decode_tps": 0.0, "per_slot_decode_tps_mean": null}
+{"batch": 4, "conc": 8, "ok_slots": 0, "wall_s": 1200.10307846, "total_gen_tokens": 0, "aggregate_decode_tps": 0.0, "per_slot_decode_tps_mean": null}
+{"batch": 5, "conc": 8, "ok_slots": 0, "wall_s": 1200.101667171, "total_gen_tokens": 0, "aggregate_decode_tps": 0.0, "per_slot_decode_tps_mean": null}

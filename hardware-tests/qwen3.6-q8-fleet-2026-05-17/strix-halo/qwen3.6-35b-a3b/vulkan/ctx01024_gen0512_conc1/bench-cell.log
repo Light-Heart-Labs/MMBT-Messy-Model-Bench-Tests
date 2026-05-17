@@ -1,0 +1,11 @@
+  batch=0 ok=1/1 wall=11.24s per_slot_decode=50.8477723958368 aggregate_decode=45.6
+  batch=1 ok=1/1 wall=11.12s per_slot_decode=51.04440644028871 aggregate_decode=46.0
+  batch=2 ok=1/1 wall=11.09s per_slot_decode=51.096442839297595 aggregate_decode=46.2
+  batch=3 ok=1/1 wall=11.15s per_slot_decode=50.80103407886166 aggregate_decode=45.9
+  batch=4 ok=1/1 wall=11.10s per_slot_decode=51.123902071766175 aggregate_decode=46.1
+  batch=5 ok=1/1 wall=11.10s per_slot_decode=51.140702355618664 aggregate_decode=46.1
+  batch=6 ok=1/1 wall=11.10s per_slot_decode=51.06247853281542 aggregate_decode=46.1
+  batch=7 ok=1/1 wall=11.14s per_slot_decode=50.970890942303434 aggregate_decode=46.0
+  batch=8 ok=1/1 wall=11.08s per_slot_decode=51.26407496730163 aggregate_decode=46.2
+  batch=9 ok=1/1 wall=11.10s per_slot_decode=51.13744356528658 aggregate_decode=46.1
+DONE cell ctx=1024 gen=512 conc=1 per_slot_decode_mean=51.074621169156394 aggregate_decode_mean=46.105180539443204

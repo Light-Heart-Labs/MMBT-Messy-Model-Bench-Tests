@@ -1,0 +1,508 @@
+[2026-05-14T21:38:29Z] snapshotting host environment to /tmp/bench-fleet-out-spark-qwen3.6-27b-cuda-aarch64-762023/env.json
+[2026-05-14T21:38:29Z] host bench start backend=cuda-spark model=Qwen3.6-27B-Q8_0.gguf
+[2026-05-14T21:38:29Z] grid: 4c × 3g × 3p × N=10
+[2026-05-14T21:38:29Z] === cell ctx=1024 gen=128 conc=1 ===
+[2026-05-14T21:38:29Z]   llama-server pid=4077260 port=19283 ctx_total=2048
+  batch=0 ok=1/1 wall=18.48s per_slot_decode=7.5386390589139936 aggregate_decode=6.9
+  batch=1 ok=1/1 wall=18.54s per_slot_decode=7.517802950279542 aggregate_decode=6.9
+  batch=2 ok=1/1 wall=18.56s per_slot_decode=7.511389731507721 aggregate_decode=6.9
+  batch=3 ok=1/1 wall=18.60s per_slot_decode=7.496515730764747 aggregate_decode=6.9
+  batch=4 ok=1/1 wall=18.61s per_slot_decode=7.49081687299478 aggregate_decode=6.9
+  batch=5 ok=1/1 wall=18.62s per_slot_decode=7.485752653538489 aggregate_decode=6.9
+  batch=6 ok=1/1 wall=18.63s per_slot_decode=7.485510566207528 aggregate_decode=6.9
+  batch=7 ok=1/1 wall=18.63s per_slot_decode=7.483525428025498 aggregate_decode=6.9
+  batch=8 ok=1/1 wall=18.61s per_slot_decode=7.488097289104029 aggregate_decode=6.9
+  batch=9 ok=1/1 wall=18.63s per_slot_decode=7.484843484320949 aggregate_decode=6.9
+DONE cell ctx=1024 gen=128 conc=1 per_slot_decode_mean=7.490806469557968 aggregate_decode_mean=6.877064394931311
+[2026-05-14T21:41:45Z]   cell done — per_slot_decode_mean=7.490806469557968 aggregate_decode_mean=6.877064394931311
+[2026-05-14T21:41:45Z] === cell ctx=1024 gen=128 conc=4 ===
+[2026-05-14T21:41:45Z]   llama-server pid=4084690 port=19987 ctx_total=5120
+  batch=0 ok=4/4 wall=28.09s per_slot_decode=5.865884912648187 aggregate_decode=18.2
+  batch=1 ok=4/4 wall=28.16s per_slot_decode=5.868624421192588 aggregate_decode=18.2
+  batch=2 ok=4/4 wall=28.16s per_slot_decode=5.8671366956349695 aggregate_decode=18.2
+  batch=3 ok=4/4 wall=28.16s per_slot_decode=5.870221688029357 aggregate_decode=18.2
+  batch=4 ok=4/4 wall=28.16s per_slot_decode=5.853433581806379 aggregate_decode=18.2
+  batch=5 ok=4/4 wall=28.11s per_slot_decode=5.854255198977238 aggregate_decode=18.2
+  batch=6 ok=4/4 wall=28.15s per_slot_decode=5.855416763259468 aggregate_decode=18.2
+  batch=7 ok=4/4 wall=28.15s per_slot_decode=5.867499482973889 aggregate_decode=18.2
+  batch=8 ok=4/4 wall=28.12s per_slot_decode=5.859357259358768 aggregate_decode=18.2
+  batch=9 ok=4/4 wall=28.07s per_slot_decode=5.85748278325994 aggregate_decode=18.2
+DONE cell ctx=1024 gen=128 conc=4 per_slot_decode_mean=5.860600431662501 aggregate_decode_mean=18.197835111871452
+[2026-05-14T21:46:37Z]   cell done — per_slot_decode_mean=5.860600431662501 aggregate_decode_mean=18.197835111871452
+[2026-05-14T21:46:37Z] === cell ctx=1024 gen=128 conc=8 ===
+[2026-05-14T21:46:37Z]   llama-server pid=4096401 port=19569 ctx_total=9216
+  batch=0 ok=8/8 wall=41.55s per_slot_decode=4.27263794990781 aggregate_decode=24.6
+  batch=1 ok=8/8 wall=42.29s per_slot_decode=4.242022260245017 aggregate_decode=24.2
+  batch=2 ok=8/8 wall=41.16s per_slot_decode=4.23369575309121 aggregate_decode=24.9
+  batch=3 ok=8/8 wall=42.30s per_slot_decode=4.231415750996599 aggregate_decode=24.2
+  batch=4 ok=8/8 wall=42.40s per_slot_decode=4.237949754906798 aggregate_decode=24.1
+  batch=5 ok=8/8 wall=42.39s per_slot_decode=4.238647336406956 aggregate_decode=24.2
+  batch=6 ok=8/8 wall=41.76s per_slot_decode=4.227350139941177 aggregate_decode=24.5
+  batch=7 ok=8/8 wall=42.32s per_slot_decode=4.2414915381772405 aggregate_decode=24.2
+  batch=8 ok=8/8 wall=42.12s per_slot_decode=4.234004481143225 aggregate_decode=24.3
+  batch=9 ok=8/8 wall=42.35s per_slot_decode=4.242693946436347 aggregate_decode=24.2
+DONE cell ctx=1024 gen=128 conc=8 per_slot_decode_mean=4.235906087637444 aggregate_decode_mean=24.32550338322973
+[2026-05-14T21:53:49Z]   cell done — per_slot_decode_mean=4.235906087637444 aggregate_decode_mean=24.32550338322973
+[2026-05-14T21:53:49Z] === cell ctx=1024 gen=512 conc=1 ===
+[2026-05-14T21:53:49Z]   llama-server pid=4113507 port=19609 ctx_total=2048
+  batch=0 ok=1/1 wall=69.46s per_slot_decode=7.530914182085209 aggregate_decode=7.4
+  batch=1 ok=1/1 wall=69.48s per_slot_decode=7.530314848788116 aggregate_decode=7.4
+  batch=2 ok=1/1 wall=69.46s per_slot_decode=7.532980514224496 aggregate_decode=7.4
+  batch=3 ok=1/1 wall=69.45s per_slot_decode=7.533483501752057 aggregate_decode=7.4
+  batch=4 ok=1/1 wall=69.47s per_slot_decode=7.53348128482405 aggregate_decode=7.4
+  batch=5 ok=1/1 wall=69.48s per_slot_decode=7.531586399520121 aggregate_decode=7.4
+  batch=6 ok=1/1 wall=69.48s per_slot_decode=7.531941278573218 aggregate_decode=7.4
+  batch=7 ok=1/1 wall=69.46s per_slot_decode=7.533319230920497 aggregate_decode=7.4
+  batch=8 ok=1/1 wall=69.48s per_slot_decode=7.531912913610328 aggregate_decode=7.4
+  batch=9 ok=1/1 wall=69.49s per_slot_decode=7.531130523744088 aggregate_decode=7.4
+DONE cell ctx=1024 gen=512 conc=1 per_slot_decode_mean=7.532479455896107 aggregate_decode_mean=7.369968027939583
+[2026-05-14T22:05:31Z]   cell done — per_slot_decode_mean=7.532479455896107 aggregate_decode_mean=7.369968027939583
+[2026-05-14T22:05:31Z] === cell ctx=1024 gen=512 conc=4 ===
+[2026-05-14T22:05:32Z]   llama-server pid=4141344 port=19339 ctx_total=5120
+  batch=0 ok=4/4 wall=55.91s per_slot_decode=5.919387980096859 aggregate_decode=21.1
+  batch=1 ok=4/4 wall=56.02s per_slot_decode=5.922566855057834 aggregate_decode=21.1
+  batch=2 ok=4/4 wall=56.01s per_slot_decode=5.9160068128578125 aggregate_decode=21.1
+  batch=3 ok=4/4 wall=56.00s per_slot_decode=5.922096038193959 aggregate_decode=21.1
+  batch=4 ok=4/4 wall=56.05s per_slot_decode=5.912946556956877 aggregate_decode=21.1
+  batch=5 ok=4/4 wall=56.00s per_slot_decode=5.9169003498443065 aggregate_decode=21.1
+  batch=6 ok=4/4 wall=55.53s per_slot_decode=5.930737768722685 aggregate_decode=21.3
+  batch=7 ok=4/4 wall=56.09s per_slot_decode=5.921756907281457 aggregate_decode=21.0
+  batch=8 ok=4/4 wall=56.06s per_slot_decode=5.914712056804433 aggregate_decode=21.1
+  batch=9 ok=4/4 wall=56.06s per_slot_decode=5.915939724759456 aggregate_decode=21.0
+DONE cell ctx=1024 gen=512 conc=4 per_slot_decode_mean=5.9188870269276235 aggregate_decode_mean=21.081216749590716
+[2026-05-14T22:14:59Z]   cell done — per_slot_decode_mean=5.9188870269276235 aggregate_decode_mean=21.081216749590716
+[2026-05-14T22:14:59Z] === cell ctx=1024 gen=512 conc=8 ===
+[2026-05-14T22:14:59Z]   llama-server pid=4163523 port=19032 ctx_total=9216
+  batch=0 ok=8/8 wall=77.99s per_slot_decode=4.420632710508016 aggregate_decode=30.3
+  batch=1 ok=8/8 wall=78.82s per_slot_decode=4.407136296071984 aggregate_decode=29.9
+  batch=2 ok=8/8 wall=78.51s per_slot_decode=4.407350043686435 aggregate_decode=30.1
+  batch=3 ok=8/8 wall=78.63s per_slot_decode=4.408759993487028 aggregate_decode=30.0
+  batch=4 ok=8/8 wall=78.70s per_slot_decode=4.410382855070857 aggregate_decode=30.0
+  batch=5 ok=8/8 wall=78.11s per_slot_decode=4.400940675774218 aggregate_decode=30.2
+  batch=6 ok=8/8 wall=77.81s per_slot_decode=4.402512724011127 aggregate_decode=30.3
+  batch=7 ok=8/8 wall=78.65s per_slot_decode=4.410622631065843 aggregate_decode=30.0
+  batch=8 ok=8/8 wall=78.81s per_slot_decode=4.401914231818269 aggregate_decode=29.9
+  batch=9 ok=8/8 wall=78.62s per_slot_decode=4.401186625447043 aggregate_decode=30.0
+DONE cell ctx=1024 gen=512 conc=8 per_slot_decode_mean=4.405458722545102 aggregate_decode_mean=30.07227950167158
+[2026-05-14T22:28:14Z]   cell done — per_slot_decode_mean=4.405458722545102 aggregate_decode_mean=30.07227950167158
+[2026-05-14T22:28:14Z] === cell ctx=1024 gen=2048 conc=1 ===
+[2026-05-14T22:28:14Z]   llama-server pid=356 port=19326 ctx_total=2048
+  batch=0 ok=1/1 wall=141.52s per_slot_decode=7.591414394551459 aggregate_decode=7.5
+  batch=1 ok=1/1 wall=141.66s per_slot_decode=7.59444107203473 aggregate_decode=7.5
+  batch=2 ok=1/1 wall=141.48s per_slot_decode=7.5940228253608355 aggregate_decode=7.5
+  batch=3 ok=1/1 wall=141.46s per_slot_decode=7.595382119137191 aggregate_decode=7.5
+  batch=4 ok=1/1 wall=141.50s per_slot_decode=7.593755321388335 aggregate_decode=7.5
+  batch=5 ok=1/1 wall=141.48s per_slot_decode=7.595026119566331 aggregate_decode=7.5
+  batch=6 ok=1/1 wall=141.50s per_slot_decode=7.593454639259329 aggregate_decode=7.5
+  batch=7 ok=1/1 wall=141.48s per_slot_decode=7.594218135235808 aggregate_decode=7.5
+  batch=8 ok=1/1 wall=141.49s per_slot_decode=7.5938268203004755 aggregate_decode=7.5
+  batch=9 ok=1/1 wall=141.49s per_slot_decode=7.5941183089334485 aggregate_decode=7.5
+DONE cell ctx=1024 gen=2048 conc=1 per_slot_decode_mean=7.594225536147719 aggregate_decode_mean=7.513114576192929
+[2026-05-14T22:51:57Z]   cell done — per_slot_decode_mean=7.594225536147719 aggregate_decode_mean=7.513114576192929
+[2026-05-14T22:51:57Z] === cell ctx=1024 gen=2048 conc=4 ===
+[2026-05-14T22:51:57Z]   llama-server pid=56806 port=19662 ctx_total=5120
+  batch=0 ok=4/4 wall=55.77s per_slot_decode=5.942087196254006 aggregate_decode=21.2
+  batch=1 ok=4/4 wall=55.87s per_slot_decode=5.937542104708905 aggregate_decode=21.1
+  batch=2 ok=4/4 wall=55.78s per_slot_decode=5.942700271254027 aggregate_decode=21.2
+  batch=3 ok=4/4 wall=55.80s per_slot_decode=5.94740706787649 aggregate_decode=21.1
+  batch=4 ok=4/4 wall=55.80s per_slot_decode=5.939338294343138 aggregate_decode=21.1
+  batch=5 ok=4/4 wall=55.79s per_slot_decode=5.9393853796434755 aggregate_decode=21.1
+  batch=6 ok=4/4 wall=55.84s per_slot_decode=5.939260038830851 aggregate_decode=21.1
+  batch=7 ok=4/4 wall=55.84s per_slot_decode=5.937683791573891 aggregate_decode=21.1
+  batch=8 ok=4/4 wall=55.90s per_slot_decode=5.93835106679106 aggregate_decode=21.1
+  batch=9 ok=4/4 wall=55.90s per_slot_decode=5.937362883802521 aggregate_decode=21.1
+DONE cell ctx=1024 gen=2048 conc=4 per_slot_decode_mean=5.940186099264432 aggregate_decode_mean=21.135086244330374
+[2026-05-14T23:01:23Z]   cell done — per_slot_decode_mean=5.940186099264432 aggregate_decode_mean=21.135086244330374
+[2026-05-14T23:01:23Z] === cell ctx=1024 gen=2048 conc=8 ===
+[2026-05-14T23:01:23Z]   llama-server pid=78843 port=19826 ctx_total=9216
+  batch=0 ok=8/8 wall=78.00s per_slot_decode=4.42353786363679 aggregate_decode=30.3
+  batch=1 ok=8/8 wall=78.66s per_slot_decode=4.403678483074693 aggregate_decode=30.0
+  batch=2 ok=8/8 wall=78.61s per_slot_decode=4.404073160742138 aggregate_decode=30.0
+  batch=3 ok=8/8 wall=78.80s per_slot_decode=4.407483578347075 aggregate_decode=29.9
+  batch=4 ok=8/8 wall=78.78s per_slot_decode=4.408763564290833 aggregate_decode=30.0
+  batch=5 ok=8/8 wall=77.79s per_slot_decode=4.403038730381059 aggregate_decode=30.3
+  batch=6 ok=8/8 wall=78.66s per_slot_decode=4.411358496401264 aggregate_decode=30.0
+  batch=7 ok=8/8 wall=78.80s per_slot_decode=4.407862867790323 aggregate_decode=30.0
+  batch=8 ok=8/8 wall=78.09s per_slot_decode=4.403328482232529 aggregate_decode=30.2
+  batch=9 ok=8/8 wall=78.70s per_slot_decode=4.410158532347081 aggregate_decode=30.0
+DONE cell ctx=1024 gen=2048 conc=8 per_slot_decode_mean=4.407008426566538 aggregate_decode_mean=30.05276340379766
+[2026-05-14T23:14:38Z]   cell done — per_slot_decode_mean=4.407008426566538 aggregate_decode_mean=30.05276340379766
+[2026-05-14T23:14:38Z] === cell ctx=4096 gen=128 conc=1 ===
+[2026-05-14T23:14:38Z]   llama-server pid=110198 port=19517 ctx_total=5120
+  batch=0 ok=1/1 wall=22.57s per_slot_decode=7.603182311956669 aggregate_decode=5.7
+  batch=1 ok=1/1 wall=22.12s per_slot_decode=7.602746064361284 aggregate_decode=5.8
+  batch=2 ok=1/1 wall=22.13s per_slot_decode=7.597113666590221 aggregate_decode=5.8
+  batch=3 ok=1/1 wall=22.11s per_slot_decode=7.608374609260926 aggregate_decode=5.8
+  batch=4 ok=1/1 wall=22.13s per_slot_decode=7.597119528389812 aggregate_decode=5.8
+  batch=5 ok=1/1 wall=22.13s per_slot_decode=7.597850971595969 aggregate_decode=5.8
+  batch=6 ok=1/1 wall=22.13s per_slot_decode=7.600387310987126 aggregate_decode=5.8
+  batch=7 ok=1/1 wall=22.11s per_slot_decode=7.603865234795476 aggregate_decode=5.8
+  batch=8 ok=1/1 wall=22.12s per_slot_decode=7.602714454161927 aggregate_decode=5.8
+  batch=9 ok=1/1 wall=22.13s per_slot_decode=7.600419804437636 aggregate_decode=5.8
+DONE cell ctx=4096 gen=128 conc=1 per_slot_decode_mean=7.600980697527387 aggregate_decode_mean=5.78539803000036
+[2026-05-14T23:18:28Z]   cell done — per_slot_decode_mean=7.600980697527387 aggregate_decode_mean=5.78539803000036
+[2026-05-14T23:18:28Z] === cell ctx=4096 gen=128 conc=4 ===
+[2026-05-14T23:18:28Z]   llama-server pid=119442 port=19943 ctx_total=17408
+  batch=0 ok=4/4 wall=44.57s per_slot_decode=5.314947140659954 aggregate_decode=11.5
+  batch=1 ok=4/4 wall=44.73s per_slot_decode=5.043851203786295 aggregate_decode=11.4
+  batch=2 ok=4/4 wall=44.71s per_slot_decode=5.06120764983657 aggregate_decode=11.5
+  batch=3 ok=4/4 wall=44.69s per_slot_decode=5.058265731144504 aggregate_decode=11.5
+  batch=4 ok=4/4 wall=44.67s per_slot_decode=5.062421011518506 aggregate_decode=11.5
+  batch=5 ok=4/4 wall=44.67s per_slot_decode=5.0618574272641785 aggregate_decode=11.5
+  batch=6 ok=4/4 wall=44.66s per_slot_decode=5.062929019162939 aggregate_decode=11.5
+  batch=7 ok=4/4 wall=44.63s per_slot_decode=5.064413387038618 aggregate_decode=11.5
+  batch=8 ok=4/4 wall=44.66s per_slot_decode=5.061533412749391 aggregate_decode=11.5
+  batch=9 ok=4/4 wall=44.67s per_slot_decode=5.060433830861176 aggregate_decode=11.5
+DONE cell ctx=4096 gen=128 conc=4 per_slot_decode_mean=5.061632683696986 aggregate_decode_mean=11.462064855516495
+[2026-05-14T23:26:05Z]   cell done — per_slot_decode_mean=5.061632683696986 aggregate_decode_mean=11.462064855516495
+[2026-05-14T23:26:05Z] === cell ctx=4096 gen=128 conc=8 ===
+[2026-05-14T23:26:05Z]   llama-server pid=137584 port=19669 ctx_total=33792
+  batch=0 ok=8/8 wall=74.58s per_slot_decode=3.3858469287465125 aggregate_decode=13.7
+  batch=1 ok=8/8 wall=75.47s per_slot_decode=3.221773681848295 aggregate_decode=13.6
+  batch=2 ok=8/8 wall=75.44s per_slot_decode=3.231051159704867 aggregate_decode=13.6
+  batch=3 ok=8/8 wall=75.08s per_slot_decode=3.2354297266310326 aggregate_decode=13.6
+  batch=4 ok=8/8 wall=75.07s per_slot_decode=3.234523781572113 aggregate_decode=13.6
+  batch=5 ok=8/8 wall=75.15s per_slot_decode=3.233175710976386 aggregate_decode=13.6
+  batch=6 ok=8/8 wall=75.13s per_slot_decode=3.2313292625206875 aggregate_decode=13.6
+  batch=7 ok=8/8 wall=75.11s per_slot_decode=3.233624247309369 aggregate_decode=13.6
+  batch=8 ok=8/8 wall=75.07s per_slot_decode=3.2364589286046717 aggregate_decode=13.6
+  batch=9 ok=8/8 wall=75.22s per_slot_decode=3.2304541866783976 aggregate_decode=13.6
+DONE cell ctx=4096 gen=128 conc=8 per_slot_decode_mean=3.2332558754996903 aggregate_decode_mean=13.624551336911727
+[2026-05-14T23:38:46Z]   cell done — per_slot_decode_mean=3.2332558754996903 aggregate_decode_mean=13.624551336911727
+[2026-05-14T23:38:46Z] === cell ctx=4096 gen=512 conc=1 ===
+[2026-05-14T23:38:46Z]   llama-server pid=167244 port=19399 ctx_total=5120
+  batch=0 ok=1/1 wall=72.59s per_slot_decode=7.595904525651784 aggregate_decode=7.1
+  batch=1 ok=1/1 wall=72.62s per_slot_decode=7.599219310827394 aggregate_decode=7.1
+  batch=2 ok=1/1 wall=72.60s per_slot_decode=7.598937009635734 aggregate_decode=7.1
+  batch=3 ok=1/1 wall=72.62s per_slot_decode=7.599085996184664 aggregate_decode=7.1
+  batch=4 ok=1/1 wall=72.61s per_slot_decode=7.598911182887181 aggregate_decode=7.1
+  batch=5 ok=1/1 wall=72.63s per_slot_decode=7.5972660763195226 aggregate_decode=7.0
+  batch=6 ok=1/1 wall=72.59s per_slot_decode=7.6007243312145665 aggregate_decode=7.1
+  batch=7 ok=1/1 wall=72.57s per_slot_decode=7.600685629348052 aggregate_decode=7.1
+  batch=8 ok=1/1 wall=72.73s per_slot_decode=7.585193725551454 aggregate_decode=7.0
+  batch=9 ok=1/1 wall=72.66s per_slot_decode=7.595334802951499 aggregate_decode=7.0
+DONE cell ctx=4096 gen=512 conc=1 per_slot_decode_mean=7.597017344261584 aggregate_decode_mean=7.049929932589767
+[2026-05-14T23:51:02Z]   cell done — per_slot_decode_mean=7.597017344261584 aggregate_decode_mean=7.049929932589767
+[2026-05-14T23:51:02Z] === cell ctx=4096 gen=512 conc=4 ===
+[2026-05-14T23:51:02Z]   llama-server pid=196224 port=19175 ctx_total=17408
+  batch=0 ok=4/4 wall=98.46s per_slot_decode=5.631210349321069 aggregate_decode=17.9
+  batch=1 ok=4/4 wall=98.89s per_slot_decode=5.510348149159252 aggregate_decode=17.8
+  batch=2 ok=4/4 wall=98.53s per_slot_decode=5.5349079273960955 aggregate_decode=17.9
+  batch=3 ok=4/4 wall=98.56s per_slot_decode=5.534935044467268 aggregate_decode=17.9
+  batch=4 ok=4/4 wall=98.58s per_slot_decode=5.533368121444022 aggregate_decode=17.9
+  batch=5 ok=4/4 wall=98.54s per_slot_decode=5.534400158298965 aggregate_decode=17.9
+  batch=6 ok=4/4 wall=98.55s per_slot_decode=5.534683405954399 aggregate_decode=17.9
+  batch=7 ok=4/4 wall=98.56s per_slot_decode=5.535407468009385 aggregate_decode=17.9
+  batch=8 ok=4/4 wall=98.55s per_slot_decode=5.534865629096983 aggregate_decode=17.9
+  batch=9 ok=4/4 wall=98.56s per_slot_decode=5.534606841927904 aggregate_decode=17.9
+DONE cell ctx=4096 gen=512 conc=4 per_slot_decode_mean=5.534646824574378 aggregate_decode_mean=17.898811815975595
+[2026-05-15T00:07:38Z]   cell done — per_slot_decode_mean=5.534646824574378 aggregate_decode_mean=17.898811815975595
+[2026-05-15T00:07:38Z] === cell ctx=4096 gen=512 conc=8 ===
+[2026-05-15T00:07:38Z]   llama-server pid=235137 port=19319 ctx_total=33792
+  batch=0 ok=8/8 wall=145.68s per_slot_decode=3.9874176100962893 aggregate_decode=24.2
+  batch=1 ok=8/8 wall=146.63s per_slot_decode=3.90245481877218 aggregate_decode=24.1
+  batch=2 ok=8/8 wall=146.13s per_slot_decode=3.918382303220827 aggregate_decode=24.1
+  batch=3 ok=8/8 wall=146.14s per_slot_decode=3.9181166921190065 aggregate_decode=24.1
+  batch=4 ok=8/8 wall=146.12s per_slot_decode=3.9183082383393635 aggregate_decode=24.1
+  batch=5 ok=8/8 wall=146.19s per_slot_decode=3.918183427305147 aggregate_decode=24.1
+  batch=6 ok=8/8 wall=146.13s per_slot_decode=3.9182038174674436 aggregate_decode=24.1
+  batch=7 ok=8/8 wall=146.13s per_slot_decode=3.9180836186304595 aggregate_decode=24.1
+  batch=8 ok=8/8 wall=146.25s per_slot_decode=3.9156504127743617 aggregate_decode=24.1
+  batch=9 ok=8/8 wall=146.08s per_slot_decode=3.9201320173508254 aggregate_decode=24.2
+DONE cell ctx=4096 gen=512 conc=8 per_slot_decode_mean=3.918132565900929 aggregate_decode_mean=24.140181182654537
+[2026-05-15T00:32:09Z]   cell done — per_slot_decode_mean=3.918132565900929 aggregate_decode_mean=24.140181182654537
+[2026-05-15T00:32:09Z] === cell ctx=4096 gen=2048 conc=1 ===
+[2026-05-15T00:32:09Z]   llama-server pid=292638 port=19141 ctx_total=5120
+  batch=0 ok=1/1 wall=164.92s per_slot_decode=7.569781789237577 aggregate_decode=7.3
+  batch=1 ok=1/1 wall=164.96s per_slot_decode=7.570271846771386 aggregate_decode=7.3
+  batch=2 ok=1/1 wall=164.93s per_slot_decode=7.570513415062483 aggregate_decode=7.3
+  batch=3 ok=1/1 wall=164.93s per_slot_decode=7.56986444852232 aggregate_decode=7.3
+  batch=4 ok=1/1 wall=164.92s per_slot_decode=7.570340153667134 aggregate_decode=7.3
+  batch=5 ok=1/1 wall=164.91s per_slot_decode=7.571681560249886 aggregate_decode=7.3
+  batch=6 ok=1/1 wall=164.96s per_slot_decode=7.569378708901654 aggregate_decode=7.3
+  batch=7 ok=1/1 wall=164.94s per_slot_decode=7.569689084068184 aggregate_decode=7.3
+  batch=8 ok=1/1 wall=164.97s per_slot_decode=7.569083996904826 aggregate_decode=7.3
+  batch=9 ok=1/1 wall=165.02s per_slot_decode=7.5662959129516745 aggregate_decode=7.3
+DONE cell ctx=4096 gen=2048 conc=1 per_slot_decode_mean=7.5696059100410205 aggregate_decode_mean=7.329574817690119
+[2026-05-15T00:59:48Z]   cell done — per_slot_decode_mean=7.5696059100410205 aggregate_decode_mean=7.329574817690119
+[2026-05-15T00:59:48Z] === cell ctx=4096 gen=2048 conc=4 ===
+[2026-05-15T00:59:48Z]   llama-server pid=356659 port=19052 ctx_total=17408
+  batch=0 ok=4/4 wall=97.99s per_slot_decode=5.650028982004658 aggregate_decode=18.0
+  batch=1 ok=4/4 wall=98.13s per_slot_decode=5.5651185735516115 aggregate_decode=18.0
+  batch=2 ok=4/4 wall=98.16s per_slot_decode=5.56515559402888 aggregate_decode=18.0
+  batch=3 ok=4/4 wall=98.18s per_slot_decode=5.563484309730821 aggregate_decode=18.0
+  batch=4 ok=4/4 wall=98.17s per_slot_decode=5.563277175445506 aggregate_decode=18.0
+  batch=5 ok=4/4 wall=98.13s per_slot_decode=5.563693976229022 aggregate_decode=18.0
+  batch=6 ok=4/4 wall=98.16s per_slot_decode=5.564244205597822 aggregate_decode=18.0
+  batch=7 ok=4/4 wall=98.18s per_slot_decode=5.5635739227225045 aggregate_decode=18.0
+  batch=8 ok=4/4 wall=98.13s per_slot_decode=5.565584420426036 aggregate_decode=18.0
+  batch=9 ok=4/4 wall=98.14s per_slot_decode=5.565156508567721 aggregate_decode=18.0
+DONE cell ctx=4096 gen=2048 conc=4 per_slot_decode_mean=5.564271264093539 aggregate_decode_mean=17.971387522194544
+[2026-05-15T01:16:19Z]   cell done — per_slot_decode_mean=5.564271264093539 aggregate_decode_mean=17.971387522194544
+[2026-05-15T01:16:19Z] === cell ctx=4096 gen=2048 conc=8 ===
+[2026-05-15T01:16:19Z]   llama-server pid=394807 port=19918 ctx_total=33792
+  batch=0 ok=8/8 wall=145.78s per_slot_decode=3.9563108665245643 aggregate_decode=24.2
+  batch=1 ok=8/8 wall=146.08s per_slot_decode=3.9150085538077075 aggregate_decode=24.2
+  batch=2 ok=8/8 wall=145.98s per_slot_decode=3.9193951723993363 aggregate_decode=24.2
+  batch=3 ok=8/8 wall=145.98s per_slot_decode=3.91736173990991 aggregate_decode=24.2
+  batch=4 ok=8/8 wall=145.98s per_slot_decode=3.9176060196153806 aggregate_decode=24.2
+  batch=5 ok=8/8 wall=146.11s per_slot_decode=3.9154276347771693 aggregate_decode=24.1
+  batch=6 ok=8/8 wall=146.11s per_slot_decode=3.915808164981221 aggregate_decode=24.1
+  batch=7 ok=8/8 wall=146.04s per_slot_decode=3.917220913162364 aggregate_decode=24.2
+  batch=8 ok=8/8 wall=145.97s per_slot_decode=3.9185923620199477 aggregate_decode=24.2
+  batch=9 ok=8/8 wall=145.98s per_slot_decode=3.9192731078503504 aggregate_decode=24.2
+DONE cell ctx=4096 gen=2048 conc=8 per_slot_decode_mean=3.91758563933946 aggregate_decode_mean=24.161621399163316
+[2026-05-15T01:40:49Z]   cell done — per_slot_decode_mean=3.91758563933946 aggregate_decode_mean=24.161621399163316
+[2026-05-15T01:40:49Z] === cell ctx=16384 gen=128 conc=1 ===
+[2026-05-15T01:40:49Z]   llama-server pid=451999 port=19254 ctx_total=17408
+  batch=0 ok=1/1 wall=38.11s per_slot_decode=7.401851307100439 aggregate_decode=3.4
+  batch=1 ok=1/1 wall=38.18s per_slot_decode=7.404731762434917 aggregate_decode=3.4
+  batch=2 ok=1/1 wall=38.16s per_slot_decode=7.409667613309592 aggregate_decode=3.4
+  batch=3 ok=1/1 wall=38.18s per_slot_decode=7.404410078211974 aggregate_decode=3.4
+  batch=4 ok=1/1 wall=38.19s per_slot_decode=7.402480131569831 aggregate_decode=3.4
+  batch=5 ok=1/1 wall=38.14s per_slot_decode=7.400735609992334 aggregate_decode=3.4
+  batch=6 ok=1/1 wall=38.18s per_slot_decode=7.407818095470802 aggregate_decode=3.4
+  batch=7 ok=1/1 wall=38.20s per_slot_decode=7.407196508062387 aggregate_decode=3.4
+  batch=8 ok=1/1 wall=38.15s per_slot_decode=7.401392919018006 aggregate_decode=3.4
+  batch=9 ok=1/1 wall=38.13s per_slot_decode=7.402489549766706 aggregate_decode=3.4
+DONE cell ctx=16384 gen=128 conc=1 per_slot_decode_mean=7.404523813175204 aggregate_decode_mean=3.3537054824305064
+[2026-05-15T01:47:21Z]   cell done — per_slot_decode_mean=7.404523813175204 aggregate_decode_mean=3.3537054824305064
+[2026-05-15T01:47:21Z] === cell ctx=16384 gen=128 conc=4 ===
+[2026-05-15T01:47:21Z]   llama-server pid=467047 port=19534 ctx_total=66560
+  batch=0 ok=4/4 wall=112.53s per_slot_decode=3.2175796100067475 aggregate_decode=4.5
+  batch=1 ok=4/4 wall=112.71s per_slot_decode=3.125233346860081 aggregate_decode=4.5
+  batch=2 ok=4/4 wall=113.10s per_slot_decode=3.124497684832427 aggregate_decode=4.5
+  batch=3 ok=4/4 wall=112.81s per_slot_decode=3.124814452460643 aggregate_decode=4.5
+  batch=4 ok=4/4 wall=112.89s per_slot_decode=3.1220475122433857 aggregate_decode=4.5
+  batch=5 ok=4/4 wall=112.86s per_slot_decode=3.1226257401923476 aggregate_decode=4.5
+  batch=6 ok=4/4 wall=112.74s per_slot_decode=3.124297368878854 aggregate_decode=4.5
+  batch=7 ok=4/4 wall=112.75s per_slot_decode=3.1235392929642365 aggregate_decode=4.5
+  batch=8 ok=4/4 wall=112.72s per_slot_decode=3.1245024331364526 aggregate_decode=4.5
+  batch=9 ok=4/4 wall=112.88s per_slot_decode=3.1226294098830962 aggregate_decode=4.5
+DONE cell ctx=16384 gen=128 conc=4 per_slot_decode_mean=3.1236192368239304 aggregate_decode_mean=4.53724179460138
+[2026-05-15T02:06:19Z]   cell done — per_slot_decode_mean=3.1236192368239304 aggregate_decode_mean=4.53724179460138
+[2026-05-15T02:06:19Z] === cell ctx=16384 gen=128 conc=8 ===
+[2026-05-15T02:06:19Z]   llama-server pid=511219 port=19169 ctx_total=132096
+  batch=0 ok=8/8 wall=218.86s per_slot_decode=1.7762906709092479 aggregate_decode=4.7
+  batch=1 ok=8/8 wall=218.30s per_slot_decode=1.7414670413927662 aggregate_decode=4.7
+  batch=2 ok=8/8 wall=218.17s per_slot_decode=1.7405450207617872 aggregate_decode=4.7
+  batch=3 ok=8/8 wall=218.19s per_slot_decode=1.741675470899833 aggregate_decode=4.7
+  batch=4 ok=8/8 wall=218.46s per_slot_decode=1.7405477746553992 aggregate_decode=4.7
+  batch=5 ok=8/8 wall=218.24s per_slot_decode=1.7424141827640178 aggregate_decode=4.7
+  batch=6 ok=8/8 wall=218.10s per_slot_decode=1.7424633143020822 aggregate_decode=4.7
+  batch=7 ok=8/8 wall=218.24s per_slot_decode=1.7421070035536137 aggregate_decode=4.7
+  batch=8 ok=8/8 wall=218.37s per_slot_decode=1.7409359196166734 aggregate_decode=4.7
+  batch=9 ok=8/8 wall=218.11s per_slot_decode=1.7417026866655616 aggregate_decode=4.7
+DONE cell ctx=16384 gen=128 conc=8 per_slot_decode_mean=1.741548921652371 aggregate_decode_mean=4.6922028335954895
+[2026-05-15T02:42:55Z]   cell done — per_slot_decode_mean=1.741548921652371 aggregate_decode_mean=4.6922028335954895
+[2026-05-15T02:42:55Z] === cell ctx=16384 gen=512 conc=1 ===
+[2026-05-15T02:42:55Z]   llama-server pid=596630 port=19615 ctx_total=17408
+  batch=0 ok=1/1 wall=90.07s per_slot_decode=7.388307051691742 aggregate_decode=5.7
+  batch=1 ok=1/1 wall=90.13s per_slot_decode=7.3862790374356955 aggregate_decode=5.7
+  batch=2 ok=1/1 wall=90.09s per_slot_decode=7.38876819204563 aggregate_decode=5.7
+  batch=3 ok=1/1 wall=90.13s per_slot_decode=7.388834409062959 aggregate_decode=5.7
+  batch=4 ok=1/1 wall=90.09s per_slot_decode=7.389845512248574 aggregate_decode=5.7
+  batch=5 ok=1/1 wall=90.10s per_slot_decode=7.3891081399872895 aggregate_decode=5.7
+  batch=6 ok=1/1 wall=90.11s per_slot_decode=7.388558459342408 aggregate_decode=5.7
+  batch=7 ok=1/1 wall=90.11s per_slot_decode=7.388605160357697 aggregate_decode=5.7
+  batch=8 ok=1/1 wall=90.10s per_slot_decode=7.388729592657173 aggregate_decode=5.7
+  batch=9 ok=1/1 wall=90.11s per_slot_decode=7.389533118906017 aggregate_decode=5.7
+DONE cell ctx=16384 gen=512 conc=1 per_slot_decode_mean=7.388997823075968 aggregate_decode_mean=5.682329604049287
+[2026-05-15T02:58:05Z]   cell done — per_slot_decode_mean=7.388997823075968 aggregate_decode_mean=5.682329604049287
+[2026-05-15T02:58:05Z] === cell ctx=16384 gen=512 conc=4 ===
+[2026-05-15T02:58:05Z]   llama-server pid=631728 port=19343 ctx_total=66560
+  batch=0 ok=4/4 wall=181.89s per_slot_decode=4.387050489802492 aggregate_decode=11.3
+  batch=1 ok=4/4 wall=182.49s per_slot_decode=4.3496200811163535 aggregate_decode=11.2
+  batch=2 ok=4/4 wall=182.34s per_slot_decode=4.350519260286777 aggregate_decode=11.2
+  batch=3 ok=4/4 wall=182.27s per_slot_decode=4.353007755596067 aggregate_decode=11.2
+  batch=4 ok=4/4 wall=182.19s per_slot_decode=4.353483616573267 aggregate_decode=11.2
+  batch=5 ok=4/4 wall=182.19s per_slot_decode=4.353574176392697 aggregate_decode=11.2
+  batch=6 ok=4/4 wall=182.15s per_slot_decode=4.3544223555020665 aggregate_decode=11.2
+  batch=7 ok=4/4 wall=182.20s per_slot_decode=4.353038729139781 aggregate_decode=11.2
+  batch=8 ok=4/4 wall=182.21s per_slot_decode=4.353145777615269 aggregate_decode=11.2
+  batch=9 ok=4/4 wall=182.18s per_slot_decode=4.353490658263626 aggregate_decode=11.2
+DONE cell ctx=16384 gen=512 conc=4 per_slot_decode_mean=4.353085291171194 aggregate_decode_mean=11.239382094105885
+[2026-05-15T03:28:37Z]   cell done — per_slot_decode_mean=4.353085291171194 aggregate_decode_mean=11.239382094105885
+[2026-05-15T03:28:37Z] === cell ctx=16384 gen=512 conc=8 ===
+[2026-05-15T03:28:37Z]   llama-server pid=702636 port=19520 ctx_total=132096
+  batch=0 ok=8/8 wall=317.04s per_slot_decode=2.728239321397609 aggregate_decode=12.9
+  batch=1 ok=8/8 wall=317.14s per_slot_decode=2.6983979160869653 aggregate_decode=12.9
+  batch=2 ok=8/8 wall=316.83s per_slot_decode=2.699989467295192 aggregate_decode=12.9
+  batch=3 ok=8/8 wall=317.27s per_slot_decode=2.696262235440967 aggregate_decode=12.9
+  batch=4 ok=8/8 wall=317.34s per_slot_decode=2.6961638872859903 aggregate_decode=12.9
+  batch=5 ok=8/8 wall=317.09s per_slot_decode=2.6936074122054903 aggregate_decode=12.9
+  batch=6 ok=8/8 wall=317.97s per_slot_decode=2.6877965409057394 aggregate_decode=12.9
+  batch=7 ok=8/8 wall=317.17s per_slot_decode=2.6948766551775902 aggregate_decode=12.9
+  batch=8 ok=8/8 wall=317.25s per_slot_decode=2.6950326043019817 aggregate_decode=12.9
+  batch=9 ok=8/8 wall=316.90s per_slot_decode=2.696910203632942 aggregate_decode=12.9
+DONE cell ctx=16384 gen=512 conc=8 per_slot_decode_mean=2.6950798757807366 aggregate_decode_mean=12.911938420006251
+[2026-05-15T04:21:40Z]   cell done — per_slot_decode_mean=2.6950798757807366 aggregate_decode_mean=12.911938420006251
+[2026-05-15T04:21:40Z] === cell ctx=16384 gen=2048 conc=1 ===
+[2026-05-15T04:21:40Z]   llama-server pid=828266 port=19030 ctx_total=17408
+  batch=0 ok=1/1 wall=267.09s per_slot_decode=7.3273158682057415 aggregate_decode=6.8
+  batch=1 ok=1/1 wall=267.10s per_slot_decode=7.328905989272519 aggregate_decode=6.8
+  batch=2 ok=1/1 wall=267.11s per_slot_decode=7.327883861493236 aggregate_decode=6.8
+  batch=3 ok=1/1 wall=267.14s per_slot_decode=7.3280802433312395 aggregate_decode=6.8
+  batch=4 ok=1/1 wall=267.16s per_slot_decode=7.327313042440629 aggregate_decode=6.8
+  batch=5 ok=1/1 wall=267.08s per_slot_decode=7.329140101511474 aggregate_decode=6.8
+  batch=6 ok=1/1 wall=267.11s per_slot_decode=7.328046208215355 aggregate_decode=6.8
+  batch=7 ok=1/1 wall=267.15s per_slot_decode=7.327630523347653 aggregate_decode=6.8
+  batch=8 ok=1/1 wall=267.15s per_slot_decode=7.327659200013342 aggregate_decode=6.8
+  batch=9 ok=1/1 wall=267.12s per_slot_decode=7.328433168037039 aggregate_decode=6.8
+DONE cell ctx=16384 gen=2048 conc=1 per_slot_decode_mean=7.328023293548746 aggregate_decode_mean=6.757056316248972
+[2026-05-15T05:06:21Z]   cell done — per_slot_decode_mean=7.328023293548746 aggregate_decode_mean=6.757056316248972
+[2026-05-15T05:06:21Z] === cell ctx=16384 gen=2048 conc=4 ===
+[2026-05-15T05:06:21Z]   llama-server pid=933816 port=19433 ctx_total=66560
+  batch=0 ok=4/4 wall=280.29s per_slot_decode=4.785689593410856 aggregate_decode=14.8
+  batch=1 ok=4/4 wall=280.93s per_slot_decode=4.760329659990889 aggregate_decode=14.8
+  batch=2 ok=4/4 wall=280.61s per_slot_decode=4.761760495090617 aggregate_decode=14.8
+  batch=3 ok=4/4 wall=280.62s per_slot_decode=4.7625329212885354 aggregate_decode=14.8
+  batch=4 ok=4/4 wall=280.58s per_slot_decode=4.762658718819586 aggregate_decode=14.8
+  batch=5 ok=4/4 wall=280.51s per_slot_decode=4.763490817228315 aggregate_decode=14.8
+  batch=6 ok=4/4 wall=280.67s per_slot_decode=4.762100759115192 aggregate_decode=14.8
+  batch=7 ok=4/4 wall=280.62s per_slot_decode=4.762464491556159 aggregate_decode=14.8
+  batch=8 ok=4/4 wall=280.57s per_slot_decode=4.763468007517863 aggregate_decode=14.8
+  batch=9 ok=4/4 wall=280.59s per_slot_decode=4.763374715398561 aggregate_decode=14.8
+DONE cell ctx=16384 gen=2048 conc=4 per_slot_decode_mean=4.762731365751853 aggregate_decode_mean=14.782830208208935
+[2026-05-15T05:53:17Z]   cell done — per_slot_decode_mean=4.762731365751853 aggregate_decode_mean=14.782830208208935
+[2026-05-15T05:53:17Z] === cell ctx=16384 gen=2048 conc=8 ===
+[2026-05-15T05:53:17Z]   llama-server pid=1044730 port=19184 ctx_total=132096
+  batch=0 ok=8/8 wall=450.06s per_slot_decode=3.1519681582339296 aggregate_decode=18.4
+  batch=1 ok=8/8 wall=450.22s per_slot_decode=3.132813144386782 aggregate_decode=18.4
+  batch=2 ok=8/8 wall=450.08s per_slot_decode=3.1339749931906393 aggregate_decode=18.4
+  batch=3 ok=8/8 wall=450.41s per_slot_decode=3.1323810631220996 aggregate_decode=18.4
+  batch=4 ok=8/8 wall=450.03s per_slot_decode=3.1339935449227974 aggregate_decode=18.4
+  batch=5 ok=8/8 wall=450.12s per_slot_decode=3.1331205921965872 aggregate_decode=18.4
+  batch=6 ok=8/8 wall=450.22s per_slot_decode=3.132289708548857 aggregate_decode=18.4
+  batch=7 ok=8/8 wall=449.96s per_slot_decode=3.134842577247679 aggregate_decode=18.4
+  batch=8 ok=8/8 wall=450.14s per_slot_decode=3.132899113071237 aggregate_decode=18.4
+  batch=9 ok=8/8 wall=450.20s per_slot_decode=3.1334568379161527 aggregate_decode=18.4
+DONE cell ctx=16384 gen=2048 conc=8 per_slot_decode_mean=3.133369803777006 aggregate_decode_mean=18.429578075885896
+[2026-05-15T07:08:32Z]   cell done — per_slot_decode_mean=3.133369803777006 aggregate_decode_mean=18.429578075885896
+[2026-05-15T07:08:32Z] === cell ctx=32768 gen=128 conc=1 ===
+[2026-05-15T07:08:32Z]   llama-server pid=1222191 port=19190 ctx_total=33792
+  batch=0 ok=1/1 wall=61.36s per_slot_decode=7.148292158518963 aggregate_decode=2.1
+  batch=1 ok=1/1 wall=61.49s per_slot_decode=7.158406303871551 aggregate_decode=2.1
+  batch=2 ok=1/1 wall=61.46s per_slot_decode=7.150896314573292 aggregate_decode=2.1
+  batch=3 ok=1/1 wall=61.52s per_slot_decode=7.151718569146727 aggregate_decode=2.1
+  batch=4 ok=1/1 wall=61.56s per_slot_decode=7.15254820705733 aggregate_decode=2.1
+  batch=5 ok=1/1 wall=61.60s per_slot_decode=7.152528622826993 aggregate_decode=2.1
+  batch=6 ok=1/1 wall=61.59s per_slot_decode=7.147344973529138 aggregate_decode=2.1
+  batch=7 ok=1/1 wall=61.62s per_slot_decode=7.141872345615735 aggregate_decode=2.1
+  batch=8 ok=1/1 wall=61.63s per_slot_decode=7.151136019411759 aggregate_decode=2.1
+  batch=9 ok=1/1 wall=61.66s per_slot_decode=7.141826519900644 aggregate_decode=2.1
+DONE cell ctx=32768 gen=128 conc=1 per_slot_decode_mean=7.148733946507702 aggregate_decode_mean=2.0786056217239466
+[2026-05-15T07:18:56Z]   cell done — per_slot_decode_mean=7.148733946507702 aggregate_decode_mean=2.0786056217239466
+[2026-05-15T07:18:56Z] === cell ctx=32768 gen=128 conc=4 ===
+[2026-05-15T07:18:57Z]   llama-server pid=1247211 port=19258 ctx_total=132096
+  batch=0 ok=4/4 wall=209.62s per_slot_decode=2.327866680530515 aggregate_decode=2.4
+  batch=1 ok=4/4 wall=209.99s per_slot_decode=2.3339905522646363 aggregate_decode=2.4
+  batch=2 ok=4/4 wall=210.02s per_slot_decode=2.329247457396394 aggregate_decode=2.4
+  batch=3 ok=4/4 wall=209.62s per_slot_decode=2.334851796636423 aggregate_decode=2.4
+  batch=4 ok=4/4 wall=209.97s per_slot_decode=2.328559549963185 aggregate_decode=2.4
+  batch=5 ok=4/4 wall=209.84s per_slot_decode=2.335411502896755 aggregate_decode=2.4
+  batch=6 ok=4/4 wall=210.20s per_slot_decode=2.327776281500659 aggregate_decode=2.4
+  batch=7 ok=4/4 wall=210.13s per_slot_decode=2.3344516917983147 aggregate_decode=2.4
+  batch=8 ok=4/4 wall=209.96s per_slot_decode=2.3303127657262244 aggregate_decode=2.4
+  batch=9 ok=4/4 wall=209.72s per_slot_decode=2.335758713806841 aggregate_decode=2.4
+DONE cell ctx=32768 gen=128 conc=4 per_slot_decode_mean=2.3320462199655996 aggregate_decode_mean=2.4388806911196874
+[2026-05-15T07:54:08Z]   cell done — per_slot_decode_mean=2.3320462199655996 aggregate_decode_mean=2.4388806911196874
+[2026-05-15T07:54:08Z] === cell ctx=32768 gen=128 conc=8 ===
+[2026-05-15T07:54:08Z]   llama-server pid=1330419 port=19429 ctx_total=263168
+  batch=0 ok=8/8 wall=416.04s per_slot_decode=1.2458058149976474 aggregate_decode=2.5
+  batch=1 ok=8/8 wall=416.94s per_slot_decode=1.2329749738873912 aggregate_decode=2.5
+  batch=2 ok=8/8 wall=416.48s per_slot_decode=1.2340725355967295 aggregate_decode=2.5
+  batch=3 ok=8/8 wall=416.90s per_slot_decode=1.2331455819310289 aggregate_decode=2.5
+  batch=4 ok=8/8 wall=417.09s per_slot_decode=1.2327357449105318 aggregate_decode=2.5
+  batch=5 ok=8/8 wall=416.87s per_slot_decode=1.2335035825491476 aggregate_decode=2.5
+  batch=6 ok=8/8 wall=416.79s per_slot_decode=1.2329313103152035 aggregate_decode=2.5
+  batch=7 ok=8/8 wall=417.15s per_slot_decode=1.2334943476630749 aggregate_decode=2.5
+  batch=8 ok=8/8 wall=417.16s per_slot_decode=1.233917382607292 aggregate_decode=2.5
+  batch=9 ok=8/8 wall=417.18s per_slot_decode=1.232976739742203 aggregate_decode=2.5
+DONE cell ctx=32768 gen=128 conc=8 per_slot_decode_mean=1.2333471531644014 aggregate_decode_mean=2.4559178401158865
+[2026-05-15T09:03:51Z]   cell done — per_slot_decode_mean=1.2333471531644014 aggregate_decode_mean=2.4559178401158865
+[2026-05-15T09:03:51Z] === cell ctx=32768 gen=512 conc=1 ===
+[2026-05-15T09:03:52Z]   llama-server pid=1495778 port=19230 ctx_total=33792
+  batch=0 ok=1/1 wall=116.04s per_slot_decode=7.09421987212641 aggregate_decode=4.4
+  batch=1 ok=1/1 wall=116.17s per_slot_decode=7.094489510464705 aggregate_decode=4.4
+  batch=2 ok=1/1 wall=116.11s per_slot_decode=7.0955680721499546 aggregate_decode=4.4
+  batch=3 ok=1/1 wall=116.08s per_slot_decode=7.094234518378099 aggregate_decode=4.4
+  batch=4 ok=1/1 wall=116.14s per_slot_decode=7.093071165295586 aggregate_decode=4.4
+  batch=5 ok=1/1 wall=116.02s per_slot_decode=7.097011714504962 aggregate_decode=4.4
+  batch=6 ok=1/1 wall=116.03s per_slot_decode=7.095696695553451 aggregate_decode=4.4
+  batch=7 ok=1/1 wall=116.01s per_slot_decode=7.096653748954958 aggregate_decode=4.4
+  batch=8 ok=1/1 wall=116.06s per_slot_decode=7.09587301946319 aggregate_decode=4.4
+  batch=9 ok=1/1 wall=116.02s per_slot_decode=7.09387073911746 aggregate_decode=4.4
+DONE cell ctx=32768 gen=512 conc=1 per_slot_decode_mean=7.095247459177208 aggregate_decode_mean=4.411545053448564
+[2026-05-15T09:23:24Z]   cell done — per_slot_decode_mean=7.095247459177208 aggregate_decode_mean=4.411545053448564
+[2026-05-15T09:23:24Z] === cell ctx=32768 gen=512 conc=4 ===
+[2026-05-15T09:23:24Z]   llama-server pid=1541700 port=19664 ctx_total=132096
+  batch=0 ok=4/4 wall=287.31s per_slot_decode=3.409613039434161 aggregate_decode=7.1
+  batch=1 ok=4/4 wall=287.56s per_slot_decode=3.39433473034043 aggregate_decode=7.1
+  batch=2 ok=4/4 wall=287.53s per_slot_decode=3.3946906517209734 aggregate_decode=7.1
+  batch=3 ok=4/4 wall=286.94s per_slot_decode=3.4000511524330834 aggregate_decode=7.1
+  batch=4 ok=4/4 wall=287.25s per_slot_decode=3.396772782470201 aggregate_decode=7.1
+  batch=5 ok=4/4 wall=287.46s per_slot_decode=3.3960090674086167 aggregate_decode=7.1
+  batch=6 ok=4/4 wall=287.53s per_slot_decode=3.395566885309149 aggregate_decode=7.1
+  batch=7 ok=4/4 wall=287.73s per_slot_decode=3.3945338720894056 aggregate_decode=7.1
+  batch=8 ok=4/4 wall=287.64s per_slot_decode=3.394098424069001 aggregate_decode=7.1
+  batch=9 ok=4/4 wall=287.75s per_slot_decode=3.393794323627968 aggregate_decode=7.1
+DONE cell ctx=32768 gen=512 conc=4 per_slot_decode_mean=3.39568964489105 aggregate_decode_mean=7.124039692719445
+[2026-05-15T10:11:32Z]   cell done — per_slot_decode_mean=3.39568964489105 aggregate_decode_mean=7.124039692719445
+[2026-05-15T10:11:32Z] === cell ctx=32768 gen=512 conc=8 ===
+[2026-05-15T10:11:32Z]   llama-server pid=1655572 port=19253 ctx_total=263168
+  batch=0 ok=8/8 wall=527.54s per_slot_decode=1.9738230487769395 aggregate_decode=7.8
+  batch=1 ok=8/8 wall=528.22s per_slot_decode=1.9608351748229857 aggregate_decode=7.8
+  batch=2 ok=8/8 wall=528.46s per_slot_decode=1.9603580003722096 aggregate_decode=7.8
+  batch=3 ok=8/8 wall=527.97s per_slot_decode=1.9624932658202634 aggregate_decode=7.8
+  batch=4 ok=8/8 wall=527.90s per_slot_decode=1.9610115194840765 aggregate_decode=7.8
+  batch=5 ok=8/8 wall=528.65s per_slot_decode=1.9621827469128441 aggregate_decode=7.7
+  batch=6 ok=8/8 wall=527.94s per_slot_decode=1.9621603980892486 aggregate_decode=7.8
+  batch=7 ok=8/8 wall=528.13s per_slot_decode=1.9612471133108718 aggregate_decode=7.8
+  batch=8 ok=8/8 wall=528.19s per_slot_decode=1.9598561449827998 aggregate_decode=7.8
+  batch=9 ok=8/8 wall=528.07s per_slot_decode=1.960657575005526 aggregate_decode=7.8
+DONE cell ctx=32768 gen=512 conc=8 per_slot_decode_mean=1.96124584549723 aggregate_decode_mean=7.75519674890843
+[2026-05-15T11:39:46Z]   cell done — per_slot_decode_mean=1.96124584549723 aggregate_decode_mean=7.75519674890843
+[2026-05-15T11:39:46Z] === cell ctx=32768 gen=2048 conc=1 ===
+[2026-05-15T11:39:46Z]   llama-server pid=1863591 port=19279 ctx_total=33792
+  batch=0 ok=1/1 wall=335.73s per_slot_decode=7.018493222445345 aggregate_decode=6.1
+  batch=1 ok=1/1 wall=335.95s per_slot_decode=7.019164131133574 aggregate_decode=6.1
+  batch=2 ok=1/1 wall=335.69s per_slot_decode=7.0191318949480115 aggregate_decode=6.1
+  batch=3 ok=1/1 wall=335.66s per_slot_decode=7.02006544483433 aggregate_decode=6.1
+  batch=4 ok=1/1 wall=335.63s per_slot_decode=7.019841472236253 aggregate_decode=6.1
+  batch=5 ok=1/1 wall=335.65s per_slot_decode=7.020542216220634 aggregate_decode=6.1
+  batch=6 ok=1/1 wall=335.57s per_slot_decode=7.022473114094785 aggregate_decode=6.1
+  batch=7 ok=1/1 wall=335.59s per_slot_decode=7.022134594577283 aggregate_decode=6.1
+  batch=8 ok=1/1 wall=335.56s per_slot_decode=7.022078085535742 aggregate_decode=6.1
+  batch=9 ok=1/1 wall=335.52s per_slot_decode=7.022669103857461 aggregate_decode=6.1
+DONE cell ctx=32768 gen=2048 conc=1 per_slot_decode_mean=7.021116990788062 aggregate_decode_mean=6.102377686569838
+[2026-05-15T12:35:54Z]   cell done — per_slot_decode_mean=7.021116990788062 aggregate_decode_mean=6.102377686569838
+[2026-05-15T12:35:54Z] === cell ctx=32768 gen=2048 conc=4 ===
+[2026-05-15T12:35:54Z]   llama-server pid=1996215 port=19025 ctx_total=132096
+  batch=0 ok=4/4 wall=602.60s per_slot_decode=3.674726151563027 aggregate_decode=9.9
+  batch=1 ok=4/4 wall=606.46s per_slot_decode=3.6645434796634175 aggregate_decode=9.9
+  batch=2 ok=4/4 wall=606.55s per_slot_decode=3.6637413832723564 aggregate_decode=9.9
+  batch=3 ok=4/4 wall=606.46s per_slot_decode=3.6637740265055823 aggregate_decode=9.9
+  batch=4 ok=4/4 wall=606.26s per_slot_decode=3.665360452497789 aggregate_decode=9.9
+  batch=5 ok=4/4 wall=606.19s per_slot_decode=3.6660314618211496 aggregate_decode=9.9
+  batch=6 ok=4/4 wall=605.97s per_slot_decode=3.666872177573665 aggregate_decode=9.9
+  batch=7 ok=4/4 wall=606.22s per_slot_decode=3.6650947711698576 aggregate_decode=9.9
+  batch=8 ok=4/4 wall=606.28s per_slot_decode=3.664683975627055 aggregate_decode=9.9
+  batch=9 ok=4/4 wall=606.41s per_slot_decode=3.6647454880948525 aggregate_decode=9.9
+DONE cell ctx=32768 gen=2048 conc=4 per_slot_decode_mean=3.6650379670702886 aggregate_decode_mean=9.906112094658045
+[2026-05-15T14:17:06Z]   cell done — per_slot_decode_mean=3.6650379670702886 aggregate_decode_mean=9.906112094658045
+[2026-05-15T14:17:06Z] === cell ctx=32768 gen=2048 conc=8 ===
+[2026-05-15T14:17:06Z]   llama-server pid=2234356 port=19872 ctx_total=263168
+  batch=0 ok=8/8 wall=983.75s per_slot_decode=2.4681494823360386 aggregate_decode=14.2
+  batch=1 ok=8/8 wall=984.42s per_slot_decode=2.4586735784270926 aggregate_decode=14.2
+  batch=2 ok=8/8 wall=984.81s per_slot_decode=2.4585529283726806 aggregate_decode=14.1
+  batch=3 ok=8/8 wall=984.12s per_slot_decode=2.460084420337319 aggregate_decode=14.2
+  batch=4 ok=8/8 wall=984.24s per_slot_decode=2.459443531529015 aggregate_decode=14.2
+  batch=5 ok=8/8 wall=984.42s per_slot_decode=2.4597431344109655 aggregate_decode=14.2
+  batch=6 ok=8/8 wall=984.31s per_slot_decode=2.459888465233755 aggregate_decode=14.2
+  batch=7 ok=8/8 wall=984.18s per_slot_decode=2.459985141858704 aggregate_decode=14.2
+  batch=8 ok=8/8 wall=984.48s per_slot_decode=2.45908407912206 aggregate_decode=14.2
+  batch=9 ok=8/8 wall=984.61s per_slot_decode=2.4590169806421645 aggregate_decode=14.2
+DONE cell ctx=32768 gen=2048 conc=8 per_slot_decode_mean=2.459474835188333 aggregate_decode_mean=14.154873030523497
+[2026-05-15T17:01:22Z]   cell done — per_slot_decode_mean=2.459474835188333 aggregate_decode_mean=14.154873030523497
+/home/michael/bench-fleet/lib/bench-host.sh: line 196: unexpected EOF while looking for matching `"'

@@ -1,0 +1,4 @@
+  batch=0 ok=4/4 wall=0.84s per_slot_decode=189.19846648287157 aggregate_decode=609.4
+  batch=1 ok=4/4 wall=0.80s per_slot_decode=189.39104130888373 aggregate_decode=640.1
+  batch=2 ok=4/4 wall=0.80s per_slot_decode=189.3191778866028 aggregate_decode=641.3
+DONE cell ctx=1024 gen=128 conc=4 per_slot_decode_mean=189.35510959774328 aggregate_decode_mean=640.7228462006412

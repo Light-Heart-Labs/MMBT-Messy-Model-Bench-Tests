@@ -1,0 +1,11 @@
+  batch=0 ok=0/1 wall=1.38s per_slot_decode=None aggregate_decode=0.0
+  batch=1 ok=0/1 wall=0.00s per_slot_decode=None aggregate_decode=0.0
+  batch=2 ok=0/1 wall=0.00s per_slot_decode=None aggregate_decode=0.0
+  batch=3 ok=0/1 wall=0.00s per_slot_decode=None aggregate_decode=0.0
+  batch=4 ok=0/1 wall=0.00s per_slot_decode=None aggregate_decode=0.0
+  batch=5 ok=0/1 wall=0.00s per_slot_decode=None aggregate_decode=0.0
+  batch=6 ok=0/1 wall=0.00s per_slot_decode=None aggregate_decode=0.0
+  batch=7 ok=0/1 wall=0.00s per_slot_decode=None aggregate_decode=0.0
+  batch=8 ok=0/1 wall=0.00s per_slot_decode=None aggregate_decode=0.0
+  batch=9 ok=0/1 wall=0.00s per_slot_decode=None aggregate_decode=0.0
+DONE cell ctx=32768 gen=2048 conc=1 per_slot_decode_mean=None aggregate_decode_mean=0.0
