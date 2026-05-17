@@ -1,0 +1,34 @@
+# Repo-wide line-ending policy.
+#
+# WHY: Several files in this repo are SHA-pinned (e.g. workloads/prompts.jsonl,
+# per-cell inferences.jsonl). Without explicit line-ending rules, Windows
+# checkouts with the default core.autocrlf=true would convert LF→CRLF on
+# checkout, breaking the published SHA256 and making sha256sum --check fail
+# for reproducers on Windows.
+#
+# These rules force LF on every platform for line-based text formats, and pin
+# the SHA-anchored corpus files as `binary` (no transformation, ever).
+
+# Text formats — force LF on checkout regardless of platform.
+*.md         text eol=lf
+*.yaml       text eol=lf
+*.yml        text eol=lf
+*.json       text eol=lf
+*.csv        text eol=lf
+*.tsv        text eol=lf
+*.sh         text eol=lf
+*.py         text eol=lf
+*.ts         text eol=lf
+*.js         text eol=lf
+*.mjs        text eol=lf
+*.sha256     text eol=lf
+
+# JSONL: data files where byte-identity matters. We pin as `binary` (rather
+# than `text eol=lf`) so SHAs match across platforms without depending on
+# git's autocrlf settings being correct on the reproducer's side.
+*.jsonl      binary
+
+# Generated/raw artifacts — also pin as binary.
+*.log        binary
+power.csv    binary
+thermals.csv binary
