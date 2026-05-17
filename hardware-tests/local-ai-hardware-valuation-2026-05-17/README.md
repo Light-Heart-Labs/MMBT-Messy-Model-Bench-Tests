@@ -17,7 +17,7 @@ the market changes.
 |---|---|
 | `inputs/systems.csv` | Editable price/spec snapshot. Update this when prices change. |
 | `outputs/valuation.csv` | Generated ratios. Do not hand-edit; regenerate from the script. |
-| `../../qwen3.6-q8-fleet-2026-05-17/aggregate/canonical-headline.csv` | Measured MMBT 27B Q8 prefill/decode inputs. |
+| `../../qwen3.6-q8-fleet-2026-05-17/aggregate/canonical-headline.csv` | Measured MMBT 27B Q8 prefill/decode inputs. (The legacy `headline.csv` still works as a `--headline` override; `canonical-headline.csv` is the non-deprecated source.) |
 | `../../../tooling/scripts/hardware_valuation.py` | Recomputes the valuation table from the two CSV inputs. |
 
 Regenerate after a price refresh:

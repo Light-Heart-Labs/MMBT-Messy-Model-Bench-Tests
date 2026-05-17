@@ -83,10 +83,7 @@ cmake --build build-<backend> -j
 #    sample power + thermals at 1 Hz throughout
 ```
 
-The harness used to drive all of this is vendored in `harness/`, with provenance
-pinned in `harness/VENDORED-FROM-SHA.txt`. The upstream author repo is
-`bench-fleet`; this bundle keeps the snapshot needed to reproduce the published
-data.
+The harness used to drive all of this is vendored at [`harness/`](harness/) (snapshot of the author's `bench-fleet` repo at the SHA recorded in `harness/VENDORED-FROM-SHA.txt`). Per-host build invocations and the resume entry point are in `harness/HARNESS-README.md`.
 
 ## Where this fits in MMBT
 

@@ -56,7 +56,7 @@ OUTPUT_COLUMNS = [
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate hardware valuation ratios from systems.csv and MMBT canonical-headline.csv."
+        description="Generate hardware valuation ratios from systems.csv and MMBT headline.csv."
     )
     parser.add_argument("--systems", type=Path, default=DEFAULT_SYSTEMS)
     parser.add_argument("--headline", type=Path, default=DEFAULT_HEADLINE)
@@ -100,6 +100,7 @@ def headline_index(rows: list[dict[str, str]]) -> dict[tuple[str, str, str], dic
 def valuation_row(
     system: dict[str, str],
     measurements: dict[tuple[str, str, str], dict[str, str]],
+    headline_path: Path,
 ) -> dict[str, str]:
     price = as_float(system.get("price_usd"))
     memory_gb = as_float(system.get("memory_gb_for_value"))
@@ -127,10 +128,7 @@ def valuation_row(
 
     measurement_source = ""
     if measured:
-        measurement_source = (
-            f"hardware-tests/qwen3.6-q8-fleet-2026-05-17/aggregate/canonical-headline.csv"
-            f"::{key[0]}/{key[1]}/{key[2]}"
-        )
+        measurement_source = f"{headline_path.as_posix()}::{key[0]}/{key[1]}/{key[2]}"
 
     return {
         "system_id": system["system_id"],
@@ -173,7 +171,7 @@ def main() -> None:
         writer = csv.DictWriter(f, fieldnames=OUTPUT_COLUMNS, lineterminator="\n")
         writer.writeheader()
         for system in systems:
-            writer.writerow(valuation_row(system, measurements))
+            writer.writerow(valuation_row(system, measurements, args.headline))
 
 
 if __name__ == "__main__":

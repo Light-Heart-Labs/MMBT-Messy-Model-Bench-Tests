@@ -124,9 +124,11 @@
       "status": "appendix",
       "cells_present": 33,
       "cells_planned": 36,
-      "load_bearing_for": "Supplementary: dual-card pipeline-parallel 27B; NOT in cross-host ranking. Three planned cells are absent or error-marked in the same engine-bound timeout class documented in AUDIT B23.",
+      "load_bearing_for": "Supplementary: dual-card pipeline-parallel 27B; NOT in cross-host ranking. The three ctx=32K conc>=4 cells at the engine-bound timeout regime (AUDIT B23) did not complete cleanly; see known_gaps for the per-cell state.",
       "known_gaps": [
-        "Only 33 of 36 cell.json files are present; ctx=32768 gen=0512 conc=8 has a .error marker and two planned ctx=32768 cells are absent from the published tree."
+        "ctx32768_gen0512_conc8: .error (bench-cell-failed) - engine-bound timeout class (AUDIT B23).",
+        "ctx32768_gen2048_conc4: cell dir present but no .done / .error marker and no cell.json - run did not finish cleanly.",
+        "ctx32768_gen2048_conc8: cell dir absent - never executed."
       ]
     },
     {

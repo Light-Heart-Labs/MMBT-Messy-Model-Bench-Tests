@@ -21,7 +21,9 @@ but I'm making it public so that other people can use it too.
 
 ## Operating point (read before quoting)
 
-The agent-task benchmark entries use **Cyankiwi 4-bit AWQ** quants on **2× RTX PRO 6000 Blackwell at 500 W cap** unless an entry README says otherwise. The hardware-test tree is separate: the 2026-05-17 cross-platform fleet study runs both **Qwen3.6-27B Q8 dense** and **Qwen3.6-35B-A3B Q8/FP8 MoE** across Blackwell 6000 Tower, DGX Spark, EVO X2 / Strix Halo, and M5 Max MacBook Pro. See [`hardware-tests/README.md`](hardware-tests/README.md) before quoting hardware claims, and see [`COMPARISON.md` § What this benchmark doesn't characterize](COMPARISON.md#what-this-benchmark-doesnt-characterize) for the model-benchmark validity boundaries.
+Agent-task benchmarks under [`benchmarks/`](benchmarks/) all use **Cyankiwi 4-bit AWQ** quants on **2x RTX PRO 6000 Blackwell at 500 W cap** unless an entry README says otherwise. Other quants, other VRAM tiers, other hardware classes, and languages other than Python are **not characterized** by those entries. See [`COMPARISON.md` section "What this benchmark doesn't characterize"](COMPARISON.md#what-this-benchmark-doesnt-characterize) for the model-benchmark validity boundaries, and [`ROADMAP.md`](ROADMAP.md) for what's queued to fill those gaps.
+
+Rig-characterisation studies under [`hardware-tests/`](hardware-tests/) have their own operating-point scope. Start with [`hardware-tests/README.md`](hardware-tests/README.md) before quoting hardware claims. In particular, [`hardware-tests/qwen3.6-q8-fleet-2026-05-17/`](hardware-tests/qwen3.6-q8-fleet-2026-05-17/) ranks four hardware classes on **Q8_0 GGUF** dense and MoE workloads under llama.cpp, with a Tower2 vLLM-FP8 appendix row for the MoE model the llama.cpp/CUDA path crashes on.
 
 ## Layout
 

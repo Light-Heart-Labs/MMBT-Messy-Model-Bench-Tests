@@ -52,8 +52,16 @@ The Blackwell 6000 Tower's PRO 6000 Blackwell GPU shares silicon with the RTX 50
 ### B3. Concurrency semantics
 The `conc=N` cells issue **N truly parallel requests** (asyncio in `bench-cell.py`) and report both per-slot decode tok/s and aggregate decode tok/s. Aggregate is the relevant "throughput under load" number; per-slot is the "user-perceived latency" number. Don't conflate them.
 
-### B4. ROCm 6.4.4 on the EVO X2 (Strix Halo APU): PRELIMINARY (pending retry sub-study)
-We attempted ROCm in one smoke cell on the EVO X2. llama-server reached `loading model 'Qwen3.6-27B-Q8_0.gguf'` and did not become ready before the wait-ready window expired; the detailed fault-offset write-up was logged opportunistically (see `findings.md § Two backend-bug findings`) and has not yet been re-verified with a longer timeout, a smaller bootstrap model, or fresh stderr+dmesg capture. The Vulkan backend works fine on the same hardware. **Until the ROCm retry sub-study runs, this study does not make a Vulkan-vs-ROCm comparative claim** — the EVO X2 numbers in the headline are Vulkan-only and stand on their own.
+### B4. ROCm 6.4.4 on the EVO X2 (Strix Halo APU): CONFIRMED at llama.cpp b9151
+Initial attempt was preliminary (one smoke cell). Retried 2026-05-17T12:44Z on the same llama.cpp SHA (`67b2b7f2f`) with three configurations to upgrade the finding:
+
+| config | model | result |
+|---|---|---|
+| default (`-fit on`) | Qwen3.6-27B-Q8 | SIGSEGV (core dumped) during `common_init_result: fitting params to device memory` |
+| `-fit off` `-fa on` | Qwen3.6-27B-Q8 | `Aborted (core dumped)` — `ROCm error: out of memory` at `hipStreamCreateWithFlags` (despite `116149 MiB free` per `device_info` from the same run) |
+| default (`-fit on`) | Qwen3.6-35B-A3B-Q8 | SIGSEGV (core dumped) at the same fit step |
+
+All three failures occur within 4 s of start, reproduce on every attempt, leave nothing in `dmesg` (process-side fault), and persist across the `-fit on/off` knob. The Vulkan backend on the same hardware loads and serves both models without issue. **Finding upgraded from PRELIMINARY to CONFIRMED at this engine SHA.** This study still does not make a Vulkan-vs-ROCm *performance* claim — the EVO X2 numbers in the headline are Vulkan-only — because ROCm never reaches a state where performance can be measured. What this study now claims is that on stock ROCm 6.4.4 + llama.cpp b9151, neither bench model loads on Strix Halo, regardless of the `-fit` knob.
 
 ### B5. Cold-start
 Each cell records the first batch (batch=0) separately as `cold_start` in `cell.json`. Warm-state numbers exclude `warmup_batches=2` from the body summary. Don't compare cold-start numbers across hosts unless you also know whether the model was in the OS page cache — typically yes after the first cell of a (host, model) run.
