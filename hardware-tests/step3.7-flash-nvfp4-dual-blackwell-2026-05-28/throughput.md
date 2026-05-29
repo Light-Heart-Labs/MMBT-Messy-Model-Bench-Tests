@@ -6,6 +6,7 @@ A short `vllm bench serve` battery to put real tokens/sec numbers on this rig. *
 
 - Model / config: exactly the [`README.md`](README.md) launch command — `stepfun-ai/Step-3.7-Flash-NVFP4`, **native NVFP4** (`--moe-backend cutlass`) + **FP8 KV**, TP=2, `--max-model-len 262144`, `--disable-custom-all-reduce`.
 - Tool: `vllm bench serve --backend openai-chat --dataset-name random --ignore-eos` (in-container, hitting the live endpoint). `--ignore-eos` forces generation to the full output length so decode tok/s is measured cleanly.
+- **Reasoning level: not varied here.** These runs use the default (`reasoning_effort` unset) with random tokens. tok/s is a per-token *decode rate*, identical whether a token lands in the think block or the answer — so the numbers below apply to all three reasoning levels (low/medium/high). What the reasoning level changes is *how many* tokens a real task emits (and thus end-to-end latency per task), which is measured per-level by the companion microbench, not by this raw-throughput battery.
 - Hardware: 2× RTX PRO 6000 Blackwell (sm_120), **600 W** (uncapped), driver 595.58.03, vLLM `v0.1.dev16944` (`vllm/vllm-openai:stepfun37`).
 
 ## Headline — cudagraph (CUDA Graphs on, the representative config)
