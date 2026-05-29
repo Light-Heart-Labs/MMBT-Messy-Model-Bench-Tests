@@ -42,6 +42,7 @@ vLLM's tool-call parsers (as of vLLM 0.19.x):
 | GLM-4 / GLM-4.5 | `glm45` | `glm45` *(if thinking variant)* | Vendor-shipped parser |
 | Phi-3.5 / Phi-4 | `phi4_mini_json` | *(omit)* | JSON-style |
 | Hermes-3 (Nous) | `hermes` | *(omit)* | Origin of the Hermes parser |
+| StepFun Step-3.5 / Step-3.7-Flash | `step3p5` | `step3p5` | Vendor parser; 3.7 reuses the 3.5 parser. Needs `--trust-remote-code` + the `vllm/vllm-openai:stepfun37` image |
 
 If the model isn't listed above, check `vllm/entrypoints/openai/tool_parsers/` in the vLLM source for available parsers, or the model's HuggingFace model card. Some new models ship with a custom Jinja chat template that bakes the parser format into the prompt — those usually work with `hermes` or `pythonic` as the closest match.
 
@@ -149,6 +150,43 @@ docker run -d \
 ```
 
 Flags rationale: only the FP8 build ships the MTP heads (`mtp.safetensors` in the repo); enabling `--speculative-config` here gets free decode speedup. AWQ builds don't include MTP, so the flag is omitted there.
+
+### StepFun Step-3.7-Flash NVFP4 (MoE 201B/11B, vision-language, thinking, 3 reasoning levels)
+
+> Day-one model (2026-05-28). Native NVFP4 + FP8 KV, spans both GPUs (TP=2). **Requires the `vllm/vllm-openai:stepfun37` image** — stock `vllm/vllm-openai:latest` lacks `step3p7` support. Four flags diverge from StepFun's reference command (which targets 4–8 GPU servers); the full diagnostic trail is in [`../hardware-tests/step3.7-flash-nvfp4-dual-blackwell-2026-05-28/`](../hardware-tests/step3.7-flash-nvfp4-dual-blackwell-2026-05-28/).
+
+```bash
+docker run -d \
+  --name vllm-step3p7 \
+  --gpus all \
+  --shm-size 16g \
+  -e NCCL_P2P_DISABLE=1 \
+  -v ~/models:/models:ro \
+  -p 127.0.0.1:8001:8000 \
+  vllm/vllm-openai:stepfun37 \
+  --model /models/stepfun-ai-Step-3.7-Flash-NVFP4 \
+  --served-model-name step3p7 \
+  --host 0.0.0.0 --port 8000 \
+  --tensor-parallel-size 2 \
+  --gpu-memory-utilization 0.92 \
+  --trust-remote-code \
+  --quantization modelopt \
+  --kv-cache-dtype fp8 \
+  --max-model-len 262144 \
+  --enforce-eager \
+  --moe-backend cutlass \
+  --disable-custom-all-reduce \
+  --reasoning-parser step3p5 \
+  --enable-auto-tool-choice \
+  --tool-call-parser step3p5
+```
+
+Flags rationale (Tower2's 2× RTX PRO 6000 Blackwell are sm_120 Workstation cards with **no NVLink**):
+- `--disable-custom-all-reduce` + `-e NCCL_P2P_DISABLE=1` — vLLM's CUSTOM all-reduce needs GPU P2P these cards lack over PCIe; without this the server deadlocks on the first TP collective.
+- `--moe-backend cutlass` — forces **native FP4** on the MoE experts (default `auto` falls back to Marlin dequant). Step-3.7's `SWIGLUSTEP` activation is only supported by the `VLLM_CUTLASS` and `MARLIN` FP4 kernels, not the FlashInfer ones — so `cutlass` is the only native-FP4 option for this model.
+- no `--enable-expert-parallel` — the `VLLM_CUTLASS` FP4 MoE rejects EP; experts shard via TP.
+- `--enforce-eager` — cudagraph capture hit the same all-reduce deadlock; eager is the known-good config. May be liftable now that custom all-reduce is disabled (untested).
+- Reasoning level (low/medium/high) is set per-request by the harness via `--reasoning-effort` (chat_template_kwargs), not at launch.
 
 ## Inference-request defaults (set by harness, not at launch)
 

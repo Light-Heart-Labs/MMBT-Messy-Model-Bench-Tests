@@ -263,6 +263,33 @@ claims:
     scope: TR PRO 7965WX, factory PPT (no PBO), Tower2 chassis cooling
     evidence: "hardware-tests/cpu-fullpower-2026-05-05/findings.md"
 
+  # ─── Step-3.7-Flash NVFP4 serving on 2× RTX PRO 6000 Blackwell (sm_120) ───
+
+  - id: hw.step37.custom-allreduce-hang-no-nvlink
+    text: >
+      Serving a tensor-parallel model on 2× RTX PRO 6000 Blackwell Workstation
+      GPUs (sm_120, PCIe NODE, no NVLink) under vLLM deadlocks on the first
+      multi-GPU all-reduce when the CUSTOM all-reduce backend is active. The
+      hang surfaces at NCCL init, CUDA-graph capture, or attention warmup
+      (same root cause). --disable-custom-all-reduce (forcing PYNCCL), with
+      NCCL_P2P_DISABLE=1, resolves it.
+    status: provisional
+    scope: 2× RTX PRO 6000 Blackwell sm_120, vLLM image stepfun37 (v0.1.dev16944), TP=2
+    evidence: "hardware-tests/step3.7-flash-nvfp4-dual-blackwell-2026-05-28/findings.md"
+
+  - id: hw.step37.native-fp4-requires-vllm-cutlass
+    text: >
+      Native NVFP4 IS available on sm_120 (cutlass_scaled_mm_supports_fp4(120)
+      = True); the default --moe-backend=auto nonetheless falls back to Marlin
+      dequant. Step-3.7-Flash uses a SWIGLUSTEP MoE activation that the
+      FlashInfer FP4 kernels (b12x/cutlass/trtllm/cutedsl) do not support — only
+      VLLM_CUTLASS and MARLIN do. So --moe-backend cutlass is the only native-FP4
+      MoE backend compatible with this model, and it requires sharding experts by
+      TP (it rejects --enable-expert-parallel).
+    status: provisional
+    scope: stepfun-ai/Step-3.7-Flash-NVFP4 on sm_120, vLLM stepfun37 image
+    evidence: "hardware-tests/step3.7-flash-nvfp4-dual-blackwell-2026-05-28/findings.md"
+
   # ─── Microbench / model-comparison (benchmarks/microbench-2026-04-28) ───
 
   - id: bench.microbench.27b-vs-coder-next.aggregate-tied
