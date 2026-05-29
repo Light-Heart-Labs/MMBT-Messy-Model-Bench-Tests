@@ -27,6 +27,9 @@ fi
 MODEL="$1"
 PORT="$2"
 PREFIX="${3:-smoke}"
+REASONING_EFFORT="${4:-}"   # optional: low|medium|high for models with reasoning levels
+REASONING_FLAG=""
+[ -n "$REASONING_EFFORT" ] && REASONING_FLAG="--reasoning-effort $REASONING_EFFORT"
 TOOLING="$(cd "$(dirname "$0")/.." && pwd)"
 REPO_ROOT="$(cd "$TOOLING/.." && pwd)"
 RUN_NAME="${PREFIX}_extract_$(date +%s)"
@@ -64,6 +67,7 @@ python3 "$TOOLING/harness.py" \
   --port "$PORT" \
   --temperature 0.3 \
   --stuck-threshold 500 \
+  $REASONING_FLAG \
   --input-mount "$TOOLING/inputs/phase2_extraction" \
   --docker-socket \
   --gpus all 2>&1 | tail -20

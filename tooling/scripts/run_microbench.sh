@@ -46,6 +46,9 @@ MODEL="$1"
 PORT="$2"
 LABEL="$3"
 N="${4:-3}"
+REASONING_EFFORT="${5:-}"   # optional: low|medium|high for models with reasoning levels (e.g. Step-3.7-Flash)
+REASONING_FLAG=""
+[ -n "$REASONING_EFFORT" ] && REASONING_FLAG="--reasoning-effort $REASONING_EFFORT"
 
 TOOLING="$(cd "$(dirname "$0")/.." && pwd)"
 REPO_ROOT="$(cd "$TOOLING/.." && pwd)"
@@ -112,6 +115,7 @@ for entry in "${TASKS[@]}"; do
       --port "$PORT" \
       --temperature 0.3 \
       --stuck-threshold 500 \
+      $REASONING_FLAG \
       $INPUT_FLAG \
       --docker-socket \
       --gpus all 2>&1 | tail -3

@@ -34,7 +34,7 @@ def docker_inspect(name, fmt=None):
 
 def record_environment(run_name, model, api_url, task_file, log_dir, *,
                        sandbox_runtime=None, temperature=0.0, stuck_threshold=30,
-                       max_iters=10000):
+                       max_iters=10000, reasoning_effort=None):
     """Capture everything needed to reproduce the run. Written before the loop starts.
 
     sandbox_runtime: dict of per-run sandbox flags (gh_token_set, docker_socket,
@@ -126,6 +126,7 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
         "stream": False,
         "tool_choice": "auto",
         "tools": [t["function"]["name"] for t in TOOLS],
+        "reasoning_effort": reasoning_effort,
     }
 
     receipt["harness_loop_config"] = {
@@ -335,7 +336,7 @@ def execute_tool(name, args, log_dir, require_files=None, require_git_tag=False)
 def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
                max_completion_total=10**12, max_model_len=262144,
                stuck_threshold=30, temperature=0.0,
-               require_files=None, require_git_tag=False):
+               require_files=None, require_git_tag=False, reasoning_effort=None):
     """Run the agent until done() or limits hit. Returns final state dict."""
     log_path = Path(log_dir) / "transcript.jsonl"
     summary_path = Path(log_dir) / "summary.json"
@@ -363,7 +364,7 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
         safety = 2048
         max_tokens_safe = max(2048, max_model_len - estimated_prompt - safety)
         max_tokens_safe = min(max_tokens_safe, 180000)
-        body = json.dumps({
+        payload = {
             "model": model,
             "messages": messages,
             "tools": TOOLS,
@@ -372,7 +373,14 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
             "seed": 42,
             "max_tokens": max_tokens_safe,
             "stream": False,
-        }).encode()
+        }
+        if reasoning_effort:
+            # Models whose chat template reads a `reasoning_effort` variable
+            # (e.g. StepFun Step-3.7-Flash: injects "Reasoning: <level>" into the
+            # system turn). vLLM passes top-level chat_template_kwargs into the
+            # template render. No-op for models that don't reference it.
+            payload["chat_template_kwargs"] = {"reasoning_effort": reasoning_effort}
+        body = json.dumps(payload).encode()
         req = urllib.request.Request(api_url, data=body, headers={"Content-Type": "application/json"})
         t0 = time.time()
         try:
@@ -522,6 +530,11 @@ def main():
     ap.add_argument("--max-iters", type=int, default=10000)
     ap.add_argument("--model", default="qwen3-coder-next-awq")
     ap.add_argument("--port", type=int, default=8001)
+    ap.add_argument("--reasoning-effort", default=None, choices=["low", "medium", "high"],
+                    help="For models whose chat template reads a `reasoning_effort` variable "
+                         "(e.g. StepFun Step-3.7-Flash, which has low/medium/high reasoning levels). "
+                         "Sent as top-level chat_template_kwargs on every request and recorded in the "
+                         "receipt. Leave unset for models that don't expose reasoning levels.")
     ap.add_argument("--temperature", type=float, default=0.0,
                     help="Sampling temperature sent on every request. Default 0.0 (deterministic). "
                          "At temp=0 with seed=42, models can fall into fixed-point loops on long-horizon "
@@ -662,6 +675,7 @@ def main():
         temperature=args.temperature,
         stuck_threshold=args.stuck_threshold,
         max_iters=args.max_iters,
+        reasoning_effort=args.reasoning_effort,
     )
     print(f"receipt -> {log_dir / 'receipt.json'}  (vllm containers logged: {len(receipt['vllm']['containers'])})")
 
@@ -669,7 +683,8 @@ def main():
                          max_iters=args.max_iters, temperature=args.temperature,
                          stuck_threshold=args.stuck_threshold,
                          require_files=require_files,
-                         require_git_tag=bool(args.require_git_tag))
+                         require_git_tag=bool(args.require_git_tag),
+                         reasoning_effort=args.reasoning_effort)
     print("\n=== SUMMARY ===")
     print(json.dumps(summary, indent=2))
 
