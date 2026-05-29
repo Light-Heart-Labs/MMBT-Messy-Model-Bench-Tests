@@ -34,7 +34,8 @@ def docker_inspect(name, fmt=None):
 
 def record_environment(run_name, model, api_url, task_file, log_dir, *,
                        sandbox_runtime=None, temperature=0.0, stuck_threshold=30,
-                       max_iters=10000, reasoning_effort=None):
+                       max_iters=10000, reasoning_effort=None, enable_thinking=None,
+                       max_model_len=262144):
     """Capture everything needed to reproduce the run. Written before the loop starts.
 
     sandbox_runtime: dict of per-run sandbox flags (gh_token_set, docker_socket,
@@ -122,11 +123,12 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
     receipt["inference_request_defaults"] = {
         "temperature": temperature,
         "max_tokens_strategy": "min(180000, max_model_len - last_prompt_tokens - 14000), floor 2048",
-        "max_model_len": 262144,
+        "max_model_len": max_model_len,
         "stream": False,
         "tool_choice": "auto",
         "tools": [t["function"]["name"] for t in TOOLS],
         "reasoning_effort": reasoning_effort,
+        "enable_thinking": enable_thinking,
     }
 
     receipt["harness_loop_config"] = {
@@ -336,7 +338,8 @@ def execute_tool(name, args, log_dir, require_files=None, require_git_tag=False)
 def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
                max_completion_total=10**12, max_model_len=262144,
                stuck_threshold=30, temperature=0.0,
-               require_files=None, require_git_tag=False, reasoning_effort=None):
+               require_files=None, require_git_tag=False, reasoning_effort=None,
+               enable_thinking=None):
     """Run the agent until done() or limits hit. Returns final state dict."""
     log_path = Path(log_dir) / "transcript.jsonl"
     summary_path = Path(log_dir) / "summary.json"
@@ -374,12 +377,19 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
             "max_tokens": max_tokens_safe,
             "stream": False,
         }
+        # Top-level chat_template_kwargs are passed through to the template render
+        # (vLLM and llama.cpp --jinja both honor them). Each key is a no-op for
+        # models whose template doesn't reference it.
+        ctk = {}
         if reasoning_effort:
-            # Models whose chat template reads a `reasoning_effort` variable
-            # (e.g. StepFun Step-3.7-Flash: injects "Reasoning: <level>" into the
-            # system turn). vLLM passes top-level chat_template_kwargs into the
-            # template render. No-op for models that don't reference it.
-            payload["chat_template_kwargs"] = {"reasoning_effort": reasoning_effort}
+            # Step-3.7-Flash: injects "Reasoning: <level>" into the system turn.
+            ctk["reasoning_effort"] = reasoning_effort
+        if enable_thinking is not None:
+            # Qwen3.5 (e.g. 397B-A17B): its template auto-opens a <think> block;
+            # enable_thinking=False suppresses it for no-think runs.
+            ctk["enable_thinking"] = enable_thinking
+        if ctk:
+            payload["chat_template_kwargs"] = ctk
         body = json.dumps(payload).encode()
         req = urllib.request.Request(api_url, data=body, headers={"Content-Type": "application/json"})
         t0 = time.time()
@@ -535,6 +545,17 @@ def main():
                          "(e.g. StepFun Step-3.7-Flash, which has low/medium/high reasoning levels). "
                          "Sent as top-level chat_template_kwargs on every request and recorded in the "
                          "receipt. Leave unset for models that don't expose reasoning levels.")
+    ap.add_argument("--thinking", default=None, choices=["on", "off"],
+                    help="For models whose chat template reads an `enable_thinking` variable "
+                         "(e.g. Qwen3.5-397B-A17B, whose template auto-opens a <think> block). "
+                         "'on'/'off' -> enable_thinking true/false sent as chat_template_kwargs on "
+                         "every request and recorded in the receipt. Leave unset for other models.")
+    ap.add_argument("--max-model-len", type=int, default=262144,
+                    help="The endpoint's context window, used to size each request's max_tokens "
+                         "(max_tokens = min(180000, max_model_len - prompt - safety)). Default 262144 "
+                         "matches the vLLM models benched so far. Set to the served --ctx-size for "
+                         "models hosted with a smaller window (e.g. 131072 for the 397B GGUF on llama.cpp) "
+                         "so requests don't exceed the context and 400.")
     ap.add_argument("--temperature", type=float, default=0.0,
                     help="Sampling temperature sent on every request. Default 0.0 (deterministic). "
                          "At temp=0 with seed=42, models can fall into fixed-point loops on long-horizon "
@@ -579,6 +600,7 @@ def main():
                          "'\"device=0,1\"'. Required for PRs the agent needs to test on real GPUs. "
                          "Beware: the sandbox shares GPUs with the vLLM container hosting the model.")
     args = ap.parse_args()
+    enable_thinking = None if args.thinking is None else (args.thinking == "on")
 
     # Resolve --gh-token. Done early so we fail fast if @env/@gh produce nothing.
     gh_token = args.gh_token
@@ -676,6 +698,8 @@ def main():
         stuck_threshold=args.stuck_threshold,
         max_iters=args.max_iters,
         reasoning_effort=args.reasoning_effort,
+        enable_thinking=enable_thinking,
+        max_model_len=args.max_model_len,
     )
     print(f"receipt -> {log_dir / 'receipt.json'}  (vllm containers logged: {len(receipt['vllm']['containers'])})")
 
@@ -684,7 +708,9 @@ def main():
                          stuck_threshold=args.stuck_threshold,
                          require_files=require_files,
                          require_git_tag=bool(args.require_git_tag),
-                         reasoning_effort=args.reasoning_effort)
+                         reasoning_effort=args.reasoning_effort,
+                         enable_thinking=enable_thinking,
+                         max_model_len=args.max_model_len)
     print("\n=== SUMMARY ===")
     print(json.dumps(summary, indent=2))
 

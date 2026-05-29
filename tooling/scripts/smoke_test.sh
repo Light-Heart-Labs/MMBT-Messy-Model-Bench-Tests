@@ -34,6 +34,12 @@ PREFIX="${3:-smoke}"
 REASONING_EFFORT="${4:-}"   # optional: low|medium|high for models with reasoning levels
 REASONING_FLAG=""
 [ -n "$REASONING_EFFORT" ] && REASONING_FLAG="--reasoning-effort $REASONING_EFFORT"
+THINKING="${5:-}"           # optional: on|off for models with an enable_thinking template var (e.g. Qwen3.5)
+THINKING_FLAG=""
+[ -n "$THINKING" ] && THINKING_FLAG="--thinking $THINKING"
+MAXLEN="${6:-}"             # optional: served context window (e.g. 131072 for the 397B GGUF on llama.cpp)
+MAXLEN_FLAG=""
+[ -n "$MAXLEN" ] && MAXLEN_FLAG="--max-model-len $MAXLEN"
 TOOLING="$(cd "$(dirname "$0")/.." && pwd)"
 REPO_ROOT="$(cd "$TOOLING/.." && pwd)"
 RUN_NAME="${PREFIX}_extract_$(date +%s)"
@@ -72,6 +78,8 @@ python3 "$TOOLING/harness.py" \
   --temperature 0.3 \
   --stuck-threshold 500 \
   $REASONING_FLAG \
+  $THINKING_FLAG \
+  $MAXLEN_FLAG \
   --input-mount "$TOOLING/inputs/phase2_extraction" \
   --docker-socket \
   --gpus all 2>&1 | tail -20
