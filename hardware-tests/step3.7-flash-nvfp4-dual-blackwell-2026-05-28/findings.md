@@ -19,7 +19,15 @@ It assumes a 4–8 GPU datacenter server. Adapting to TP=2 on 2× RTX PRO 6000 s
 
 **Symptom.** With `--tensor-parallel-size 2`, the server hung. Across attempts it hung at different points — NCCL init, CUDA-graph capture, and (with `--enforce-eager`) FlashInfer attention warmup — but always the same signature: both GPUs pinned at **100 % utilisation but only ~130 W draw** (a busy-wait spin, not real compute), workers silent, `EngineCore` heartbeating `No available shared memory broadcast block found in 60 seconds`.
 
-**Diagnosis.** `nvidia-smi topo -m` reports the two GPUs connected by `NODE` — PCIe through the host bridge, **no NVLink** (workstation Blackwell dropped NVLink). The engine log showed `Using ['CUSTOM', 'PYNCCL'] all-reduce backends` with `disable_custom_all_reduce=False`. vLLM's CUSTOM all-reduce kernel requires GPU peer-to-peer; on a no-P2P PCIe pair the first real all-reduce deadlocks.
+**Diagnosis.** `nvidia-smi topo -m` reports the two GPUs connected by `NODE` — PCIe through the host bridge, **no NVLink** (workstation Blackwell dropped NVLink):
+
+```
+        GPU0    GPU1    CPU Affinity    NUMA Affinity   GPU NUMA ID
+GPU0     X      NODE    0-47            0               N/A
+GPU1    NODE     X      0-47            0               N/A
+```
+
+(`NODE` = traversal of the PCIe host bridge within a single NUMA node; no `NV#` link.) The engine log showed `Using ['CUSTOM', 'PYNCCL'] all-reduce backends` with `disable_custom_all_reduce=False`. vLLM's CUSTOM all-reduce kernel requires GPU peer-to-peer; on a no-P2P PCIe pair the first real all-reduce deadlocks.
 
 **Fix.** `--disable-custom-all-reduce` (force PYNCCL) + `-e NCCL_P2P_DISABLE=1`. After this the log reads `Using ['PYNCCL']` and the warmup forward pass completes. This single flag was the root cause of *all three* apparent hangs — the earlier "NCCL-init" and "cudagraph-capture" hangs were the same custom-all-reduce deadlock at different first-collective sites.
 

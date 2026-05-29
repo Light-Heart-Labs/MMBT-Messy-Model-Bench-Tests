@@ -48,14 +48,42 @@ CUDA-graph capture was an early casualty of the same custom-all-reduce hang (#1)
 | GPUs | 2× NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 96 GB each, **sm_120 / cc 12.0**, no NVLink (PCIe `NODE`) |
 | Driver | 595.58.03 |
 | Power | both GPUs at 600 W (uncapped) for the run |
-| Image | `vllm/vllm-openai:stepfun37` (`sha256:17fae7886712…de8db3`), vLLM `v0.1.dev16944+ge9c8946e7` |
+| Image | `vllm/vllm-openai:stepfun37` (digest `sha256:17fae7886712d62b4c19f98481fd86dcde78fae89162200fd4e462c215de8db3`), vLLM `v0.1.dev16944+ge9c8946e7` |
 | Model | `stepfun-ai/Step-3.7-Flash-NVFP4` — `quant_algo=NVFP4`, `kv_cache_quant_algo=FP8`, 13 shards / 124.4 GB, `model_type=step3p7` |
 | Quant on disk | NVFP4 weights + FP8 KV are baked into the checkpoint; vLLM flags `--quantization modelopt --kv-cache-dtype fp8` |
+
+## Reproduce (zero → same numbers)
+
+```bash
+# 1. Get the weights (~124 GB, 13 shards). curl with --continue-at resumes on drops
+#    (this link bufferbloats hf_transfer; curl is the reliable path here).
+DEST=~/models/stepfun-ai-Step-3.7-Flash-NVFP4; mkdir -p "$DEST"
+BASE=https://huggingface.co/stepfun-ai/Step-3.7-Flash-NVFP4/resolve/main
+for f in $(curl -sL https://huggingface.co/api/models/stepfun-ai/Step-3.7-Flash-NVFP4 | python3 -c "import sys,json;[print(s['rfilename']) for s in json.load(sys.stdin)['siblings']]"); do
+  curl -L --continue-at - --retry 10 -o "$DEST/$f" "$BASE/$f"
+done
+
+# 2. Pull StepFun's prebuilt vLLM image (stock :latest lacks step3p7 support)
+docker pull vllm/vllm-openai:stepfun37
+#    expected digest: sha256:17fae7886712d62b4c19f98481fd86dcde78fae89162200fd4e462c215de8db3
+
+# 3. Launch (the command in "Headline" above). Wait until /v1/models answers (~2 min):
+until curl -sf http://127.0.0.1:8001/v1/models >/dev/null; do sleep 5; done
+
+# 4. Smoke test — the correctness gate (structured extraction, ~22 s). Must PASS:
+bash tooling/scripts/smoke_test.sh step3p7 8001 smoke medium
+
+# 5. Throughput readings — see throughput.md for the exact `vllm bench serve` command.
+```
+
+Provenance for citing exact numbers: [`manifest.json`](manifest.json) (machine-readable: image digest, model, grid) and [`bench-raw.txt`](bench-raw.txt) (raw per-cell tool output).
 
 ## Read order
 
 1. **`findings.md`** — the full diagnostic trail: each hang, how it was diagnosed (`nvidia-smi topo`, live `cutlass_scaled_mm_supports_fp4`/`has_flashinfer_*` probes, the `select_nvfp4_moe_backend` oracle, the SWIGLUSTEP activation-support grep), and how the flag was found.
-2. **`throughput.md`** — quick `vllm bench serve` tok/s readings (cudagraph vs eager, concurrency 1→64).
+2. **`throughput.md`** — quick `vllm bench serve` tok/s readings (cudagraph vs eager, concurrency 1→64), backed by **`bench-raw.txt`** (raw output).
+3. **`manifest.json`** — machine-readable provenance (hardware, image digest, model, serving config, grid). Read this before drawing conclusions.
+4. **`NOTES-FOR-REVIEWERS.md`** — open questions and what would promote the claims from provisional.
 
 (The working command + the four flags are in the sections above.)
 

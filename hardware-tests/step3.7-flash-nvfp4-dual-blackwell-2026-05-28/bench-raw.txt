@@ -1,0 +1,94 @@
+Raw `vllm bench serve` readings — Step-3.7-Flash NVFP4 on 2x RTX PRO 6000 Blackwell
+Captured 2026-05-28. These are the recorded result lines from the tool's stdout
+("Serving Benchmark Result" blocks). Cell 1 is a full block; the rest are the key
+result lines captured via grep during the run. Each cell lists its exact invocation
+so any row can be regenerated. Provenance: vllm/vllm-openai:stepfun37
+(sha256:17fae7886712...de8db3), vLLM v0.1.dev16944, both GPUs @ 600 W.
+
+NOTE: a full clean re-capture (complete stdout per cell) will be appended once the
+N=1 microbench chains free the GPU; values below are not expected to move materially.
+
+Common invocation (run inside the container, hitting the live endpoint on :8000):
+  vllm bench serve --backend openai-chat --base-url http://localhost:8000 \
+    --endpoint /v1/chat/completions --model step3p7 \
+    --tokenizer /models/stepfun-ai-Step-3.7-Flash-NVFP4 --trust-remote-code \
+    --dataset-name random --ignore-eos \
+    --random-input-len <IN> --random-output-len <OUT> \
+    --num-prompts <N> --max-concurrency <C>
+
+================================================================================
+CELL 1 — EAGER (--enforce-eager), conc=1   [IN=512 OUT=256 N=4]   (full block)
+================================================================================
+Maximum request concurrency:             1
+============ Serving Benchmark Result ============
+Successful requests:                     4
+Failed requests:                         0
+Benchmark duration (s):                  48.61
+Total input tokens:                      2092
+Total generated tokens:                  1024
+Request throughput (req/s):              0.08
+Output token throughput (tok/s):         21.07
+Peak output token throughput (tok/s):    22.00
+Total token throughput (tok/s):          64.11
+Mean TTFT (ms):                          87.48   Median: 84.36   P99: 97.38
+Mean TPOT (ms):                          47.31   Median: 47.35   P99: 47.46
+Mean ITL  (ms):                          47.36   Median: 46.97   P99: 51.77
+==================================================
+
+================================================================================
+CELL 2 — EAGER, conc=32   [IN=1024 OUT=256 N=64]   (key lines)
+================================================================================
+Successful requests:                     64
+Benchmark duration (s):                  30.90
+Output token throughput (tok/s):         530.28
+Peak output token throughput (tok/s):    672.00
+Total token throughput (tok/s):          2674.17
+Mean TTFT (ms):                          1715.85
+Mean TPOT (ms):                          53.63
+
+================================================================================
+CELL 3 — CUDAGRAPH, conc=1   [IN=1024 OUT=1024 N=8]   (key lines; output tok/s derived)
+================================================================================
+Successful requests:                     8
+Benchmark duration (s):                  83.97
+Total token throughput (tok/s):          196.17
+Mean TTFT (ms):                          171.17
+Mean TPOT (ms):                          10.09
+# Output tok/s not captured for this cell; derived = 8*1024 / 83.97 = 97.6
+# (consistent with 1000/TPOT = 99.1 tok/s/stream).
+
+================================================================================
+CELL 4 — CUDAGRAPH, conc=8   [IN=1024 OUT=512 N=16]   (key lines)
+================================================================================
+Output token throughput (tok/s):         474.63
+Peak output token throughput (tok/s):    488.00
+Total token throughput (tok/s):          1434.10
+Mean TTFT (ms):                          80.45
+Mean TPOT (ms):                          16.72   Median: 16.72
+
+================================================================================
+CELL 5 — CUDAGRAPH, conc=32   [IN=1024 OUT=256 N=64]   (key lines; output tok/s derived)
+================================================================================
+Successful requests:                     64
+Benchmark duration (s):                  17.00
+Total token throughput (tok/s):          4860.90
+Mean TTFT (ms):                          1245.83
+Mean TPOT (ms):                          28.35
+# Output tok/s not captured for this cell; derived = 64*256 / 17.00 = 963.
+
+================================================================================
+CELL 6 — CUDAGRAPH, conc=64   [IN=1024 OUT=256 N=128]   (key lines)
+================================================================================
+Output token throughput (tok/s):         1525.64
+Peak output token throughput (tok/s):    2106.00
+Total token throughput (tok/s):          7693.78
+Mean TTFT (ms):                          1503.30
+Mean TPOT (ms):                          36.04   Median: 32.26
+
+--------------------------------------------------------------------------------
+Note on the eager-vs-cudagraph single-stream comparison: the eager conc=1 cell
+(CELL 1) used IN=512/OUT=256 while the cudagraph conc=1 cell (CELL 3) used
+IN=1024/OUT=1024. TPOT (decode step time) is the comparison metric and is only
+weakly sequence-length dependent, so 47.3 ms -> 10.1 ms (4.7x) is a valid
+single-stream decode comparison; it is not a same-cell A/B. The conc=32 row
+(CELL 2 vs CELL 5) IS same-cell (IN=1024/OUT=256/N=64): 530 -> 963 output tok/s.

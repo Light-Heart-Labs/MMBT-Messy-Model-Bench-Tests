@@ -32,6 +32,7 @@ Do not mix those two tables in a cross-host ranking.
 | [`vllm-power-sweep-2026-04-29`](vllm-power-sweep-2026-04-29/) | Where is the RTX PRO 6000 Blackwell LLM-serving power-cap plateau? | Tower2-only, vLLM-only, AWQ-INT4 models. |
 | [`ltx23-power-sweep-2026-05-05`](ltx23-power-sweep-2026-05-05/) | Does the same GPU power-cap curve apply to diffusion/video generation? | Workload-specific to the LTX-2.3 workflow tested. |
 | [`cpu-fullpower-2026-05-05`](cpu-fullpower-2026-05-05/) | Can the Tower2 Threadripper PRO CPU sustain rated 350 W on its cooling stack? | One rig, one cooling design, CPU-side validation only. |
+| [`step3.7-flash-nvfp4-dual-blackwell-2026-05-28`](step3.7-flash-nvfp4-dual-blackwell-2026-05-28/) | How do you serve Step-3.7-Flash NVFP4 with native FP4 on 2× RTX PRO 6000 Blackwell (no NVLink), and what tok/s does it give? | Single rig, vLLM dev image (not a tagged release), single run per throughput cell. |
 
 ## What The Cross-Platform Study Can Settle
 

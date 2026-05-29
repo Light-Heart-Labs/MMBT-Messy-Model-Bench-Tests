@@ -5,7 +5,18 @@ A short `vllm bench serve` battery to put real tokens/sec numbers on this rig. *
 ## Setup
 
 - Model / config: exactly the [`README.md`](README.md) launch command — `stepfun-ai/Step-3.7-Flash-NVFP4`, **native NVFP4** (`--moe-backend cutlass`) + **FP8 KV**, TP=2, `--max-model-len 262144`, `--disable-custom-all-reduce`.
-- Tool: `vllm bench serve --backend openai-chat --dataset-name random --ignore-eos` (in-container, hitting the live endpoint). `--ignore-eos` forces generation to the full output length so decode tok/s is measured cleanly.
+- Tool: `vllm bench serve` (in-container, hitting the live endpoint). `--ignore-eos` forces generation to the full output length so decode tok/s is measured cleanly. **Raw result blocks for every cell are in [`bench-raw.txt`](bench-raw.txt)** (exact per-cell params + tool output). Exact invocation:
+  ```bash
+  # run inside the vLLM container; --tokenizer points at the local model so the
+  # bench can tokenize (the served name "step3p7" is not a HF id)
+  docker exec vllm-step3p7 vllm bench serve \
+    --backend openai-chat --base-url http://localhost:8000 \
+    --endpoint /v1/chat/completions --model step3p7 \
+    --tokenizer /models/stepfun-ai-Step-3.7-Flash-NVFP4 --trust-remote-code \
+    --dataset-name random --ignore-eos \
+    --random-input-len 1024 --random-output-len 256 \
+    --num-prompts 64 --max-concurrency 32          # vary --max-concurrency: 1/8/32/64
+  ```
 - **Reasoning level: not varied here.** These runs use the default (`reasoning_effort` unset) with random tokens. tok/s is a per-token *decode rate*, identical whether a token lands in the think block or the answer — so the numbers below apply to all three reasoning levels (low/medium/high). What the reasoning level changes is *how many* tokens a real task emits (and thus end-to-end latency per task), which is measured per-level by the companion microbench, not by this raw-throughput battery.
 - Hardware: 2× RTX PRO 6000 Blackwell (sm_120), **600 W** (uncapped), driver 595.58.03, vLLM `v0.1.dev16944` (`vllm/vllm-openai:stepfun37`).
 
