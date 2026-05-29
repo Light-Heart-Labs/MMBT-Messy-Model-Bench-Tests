@@ -32,8 +32,23 @@ across models, and the differences that matter are qualitative.
 | p3_pm | ✗ | ✗ | ✗/~/✓ | 0/3 | 1/3 |
 | **Total** | **8/12** | **7/12** | **7 / 8 / 8** | ~7/12 | ~7/12 |
 
-† `p1_testwrite`/`p1_refactor` are depressed by a known starter-task-design issue (see KNOWN-LIMITATIONS),
-not the model. \* `p3_market` is graded STRUCTURAL_PASS (citation validity is a hand-grading dimension).
+† `p1_refactor` fails on structure (no `output/` subpackage created), not the model's competence at the
+core edit. `p1_testwrite` — see the grading-correctness note below; the earlier "task-design" framing was
+partly a grader artifact. \* `p3_market` is graded STRUCTURAL_PASS (citation validity is a hand-grading dimension).
+
+### Grading-correctness fix (post-review, 2026-05-29)
+A review caught that `phase1_grade.py` read flat keys (`coverage_pct`, `ruff_issues`, `benchmark_s`) while
+`code_task_grader.py` writes nested ones (`coverage.line_coverage_pct`, `ruff.issue_count`,
+`benchmark.elapsed_s`). Effect: `p1_bugfix`'s ruff/benchmark gates were silently always-true, and
+`p1_testwrite`'s coverage gate was always-false. Fixed and **all phase-1 cells regraded**. Outcome:
+- **Totals unchanged (8/12 / 7/12)** — but now *trustworthy*, not coincidental.
+- `p1_bugfix` PASS is now genuinely validated: ruff 2→0 and benchmark **11.2s→0.537s** (the planted O(n²)
+  fix) are real and pass — they were previously ignored.
+- `p1_testwrite` still FAILs, but the **reason flips**: think-mode actually achieved **99% coverage / 153
+  passing tests** (the broken grader reported `cov=0` and hid it); it fails only on `logalyzer_unchanged`
+  (it edited production code, violating the "only /tests/ may differ" rule). The model is *capable* here —
+  the task constraint, not incapacity, is what fails it. The inherited † "task-design" footnote on testwrite
+  is misleading and should be re-examined for the published 27B/Coder cells too.
 
 ## Headline findings
 

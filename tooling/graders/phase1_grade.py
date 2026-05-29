@@ -51,12 +51,15 @@ def grade_bugfix(workspace: Path, baseline: Path) -> dict:
     bef_total = metrics.get("baseline", {}).get("pytest", {}).get("total", 0)
     aft_pass = metrics.get("workspace", {}).get("pytest", {}).get("passed", 0)
     aft_total = metrics.get("workspace", {}).get("pytest", {}).get("total", 0)
-    bef_cov = metrics.get("baseline", {}).get("coverage_pct")
-    aft_cov = metrics.get("workspace", {}).get("coverage_pct")
-    bef_ruff = metrics.get("baseline", {}).get("ruff_issues", 0)
-    aft_ruff = metrics.get("workspace", {}).get("ruff_issues", 0)
-    bef_bench = metrics.get("baseline", {}).get("benchmark_s")
-    aft_bench = metrics.get("workspace", {}).get("benchmark_s")
+    # code_task_grader nests these under per-tool dicts: coverage.line_coverage_pct,
+    # ruff.issue_count, benchmark.elapsed_s — NOT flat coverage_pct/ruff_issues/benchmark_s.
+    # (pytest IS nested as baseline.pytest.passed, read correctly above.)
+    bef_cov = (metrics.get("baseline", {}).get("coverage") or {}).get("line_coverage_pct")
+    aft_cov = (metrics.get("workspace", {}).get("coverage") or {}).get("line_coverage_pct")
+    bef_ruff = (metrics.get("baseline", {}).get("ruff") or {}).get("issue_count", 0)
+    aft_ruff = (metrics.get("workspace", {}).get("ruff") or {}).get("issue_count", 0)
+    bef_bench = (metrics.get("baseline", {}).get("benchmark") or {}).get("elapsed_s")
+    aft_bench = (metrics.get("workspace", {}).get("benchmark") or {}).get("elapsed_s")
     # Pass criteria
     pass_rate_improved = (aft_pass - bef_pass) > 0
     ruff_no_regression = aft_ruff <= bef_ruff
@@ -96,8 +99,8 @@ def grade_testwrite(workspace: Path, baseline: Path) -> dict:
     bef_pass = metrics.get("baseline", {}).get("pytest", {}).get("passed", 0)
     aft_pass = metrics.get("workspace", {}).get("pytest", {}).get("passed", 0)
     aft_total = metrics.get("workspace", {}).get("pytest", {}).get("total", 0)
-    bef_cov = metrics.get("baseline", {}).get("coverage_pct") or 0
-    aft_cov = metrics.get("workspace", {}).get("coverage_pct") or 0
+    bef_cov = (metrics.get("baseline", {}).get("coverage") or {}).get("line_coverage_pct") or 0
+    aft_cov = (metrics.get("workspace", {}).get("coverage") or {}).get("line_coverage_pct") or 0
     # Check that /logalyzer/ is byte-identical between baseline and workspace
     diff_r = run(["diff", "-r", str(baseline / "logalyzer"), str(workspace / "logalyzer")], timeout=30)
     logalyzer_unchanged = diff_r.returncode == 0

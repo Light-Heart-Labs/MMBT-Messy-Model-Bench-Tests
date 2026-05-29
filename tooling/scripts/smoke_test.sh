@@ -116,12 +116,17 @@ echo ""
 if [ "$VERDICT" = "PASS" ]; then
   echo "✓ Smoke test PASS — your setup works. You can now run the full microbench:"
   echo ""
-  if [ -n "$REASONING_EFFORT" ]; then
-    # carry the reasoning effort through, and remind that it must be in the label
-    echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT <model-label>-${REASONING_EFFORT} <n> ${REASONING_EFFORT}"
-    echo "    (effort '${REASONING_EFFORT}' must be in the label so multi-effort sweeps don't collide)"
+  if [ -n "$REASONING_EFFORT" ] || [ -n "$THINKING" ] || [ -n "$MAXLEN" ]; then
+    # Carry ALL the model-shape flags through (effort, thinking, max-model-len) so the
+    # bench runs the SAME arm you just smoked — and encode the reasoning mode in the
+    # label so multi-arm sweeps (effort levels / think vs no-think) don't collide.
+    lbl="<model-label>"
+    [ -n "$REASONING_EFFORT" ] && lbl="<model-label>-${REASONING_EFFORT}"
+    [ -n "$THINKING" ] && lbl="<model-label>-$([ "$THINKING" = "on" ] && echo think || echo nothink)"
+    echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT $lbl <n> \"${REASONING_EFFORT}\" \"${THINKING}\" \"${MAXLEN}\""
+    echo "    (reasoning mode is in the label so multi-arm runs don't collide; flags carried from this smoke)"
   else
-    echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT <model-label> [<n>] [<reasoning-effort>]"
+    echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT <model-label> [<n>]"
   fi
   echo ""
   exit 0

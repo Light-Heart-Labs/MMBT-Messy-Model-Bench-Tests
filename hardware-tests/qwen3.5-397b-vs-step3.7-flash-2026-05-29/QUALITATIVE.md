@@ -48,6 +48,13 @@ synergies, opaque valuation) — quality parity on the judgment. The form differ
   ADRs documenting deliberate per-audience omissions. The binary grader rejected it anyway — real
   quality runs ahead of pass rate here. Ties to the known binary-grader-misses-quality caveat.
   (`logs/p3_writing_397b-nothink_v1` workspace)
+- **397B `p1_testwrite` (think) FAIL = a *rule* violation hiding real competence.** After a grader-bug
+  fix (see findings.md), the corrected metrics show think-mode wrote tests reaching **99% coverage / 153
+  passing** — strong, capable test-writing. It FAILs only because it edited `logalyzer/` production code,
+  violating the task's "only /tests/ may differ" rule (`logalyzer_unchanged: False`). The prior grader bug
+  reported `cov=0` and made this look like a flat incapacity ("coverage never improves"). Lesson: a broken
+  metric doesn't just mis-score — it **invents the wrong story about why**. The pass/fail bit (FAIL) was
+  right by accident; everything it implied about the model was wrong. (`logs/p1_testwrite_397b-think_v1/grade.json`)
 
 ## 4. Does thinking help 397B? No — net −1, and the loss is revealing
 **397B no-think 8/12 vs 397B think 7/12.** Eleven of twelve cells are identical between modes; reasoning
