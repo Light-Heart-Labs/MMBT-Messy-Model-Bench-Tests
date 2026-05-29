@@ -1,0 +1,73 @@
+{
+  "$schema_note": "Read this BEFORE drawing conclusions. Machine-readable provenance for the step3.7-flash-nvfp4-dual-blackwell-2026-05-28 entry. Companion to README.md / findings.md / throughput.md.",
+  "bundle_id": "step3.7-flash-nvfp4-dual-blackwell-2026-05-28",
+  "snapshot_date_utc": "2026-05-28",
+  "kind": "serving-config + quick-throughput readings (not a tuned sweep, not a task benchmark)",
+  "claim_scope": "How to serve stepfun-ai/Step-3.7-Flash-NVFP4 under vLLM on 2x RTX PRO 6000 Blackwell (sm_120, no NVLink) with native FP4, and the raw single-run tok/s that config delivers. Single rig, single run per cell.",
+  "hardware": {
+    "host": "Tower2 (ASUS Pro WS WRX90E-SAGE SE, Threadripper PRO 7965WX)",
+    "gpus": "2x NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 96 GB each",
+    "compute_capability": "12.0 (sm_120)",
+    "interconnect": "PCIe host bridge (nvidia-smi topo -m = NODE); NO NVLink",
+    "gpu_power_limit_w": 600,
+    "nvidia_driver": "595.58.03"
+  },
+  "engine": {
+    "image": "vllm/vllm-openai:stepfun37",
+    "image_digest": "sha256:17fae7886712d62b4c19f98481fd86dcde78fae89162200fd4e462c215de8db3",
+    "image_pull": "docker pull vllm/vllm-openai:stepfun37",
+    "vllm_version": "v0.1.dev16944+ge9c8946e7",
+    "note": "StepFun's prebuilt image; stock vllm/vllm-openai:latest lacks step3p7 support. This is a dev build, not a tagged release — kernel/backend availability may differ on other vLLM versions."
+  },
+  "model": {
+    "hf_repo": "stepfun-ai/Step-3.7-Flash-NVFP4",
+    "local_path": "~/models/stepfun-ai-Step-3.7-Flash-NVFP4",
+    "weight_shards": 13,
+    "weight_bytes_on_disk": 124395857251,
+    "weight_gib_on_disk": 115.9,
+    "quant_algo": "NVFP4",
+    "kv_cache_quant_algo": "FP8",
+    "model_type": "step3p7",
+    "params": "201B total / ~11B active per token (MoE VLM)",
+    "per_file_hashes": "See the HuggingFace repo for canonical per-file hashes; not recomputed locally (124 GB)."
+  },
+  "serving_config": {
+    "tensor_parallel_size": 2,
+    "expert_parallel": false,
+    "moe_backend": "cutlass (VLLM_CUTLASS — native FP4; the only NVFP4 MoE backend that supports this model's SWIGLUSTEP activation)",
+    "kv_cache_dtype": "fp8",
+    "max_model_len": 262144,
+    "cuda_graphs": true,
+    "extra_env": ["NCCL_P2P_DISABLE=1"],
+    "extra_flags": ["--disable-custom-all-reduce", "--trust-remote-code", "--quantization modelopt"],
+    "parsers": {"reasoning": "step3p5", "tool_call": "step3p5"},
+    "kv_cache_tokens": 2065480,
+    "max_concurrency_at_262k": 7.88,
+    "fallback": "--enforce-eager (only if a future image regresses cudagraph capture)"
+  },
+  "throughput_grid": {
+    "tool": "vllm bench serve --backend openai-chat --dataset-name random --ignore-eos",
+    "raw_readings": "bench-raw.txt",
+    "input_len": 1024,
+    "cells": [
+      {"mode": "cudagraph", "concurrency": 1,  "output_len": 1024, "output_tok_s": 98,   "tpot_ms": 10.1, "ttft_ms": 171},
+      {"mode": "cudagraph", "concurrency": 8,  "output_len": 512,  "output_tok_s": 475,  "tpot_ms": 16.7, "ttft_ms": 80},
+      {"mode": "cudagraph", "concurrency": 32, "output_len": 256,  "output_tok_s": 963,  "tpot_ms": 28.4, "ttft_ms": 1246},
+      {"mode": "cudagraph", "concurrency": 64, "output_len": 256,  "output_tok_s": 1526, "output_tok_s_peak": 2106, "tpot_ms": 36.0, "ttft_ms": 1503},
+      {"mode": "eager",     "concurrency": 1,  "output_len": 256,  "output_tok_s": 21.07, "tpot_ms": 47.3},
+      {"mode": "eager",     "concurrency": 32, "output_len": 256,  "output_tok_s": 530.28, "tpot_ms": 53.6}
+    ],
+    "caveats": ["single run per cell", "synthetic random dataset + --ignore-eos (raw serving throughput, not task-shaped or reasoning-on)", "FP4 kernels on sm_120 are young; tied to this dev image"]
+  },
+  "smoke_test": {
+    "task": "MMBT structured-extraction (phase2_extraction)",
+    "command": "bash tooling/scripts/smoke_test.sh step3p7 8001 smoke medium",
+    "result_cudagraph": "PASS, field_accuracy 0.95, ~22 s, finish_reason done_signal",
+    "result_eager": "PASS, field_accuracy 1.0, ~100 s"
+  },
+  "claims": [
+    "hw.step37.custom-allreduce-hang-no-nvlink",
+    "hw.step37.native-fp4-requires-vllm-cutlass",
+    "hw.step37.nvfp4-throughput-dual-rtx6000"
+  ]
+}

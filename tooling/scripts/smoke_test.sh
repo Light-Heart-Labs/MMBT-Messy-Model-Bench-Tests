@@ -2,9 +2,13 @@
 # Smoke test: one quick task at N=1 to verify your vLLM endpoint + harness
 # config work before you commit to a 3-7 hour full-microbench run.
 #
-# Usage: bash tooling/scripts/smoke_test.sh <served-model-name> <port> [<run-prefix>]
+# Usage: bash tooling/scripts/smoke_test.sh <served-model-name> <port> [<run-prefix>] [<reasoning-effort>]
 #
 # Example: bash tooling/scripts/smoke_test.sh my-new-model 8001 smoke
+#          bash tooling/scripts/smoke_test.sh step3p7 8001 smoke medium   # reasoning model
+#
+# reasoning-effort: optional low|medium|high for models with reasoning levels
+# (e.g. Step-3.7-Flash); smoke-test the same effort you intend to bench.
 #
 # Exits 0 on PASS, non-zero otherwise. Wall: ~2-5 minutes.
 set -euo pipefail
@@ -27,6 +31,9 @@ fi
 MODEL="$1"
 PORT="$2"
 PREFIX="${3:-smoke}"
+REASONING_EFFORT="${4:-}"   # optional: low|medium|high for models with reasoning levels
+REASONING_FLAG=""
+[ -n "$REASONING_EFFORT" ] && REASONING_FLAG="--reasoning-effort $REASONING_EFFORT"
 TOOLING="$(cd "$(dirname "$0")/.." && pwd)"
 REPO_ROOT="$(cd "$TOOLING/.." && pwd)"
 RUN_NAME="${PREFIX}_extract_$(date +%s)"
@@ -64,6 +71,7 @@ python3 "$TOOLING/harness.py" \
   --port "$PORT" \
   --temperature 0.3 \
   --stuck-threshold 500 \
+  $REASONING_FLAG \
   --input-mount "$TOOLING/inputs/phase2_extraction" \
   --docker-socket \
   --gpus all 2>&1 | tail -20
@@ -100,7 +108,13 @@ echo ""
 if [ "$VERDICT" = "PASS" ]; then
   echo "✓ Smoke test PASS — your setup works. You can now run the full microbench:"
   echo ""
-  echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT <model-label>"
+  if [ -n "$REASONING_EFFORT" ]; then
+    # carry the reasoning effort through, and remind that it must be in the label
+    echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT <model-label>-${REASONING_EFFORT} <n> ${REASONING_EFFORT}"
+    echo "    (effort '${REASONING_EFFORT}' must be in the label so multi-effort sweeps don't collide)"
+  else
+    echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT <model-label> [<n>] [<reasoning-effort>]"
+  fi
   echo ""
   exit 0
 else
