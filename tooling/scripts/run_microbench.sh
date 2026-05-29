@@ -76,6 +76,24 @@ if [ -n "$REASONING_EFFORT" ] && [[ "$LABEL" != *"$REASONING_EFFORT"* ]]; then
   exit 2
 fi
 
+# Same guard for --thinking: run names are keyed by LABEL only, so running
+# --thinking off then on under ONE label silently skips the second arm as
+# "already complete". Require the mode encoded in the label (nothink / think).
+if [ -n "$THINKING" ]; then
+  if [ "$THINKING" = "off" ]; then
+    want="nothink"; [[ "$LABEL" == *nothink* ]] && ok=1 || ok=0
+  else
+    want="think"; [[ "$LABEL" == *think* && "$LABEL" != *nothink* ]] && ok=1 || ok=0
+  fi
+  if [ "$ok" != "1" ]; then
+    echo "ERROR: --thinking '$THINKING' is set but label '$LABEL' does not encode it ('$want')." >&2
+    echo "       Run names are keyed by label only, so --thinking off then on under one label collide" >&2
+    echo "       (the second arm is skipped as already-complete). Put the mode in the label, e.g.:" >&2
+    echo "         $0 $MODEL $PORT 397b-${want} ${N} \"\" ${THINKING} ${MAXLEN}" >&2
+    exit 2
+  fi
+fi
+
 TOOLING="$(cd "$(dirname "$0")/.." && pwd)"
 REPO_ROOT="$(cd "$TOOLING/.." && pwd)"
 cd "$REPO_ROOT"
