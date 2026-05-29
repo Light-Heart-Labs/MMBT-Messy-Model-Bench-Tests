@@ -49,6 +49,10 @@ A review caught that `phase1_grade.py` read flat keys (`coverage_pct`, `ruff_iss
   (it edited production code, violating the "only /tests/ may differ" rule). The model is *capable* here —
   the task constraint, not incapacity, is what fails it. The inherited † "task-design" footnote on testwrite
   is misleading and should be re-examined for the published 27B/Coder cells too.
+- ⚠️ **The 27B / Coder reference columns in the scorecard above predate this fix.** Their phase-1
+  (bug-fixing / test-writing) numbers came from the same buggy grader, so they may be wrong — testwrite
+  especially is likely a guaranteed-FAIL artifact. **Historical phase-1 scores may need regrading; see
+  tracking issue #29.** Treat the reference columns' p1_* cells as provisional until that lands.
 
 ## Headline findings
 
