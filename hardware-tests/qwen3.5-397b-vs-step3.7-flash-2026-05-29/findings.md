@@ -72,11 +72,13 @@ A review caught that `phase1_grade.py` read flat keys (`coverage_pct`, `ruff_iss
    reps): p1_bugfix, the grounded mid-tier (p2_extract/ci/hallucination/triage), p3_business, and the
    consistent fails. **Trust the mid-tier and bugfix; treat market/pm/doc as high-variance.**
 
-4. **397B is runaway-resistant; Flash is not (at low effort).** All 72 397B cells (both arms × N=3)
-   finished `done_signal` — zero max_tokens/length failures, including `p3_market` think at 3/3.
-   Step-3.7-Flash **ran away on `p3_market` at low effort** (hit max_tokens). 397B's reliability edge is
-   real and mode-independent — and for market research specifically, thinking turns it from a coin-flip
-   (1/3) into a lock (3/3).
+4. **397B is runaway-resistant — but no-think market research gets *stuck*.** Zero max_tokens/length
+   runaways across all 72 cells (the failure mode Step-3.7-Flash showed on `p3_market` at low effort).
+   69/72 finished `done_signal`; the 3 non-clean exits were **all no-think**: `p3_market` v2 & v3 hit the
+   500-iter **stuck threshold** (`stuck_no_workspace_change_for_500_iters` — spinning without progress, not
+   over-generating) and `p3_pm` v1 `model_stopped`. So 397B's pathology is *stalling*, not runaway — and
+   **thinking eliminates the market stall**: think `p3_market` is a clean 3/3 `done_signal` vs no-think's
+   1/3 (2 stuck). For market research, reasoning turns a stuck coin-flip into a lock.
 
 5. **Cost still favors Flash.** 397B reaches the shared band at ~71 tok/s spanning both GPUs at Q3, vs
    Flash ~99 tok/s on one engine. Flash is the better default; 397B earns its keep where its runaway

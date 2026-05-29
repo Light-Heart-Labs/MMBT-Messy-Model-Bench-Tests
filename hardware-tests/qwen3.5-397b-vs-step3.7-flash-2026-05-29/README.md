@@ -11,7 +11,9 @@ Step-3.7-Flash-NVFP4 entry on the same box.
 - **Thinking is net −1, but not inert** (N=3 correction): it *redistributes* — stabilizes `p3_market`
   (1/3→3/3) while hurting `p3_pm` (2/3→0/3) and `p3_doc` (2/3→1/3). It changes *where* 397B succeeds,
   not how often.
-- **397B never ran away** (all 72 cells `done_signal`) where Flash did at low effort — a real reliability edge.
+- **397B never ran away** (zero max_tokens/length failures across 72 cells) where Flash did at low effort.
+  Its only non-clean exits: 2 no-think `p3_market` reps hit the 500-iter *stuck* threshold + 1 `p3_pm`
+  `model_stopped` — a stalling pathology, not runaway; thinking clears the market stall (think market 3/3).
 - **N=3 matters:** `p3_market`/`p3_pm`/`p3_doc` are high-variance; their N=1 verdicts were single-draw luck.
 - **Flash is the cheaper/faster default** (~99 vs ~71 tok/s, one engine vs both GPUs); 397B's case is
   reliability (runaway resistance, thinking-on market research).

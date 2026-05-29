@@ -1,6 +1,8 @@
 # Qwen3.5-397B-A17B vs Step-3.7-Flash — qualitative differences
 
-**Status: N=1 / provisional. Both 397B arms complete (no-think 8/12, think 7/12); Flash low/med/high complete.**
+**Status: N=3. Both 397B arms complete (no-think 23/36, think 22/36); Flash low/med/high complete.**
+Per-cell citations below may reference N=1 (`_v1`) artifacts where the behavior is identical across reps;
+N=3 pass counts are in findings.md.
 This doc is deliberately *not* a pass/fail scorecard. Pass/fail ties (397B no-think 8/12
 vs Flash 7–8/12) hide the differences that matter — those live here. Every claim cites the
 cell/file it came from so it's reproducible. See SCORECARD/findings for the quantitative table.
@@ -78,10 +80,13 @@ no-think) but wrote 721 words vs the 700 limit (no-think: 692) — equal substan
 substantial think block, median ~73 reasoning tokens/turn), not long monologues — but uses more turns
 than no-think on the same task (126 vs 110).
 
-**No runaways, either mode.** All 12 think cells finished `done_signal` (no max_tokens/length failures) —
-including `p3_market` (STRUCTURAL_PASS, 56 iters). Contrast Flash, which **ran away on `p3_market` at low
-effort** (hit max_tokens). 397B is runaway-resistant in both modes; Flash's runaway risk is concentrated
-at low reasoning effort. This is a real reliability edge for 397B.
+**No *runaways*, but no-think *stalls* on market research.** Zero max_tokens/length failures across all
+72 cells — contrast Flash, which **ran away on `p3_market` at low effort** (hit max_tokens). 397B's
+failure mode is the opposite of runaway: 69/72 `done_signal`, and the 3 non-clean exits were all no-think
+— `p3_market` v2/v3 hit the 500-iter *stuck* threshold (spinning without progress) and `p3_pm` v1
+`model_stopped`. The think arm is clean (36/36 `done_signal`), and notably `p3_market` think is 3/3 vs
+no-think's 2-stuck/1-pass — **thinking eliminates the stall.** So the reliability edge over Flash is real
+(no runaways), but it's "stalls quietly," not "always finishes."
 
 ## 5. Integration cost (a "messy model" finding in itself)
 - Flash (vLLM) ran the harness out of the box once launched.
@@ -92,10 +97,12 @@ at low reasoning effort. This is a real reliability edge for 397B.
   re-run name collisions). Both are harness/engine-integration bugs, not model quality — but they're
   exactly the "messy" friction MMBT exists to document. PR should fix both in the harness.
 
-## Net take (provisional, no-think only)
+## Net take (N=3, both arms)
 397B no-think is the steady, over-documenting, high-prose-quality one whose misses are omissions; Flash
 is the fast, terse, reasoning-driven one — brilliant when bounded, flaily when not. They agree on
 substance more than the scorecard's "tie" suggests. Flash is the cheaper/faster way to the same band
-(~99 vs ~71 tok/s, one engine vs both GPUs); 397B's case is narrow (long-form synthesis reliability,
-one stable setting, no effort-tuning). The 397B-think arm is the apples-to-apples test against Flash's
-reasoning modes — pending.
+(~99 vs ~71 tok/s, one engine vs both GPUs). 397B's edge is reliability — no max_tokens runaways (its
+worst case is a quiet *stall* on no-think market research, which thinking clears to 3/3) — not raw
+accuracy. Thinking doesn't raise the aggregate (net −1); it *redistributes* (market up, pm/doc down), so
+"turn thinking on" is a per-task call, not a default. Reach for 397B when runaway resistance and
+market-research reliability matter; otherwise Flash wins on speed and cost.
