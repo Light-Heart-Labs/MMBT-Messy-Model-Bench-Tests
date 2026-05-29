@@ -17,9 +17,11 @@ input len 1024, `--ignore-eos`:
 | 1  | 1024 | ~98   | 10.1 ms (≈99 tok/s/stream) | 171 ms | 196 |
 | 8  | 512  | 475   | 16.7 ms | 80 ms | 1,434 |
 | 32 | 256  | ~963  | 28.4 ms | 1,246 ms | 4,861 |
-| 64 | 256  | 1,526 (peak 2,106) | 36.0 ms | 1,503 ms | 7,694 |
+| 64 | 256  | 1,526 † | 36.0 ms | 1,503 ms | 7,694 |
 
-**Single-stream decode ≈ 99 tok/s**; aggregate output scales to **~1.5k tok/s at 64-way concurrency** (peak 2.1k). For a 201B-parameter MoE (~11B active/token) at 4-bit on two PCIe-connected workstation GPUs, that's a healthy decode rate.
+Primary metric is **aggregate output tok/s** (generated tokens only); the last column is the in+out composite for reference, not the headline (this repo retracted leading with in+out totals — see `claims.yaml` `hw.q8.total-tokps-composite`). † conc=64 also reported a peak *instantaneous* output rate of 2,106 tok/s within the run (vLLM bench's "Peak output token throughput"); the 1,526 is the run mean.
+
+**Single-stream decode ≈ 99 tok/s** (mean); aggregate output scales to **~1.5k tok/s mean at 64-way concurrency**. For a 201B-parameter MoE (~11B active/token) at 4-bit on two PCIe-connected workstation GPUs, that is a usable single-stream rate for interactive agentic use and reasonable batched throughput. TTFT jumps from ~80 ms (conc≤8) to ~1.2–1.5 s at conc≥32 — expected prefill queueing as concurrent requests contend, not a regression.
 
 ## CUDA Graphs vs eager (why `--enforce-eager` was dropped)
 
@@ -28,7 +30,9 @@ Same two cells, eager mode (`--enforce-eager`) vs cudagraph:
 | cell | eager | cudagraph | speedup |
 |---|---|---|---|
 | conc=1 single-stream (TPOT) | 47.3 ms (~21 tok/s) | 10.1 ms (~99 tok/s) | **4.7×** |
-| conc=32 total throughput | 2,674 tok/s | 4,861 tok/s | **1.8×** |
+| conc=32 aggregate **output** tok/s | 530 | 963 | **1.8×** |
+
+(Speedup on output tokens, not the in+out composite. The in+out total also moves 2,674 → 4,861, the same ~1.8×.)
 
 CUDA-graph capture initially appeared to hang — but that was the same custom-all-reduce deadlock documented in [`findings.md`](findings.md) (Problem 1). With `--disable-custom-all-reduce` in place, **capture completes cleanly** (server ready in ~115 s) and delivers the speedups above. The earlier `--enforce-eager` workaround is therefore **no longer needed**; the recommended config runs with CUDA Graphs on, and the throughput numbers above are representative (not eager-throttled).
 

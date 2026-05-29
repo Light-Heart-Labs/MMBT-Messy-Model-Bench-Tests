@@ -23,7 +23,7 @@ docker run -d --name vllm-step3p7 --gpus all --shm-size 16g \
 
 Verified: loads (58.6 GiB weights/GPU), KV cache 2.06M tokens (FP8, 7.88× concurrency at 262k ctx), CUDA Graphs capture cleanly (ready in ~115 s), serves, and passes the MMBT structured-extraction smoke test at **20/20 fields, accuracy 1.0**. Logs confirm `Using 'VLLM_CUTLASS' NvFp4 MoE backend` with **no Marlin warning** — i.e. the experts run on native FP4.
 
-**Throughput** (cudagraph, FP8 KV, 600 W — full table in [`throughput.md`](throughput.md)): single-stream decode **≈ 99 tok/s**, scaling to **~1.5k tok/s aggregate output at 64-way concurrency** (peak 2.1k). For a 201B-param / ~11B-active MoE at 4-bit on two PCIe workstation GPUs, that's a healthy rate.
+**Throughput** (cudagraph, FP8 KV, 600 W — full table in [`throughput.md`](throughput.md)): single-stream decode **≈ 99 tok/s** mean, scaling to **~1.5k tok/s mean aggregate output at 64-way concurrency**. Quick `vllm bench serve` readings, single run per cell — indicative, not a tuned sweep.
 
 ## The four non-obvious flags (and why each is required)
 
@@ -31,7 +31,7 @@ Everything below diverges from StepFun's reference command. See [`findings.md`](
 
 1. **`--disable-custom-all-reduce` — the keystone.** Without it the server **hangs** on the first real tensor-parallel collective (manifesting variously at NCCL init, CUDA-graph capture, or FlashInfer attention warmup — all the same root cause). These are *Workstation* Blackwells with **no NVLink** (`nvidia-smi topo -m` reports `NODE` — PCIe through the host bridge), and vLLM's CUSTOM all-reduce kernel requires GPU peer-to-peer. Disabling it falls back to PYNCCL, which works. `-e NCCL_P2P_DISABLE=1` is set alongside for the same no-P2P reason.
 
-2. **`--moe-backend cutlass` — for native FP4.** The default `auto` selects the **Marlin** weight-only-FP4 path (dequant-to-compute; vLLM warns "GPU does not have native support for FP4 computation"). That warning is misleading on sm_120: native FP4 *is* supported (`cutlass_scaled_mm_supports_fp4(120)=True`). The catch is the model's activation: Step-3.7 uses **`SWIGLUSTEP`**, which the FlashInfer kernels (`flashinfer_b12x`, `flashinfer_cutlass`, `flashinfer_trtllm`, `flashinfer_cutedsl`) **do not support** — only `VLLM_CUTLASS` (CLI `cutlass`) and `MARLIN` do. So `cutlass` is the *only* native-FP4 MoE backend compatible with this model.
+2. **`--moe-backend cutlass` — for native FP4.** The default `auto` selects the **Marlin** weight-only-FP4 path (dequant-to-compute; vLLM warns "GPU does not have native support for FP4 computation"). That warning is misleading on sm_120: native FP4 *is* supported (`cutlass_scaled_mm_supports_fp4(120)=True`). The catch is the model's activation: Step-3.7 uses **`SWIGLUSTEP`** (a clamped/stepped SwiGLU), which the FlashInfer NVFP4 MoE kernels (`flashinfer_b12x`, `flashinfer_cutlass`, `flashinfer_trtllm`, `flashinfer_cutedsl`) **do not support** — among the eight NVFP4 `--moe-backend` options, only `VLLM_CUTLASS` (CLI `cutlass`) and `MARLIN` do. So `cutlass` is the *only* native-FP4 MoE backend compatible with this model.
 
 3. **No `--enable-expert-parallel`.** StepFun's reference command includes it, but the `VLLM_CUTLASS` FP4 MoE kernel rejects expert-parallel (`ep_size=2`): the experts must be sharded by tensor-parallel instead. Including `--enable-expert-parallel` raises `does not support parallel config ... use_ep=True`.
 
@@ -39,7 +39,7 @@ Everything below diverges from StepFun's reference command. See [`findings.md`](
 
 ## Note — CUDA Graphs (the `--enforce-eager` caveat is resolved)
 
-CUDA-graph capture was an early casualty of the same custom-all-reduce hang (#1), so an interim version of this config used `--enforce-eager`. **That is no longer needed:** with `--disable-custom-all-reduce` in place, capture completes cleanly (server ready ~115 s) and is 4.7× faster single-stream / 1.8× higher batched throughput than eager. The recommended command above runs with CUDA Graphs on, and the [`throughput.md`](throughput.md) numbers are representative. Keep `--enforce-eager` only as a fallback if a future image regresses capture.
+CUDA-graph capture was an early casualty of the same custom-all-reduce hang (#1), so an interim version of this config used `--enforce-eager`. **That is no longer needed:** with `--disable-custom-all-reduce` in place, capture completes cleanly (server ready ~115 s) and is 4.7× faster single-stream / 1.8× higher batched **output** throughput than eager. The recommended command above runs with CUDA Graphs on, and the [`throughput.md`](throughput.md) numbers are representative. Keep `--enforce-eager` only as a fallback if a future image regresses capture.
 
 ## Environment
 
@@ -56,7 +56,8 @@ CUDA-graph capture was an early casualty of the same custom-all-reduce hang (#1)
 
 1. **`findings.md`** — the full diagnostic trail: each hang, how it was diagnosed (`nvidia-smi topo`, live `cutlass_scaled_mm_supports_fp4`/`has_flashinfer_*` probes, the `select_nvfp4_moe_backend` oracle, the SWIGLUSTEP activation-support grep), and how the flag was found.
 2. **`throughput.md`** — quick `vllm bench serve` tok/s readings (cudagraph vs eager, concurrency 1→64).
-3. **This README** — the working command + the four flags.
+
+(The working command + the four flags are in the sections above.)
 
 ## Companion
 

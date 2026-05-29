@@ -50,11 +50,11 @@ Step-3.7 uses a `SWIGLUSTEP` (clamped/stepped SwiGLU) MoE activation. Grepping w
 ```
 experts/marlin_moe.py        -> MoEActivation.SWIGLUSTEP   ✓
 experts/cutlass_moe.py:711   -> MoEActivation.SWIGLUSTEP   ✓  (CutlassExpertsFp4 — VLLM_CUTLASS)
-experts/triton_moe.py        -> SWIGLUSTEP
-experts/deep_gemm_moe.py     -> SWIGLUSTEP
+experts/triton_moe.py        -> SWIGLUSTEP   (non-FP4 kernel — not an --moe-backend NVFP4 option)
+experts/deep_gemm_moe.py     -> SWIGLUSTEP   (FP8 kernel — not an --moe-backend NVFP4 option)
 ```
 
-The FlashInfer fused-MoE paths (`flashinfer_b12x`, `flashinfer_cutlass`, `flashinfer_trtllm`, `flashinfer_cutedsl`) do **not** support SWIGLUSTEP. Of the native-FP4 options, only `VLLM_CUTLASS` (vLLM's own `cutlass_scaled_fp4_mm`, which `CutlassExpertsFp4` backs) supports it.
+Scope matters here: the `--moe-backend` selector for an NVFP4 model only chooses among the eight `NvFp4MoeBackend` values, each mapped to one experts class (verified in `oracle/nvfp4.py`): `FLASHINFER_TRTLLM→TrtLlmNvFp4Experts`, `FLASHINFER_CUTLASS→FlashInferExperts`, `FLASHINFER_CUTEDSL→FlashInferCuteDSLExperts`, `FLASHINFER_CUTEDSL_BATCHED→…`, `FLASHINFER_B12X→FlashInferB12xExperts`, `VLLM_CUTLASS→CutlassExpertsFp4`, `MARLIN→MarlinExperts`, `EMULATION→…`. `triton_moe`/`deep_gemm_moe` declare SWIGLUSTEP but back *other* dtypes (non-FP4 / FP8) and are never reached by NVFP4 backend selection. So among the NVFP4 options, the FlashInfer paths (`b12x`, `cutlass`, `trtllm`, `cutedsl`) do **not** support SWIGLUSTEP — only `VLLM_CUTLASS` (vLLM's own `cutlass_scaled_fp4_mm`, backed by `CutlassExpertsFp4`) and `MARLIN` do. Empirically, `flashinfer_b12x` and `flashinfer_cutlass` were launch-tested and both raised the SWIGLUSTEP error; `trtllm`/`cutedsl` are excluded by the same source path (not separately launch-tested).
 
 **Fix.** `--moe-backend cutlass`. Log then reads `Using 'VLLM_CUTLASS' NvFp4 MoE backend`, no Marlin warning.
 
@@ -67,7 +67,7 @@ ValueError: NvFp4 MoE backend 'VLLM_CUTLASS' does not support the deployment
 configuration since kernel does not support parallel config ... ep_size=2, use_ep=True
 ```
 
-**Fix.** Drop `--enable-expert-parallel`. The experts then shard via tensor-parallel (the model fits comfortably: 58.6 GiB weights/GPU, 26 GiB free for KV). StepFun's reference command includes EP because their datacenter path uses a FlashInfer backend that supports both EP and (on sm_100) presumably a different activation route; the VLLM_CUTLASS path we need on sm_120 does not.
+**Fix.** Drop `--enable-expert-parallel`. The experts then shard via tensor-parallel (the model fits comfortably: 58.6 GiB weights/GPU; vLLM reported 26.0 GiB *available KV cache memory* per GPU after weights + activation/cudagraph reservation — note that's the measured KV figure, lower than a naive 88 GiB budget − 58.6 GiB weights, because activations and the cudagraph reserve consume the difference). StepFun's reference command includes EP because their datacenter path uses a FlashInfer backend that supports both EP and (on sm_100) presumably a different activation route; the VLLM_CUTLASS path we need on sm_120 does not.
 
 ## Problem 4 — harness max_tokens vs served max-model-len
 
@@ -86,4 +86,4 @@ configuration since kernel does not support parallel config ... ep_size=2, use_e
 
 ## Resolved — CUDA Graphs work (no `--enforce-eager` needed)
 
-The cudagraph-capture hang was Problem 1 in disguise. Relaunching **without** `--enforce-eager` (and with `--disable-custom-all-reduce` in place) captures cleanly — server ready in ~115 s — and is **4.7× faster single-stream** (TPOT 47 → 10 ms, ≈ 21 → 99 tok/s) and **1.8× higher batched throughput** (2,674 → 4,861 tok/s at conc=32) than eager. See [`throughput.md`](throughput.md). The recommended command runs with CUDA Graphs on; `--enforce-eager` is kept only as a fallback if a future image regresses capture.
+The cudagraph-capture hang was Problem 1 in disguise. Relaunching **without** `--enforce-eager` (and with `--disable-custom-all-reduce` in place) captures cleanly — server ready in ~115 s — and is **4.7× faster single-stream** (TPOT 47 → 10 ms, ≈ 21 → 99 tok/s) and **1.8× higher batched output throughput** (530 → 963 output tok/s at conc=32) than eager. See [`throughput.md`](throughput.md). The recommended command runs with CUDA Graphs on; `--enforce-eager` is kept only as a fallback if a future image regresses capture.

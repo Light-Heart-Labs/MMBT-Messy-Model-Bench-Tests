@@ -19,7 +19,7 @@
 # entry once it's been published.
 
 schema_version: 0.1
-last_updated: "2026-05-17"
+last_updated: "2026-05-28"
 
 claims:
 
@@ -276,6 +276,12 @@ claims:
     status: provisional
     scope: 2× RTX PRO 6000 Blackwell sm_120, vLLM image stepfun37 (v0.1.dev16944), TP=2
     evidence: "hardware-tests/step3.7-flash-nvfp4-dual-blackwell-2026-05-28/findings.md"
+    caveats:
+      - "Single rig, single vLLM dev build (v0.1.dev16944). Not reproduced on other no-NVLink Blackwell pairs."
+      - "Diagnosed by elimination (topo + all-reduce-backend log + the flag resolving the hang), not by an upstream root-cause confirmation."
+    promote_to_strong_when:
+      - "Independent no-NVLink dual-Blackwell reproducer confirms the hang and the --disable-custom-all-reduce fix"
+      - "Confirmed against a tagged vLLM release (not just the stepfun37 dev image)"
 
   - id: hw.step37.native-fp4-requires-vllm-cutlass
     text: >
@@ -285,23 +291,37 @@ claims:
       FlashInfer FP4 kernels (b12x/cutlass/trtllm/cutedsl) do not support — only
       VLLM_CUTLASS and MARLIN do. So --moe-backend cutlass is the only native-FP4
       MoE backend compatible with this model, and it requires sharding experts by
-      TP (it rejects --enable-expert-parallel).
+      TP (it rejects --enable-expert-parallel). Scope: "FlashInfer FP4 kernels"
+      means the NVFP4 --moe-backend options; b12x and flashinfer_cutlass were
+      launch-tested (both raise the SWIGLUSTEP error), trtllm/cutedsl excluded by
+      the same source path.
     status: provisional
     scope: stepfun-ai/Step-3.7-Flash-NVFP4 on sm_120, vLLM stepfun37 image
     evidence: "hardware-tests/step3.7-flash-nvfp4-dual-blackwell-2026-05-28/findings.md"
+    caveats:
+      - "Tied to this vLLM dev build's backend set; kernel SWIGLUSTEP support may broaden in later releases."
+      - "trtllm/cutedsl ruled out from the source backend→experts mapping, not separately launch-tested."
+    promote_to_strong_when:
+      - "A FlashInfer NVFP4 MoE kernel adds SWIGLUSTEP support, or the finding is reproduced on a tagged vLLM release"
 
   - id: hw.step37.nvfp4-throughput-dual-rtx6000
     text: >
       Step-3.7-Flash NVFP4 (native FP4 + FP8 KV, TP=2, CUDA Graphs) on 2× RTX
-      PRO 6000 Blackwell at 600 W sustains ≈99 tok/s single-stream decode
-      (TPOT 10 ms) and scales to ~1.5k tok/s aggregate output at 64-way
-      concurrency (peak 2.1k). CUDA Graphs are 4.7× faster single-stream and
-      1.8× higher batched throughput than --enforce-eager; capture works once
-      --disable-custom-all-reduce is set. vllm bench serve, random dataset,
-      --ignore-eos, single run per cell.
+      PRO 6000 Blackwell at 600 W sustains ≈99 tok/s mean single-stream decode
+      (TPOT 10 ms) and scales to ~1.5k tok/s mean aggregate output at 64-way
+      concurrency. CUDA Graphs are 4.7× faster single-stream and 1.8× higher
+      batched output throughput (530→963 output tok/s at conc=32) than
+      --enforce-eager; capture works once --disable-custom-all-reduce is set.
+      vllm bench serve, random dataset, --ignore-eos, single run per cell.
     status: provisional
     scope: stepfun-ai/Step-3.7-Flash-NVFP4, vLLM stepfun37 (v0.1.dev16944), 2× RTX PRO 6000 @ 600W
     evidence: "hardware-tests/step3.7-flash-nvfp4-dual-blackwell-2026-05-28/throughput.md"
+    caveats:
+      - "Single run per cell, synthetic random dataset with --ignore-eos — raw serving throughput, not task-shaped or reasoning-on workloads."
+      - "FP4 kernel performance on sm_120 is young; numbers tied to vLLM v0.1.dev16944 and likely to move across releases."
+      - "Per-cell means; conc=64 also showed a 2,106 tok/s instantaneous peak (not used as the headline)."
+    promote_to_strong_when:
+      - "Multi-run cells with reported variance, and an independent dual-RTX-6000 reproducer within a few %"
 
   # ─── Microbench / model-comparison (benchmarks/microbench-2026-04-28) ───
 
