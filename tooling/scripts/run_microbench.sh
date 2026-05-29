@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run the full microbench (12 task families × N=3 = 36 runs) against one model.
 #
-# Usage: bash tooling/scripts/run_microbench.sh <served-model-name> <port> <model-label> [<n>]
+# Usage: bash tooling/scripts/run_microbench.sh <served-model-name> <port> <model-label> [<n>] [<reasoning-effort>]
 #
 # Args:
 #   served-model-name: must match what your vLLM endpoint exposes via /v1/models
@@ -9,6 +9,11 @@
 #   model-label: short tag used in run names (e.g. "qwen2.5-72b" → run names like
 #                p2_extract_qwen2.5-72b_v1). Avoid spaces and slashes.
 #   n: number of runs per cell (default 3). 1 for quick sweep, 3 for canonical.
+#   reasoning-effort: optional low|medium|high for models with reasoning levels
+#                (e.g. Step-3.7-Flash). IMPORTANT: run names are keyed by label
+#                only, so to sweep multiple efforts for one model you MUST put the
+#                effort in the label (e.g. step3p7-low / -medium / -high) or later
+#                efforts are skipped as "already complete". The script enforces this.
 #
 # Wall: 3-7 hours for N=3 on Tower2-class hardware. Probably ~6-15 hours on
 # slower setups. Plan to run overnight.
@@ -20,7 +25,7 @@ set -euo pipefail
 
 if [ $# -lt 3 ]; then
   cat <<EOF
-Usage: $0 <served-model-name> <port> <model-label> [<n>]
+Usage: $0 <served-model-name> <port> <model-label> [<n>] [<reasoning-effort>]
 
 Runs 12 task families × N replicates against the model on the given vLLM endpoint.
 
@@ -29,9 +34,13 @@ Args:
   port               vLLM endpoint port (e.g. 8001)
   model-label        short tag for run names (no spaces/slashes; e.g. coder, 27b, llama3-70b)
   n                  N per cell (default 3)
+  reasoning-effort   optional low|medium|high (reasoning models). Run names are keyed
+                     by label, so the effort MUST be in the label when sweeping
+                     efforts (e.g. step3p7-low) or later efforts get skipped.
 
 Example:
   $0 my-llama3-70b 8001 llama3-70b 3
+  $0 step3p7 8001 step3p7-high 1 high     # effort 'high' is in the label
 
 Recommended workflow:
   1. bash tooling/scripts/smoke_test.sh <model> <port>     # 2-5 min
@@ -49,6 +58,17 @@ N="${4:-3}"
 REASONING_EFFORT="${5:-}"   # optional: low|medium|high for models with reasoning levels (e.g. Step-3.7-Flash)
 REASONING_FLAG=""
 [ -n "$REASONING_EFFORT" ] && REASONING_FLAG="--reasoning-effort $REASONING_EFFORT"
+
+# Guard: run names + the idempotent skip check are keyed by LABEL only. If an
+# effort is set but not encoded in the label, a later effort would reuse the same
+# run names and be skipped as "already complete". Fail fast instead.
+if [ -n "$REASONING_EFFORT" ] && [[ "$LABEL" != *"$REASONING_EFFORT"* ]]; then
+  echo "ERROR: --reasoning-effort '$REASONING_EFFORT' is set but label '$LABEL' does not contain it." >&2
+  echo "       Run names are keyed by label only, so multiple efforts under one label collide" >&2
+  echo "       (later efforts skipped as already-complete). Put the effort in the label, e.g.:" >&2
+  echo "         $0 $MODEL $PORT ${LABEL}-${REASONING_EFFORT} ${N} ${REASONING_EFFORT}" >&2
+  exit 2
+fi
 
 TOOLING="$(cd "$(dirname "$0")/.." && pwd)"
 REPO_ROOT="$(cd "$TOOLING/.." && pwd)"

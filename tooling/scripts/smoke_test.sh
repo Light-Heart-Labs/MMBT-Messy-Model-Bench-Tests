@@ -2,9 +2,13 @@
 # Smoke test: one quick task at N=1 to verify your vLLM endpoint + harness
 # config work before you commit to a 3-7 hour full-microbench run.
 #
-# Usage: bash tooling/scripts/smoke_test.sh <served-model-name> <port> [<run-prefix>]
+# Usage: bash tooling/scripts/smoke_test.sh <served-model-name> <port> [<run-prefix>] [<reasoning-effort>]
 #
 # Example: bash tooling/scripts/smoke_test.sh my-new-model 8001 smoke
+#          bash tooling/scripts/smoke_test.sh step3p7 8001 smoke medium   # reasoning model
+#
+# reasoning-effort: optional low|medium|high for models with reasoning levels
+# (e.g. Step-3.7-Flash); smoke-test the same effort you intend to bench.
 #
 # Exits 0 on PASS, non-zero otherwise. Wall: ~2-5 minutes.
 set -euo pipefail
@@ -104,7 +108,13 @@ echo ""
 if [ "$VERDICT" = "PASS" ]; then
   echo "✓ Smoke test PASS — your setup works. You can now run the full microbench:"
   echo ""
-  echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT <model-label>"
+  if [ -n "$REASONING_EFFORT" ]; then
+    # carry the reasoning effort through, and remind that it must be in the label
+    echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT <model-label>-${REASONING_EFFORT} <n> ${REASONING_EFFORT}"
+    echo "    (effort '${REASONING_EFFORT}' must be in the label so multi-effort sweeps don't collide)"
+  else
+    echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT <model-label> [<n>] [<reasoning-effort>]"
+  fi
   echo ""
   exit 0
 else

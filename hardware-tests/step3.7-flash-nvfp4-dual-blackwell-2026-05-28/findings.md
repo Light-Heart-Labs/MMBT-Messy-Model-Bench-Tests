@@ -83,14 +83,14 @@ configuration since kernel does not support parallel config ... ep_size=2, use_e
 
 **Diagnosis.** Not a model issue — the MMBT harness computes `max_tokens = min(180000, max_model_len − prompt − safety)` assuming the Qwen-family native `262144`. We had launched with `--max-model-len 65536`.
 
-**Fix.** Serve at native `--max-model-len 262144`. KV-pool size is governed by free VRAM (2.06M tokens here), not context length, so the larger ceiling costs nothing for single-stream agentic runs. Re-ran smoke → PASS, 20/20 fields.
+**Fix.** Serve at native `--max-model-len 262144`. KV-pool size is governed by free VRAM (2.06M tokens here), not context length, so the larger ceiling costs nothing for single-stream agentic runs. Re-ran smoke (still on the eager config at this point) → PASS, 20/20 fields (field accuracy 1.0).
 
 ## Verification
 
 - `Using 'VLLM_CUTLASS' NvFp4 MoE backend out of potential backends: [...]` — native FP4 on the experts.
 - No `Weight-only FP4 compression` warning.
 - All-reduce backend `['PYNCCL']` (not `['CUSTOM', 'PYNCCL']`).
-- MMBT smoke (structured extraction, reasoning=medium): verdict PASS, field_accuracy 1.0 (20/20), clean `done_signal`.
+- MMBT smoke (structured extraction, reasoning=medium) on the final cudagraph config: verdict PASS, field_accuracy 0.95 (19/20), clean `done_signal` (~22 s). The eager-config smoke earlier scored 1.0 (20/20); the 1-field delta is temp=0.3 variance. Both results are recorded in `manifest.json` `smoke_test`.
 
 ## Resolved — CUDA Graphs work (no `--enforce-eager` needed)
 

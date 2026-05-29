@@ -21,7 +21,7 @@ docker run -d --name vllm-step3p7 --gpus all --shm-size 16g \
   --reasoning-parser step3p5 --enable-auto-tool-choice --tool-call-parser step3p5
 ```
 
-Verified: loads (58.6 GiB weights/GPU), KV cache 2.06M tokens (FP8, 7.88× concurrency at 262k ctx), CUDA Graphs capture cleanly (ready in ~115 s), serves, and passes the MMBT structured-extraction smoke test at **20/20 fields, accuracy 1.0**. Logs confirm `Using 'VLLM_CUTLASS' NvFp4 MoE backend` with **no Marlin warning** — i.e. the experts run on native FP4.
+Verified: loads (58.6 GiB weights/GPU), KV cache 2.06M tokens (FP8, 7.88× concurrency at 262k ctx), CUDA Graphs capture cleanly (ready in ~115 s), serves, and passes the MMBT structured-extraction smoke test (PASS — field accuracy **0.95 (19/20)** on this cudagraph config; the earlier eager-config smoke scored 1.0 (20/20). Both well above the 0.8 bar; the 1-field delta is temp=0.3 run-to-run variance, not a config difference — see `manifest.json` `smoke_test`). Logs confirm `Using 'VLLM_CUTLASS' NvFp4 MoE backend` with **no Marlin warning** — i.e. the experts run on native FP4.
 
 **Throughput** (cudagraph, FP8 KV, 600 W — full table in [`throughput.md`](throughput.md)): single-stream decode **≈ 99 tok/s** mean, scaling to **~1.5k tok/s mean aggregate output at 64-way concurrency**. Quick `vllm bench serve` readings, single run per cell — indicative, not a tuned sweep.
 
