@@ -58,6 +58,12 @@ N="${4:-3}"
 REASONING_EFFORT="${5:-}"   # optional: low|medium|high for models with reasoning levels (e.g. Step-3.7-Flash)
 REASONING_FLAG=""
 [ -n "$REASONING_EFFORT" ] && REASONING_FLAG="--reasoning-effort $REASONING_EFFORT"
+THINKING="${6:-}"           # optional: on|off for models with an enable_thinking template var (e.g. Qwen3.5-397B)
+THINKING_FLAG=""
+[ -n "$THINKING" ] && THINKING_FLAG="--thinking $THINKING"
+MAXLEN="${7:-}"             # optional: served context window (e.g. 131072 for the 397B GGUF on llama.cpp)
+MAXLEN_FLAG=""
+[ -n "$MAXLEN" ] && MAXLEN_FLAG="--max-model-len $MAXLEN"
 
 # Guard: run names + the idempotent skip check are keyed by LABEL only. If an
 # effort is set but not encoded in the label, a later effort would reuse the same
@@ -83,9 +89,9 @@ fi
 # Task family → (task prompt file, input dir or "" for none)
 # Format: "task_short_name|task_file|input_dir"
 TASKS=(
-  "p1_bugfix|task_code_adoption.md|"
-  "p1_testwrite|task_test_writing.md|"
-  "p1_refactor|task_refactoring.md|"
+  "p1_bugfix|task_code_adoption.md|tooling/inputs/code-task-starter"
+  "p1_testwrite|task_test_writing.md|tooling/inputs/code-task-starter"
+  "p1_refactor|task_refactoring.md|tooling/inputs/code-task-starter"
   "p2_extract|task_extraction.md|tooling/inputs/phase2_extraction"
   "p2_ci|task_ci_failure.md|tooling/inputs/phase2_ci_failure"
   "p2_hallucination|task_hallucination.md|tooling/inputs/phase2_hallucination"
@@ -136,6 +142,8 @@ for entry in "${TASKS[@]}"; do
       --temperature 0.3 \
       --stuck-threshold 500 \
       $REASONING_FLAG \
+      $THINKING_FLAG \
+      $MAXLEN_FLAG \
       $INPUT_FLAG \
       --docker-socket \
       --gpus all 2>&1 | tail -3

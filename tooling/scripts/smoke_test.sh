@@ -34,6 +34,12 @@ PREFIX="${3:-smoke}"
 REASONING_EFFORT="${4:-}"   # optional: low|medium|high for models with reasoning levels
 REASONING_FLAG=""
 [ -n "$REASONING_EFFORT" ] && REASONING_FLAG="--reasoning-effort $REASONING_EFFORT"
+THINKING="${5:-}"           # optional: on|off for models with an enable_thinking template var (e.g. Qwen3.5)
+THINKING_FLAG=""
+[ -n "$THINKING" ] && THINKING_FLAG="--thinking $THINKING"
+MAXLEN="${6:-}"             # optional: served context window (e.g. 131072 for the 397B GGUF on llama.cpp)
+MAXLEN_FLAG=""
+[ -n "$MAXLEN" ] && MAXLEN_FLAG="--max-model-len $MAXLEN"
 TOOLING="$(cd "$(dirname "$0")/.." && pwd)"
 REPO_ROOT="$(cd "$TOOLING/.." && pwd)"
 RUN_NAME="${PREFIX}_extract_$(date +%s)"
@@ -72,6 +78,8 @@ python3 "$TOOLING/harness.py" \
   --temperature 0.3 \
   --stuck-threshold 500 \
   $REASONING_FLAG \
+  $THINKING_FLAG \
+  $MAXLEN_FLAG \
   --input-mount "$TOOLING/inputs/phase2_extraction" \
   --docker-socket \
   --gpus all 2>&1 | tail -20
@@ -108,12 +116,17 @@ echo ""
 if [ "$VERDICT" = "PASS" ]; then
   echo "✓ Smoke test PASS — your setup works. You can now run the full microbench:"
   echo ""
-  if [ -n "$REASONING_EFFORT" ]; then
-    # carry the reasoning effort through, and remind that it must be in the label
-    echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT <model-label>-${REASONING_EFFORT} <n> ${REASONING_EFFORT}"
-    echo "    (effort '${REASONING_EFFORT}' must be in the label so multi-effort sweeps don't collide)"
+  if [ -n "$REASONING_EFFORT" ] || [ -n "$THINKING" ] || [ -n "$MAXLEN" ]; then
+    # Carry ALL the model-shape flags through (effort, thinking, max-model-len) so the
+    # bench runs the SAME arm you just smoked — and encode the reasoning mode in the
+    # label so multi-arm sweeps (effort levels / think vs no-think) don't collide.
+    lbl="<model-label>"
+    [ -n "$REASONING_EFFORT" ] && lbl="<model-label>-${REASONING_EFFORT}"
+    [ -n "$THINKING" ] && lbl="<model-label>-$([ "$THINKING" = "on" ] && echo think || echo nothink)"
+    echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT $lbl <n> \"${REASONING_EFFORT}\" \"${THINKING}\" \"${MAXLEN}\""
+    echo "    (reasoning mode is in the label so multi-arm runs don't collide; flags carried from this smoke)"
   else
-    echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT <model-label> [<n>] [<reasoning-effort>]"
+    echo "    bash $TOOLING/scripts/run_microbench.sh $MODEL $PORT <model-label> [<n>]"
   fi
   echo ""
   exit 0

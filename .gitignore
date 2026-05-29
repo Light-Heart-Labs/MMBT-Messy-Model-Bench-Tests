@@ -1,2 +1,8 @@
 # Bytecode in shipped inputs (these get re-generated when the agent runs)
 tooling/inputs/**/__pycache__/
+
+# Transient run artifacts — raw per-run logs and agent workspaces are not published
+tooling/logs/
+tooling/workspace/
+/logs/
+__pycache__/

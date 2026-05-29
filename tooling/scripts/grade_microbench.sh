@@ -88,20 +88,46 @@ for run_dir in "${LOGS_DIR}"/p[1-3]_*_${LABEL}_v*/; do
     continue
   fi
 
-  # Extract workspace
+  # Extract workspace. Phase-1 grading runs pytest/ruff in a root sandbox, which
+  # leaves root-owned .ruff_cache/.pytest_cache here; a plain rm then fails with
+  # "Permission denied" and (under set -e) aborts the whole grade pass. Fall back
+  # to sudo so re-grades are clean.
   workspace="/tmp/grade_${run}"
-  rm -rf "$workspace"
+  rm -rf "$workspace" 2>/dev/null || sudo rm -rf "$workspace"
   mkdir -p "$workspace"
   tar -xzf "$tarball" -C "$workspace"
 
   echo "GRADE $run  (task=$prefix)"
-  if [ -n "$gt" ]; then
-    python3 "$grader" "$workspace" "$gt" --out "${run_dir}/grade.json" 2>&1 | tail -1 || \
-      echo "  (grader failed — see ${run_dir}/grade.json or stderr)"
-  else
-    python3 "$grader" "$workspace" --out "${run_dir}/grade.json" 2>&1 | tail -1 || \
-      echo "  (grader failed — see ${run_dir}/grade.json or stderr)"
-  fi
+  case "$prefix" in
+    p1_bugfix|p1_testwrite|p1_refactor)
+      # Phase-1 codebase tasks: phase1_grade.py wraps code_task_grader.py, which
+      # runs pytest/ruff/cov/bench on workspace vs the logalyzer starter baseline.
+      # Must run INSIDE the sandbox (needs pytest/ruff/bench deps) and needs the
+      # baseline starter. Signature: phase1_grade.py <task> <workspace> <baseline>.
+      task1="${prefix#p1_}"
+      baseline_src="${REPO_ROOT}/tooling/inputs/code-task-starter"
+      if [ ! -d "$baseline_src" ]; then
+        echo "  (phase1 baseline missing: $baseline_src — cannot grade)"; GRADED=$((GRADED+1)); continue
+      fi
+      docker run --rm \
+        -v "${workspace}":/ws \
+        -v "${baseline_src}":/base:ro \
+        -v "${TOOLING}/graders":/g:ro \
+        -v "${run_dir}":/out \
+        --entrypoint python3 bench-sandbox:latest \
+        /g/phase1_grade.py "$task1" /ws /base --out /out/grade.json 2>&1 | tail -1 || \
+        echo "  (phase1 grader failed — see ${run_dir}/grade.json or stderr)"
+      ;;
+    *)
+      if [ -n "$gt" ]; then
+        python3 "$grader" "$workspace" "$gt" --out "${run_dir}/grade.json" 2>&1 | tail -1 || \
+          echo "  (grader failed — see ${run_dir}/grade.json or stderr)"
+      else
+        python3 "$grader" "$workspace" --out "${run_dir}/grade.json" 2>&1 | tail -1 || \
+          echo "  (grader failed — see ${run_dir}/grade.json or stderr)"
+      fi
+      ;;
+  esac
   GRADED=$((GRADED + 1))
 done
 
