@@ -2,8 +2,8 @@
   "$schema_note": "Read this BEFORE drawing conclusions. Machine-readable provenance for the qwen3.5-397b-vs-step3.7-flash-2026-05-29 entry. Companion to README.md / findings.md / QUALITATIVE.md.",
   "bundle_id": "qwen3.5-397b-vs-step3.7-flash-2026-05-29",
   "snapshot_date_utc": "2026-05-29",
-  "kind": "agentic microbench (12 task families) — N=1 provisional, two reasoning arms, + cross-model comparison",
-  "claim_scope": "Quality/behavior of Qwen3.5-397B-A17B (UD-Q3_K_XL GGUF) on llama.cpp through the MMBT 12-family agentic microbench, no-think vs think, on 2x RTX PRO 6000 Blackwell; compared against the Step-3.7-Flash-NVFP4 entry on the same rig. Single rig, ONE replicate per cell (N=1) — directional, not statistically settled. N=3 re-run queued.",
+  "kind": "agentic microbench (12 task families) — N=3, two reasoning arms, + cross-model comparison",
+  "claim_scope": "Quality/behavior of Qwen3.5-397B-A17B (UD-Q3_K_XL GGUF) on llama.cpp through the MMBT 12-family agentic microbench, no-think vs think, on 2x RTX PRO 6000 Blackwell; compared against the Step-3.7-Flash-NVFP4 entry on the same rig. Single rig, three replicates per cell (N=3). Phase-1 cells graded with the fixed phase1_grade.py.",
   "hardware": {
     "host": "Tower2 (ASUS Pro WS WRX90E-SAGE SE, Threadripper PRO 7965WX)",
     "gpus": "2x NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 96 GB each",
@@ -43,20 +43,21 @@
     "max_model_len_flag": "--max-model-len 131072 (matches served -c so request max_tokens math doesn't exceed ctx and 400)",
     "temperature": 0.3,
     "stuck_threshold": 500,
-    "n_per_cell": 1,
+    "n_per_cell": 3,
     "smoke_gate": "PASS (extraction, thinking off): tool-calling proven in harness, all fields correct, done_signal"
   },
   "results": {
-    "397b_no_think_pass": "8/12",
-    "397b_think_pass": "7/12",
+    "397b_no_think_pass": "23/36 (N=3); 8/12 (N=1)",
+    "397b_think_pass": "22/36 (N=3); 7/12 (N=1)",
     "step3p7_flash_pass": {"low": "7/12", "medium": "8/12", "high": "8/12"},
-    "think_vs_nothink": "net -1; only flip p3_doc (PASS->FAIL) = verbosity blew 700-word limit at identical 8/8 fact coverage",
-    "runaways": "none in either 397B arm (all done_signal); Step-3.7-Flash ran away on p3_market at low effort",
+    "think_vs_nothink": "net -1 at both N=1 and N=3, BUT N=3 shows it redistributes (not inert): p3_market +2 (1/3->3/3, stabilizes), p3_pm -2 (2/3->0/3), p3_doc -1 (verbosity vs 700-word limit).",
+    "n3_variance": "no-think single-draw luck exposed at N=3: p3_market N1 PASS->1/3, p3_pm N1 FAIL->2/3, p3_doc N1 PASS->2/3. Zero-variance: p1_bugfix, p2_extract/ci/hallucination/triage, p3_business (3/3); testwrite/refactor/writing (0/3).",
+    "runaways": "none in any 397B cell (all 72 done_signal, incl. p3_market think 3/3); Step-3.7-Flash ran away on p3_market at low effort",
     "known_artifact": "p1_refactor fails on structure (no output/ subpackage). p1_testwrite fails on the 'only /tests/ may differ' rule — NOT incapacity: corrected grading shows think-mode reached 99% coverage / 153 passing tests.",
     "phase1_grader_fix_2026-05-29": "phase1_grade.py read flat keys (coverage_pct/ruff_issues/benchmark_s) vs code_task_grader's nested coverage.line_coverage_pct/ruff.issue_count/benchmark.elapsed_s -> bugfix ruff/bench gates always-true, testwrite coverage gate always-false. Fixed and ALL phase-1 cells regraded; totals unchanged (8/12, 7/12) but now trustworthy."
   },
   "caveats": [
-    "N=1 per cell — directional only; N=3 re-run queued.",
+    "N=3 per cell. Open-ended cells (p3_market/p3_pm/p3_doc) are high-variance — see n3_variance.",
     "Cross-engine (llama.cpp vs vLLM) AND cross-quant (Q3_K_XL vs NVFP4) vs Step-3.7-Flash: 'best-as-each-ships', NOT a clean precision study.",
     "Some graders are binary and can fail high-quality output on format/length (see p3_writing); pair with QUALITATIVE.md."
   ]

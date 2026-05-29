@@ -56,23 +56,23 @@ synergies, opaque valuation) — quality parity on the judgment. The form differ
   metric doesn't just mis-score — it **invents the wrong story about why**. The pass/fail bit (FAIL) was
   right by accident; everything it implied about the model was wrong. (`logs/p1_testwrite_397b-think_v1/grade.json`)
 
-## 4. Does thinking help 397B? No — net −1, and the loss is revealing
-**397B no-think 8/12 vs 397B think 7/12.** Eleven of twelve cells are identical between modes; reasoning
-changed exactly one outcome — and made it *worse*:
+## 4. Does thinking help 397B? Net −1 — and N=3 shows it *redistributes*, not "does nothing"
+**No-think 23/36 vs think 22/36** (N=1 was 8/12 vs 7/12 — net −1 both ways). At **N=1** the loss looked
+like a single verbosity flip (`p3_doc`), and it was tempting to call thinking "inert everywhere else."
+**N=3 refutes that** — thinking moves three cells, in *both* directions:
 
-| flip | no-think | think | cause |
-|---|---|---|---|
-| **p3_doc** | PASS (692w) | **FAIL (721w)** | identical content, verbosity blew the limit |
+| cell | no-think (N=3) | think (N=3) | Δ | what's happening |
+|---|:--:|:--:|:--:|---|
+| **p3_market** | 1/3 | **3/3** | +2 | thinking *stabilizes* the wobbliest cell — coin-flip → lock, zero runaways |
+| **p3_pm** | 2/3 | **0/3** | −2 | thinking *hurts* project-mgmt synthesis (over-deliberation → worse) |
+| **p3_doc** | 2/3 | 1/3 | −1 | the verbosity story: thinking inflates length, trips the 700-word limit |
 
-`p3_doc` think captured **all 8/8 facts** (`fact_coverage 1.0`), same as no-think — but wrote 721 words
-against a 700-word limit (`within_word_limit: False`) where no-think landed at 692. Thinking did not make
-it less accurate; it made it **less disciplined about the length constraint**, amplifying 397B's existing
-over-documentation tendency (§2). It also spent more turns getting there (35 vs 20).
-(`logs/p3_doc_397b-{nothink,think}_v1/grade.json`) — a clean case of why pass/fail alone misleads: the
-think output is arguably equal in substance and failed on form.
-
-Everywhere else thinking was **inert**: same PASS/FAIL, just more tokens and turns. On this suite,
-reasoning bought 397B nothing.
+The N=1 `p3_doc` flip was real but *not the whole story* — one draw of a three-way swing. The verbosity
+mechanism is well-captured: at N=1, think `p3_doc` hit **all 8/8 facts** (`fact_coverage 1.0`, same as
+no-think) but wrote 721 words vs the 700 limit (no-think: 692) — equal substance, failed on form
+(`logs/p3_doc_397b-{nothink,think}_v1/grade.json`). The new lesson from N=3: **reasoning changes *where*
+397B succeeds, not *how often*** — it buys market-research reliability at the cost of pm/doc, netting to
+−1. A single-N read would have missed both the gain and the symmetry.
 
 **Reasoning shape:** 397B thinks in short targeted bursts (`p1_bugfix` think: 16 of 126 turns carry a
 substantial think block, median ~73 reasoning tokens/turn), not long monologues — but uses more turns
