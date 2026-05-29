@@ -290,6 +290,19 @@ claims:
     scope: stepfun-ai/Step-3.7-Flash-NVFP4 on sm_120, vLLM stepfun37 image
     evidence: "hardware-tests/step3.7-flash-nvfp4-dual-blackwell-2026-05-28/findings.md"
 
+  - id: hw.step37.nvfp4-throughput-dual-rtx6000
+    text: >
+      Step-3.7-Flash NVFP4 (native FP4 + FP8 KV, TP=2, CUDA Graphs) on 2× RTX
+      PRO 6000 Blackwell at 600 W sustains ≈99 tok/s single-stream decode
+      (TPOT 10 ms) and scales to ~1.5k tok/s aggregate output at 64-way
+      concurrency (peak 2.1k). CUDA Graphs are 4.7× faster single-stream and
+      1.8× higher batched throughput than --enforce-eager; capture works once
+      --disable-custom-all-reduce is set. vllm bench serve, random dataset,
+      --ignore-eos, single run per cell.
+    status: provisional
+    scope: stepfun-ai/Step-3.7-Flash-NVFP4, vLLM stepfun37 (v0.1.dev16944), 2× RTX PRO 6000 @ 600W
+    evidence: "hardware-tests/step3.7-flash-nvfp4-dual-blackwell-2026-05-28/throughput.md"
+
   # ─── Microbench / model-comparison (benchmarks/microbench-2026-04-28) ───
 
   - id: bench.microbench.27b-vs-coder-next.aggregate-tied

@@ -173,7 +173,6 @@ docker run -d \
   --quantization modelopt \
   --kv-cache-dtype fp8 \
   --max-model-len 262144 \
-  --enforce-eager \
   --moe-backend cutlass \
   --disable-custom-all-reduce \
   --reasoning-parser step3p5 \
@@ -185,7 +184,7 @@ Flags rationale (Tower2's 2× RTX PRO 6000 Blackwell are sm_120 Workstation card
 - `--disable-custom-all-reduce` + `-e NCCL_P2P_DISABLE=1` — vLLM's CUSTOM all-reduce needs GPU P2P these cards lack over PCIe; without this the server deadlocks on the first TP collective.
 - `--moe-backend cutlass` — forces **native FP4** on the MoE experts (default `auto` falls back to Marlin dequant). Step-3.7's `SWIGLUSTEP` activation is only supported by the `VLLM_CUTLASS` and `MARLIN` FP4 kernels, not the FlashInfer ones — so `cutlass` is the only native-FP4 option for this model.
 - no `--enable-expert-parallel` — the `VLLM_CUTLASS` FP4 MoE rejects EP; experts shard via TP.
-- `--enforce-eager` — cudagraph capture hit the same all-reduce deadlock; eager is the known-good config. May be liftable now that custom all-reduce is disabled (untested).
+- CUDA Graphs ON (no `--enforce-eager`) — capture works once `--disable-custom-all-reduce` is set, and is ~4.7× faster single-stream than eager (single-stream ≈ 99 tok/s; see the hardware-tests entry's `throughput.md`). `--enforce-eager` is only a fallback if a future image regresses capture.
 - Reasoning level (low/medium/high) is set per-request by the harness via `--reasoning-effort` (chat_template_kwargs), not at launch.
 
 ## Inference-request defaults (set by harness, not at launch)

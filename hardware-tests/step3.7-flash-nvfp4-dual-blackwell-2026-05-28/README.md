@@ -15,13 +15,15 @@ docker run -d --name vllm-step3p7 --gpus all --shm-size 16g \
   --host 0.0.0.0 --port 8000 \
   --tensor-parallel-size 2 --gpu-memory-utilization 0.92 \
   --trust-remote-code --quantization modelopt --kv-cache-dtype fp8 \
-  --max-model-len 262144 --enforce-eager \
+  --max-model-len 262144 \
   --moe-backend cutlass \
   --disable-custom-all-reduce \
   --reasoning-parser step3p5 --enable-auto-tool-choice --tool-call-parser step3p5
 ```
 
-Verified: loads (58.6 GiB weights/GPU), KV cache 2.06M tokens (FP8, 7.88× concurrency at 262k ctx), serves, and passes the MMBT structured-extraction smoke test at **20/20 fields, accuracy 1.0**. Logs confirm `Using 'VLLM_CUTLASS' NvFp4 MoE backend` with **no Marlin warning** — i.e. the experts run on native FP4.
+Verified: loads (58.6 GiB weights/GPU), KV cache 2.06M tokens (FP8, 7.88× concurrency at 262k ctx), CUDA Graphs capture cleanly (ready in ~115 s), serves, and passes the MMBT structured-extraction smoke test at **20/20 fields, accuracy 1.0**. Logs confirm `Using 'VLLM_CUTLASS' NvFp4 MoE backend` with **no Marlin warning** — i.e. the experts run on native FP4.
+
+**Throughput** (cudagraph, FP8 KV, 600 W — full table in [`throughput.md`](throughput.md)): single-stream decode **≈ 99 tok/s**, scaling to **~1.5k tok/s aggregate output at 64-way concurrency** (peak 2.1k). For a 201B-param / ~11B-active MoE at 4-bit on two PCIe workstation GPUs, that's a healthy rate.
 
 ## The four non-obvious flags (and why each is required)
 
@@ -35,9 +37,9 @@ Everything below diverges from StepFun's reference command. See [`findings.md`](
 
 4. **`--max-model-len 262144` (native), not a smaller value.** Unrelated to the model — this is an MMBT-harness detail: the harness computes its `max_tokens` budget assuming the Qwen-family native 262144 context. Serving at a smaller `--max-model-len` (e.g. 65536) produces `max_tokens=180000 > max_model_len` 400 errors. Serve at native 262144; the KV pool size is set by free VRAM, not context length, so it still fits (7.88× concurrency) and is irrelevant to single-stream agentic runs.
 
-## Known caveat — `--enforce-eager`
+## Note — CUDA Graphs (the `--enforce-eager` caveat is resolved)
 
-CUDA-graph capture was an early casualty of the same custom-all-reduce hang (#1), so this config disables it with `--enforce-eager`. That costs decode throughput. Because the root cause is now understood (custom all-reduce, not capture itself), cudagraphs **may** capture cleanly with `--disable-custom-all-reduce` in place — untested as of this writing. **Throughput/latency numbers taken under this config are eager-mode and should not be read as this model's native-FP4 ceiling.** A cudagraph retry is the obvious next experiment.
+CUDA-graph capture was an early casualty of the same custom-all-reduce hang (#1), so an interim version of this config used `--enforce-eager`. **That is no longer needed:** with `--disable-custom-all-reduce` in place, capture completes cleanly (server ready ~115 s) and is 4.7× faster single-stream / 1.8× higher batched throughput than eager. The recommended command above runs with CUDA Graphs on, and the [`throughput.md`](throughput.md) numbers are representative. Keep `--enforce-eager` only as a fallback if a future image regresses capture.
 
 ## Environment
 
@@ -53,7 +55,8 @@ CUDA-graph capture was an early casualty of the same custom-all-reduce hang (#1)
 ## Read order
 
 1. **`findings.md`** — the full diagnostic trail: each hang, how it was diagnosed (`nvidia-smi topo`, live `cutlass_scaled_mm_supports_fp4`/`has_flashinfer_*` probes, the `select_nvfp4_moe_backend` oracle, the SWIGLUSTEP activation-support grep), and how the flag was found.
-2. **This README** — the working command + the four flags.
+2. **`throughput.md`** — quick `vllm bench serve` tok/s readings (cudagraph vs eager, concurrency 1→64).
+3. **This README** — the working command + the four flags.
 
 ## Companion
 

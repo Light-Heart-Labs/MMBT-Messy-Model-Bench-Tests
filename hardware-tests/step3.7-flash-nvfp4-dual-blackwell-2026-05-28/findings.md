@@ -84,6 +84,6 @@ configuration since kernel does not support parallel config ... ep_size=2, use_e
 - All-reduce backend `['PYNCCL']` (not `['CUSTOM', 'PYNCCL']`).
 - MMBT smoke (structured extraction, reasoning=medium): verdict PASS, field_accuracy 1.0 (20/20), clean `done_signal`.
 
-## Open question / next experiment
+## Resolved — CUDA Graphs work (no `--enforce-eager` needed)
 
-`--enforce-eager` is still set (see README caveat). The cudagraph-capture hang was Problem 1 in disguise; with `--disable-custom-all-reduce` now in place, capture may succeed. Untested. Until a cudagraph run is confirmed, treat throughput/latency from this config as eager-mode (a floor, not the native-FP4 ceiling). This is why the companion microbench entry reports its throughput numbers as eager-qualified.
+The cudagraph-capture hang was Problem 1 in disguise. Relaunching **without** `--enforce-eager` (and with `--disable-custom-all-reduce` in place) captures cleanly — server ready in ~115 s — and is **4.7× faster single-stream** (TPOT 47 → 10 ms, ≈ 21 → 99 tok/s) and **1.8× higher batched throughput** (2,674 → 4,861 tok/s at conc=32) than eager. See [`throughput.md`](throughput.md). The recommended command runs with CUDA Graphs on; `--enforce-eager` is kept only as a fallback if a future image regresses capture.
