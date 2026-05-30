@@ -2,8 +2,8 @@
   "$schema_note": "Read this BEFORE drawing conclusions. Machine-readable provenance for the qwen3.5-397b-vs-step3.7-flash-2026-05-29 entry. Companion to README.md / findings.md / QUALITATIVE.md.",
   "bundle_id": "qwen3.5-397b-vs-step3.7-flash-2026-05-29",
   "snapshot_date_utc": "2026-05-29",
-  "kind": "agentic microbench (12 task families) — N=3, two reasoning arms, + cross-model comparison",
-  "claim_scope": "Quality/behavior of Qwen3.5-397B-A17B (UD-Q3_K_XL GGUF) on llama.cpp through the MMBT 12-family agentic microbench, no-think vs think, on 2x RTX PRO 6000 Blackwell; compared against the Step-3.7-Flash-NVFP4 entry on the same rig. Single rig, three replicates per cell (N=3). Phase-1 cells graded with the fixed phase1_grade.py.",
+  "kind": "agentic microbench (12 task families) — N=10, two reasoning arms, + cross-model comparison + GPU power",
+  "claim_scope": "Quality/behavior of Qwen3.5-397B-A17B (UD-Q3_K_XL GGUF) on llama.cpp through the MMBT 12-family agentic microbench, no-think vs think, on 2x RTX PRO 6000 Blackwell; compared against Step-3.7-Flash-NVFP4 (same rig) and Qwen3.6-27B / Qwen3-Coder-Next at Q4/AWQ (microbench-2026-04-28). Single rig, ten replicates per cell (N=10) for 397B. Phase-1 cells graded with the fixed phase1_grade.py. Includes dual-GPU power telemetry.",
   "hardware": {
     "host": "Tower2 (ASUS Pro WS WRX90E-SAGE SE, Threadripper PRO 7965WX)",
     "gpus": "2x NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 96 GB each",
@@ -43,21 +43,23 @@
     "max_model_len_flag": "--max-model-len 131072 (matches served -c so request max_tokens math doesn't exceed ctx and 400)",
     "temperature": 0.3,
     "stuck_threshold": 500,
-    "n_per_cell": 3,
+    "n_per_cell": 10,
     "smoke_gate": "PASS (extraction, thinking off): tool-calling proven in harness, all fields correct, done_signal"
   },
   "results": {
-    "397b_no_think_pass": "23/36 (N=3); 8/12 (N=1)",
-    "397b_think_pass": "22/36 (N=3); 7/12 (N=1)",
+    "397b_no_think_pass": "82/120 (N=10); 23/36 (N=3); 8/12 (N=1)",
+    "397b_think_pass": "72/120 (N=10); 22/36 (N=3); 7/12 (N=1)",
     "step3p7_flash_pass": {"low": "7/12", "medium": "8/12", "high": "8/12"},
-    "think_vs_nothink": "net -1 at both N=1 and N=3, BUT N=3 shows it redistributes (not inert): p3_market +2 (1/3->3/3, stabilizes), p3_pm -2 (2/3->0/3), p3_doc -1 (verbosity vs 700-word limit).",
-    "n3_variance": "no-think single-draw luck exposed at N=3: p3_market N1 PASS->1/3, p3_pm N1 FAIL->2/3, p3_doc N1 PASS->2/3. Zero-variance: p1_bugfix, p2_extract/ci/hallucination/triage, p3_business (3/3); testwrite/refactor/writing (0/3).",
-    "runaways": "zero max_tokens/length runaways across all 72 cells (Step-3.7-Flash ran away on p3_market at low effort). 69/72 done_signal; the 3 non-clean exits were all no-think: p3_market v2/v3 hit the 500-iter stuck threshold, p3_pm v1 model_stopped. Pathology is stalling, not runaway; think arm 36/36 done_signal and think p3_market 3/3 (thinking clears the stall).",
+    "think_vs_nothink": "net -10 at N=10 (82->72), decisively negative via concentrated redistribution: thinking helps p3_market (8/10->10/10) but craters p3_doc (9/10->2/10, verbosity vs 700-word limit) and p3_pm (5/10->0/10, over-deliberation). All other tasks identical.",
+    "n_variance": "N=10 overturns small-N luck: p3_market no-think is a majority-verdict FLIP 1/3 (N=3) -> 8/10 (N=10) (auto-flagged in findings-n10.md). p3_pm no-think coin-flip 5/10; p3_doc 9/10. Zero-variance (10/10 or 0/10): p1_bugfix, p2_extract/ci/hallucination/triage, p3_business; testwrite/refactor/writing.",
+    "power": "3868+ paired samples: GPU0 mean ~300W/max 539W (90% of 600 cap), GPU1 ~275W/max 475W; combined median 670W (56% of 1200 cap), max 985W (82%), 0 samples within 5% of full; GPU0 leads GPU1 (+27W) = pipeline -sm layer alternation; decode 339W vs CPU-tool 125W/GPU. Never full on both.",
+    "cross_model": "Aggregate ties 7-8/12 across 397B / Step-3.7-Flash / Qwen3.6-27B-Q4 / Coder-Next-Q4 (~15x param range). 27B/Coder use Q4/AWQ refs (microbench-2026-04-28, N=1, clean); fresh Q8/FP8 EXCLUDED as serving failures (35B 36/36 HTTP-400, 27B-Q8 23/36 runaway). Failure temperament tracks lineage not size: 397B+27B stall, Coder+Flash run away.",
+    "runaways": "zero max_tokens/length runaways across all 240 N=10 cells (Step-3.7-Flash ran away on p3_market at low effort; 27B-Q8 ran away 23/36). 397B pathology is stalling (stuck-loop / model_stopped), not runaway; thinking clears the no-think market stall. Failure temperament tracks training lineage not size.",
     "known_artifact": "p1_refactor fails on structure (no output/ subpackage). p1_testwrite fails on the 'only /tests/ may differ' rule — NOT incapacity: corrected grading shows think-mode reached 99% coverage / 153 passing tests.",
     "phase1_grader_fix_2026-05-29": "phase1_grade.py read flat keys (coverage_pct/ruff_issues/benchmark_s) vs code_task_grader's nested coverage.line_coverage_pct/ruff.issue_count/benchmark.elapsed_s -> bugfix ruff/bench gates always-true, testwrite coverage gate always-false. Fixed and ALL phase-1 cells regraded; totals unchanged (8/12, 7/12) but now trustworthy."
   },
   "caveats": [
-    "N=3 per cell. Open-ended cells (p3_market/p3_pm/p3_doc) are high-variance — see n3_variance.",
+    "N=10 per cell for 397B (Step N=1/level; 27B/Coder Q4 N=1). Open-ended cells p3_market/p3_pm/p3_doc are high-variance — see n_variance.",
     "Cross-engine (llama.cpp vs vLLM) AND cross-quant (Q3_K_XL vs NVFP4) vs Step-3.7-Flash: 'best-as-each-ships', NOT a clean precision study.",
     "Some graders are binary and can fail high-quality output on format/length (see p3_writing); pair with QUALITATIVE.md."
   ]
