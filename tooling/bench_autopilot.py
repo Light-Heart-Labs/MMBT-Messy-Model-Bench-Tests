@@ -1,24 +1,30 @@
 #!/usr/bin/env python3
-"""bench_autopilot_enriched — self-healing supervisor for the MMBT microbench (enriched).
+"""bench_autopilot_v2 — multi-model self-healing supervisor for the MMBT microbench.
 
-Enriched fork of bench_autopilot.py. Preserves ALL original behavior, CLI flags,
-and status.json keys (additive-only), and layers on:
+Superset of bench_autopilot.py. Preserves ALL original behavior, CLI flags, and
+status.json keys (additive-only). Layers on three additions:
 
-  1) Pushover notifications  — per-arm completion, endpoint restart, run done/incomplete.
-  2) Per-cell timing + tok/s  — parse each cell's summary.json/transcript for wall_s +
-     completion_tokens; record per-arm median cell wall + median tok/s into status.json.
-  3) Richer status.json       — adds eta_secs, recent_cells, fails, started_at, elapsed_secs.
-  4) Resume-safety            — per-loop heartbeat ts; abort on start if a previous
-     autopilot heartbeat is fresh (<120s) to prevent double-drive.
-  5) --once flag              — single status write + exit (for external monitors).
+  A) MODEL PRESETS (--preset NAME)
+     A PRESETS dict selecting model/container/gguf/ctx/arms so the SAME tool can
+     bench other models. "397b" reproduces DEFAULT_CONFIG exactly. Stub presets
+     "step3p7" (vLLM — NotImplemented note, not llama.cpp) and "qwen3.6-27b".
+     --preset composes with --target-n and --config (config still wins, additive).
 
-The live run uses bench_autopilot.py; this file is a NEW filename so it can be
-swapped in for the next run without disturbing the current one. status.json schema
-is backward-compatible: only new keys/flags are added.
+  B) --publish
+     On a COMPLETE run, generate a findings scorecard markdown (per-task pass/N
+     for both arms + totals + deltas vs the N=10 no-think baseline) to
+     /tmp/bench-autopilot/scorecard.md and `git add`+commit it to a branch named
+     bench-results-<date-from-status> in ~/bench (NOT pushed). Idempotent; never
+     crashes the run if git fails.
 
-Usage:
-  python3 bench_autopilot_enriched.py --target-n 20 [--config bench_autopilot.config.json]
-  python3 bench_autopilot_enriched.py --once          # write status snapshot + exit
+  C) ANOMALY ALERTS
+     A Pushover priority-1 alert fires if >=3 consecutive freshly-graded cells
+     verdict GRADER_FAILED / MISSING_OUTPUT — signalling a harness/grader break
+     (distinct from model-quality fails).
+
+This is a NEW filename so it can be swapped in for the next run without disturbing
+a live one. The status.json schema is backward-compatible: only new keys/flags are
+added. The original --target-n / --config / --max-passes / --once all behave as before.
 """
 from __future__ import annotations
 import argparse, json, os, signal, statistics, subprocess, sys, time
@@ -33,14 +39,30 @@ STATE_DIR = Path("/tmp/bench-autopilot")
 STATE_DIR.mkdir(parents=True, exist_ok=True)
 STATUS = STATE_DIR / "status.json"
 LOG = STATE_DIR / "autopilot.log"
-HEARTBEAT = STATE_DIR / "heartbeat.json"        # enrichment 4: resume-safety
+HEARTBEAT = STATE_DIR / "heartbeat.json"
+SCORECARD = STATE_DIR / "scorecard.md"           # addition B
 NOTIFY_SH = HOME / "dream-fleet-test" / "lib" / "notify.sh"
 
-HEARTBEAT_FRESH_SECS = 120                       # abort if prior heartbeat newer than this
+HEARTBEAT_FRESH_SECS = 120
 
 TASKS = ["p1_bugfix","p1_testwrite","p1_refactor","p2_extract","p2_ci",
          "p2_hallucination","p2_triage","p3_doc","p3_business","p3_market",
          "p3_writing","p3_pm"]
+
+# N=10 no-think per-task pass baseline (sums to 82/120) — the published Phase-A
+# numbers, reused from the dashboard for the --publish scorecard deltas.
+BASELINE_N10_NOTHINK = {
+    "p1_bugfix": 10, "p1_testwrite": 0, "p1_refactor": 0,
+    "p2_extract": 10, "p2_ci": 10, "p2_hallucination": 10, "p2_triage": 10,
+    "p3_doc": 9, "p3_business": 10, "p3_market": 8, "p3_writing": 0, "p3_pm": 5,
+}
+BASELINE_N10_TOTAL_PASS = 82
+BASELINE_N10_TOTAL_CELLS = 120
+BASELINE_ARM_HINT = "nothink"
+
+# addition C: verdicts that indicate a harness/grader break (not model quality).
+HARNESS_BREAK_VERDICTS = ("GRADER_FAILED", "MISSING_OUTPUT")
+ANOMALY_RUN_THRESHOLD = 3
 
 DEFAULT_CONFIG = {
     "model": "qwen3.5-397b-a17b",
@@ -57,6 +79,64 @@ DEFAULT_CONFIG = {
 }
 
 
+# --- addition A: model presets ----------------------------------------------
+# Each preset is a full config dict (same schema as DEFAULT_CONFIG). --preset
+# selects one as the base; --config (if given) is still applied on top (additive
+# override), so existing config-file workflows keep working. The "397b" preset is
+# a byte-for-byte copy of DEFAULT_CONFIG so `--preset 397b` == legacy default.
+#
+# A preset may carry an "engine" key ("llamacpp" default, or "vllm"); engines
+# other than llama.cpp are not yet wired into ensure_endpoint() — they raise a
+# clear NotImplementedError rather than silently launching a wrong container.
+PRESETS = {
+    # Reproduces DEFAULT_CONFIG exactly (the current live 397b run config).
+    "397b": dict(DEFAULT_CONFIG),
+
+    # Stub: Stepfun Step-3.7 served by vLLM. vLLM's launch/probe differ from the
+    # llama.cpp container (no -ngl/-sm/-fa flags, OpenAI server is native, GGUF →
+    # HF weights dir). ensure_endpoint() refuses to launch this until a vLLM path
+    # is implemented. Filled in here so the preset is discoverable + documented.
+    "step3p7": {
+        "engine": "vllm",
+        "model": "step3p7",
+        "port": 8002,
+        "max_model_len": 65536,
+        "ctx_size": 65536,
+        "gguf": None,                      # vLLM loads an HF weights dir, not a GGUF
+        "weights": "/models/stepfun-step3p7",   # placeholder weights path
+        "container": "vllm-step3p7",
+        "image": "vllm/vllm-openai:latest",     # placeholder image
+        "arms": [{"label": "step3p7-nothink", "thinking": "off"},
+                 {"label": "step3p7-think",   "thinking": "on"}],
+        "stuck_secs": 1200,
+        "endpoint_grace_secs": 600,        # vLLM cold-load is slower
+        "_notimplemented": (
+            "step3p7 is a vLLM model: launch + health-probe + arm flags differ "
+            "from the llama.cpp container path in ensure_endpoint(). Wire a vLLM "
+            "launcher (vllm serve / OpenAI server, --max-model-len, weights dir) "
+            "before running this preset."),
+    },
+
+    # Stub: dense Qwen3.6-27B via the same llama.cpp container path as 397b — this
+    # one IS runnable once its gguf path is confirmed on disk. Smaller ctx, single
+    # arm-pair, its own container/port so it won't collide with a live 397b run.
+    "qwen3.6-27b": {
+        "engine": "llamacpp",
+        "model": "qwen3.6-27b",
+        "port": 8003,
+        "max_model_len": 65536,
+        "ctx_size": 65536,
+        "gguf": "/models/Qwen3.6-27B-GGUF/Qwen3.6-27B-UD-Q4_K_XL.gguf",  # confirm on disk
+        "container": "llama-qwen36-27b",
+        "image": "ghcr.io/ggml-org/llama.cpp:server-cuda-b9014",
+        "arms": [{"label": "qwen36-27b-nothink", "thinking": "off"},
+                 {"label": "qwen36-27b-think",   "thinking": "on"}],
+        "stuck_secs": 1200,
+        "endpoint_grace_secs": 240,
+    },
+}
+
+
 def log(msg: str):
     line = f"{time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())} {msg}"
     print(line, flush=True)
@@ -68,7 +148,7 @@ def sh(cmd, **kw):
     return subprocess.run(cmd, shell=isinstance(cmd, str), capture_output=True, text=True, **kw)
 
 
-# --- enrichment 1: pushover -------------------------------------------------
+# --- pushover ---------------------------------------------------------------
 def notify(title: str, msg: str, priority: int = 0):
     """Best-effort Pushover via the fleet notify.sh helper. Never raises."""
     try:
@@ -81,7 +161,7 @@ def notify(title: str, msg: str, priority: int = 0):
         log(f"notify failed (non-fatal): {e}")
 
 
-# --- enrichment 4: heartbeat / resume-safety --------------------------------
+# --- heartbeat / resume-safety ----------------------------------------------
 def write_heartbeat():
     try:
         HEARTBEAT.write_text(json.dumps({
@@ -119,11 +199,19 @@ def container_running(name: str) -> bool:
 
 
 def ensure_endpoint(cfg: dict) -> bool:
+    # addition A: engines other than llama.cpp are not wired up; refuse loudly.
+    engine = cfg.get("engine", "llamacpp")
+    if engine != "llamacpp":
+        note = cfg.get("_notimplemented", f"engine '{engine}' has no launcher")
+        log(f"ERROR: ensure_endpoint not implemented for engine '{engine}': {note}")
+        notify("bench: preset not runnable", note, 1)
+        raise NotImplementedError(note)
+
     port, name = cfg["port"], cfg["container"]
     if endpoint_up(port):
         return True
     log(f"endpoint down — (re)launching {name}")
-    notify("bench: endpoint restart", f"{name} down — relaunching on port {port}", 0)  # enrichment 1
+    notify("bench: endpoint restart", f"{name} down — relaunching on port {port}", 0)
     sh(["docker", "rm", "-f", name])
     sh(["docker", "run", "-d", "--name", name, "--gpus", "all", "--shm-size", "16g",
         "-v", f"{HOME}/models:/models:ro", "-p", f"127.0.0.1:{port}:8000",
@@ -138,11 +226,11 @@ def ensure_endpoint(cfg: dict) -> bool:
         if not container_running(name):
             log("ERROR: endpoint container died during load");
             log((sh(["docker","logs","--tail","15",name]).stdout or "")[-800:])
-            notify("bench: endpoint FAILED", f"{name} died during model load", 1)  # enrichment 1
+            notify("bench: endpoint FAILED", f"{name} died during model load", 1)
             return False
         time.sleep(5)
     log("ERROR: endpoint did not come up within grace period")
-    notify("bench: endpoint FAILED", f"{name} did not load within grace period", 1)  # enrichment 1
+    notify("bench: endpoint FAILED", f"{name} did not load within grace period", 1)
     return False
 
 
@@ -162,12 +250,9 @@ def cell_verdict(run_name: str):
         return "BAD_GRADE"
 
 
-# --- enrichment 2: per-cell timing + tok/s ----------------------------------
+# --- per-cell timing + tok/s ------------------------------------------------
 def cell_metrics(run_name: str):
-    """Return (wall_s, tok_ps) for a completed cell, from summary.json (transcript fallback).
-
-    tok/s = total_completion_tokens / elapsed_s. Returns (None, None) if unavailable.
-    """
+    """Return (wall_s, tok_ps) for a completed cell, from summary.json (transcript fallback)."""
     d = LOGS / run_name
     wall = toks = None
     sp = d / "summary.json"
@@ -178,7 +263,6 @@ def cell_metrics(run_name: str):
             toks = s.get("total_completion_tokens")
         except Exception:
             pass
-    # transcript fallback: sum per-iter completion_tokens, last t - first t for wall
     if (wall is None or toks is None) and (d / "transcript.jsonl").exists():
         try:
             rows = [json.loads(l) for l in (d / "transcript.jsonl").read_text().splitlines() if l.strip()]
@@ -197,10 +281,7 @@ def cell_metrics(run_name: str):
 
 
 def arm_progress(label: str, target: int):
-    """Return (done, total, per_task_counts, metrics) for an arm up to target N.
-
-    metrics (enrichment 2): {'wall_median', 'tok_ps_median', 'n_timed'} for done cells.
-    """
+    """Return (done, total, per_task_counts, metrics) for an arm up to target N."""
     total = len(TASKS) * target
     done = 0
     pertask = {}
@@ -229,9 +310,28 @@ def arm_progress(label: str, target: int):
     return done, total, pertask, metrics
 
 
-def newest_transcript():
+def _arm_label_glob(cfg):
+    """A glob fragment matching any arm label of the active preset.
+
+    The original code hard-coded 'p*_397b-*_v*'. To stay general across presets we
+    derive a shared prefix from the configured arm labels; for 397b this resolves
+    to the same '397b-' fragment, so behavior is unchanged for the live run.
+    """
+    labels = [a["label"] for a in cfg["arms"]]
+    if not labels:
+        return "397b-"
+    # longest common prefix of the arm labels (e.g. "397b-", "qwen36-27b-")
+    s1, s2 = min(labels), max(labels)
+    i = 0
+    while i < len(s1) and i < len(s2) and s1[i] == s2[i]:
+        i += 1
+    return s1[:i] or labels[0]
+
+
+def newest_transcript(cfg=None):
+    arm_frag = _arm_label_glob(cfg) if cfg else "397b-"
     best = None; best_mt = 0
-    for d in LOGS.glob("p*_397b-*_v*"):
+    for d in LOGS.glob(f"p*_{arm_frag}*_v*"):
         tp = d / "transcript.jsonl"
         if tp.exists():
             mt = tp.stat().st_mtime
@@ -240,8 +340,8 @@ def newest_transcript():
     return best, best_mt
 
 
-def current_cell_info():
-    tp, mt = newest_transcript()
+def current_cell_info(cfg=None):
+    tp, mt = newest_transcript(cfg)
     if not tp:
         return {"cell": None, "iter": None, "frozen_secs": None}
     it = None
@@ -269,10 +369,11 @@ def kill_stuck(cell: str):
     sh(["docker", "rm", "-f", f"bench-sandbox-{cell}"])
 
 
-# --- enrichment 3: recent cells + fails -------------------------------------
-def recent_cells_and_fails(limit: int = 8):
+# --- recent cells + fails ---------------------------------------------------
+def recent_cells_and_fails(cfg=None, limit: int = 8):
     """Last ~`limit` completed cells (by summary mtime) with wall+verdict, plus all failed run_names."""
-    sums = sorted(LOGS.glob("p*_397b-*_v*/summary.json"), key=lambda p: p.stat().st_mtime)
+    arm_frag = _arm_label_glob(cfg) if cfg else "397b-"
+    sums = sorted(LOGS.glob(f"p*_{arm_frag}*_v*/summary.json"), key=lambda p: p.stat().st_mtime)
     recent = []
     for sp in sums[-limit:]:
         rn = sp.parent.name
@@ -284,7 +385,7 @@ def recent_cells_and_fails(limit: int = 8):
             "tok_ps": tp,
             "finished": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(sp.stat().st_mtime)),
         })
-    recent.reverse()  # newest first
+    recent.reverse()
     fails = []
     for sp in sums:
         rn = sp.parent.name
@@ -292,6 +393,51 @@ def recent_cells_and_fails(limit: int = 8):
         if v is not None and v not in ("PASS", "STRUCTURAL_PASS"):
             fails.append(rn)
     return recent, fails
+
+
+# --- addition C: harness-break anomaly detection ----------------------------
+def check_harness_anomaly(cfg):
+    """Pushover priority-1 if the >=3 most-recently-graded cells are all harness
+    breaks (GRADER_FAILED/MISSING_OUTPUT). Idempotent within a run: we only alert
+    when the trailing streak first crosses the threshold, tracked in a state file.
+    """
+    try:
+        arm_frag = _arm_label_glob(cfg)
+        sums = sorted(LOGS.glob(f"p*_{arm_frag}*_v*/summary.json"),
+                      key=lambda p: p.stat().st_mtime)
+        # trailing streak of harness-break verdicts among graded cells (newest first)
+        streak = []
+        for sp in reversed(sums):
+            v = cell_verdict(sp.parent.name)
+            if v is None:
+                continue  # not graded yet; skip, keep scanning older graded cells
+            if v in HARNESS_BREAK_VERDICTS:
+                streak.append(sp.parent.name)
+            else:
+                break
+        streak_n = len(streak)
+        state_f = STATE_DIR / "anomaly_state.json"
+        try:
+            prev = json.loads(state_f.read_text()).get("alerted_streak", 0)
+        except Exception:
+            prev = 0
+        if streak_n >= ANOMALY_RUN_THRESHOLD and streak_n != prev:
+            cells = ", ".join(streak[:5])
+            notify("bench: HARNESS ANOMALY",
+                   f"{streak_n} consecutive grader breaks ({'/'.join(HARNESS_BREAK_VERDICTS)}): "
+                   f"{cells} — likely a grader/harness fault, not model quality.", 1)
+            log(f"ANOMALY: {streak_n} consecutive harness-break cells: {cells}")
+        # remember the current streak so we don't re-alert on the same streak,
+        # but DO alert again if it grows (e.g. 3 -> 4 -> 5).
+        try:
+            state_f.write_text(json.dumps({"alerted_streak": streak_n,
+                                           "cells": streak[:10]}))
+        except Exception:
+            pass
+        return streak_n
+    except Exception as e:
+        log(f"anomaly check failed (non-fatal): {e}")
+        return 0
 
 
 def write_status(cfg, target, phase, arms_done, started_at=None):
@@ -304,14 +450,13 @@ def write_status(cfg, target, phase, arms_done, started_at=None):
         if metrics["wall_median"] is not None:
             all_walls.append(metrics["wall_median"])
         arms.append({"label": a["label"], "done": done, "total": total,
-                     "pertask": pertask, "metrics": metrics})  # metrics: enrichment 2
-    cur = current_cell_info()
-    # enrichment 3: eta_secs from median cell wall * remaining cells
+                     "pertask": pertask, "metrics": metrics})
+    cur = current_cell_info(cfg)
     rem = grand_total - grand_done
     eta_secs = None
     if all_walls and rem > 0:
         eta_secs = int(statistics.median(all_walls) * rem)
-    recent, fails = recent_cells_and_fails()
+    recent, fails = recent_cells_and_fails(cfg)
     now = time.time()
     status = {
         # ---- original keys (unchanged) ----
@@ -322,21 +467,164 @@ def write_status(cfg, target, phase, arms_done, started_at=None):
         "grand_done": grand_done, "grand_total": grand_total,
         "pct": round(100 * grand_done / grand_total, 1) if grand_total else 0,
         "current": cur, "arms": arms, "arms_done": arms_done, "tasks": TASKS,
-        # ---- additive enrichments ----
-        "eta_secs": eta_secs,                                  # enrichment 3
-        "recent_cells": recent,                                # enrichment 3
-        "fails": fails,                                        # enrichment 3
-        "started_at": started_at,                              # enrichment 3
+        "eta_secs": eta_secs,
+        "recent_cells": recent,
+        "fails": fails,
+        "started_at": started_at,
         "elapsed_secs": int(now - started_at) if isinstance(started_at, (int, float)) else None,
+        # ---- v2 additive keys ----
+        "preset": cfg.get("preset"),       # addition A: which preset is driving
+        "model": cfg.get("model"),
+        "engine": cfg.get("engine", "llamacpp"),
     }
     STATUS.write_text(json.dumps(status, indent=2))
     return status
 
 
+# --- addition B: findings scorecard + git commit ----------------------------
+def _date_from_status():
+    """Date string for the results branch — taken from status.json 'updated'
+    (YYYY-MM-DD), falling back to today's UTC date."""
+    try:
+        upd = json.loads(STATUS.read_text()).get("updated", "")
+        if upd and len(upd) >= 10:
+            return upd[:10]
+    except Exception:
+        pass
+    return time.strftime("%Y-%m-%d", time.gmtime())
+
+
+def build_scorecard(cfg, target, final_status):
+    """Render a findings scorecard markdown: per-task pass/N for both arms, totals,
+    and deltas vs the N=10 no-think baseline. Returns the markdown string."""
+    lines = []
+    model = cfg.get("model", "?")
+    preset = cfg.get("preset", "?")
+    date = _date_from_status()
+    lines.append(f"# MMBT findings scorecard — {model}")
+    lines.append("")
+    lines.append(f"- Preset: `{preset}`  ·  Engine: `{cfg.get('engine','llamacpp')}`  ·  N={target}")
+    lines.append(f"- Generated: {final_status.get('updated','?')}  ·  Phase: {final_status.get('phase','?')}")
+    lines.append(f"- Cells: {final_status.get('grand_done','?')}/{final_status.get('grand_total','?')}")
+    lines.append("")
+
+    # per-arm pertask, indexed by label for the table
+    arm_pt = {}
+    arm_meta = {}
+    for a in final_status.get("arms", []):
+        arm_pt[a["label"]] = a.get("pertask", {}) or {}
+        arm_meta[a["label"]] = a.get("metrics", {}) or {}
+    arm_labels = [a["label"] for a in cfg["arms"]]
+
+    # main grid: task | <arm> pass/N | ... | baseline-delta (nothink arm only)
+    header = "| task | " + " | ".join(arm_labels) + " | Δ vs N=10 (nothink) |"
+    sep = "|" + "---|" * (2 + len(arm_labels))
+    lines.append(header)
+    lines.append(sep)
+    arm_totals = {lbl: [0, 0] for lbl in arm_labels}   # [pass, done]
+    for t in TASKS:
+        cells = [f"`{t}`"]
+        for lbl in arm_labels:
+            pt = arm_pt.get(lbl, {}).get(t, {})
+            p = pt.get("pass", 0); d = pt.get("done", 0)
+            arm_totals[lbl][0] += p; arm_totals[lbl][1] += d
+            cells.append(f"{p}/{d}")
+        # baseline delta uses the nothink arm if present
+        nothink = next((l for l in arm_labels if BASELINE_ARM_HINT in l), None)
+        dcell = ""
+        if nothink is not None:
+            pt = arm_pt.get(nothink, {}).get(t, {})
+            base = BASELINE_N10_NOTHINK.get(t)
+            if base is not None and isinstance(pt.get("pass"), int):
+                dcell = f"{pt['pass'] - base:+d} (base {base}/10)"
+        cells.append(dcell)
+        lines.append("| " + " | ".join(cells) + " |")
+
+    # totals row
+    trow = ["**TOTAL**"]
+    for lbl in arm_labels:
+        p, d = arm_totals[lbl]
+        trow.append(f"**{p}/{d}**")
+    nothink = next((l for l in arm_labels if BASELINE_ARM_HINT in l), None)
+    if nothink is not None:
+        p = arm_totals[nothink][0]
+        trow.append(f"**{p - BASELINE_N10_TOTAL_PASS:+d} vs {BASELINE_N10_TOTAL_PASS}/{BASELINE_N10_TOTAL_CELLS}**")
+    else:
+        trow.append("")
+    lines.append("| " + " | ".join(trow) + " |")
+    lines.append("")
+
+    # pass-rate summary + timing
+    lines.append("## Summary")
+    lines.append("")
+    base_rate = BASELINE_N10_TOTAL_PASS / BASELINE_N10_TOTAL_CELLS * 100
+    for lbl in arm_labels:
+        p, d = arm_totals[lbl]
+        rate = (100 * p / d) if d else 0.0
+        m = arm_meta.get(lbl, {})
+        wall = f"{m.get('wall_median')/60:.1f} min/cell" if m.get("wall_median") else "n/a"
+        tps = f"{m.get('tok_ps_median')} tok/s" if m.get("tok_ps_median") else "n/a"
+        extra = ""
+        if BASELINE_ARM_HINT in lbl:
+            extra = f"  ·  Δ {rate - base_rate:+.1f}pp vs N=10 baseline ({base_rate:.1f}%)"
+        lines.append(f"- **{lbl}**: {p}/{d} pass = {rate:.1f}%  ·  median {wall}  ·  {tps}{extra}")
+    lines.append("")
+    if final_status.get("fails"):
+        lines.append(f"Non-pass cells ({len(final_status['fails'])}): " +
+                     ", ".join(f"`{x}`" for x in final_status["fails"][:40]))
+        lines.append("")
+    return "\n".join(lines) + "\n"
+
+
+def publish_scorecard(cfg, target, final_status):
+    """Write scorecard.md and git add+commit to bench-results-<date> in ~/bench.
+    Idempotent (re-runs update the same file/branch). NEVER raises — git failures
+    are logged and swallowed so they can't crash the run."""
+    try:
+        md = build_scorecard(cfg, target, final_status)
+        SCORECARD.write_text(md)
+        log(f"scorecard written to {SCORECARD} ({len(md)} bytes)")
+    except Exception as e:
+        log(f"publish: failed to build/write scorecard (non-fatal): {e}")
+        return
+    try:
+        date = _date_from_status()
+        branch = f"bench-results-{date}"
+        # mirror the scorecard into the repo so it can be committed
+        repo_path = BENCH / "results" / f"scorecard-{cfg.get('model','model')}-N{target}.md"
+        repo_path.parent.mkdir(parents=True, exist_ok=True)
+        repo_path.write_text(md)
+
+        def git(*args, check=False):
+            r = sh(["git", "-C", str(BENCH), *args])
+            if r.returncode != 0:
+                log(f"publish git {' '.join(args)} rc={r.returncode}: {(r.stderr or r.stdout).strip()[:200]}")
+            return r
+
+        if git("rev-parse", "--is-inside-work-tree").returncode != 0:
+            log("publish: ~/bench is not a git work tree — skipping commit (scorecard.md still written)")
+            return
+        # create-or-switch to the results branch idempotently
+        if git("rev-parse", "--verify", branch).returncode == 0:
+            git("checkout", branch)
+        else:
+            git("checkout", "-b", branch)
+        git("add", str(repo_path), str(SCORECARD) if str(SCORECARD).startswith(str(BENCH)) else str(repo_path))
+        # commit; "nothing to commit" is fine (idempotent re-run)
+        c = git("commit", "-m",
+                f"bench results: {cfg.get('model','model')} N={target} "
+                f"({final_status.get('grand_done','?')}/{final_status.get('grand_total','?')} cells)")
+        if c.returncode == 0:
+            log(f"publish: committed scorecard to branch {branch} (not pushed)")
+        else:
+            log(f"publish: no new commit on {branch} (idempotent / nothing changed)")
+    except Exception as e:
+        log(f"publish: git step failed (non-fatal): {e}")
+
+
 def run_arm_with_supervision(cfg, arm, target, started_at):
     """Spawn run_microbench for one arm; watchdog endpoint + stuck cells until it exits."""
     label, thinking = arm["label"], arm["thinking"]
-    # preclean stale sandboxes + scratch workspaces for this label
     ids = sh("docker ps -aq --filter name=bench-sandbox-").stdout.split()
     if ids:
         sh(["docker", "rm", "-f", *ids])
@@ -349,27 +637,27 @@ def run_arm_with_supervision(cfg, arm, target, started_at):
     last_endpoint_ok = time.time()
     while proc.poll() is None:
         time.sleep(30)
-        write_heartbeat()                                     # enrichment 4
+        write_heartbeat()
         write_status(cfg, target, f"run:{label}", [], started_at)
+        check_harness_anomaly(cfg)                            # addition C
         if not endpoint_up(cfg["port"]):
             if time.time() - last_endpoint_ok > 90:
                 log("watchdog: endpoint down >90s — restarting")
-                ensure_endpoint(cfg)                           # notifies on restart (enrichment 1)
+                ensure_endpoint(cfg)
                 last_endpoint_ok = time.time()
         else:
             last_endpoint_ok = time.time()
-        cur = current_cell_info()
+        cur = current_cell_info(cfg)
         if cur["cell"] and cur["frozen_secs"] and cur["frozen_secs"] > cfg["stuck_secs"]:
             kill_stuck(cur["cell"])
     log(f"run_microbench {label} exited rc={proc.returncode}")
-    # grade + summarize (idempotent)
     sh(f"sudo rm -rf /tmp/grade_*{label}_v* 2>/dev/null")
     g = sh(["bash", str(SCRIPTS / "grade_microbench.sh"), label])
     (STATE_DIR / f"grade-{label}.log").write_text(g.stdout + g.stderr)
     s = sh(["bash", str(SCRIPTS / "summarize.sh"), label])
     (STATE_DIR / f"summary-{label}.txt").write_text(s.stdout + s.stderr)
     log(f"graded+summarized {label}")
-    # enrichment 1 + 2: arm-completion notification with median timing
+    check_harness_anomaly(cfg)                                # addition C (post-grade)
     done, total, pertask, metrics = arm_progress(label, target)
     npass = sum(p["pass"] for p in pertask.values())
     wall = f"{metrics['wall_median']/60:.1f}m" if metrics["wall_median"] else "?"
@@ -386,24 +674,39 @@ def all_done(cfg, target) -> bool:
     return True
 
 
+def resolve_config(args):
+    """addition A: build the active config from --preset, then DEFAULT_CONFIG
+    fallback, then --config overrides (config file still wins, additive)."""
+    if args.preset:
+        if args.preset not in PRESETS:
+            raise SystemExit(f"unknown --preset '{args.preset}'. choices: {', '.join(PRESETS)}")
+        cfg = dict(PRESETS[args.preset])
+        cfg["preset"] = args.preset
+    else:
+        cfg = dict(DEFAULT_CONFIG)
+        cfg["preset"] = "397b"
+    if args.config and Path(args.config).exists():
+        cfg.update(json.loads(Path(args.config).read_text()))
+    return cfg
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--target-n", type=int, default=None)
     ap.add_argument("--config", default=None)
     ap.add_argument("--max-passes", type=int, default=6)
     ap.add_argument("--once", action="store_true",
-                    help="write a single status snapshot and exit (for external monitors)")  # enrichment 5
+                    help="write a single status snapshot and exit (for external monitors)")
+    ap.add_argument("--preset", default=None,
+                    help=f"model preset selecting model/container/gguf/ctx/arms. choices: {', '.join(PRESETS)}")
+    ap.add_argument("--publish", action="store_true",
+                    help="on a COMPLETE run, write scorecard.md + git-commit it to bench-results-<date> (no push)")
     args = ap.parse_args()
-    cfg = dict(DEFAULT_CONFIG)
-    if args.config and Path(args.config).exists():
-        cfg.update(json.loads(Path(args.config).read_text()))
+    cfg = resolve_config(args)
 
-    # enrichment 5: --once snapshot (no target-n required, no driving)
     if args.once:
-        prev_n = cfg.get("arms") and DEFAULT_CONFIG.get("port")  # noop, keep structure
         target = args.target_n
         if target is None:
-            # best-effort: reuse last target from existing status, else 1
             try:
                 target = int(json.loads(STATUS.read_text()).get("target_n", 1))
             except Exception:
@@ -416,7 +719,6 @@ def main():
         ap.error("--target-n is required unless --once is given")
     target = args.target_n
 
-    # enrichment 4: resume-safety — refuse to double-drive
     fh = fresh_heartbeat()
     if fh:
         age, pid = fh
@@ -429,14 +731,14 @@ def main():
 
     started_at = time.time()
     write_heartbeat()
-    log(f"=== AUTOPILOT START target N={target} ===")
-    notify("bench: autopilot start", f"N={target}, {len(cfg['arms'])} arms, model {cfg['model']}", 0)  # enrichment 1
+    log(f"=== AUTOPILOT START target N={target} preset={cfg.get('preset')} model={cfg.get('model')} ===")
+    notify("bench: autopilot start", f"N={target}, {len(cfg['arms'])} arms, model {cfg['model']}", 0)
     write_status(cfg, target, "starting", [], started_at)
     for p in range(1, args.max_passes + 1):
         if all_done(cfg, target):
             break
         log(f"--- pass {p}/{args.max_passes} ---")
-        write_heartbeat()                                     # enrichment 4
+        write_heartbeat()
         if not ensure_endpoint(cfg):
             log("endpoint unrecoverable; sleeping 60s then retrying"); time.sleep(60); continue
         for a in cfg["arms"]:
@@ -447,15 +749,18 @@ def main():
     final = write_status(cfg, target,
                          "COMPLETE" if all_done(cfg, target) else "INCOMPLETE", [], started_at)
     log(f"=== AUTOPILOT DONE phase={final['phase']} {final['grand_done']}/{final['grand_total']} ===")
-    # enrichment 1: run-complete notification (high priority on incomplete)
     if final["phase"] == "COMPLETE":
         notify("bench: run COMPLETE",
                f"N={target} done — {final['grand_done']}/{final['grand_total']} cells, "
                f"{len(final['fails'])} fails", 0)
+        if args.publish:                                      # addition B
+            publish_scorecard(cfg, target, final)
     else:
         notify("bench: run INCOMPLETE",
                f"N={target} stopped at {final['grand_done']}/{final['grand_total']} cells "
                f"after {args.max_passes} passes — {len(final['fails'])} fails", 1)
+        if args.publish:
+            log("publish: run INCOMPLETE — scorecard NOT committed (only COMPLETE runs publish)")
     print("AUTOPILOT_COMPLETE" if final["phase"] == "COMPLETE" else "AUTOPILOT_INCOMPLETE")
 
 

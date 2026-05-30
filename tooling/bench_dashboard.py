@@ -1,28 +1,36 @@
 #!/usr/bin/env python3
-"""bench_dashboard_enriched — enriched visual status for the bench autopilot.
+"""bench_dashboard_v2 — superset of bench_dashboard.py for the MMBT autopilot.
 
-Superset of bench_dashboard.py. Reads /tmp/bench-autopilot/status.json + per-cell
-grade.json and renders the same color-coded grid (tasks x replicates per arm), plus
-five enrichments:
+Preserves the original/enriched dashboard verbatim: same color grid (tasks x reps
+per arm), same baseline-delta / sparkline / events enrichments, and ALL original
+flags (--watch, --html, --no-color, --oneline, --no-events, --no-sparkline). It
+reads the SAME /tmp/bench-autopilot/status.json + per-cell grade.json — and never
+edits them. Three new read-only analysis flags are added:
 
-  1) --oneline      : one compact status line (pct, cells, current, endpoint, eta)
-  2) baseline delta : per-arm pass-rate vs the N=10 no-think baseline (82/120),
-                      with per-task deltas where data exists
-  3) sparkline      : ascii completion-over-time, derived from cell summary.json mtimes
-  4) events feed    : tail (~8 lines) of /tmp/bench-autopilot/autopilot.log under the grid
-  5) robustness     : never crashes on missing/partial status.json — degrades gracefully
+  --json   : compact machine-readable status dump to stdout (pct, per-arm
+             per-task pass/done, current cell, fails) — derived from grade.json so
+             it works even against the original (un-enriched) status.json schema.
 
-The status.json schema + the original CLI (--html/--watch/--no-color) are preserved;
-only new flags (--oneline, --no-events, --no-sparkline) and rendering are added.
+  --trend  : per task, the pass-RATE across cumulative rep windows it can compute
+             from grade.json (v1-3, v1-5, v1-10, v1-20) per arm. Reveals where a
+             small-N read was misleading (e.g. no-think p3_market drifting as N grows).
+
+  --flips  : per-task 'flip map' marking cells whose verdict differs from that
+             task/arm's MODAL verdict — surfacing high-variance cells.
+
+All three degrade gracefully on sparse/missing data (no status.json, no grade.json,
+partial windows) and each exits rc=0. New flags are mutually independent and additive;
+existing CLI behavior is untouched.
 
 Usage:
-  python3 bench_dashboard_enriched.py             # one-shot terminal render
-  python3 bench_dashboard_enriched.py --oneline   # single status line
-  python3 bench_dashboard_enriched.py --watch
-  python3 bench_dashboard_enriched.py --html /tmp/bench-autopilot/dashboard.html
+  python3 bench_dashboard_v2.py                 # one-shot terminal render (unchanged)
+  python3 bench_dashboard_v2.py --json
+  python3 bench_dashboard_v2.py --trend
+  python3 bench_dashboard_v2.py --flips
 """
 from __future__ import annotations
 import argparse, json, os, time
+from collections import Counter
 from pathlib import Path
 
 HOME = Path(os.path.expanduser("~"))
@@ -34,10 +42,7 @@ LOG = STATE / "autopilot.log"
 # Glob that matches a cell dir for any arm/rep (e.g. p1_bugfix_397b-nothink_v3).
 CELL_GLOB = "p*_397b-*_v*"
 
-# N=10 no-think baseline pass counts per task (totals to 82/120). Used for the
-# pass-rate delta enrichment. These are the published Phase-A N=10 numbers; if a
-# task is absent here we simply omit its delta.
-# Real N=10 no-think per-task pass counts (sums to 82/120 — verified against grade.json).
+# N=10 no-think baseline pass counts per task (totals to 82/120).
 BASELINE_N10_NOTHINK = {
     "p1_bugfix": 10, "p1_testwrite": 0, "p1_refactor": 0,
     "p2_extract": 10, "p2_ci": 10, "p2_hallucination": 10, "p2_triage": 10,
@@ -45,9 +50,10 @@ BASELINE_N10_NOTHINK = {
 }
 BASELINE_N10_TOTAL_PASS = 82
 BASELINE_N10_TOTAL_CELLS = 120
-# The baseline is the no-think arm; we recognize it by substring so a relabel
-# (e.g. "397b-nothink") still matches.
 BASELINE_ARM_HINT = "nothink"
+
+# Cumulative rep windows for --trend (clamped to target_n at render time).
+TREND_WINDOWS = (3, 5, 10, 20)
 
 C = {"reset":"\033[0m","grn":"\033[42m\033[30m","red":"\033[41m\033[37m",
      "yel":"\033[43m\033[30m","blu":"\033[44m\033[37m","gry":"\033[100m\033[37m",
@@ -65,6 +71,22 @@ def _g(d, key, default=None):
     if isinstance(d, dict):
         return d.get(key, default)
     return default
+
+
+def raw_verdict(run):
+    """Raw grade.json verdict string for a cell, or None if not graded/absent."""
+    g = LOGS / run / "grade.json"
+    try:
+        if g.exists():
+            return json.loads(g.read_text()).get("verdict")
+    except Exception:
+        return None
+    return None
+
+
+def is_pass(v):
+    """True iff a raw verdict string counts as a pass."""
+    return v in ("PASS", "STRUCTURAL_PASS")
 
 
 def verdict(run):
@@ -105,7 +127,6 @@ def render_grid(arm, target, color=True):
                 row += f" {ch} "
         pt = tasks.get(t,{}) if isinstance(tasks, dict) else {}
         row += f"  {_g(pt,'pass','?')}/{_g(pt,'done','?')}"
-        # baseline delta (enrichment #2) appended per task where data exists
         if BASELINE_ARM_HINT in str(label):
             base = BASELINE_N10_NOTHINK.get(t)
             if base is not None and isinstance(pt, dict) and isinstance(pt.get("pass"), int):
@@ -119,7 +140,6 @@ def render_grid(arm, target, color=True):
 
 
 def _cell_summaries():
-    """All cell summary.json paths sorted by mtime (oldest first). Safe on errors."""
     try:
         sums = list(LOGS.glob(f"{CELL_GLOB}/summary.json"))
         sums.sort(key=lambda p: p.stat().st_mtime)
@@ -153,8 +173,6 @@ def human_eta(status):
 SPARK = "▁▂▃▄▅▆▇█"
 
 def completion_sparkline(buckets=24, window_secs=None):
-    """Bin cell-completion times into `buckets` equal slots over the run's span
-    and render an ascii block sparkline of cells-completed-per-bin."""
     try:
         sums = _cell_summaries()
         if len(sums) < 2:
@@ -186,7 +204,6 @@ def recent_events(n=8):
     try:
         if not LOG.exists():
             return []
-        # tail without loading huge files entirely
         data = LOG.read_text(errors="replace").splitlines()
         return data[-n:]
     except Exception:
@@ -288,7 +305,7 @@ def render(status, color=True, show_events=True, show_spark=True):
 
 
 # ---------------------------------------------------------------------------
-# HTML render (preserves original layout, adds spark + baseline + events)
+# HTML render (unchanged from enriched dashboard)
 # ---------------------------------------------------------------------------
 def to_html(status):
     if status is None:
@@ -347,6 +364,164 @@ def _html_escape(s):
 
 
 # ---------------------------------------------------------------------------
+# NEW: shared introspection over the live status (degrades to grade.json scan)
+# ---------------------------------------------------------------------------
+def status_tasks(status):
+    """Ordered task list — from status.json if present, else the known TASKS order."""
+    t = _g(status, "tasks", None)
+    if isinstance(t, list) and t:
+        return t
+    return ["p1_bugfix","p1_testwrite","p1_refactor","p2_extract","p2_ci",
+            "p2_hallucination","p2_triage","p3_doc","p3_business","p3_market",
+            "p3_writing","p3_pm"]
+
+
+def status_arms(status):
+    """List of arm labels — from status.json arms if present, else the canonical two."""
+    arms = _g(status, "arms", None)
+    if isinstance(arms, list) and arms:
+        labels = [_g(a, "label") for a in arms if _g(a, "label")]
+        if labels:
+            return labels
+    return ["397b-nothink", "397b-think"]
+
+
+def cell_verdicts(task, label, upto):
+    """Ordered list of raw verdicts for v1..upto (None where ungraded/absent)."""
+    return [raw_verdict(f"{task}_{label}_v{v}") for v in range(1, upto + 1)]
+
+
+# ---------------------------------------------------------------------------
+# NEW flag: --json  (compact machine-readable dump)
+# ---------------------------------------------------------------------------
+def json_dump(status):
+    """Compact, derived-from-grade.json status. Works on the original schema."""
+    tasks = status_tasks(status)
+    arms = status_arms(status)
+    target = int(_g(status, "target_n", 0) or 0)
+    out = {
+        "pct": _g(status, "pct"),
+        "phase": _g(status, "phase"),
+        "target_n": target or None,
+        "grand_done": _g(status, "grand_done"),
+        "grand_total": _g(status, "grand_total"),
+        "endpoint_up": _g(status, "endpoint_up"),
+        "updated": _g(status, "updated"),
+        "current": _g(status, "current", {}) or {},
+        "arms": {},
+        "fails": [],
+    }
+    scan_n = target or 20
+    for label in arms:
+        per = {}
+        for t in tasks:
+            vs = cell_verdicts(t, label, scan_n)
+            graded = [v for v in vs if v is not None]
+            passes = sum(1 for v in graded if is_pass(v))
+            per[t] = {"pass": passes, "done": len(graded)}
+            for idx, vv in enumerate(vs, start=1):
+                if vv is not None and not is_pass(vv):
+                    out["fails"].append(f"{t}_{label}_v{idx}")
+        out["arms"][label] = per
+    return json.dumps(out, separators=(",", ":"), sort_keys=False)
+
+
+# ---------------------------------------------------------------------------
+# NEW flag: --trend  (cumulative-window pass-rate per task/arm)
+# ---------------------------------------------------------------------------
+def trend_table(status, color=True):
+    tasks = status_tasks(status)
+    arms = status_arms(status)
+    target = int(_g(status, "target_n", 0) or 0) or 20
+    windows = [w for w in TREND_WINDOWS if w <= max(target, max(TREND_WINDOWS))]
+    # clamp display windows to target but always keep at least the smallest
+    windows = [w for w in TREND_WINDOWS if w <= target] or [min(TREND_WINDOWS)]
+    rs = C["reset"] if color else ""
+    L = []
+    L.append(f"{C['b'] if color else ''}TREND — cumulative pass-rate per task across rep windows{rs}")
+    L.append(f"{C['dim'] if color else ''}  cell = passes/graded (rate%); '-' = no graded reps in window. "
+             f"watch a rate that drifts as N grows (small-N was misleading).{rs}")
+    for label in arms:
+        L.append("")
+        head = f"{label:<20}" + "".join(f"{('v1-'+str(w)):>12}" for w in windows)
+        L.append(f"{C['cyan'] if color else ''}{head}{rs}")
+        for t in tasks:
+            vs_full = cell_verdicts(t, label, max(windows))
+            row = f"{t:<20}"
+            rates = []
+            for w in windows:
+                window = vs_full[:w]
+                graded = [v for v in window if v is not None]
+                if not graded:
+                    cell = "-"
+                    rates.append(None)
+                else:
+                    p = sum(1 for v in graded if is_pass(v))
+                    rate = 100.0 * p / len(graded)
+                    rates.append(rate)
+                    cell = f"{p}/{len(graded)} {rate:.0f}%"
+                # color: drift from the first computable window
+                col = ""
+                if color and rates[-1] is not None:
+                    first = next((r for r in rates if r is not None), None)
+                    if first is not None:
+                        drift = rates[-1] - first
+                        if drift <= -15:   col = C['fg_red']
+                        elif drift >= 15:  col = C['fg_grn']
+                        else:              col = ""
+                row += f"{col}{cell:>12}{rs if col else ''}"
+            L.append(row)
+    return "\n".join(L)
+
+
+# ---------------------------------------------------------------------------
+# NEW flag: --flips  (cells differing from the task/arm modal verdict)
+# ---------------------------------------------------------------------------
+def flips_map(status, color=True):
+    tasks = status_tasks(status)
+    arms = status_arms(status)
+    target = int(_g(status, "target_n", 0) or 0) or 20
+    rs = C["reset"] if color else ""
+    L = []
+    L.append(f"{C['b'] if color else ''}FLIPS — cells whose verdict differs from the task/arm modal verdict{rs}")
+    L.append(f"{C['dim'] if color else ''}  '.' = matches mode  'X' = flipped  ' ' = ungraded. "
+             f"trailing count = #flips/#graded (mode shown). High flips = high-variance cell.{rs}")
+    for label in arms:
+        L.append("")
+        head = "  " + "".join(f"{v:>3}" for v in range(1, target + 1))
+        L.append(f"{C['cyan'] if color else ''}{label:<18}{head}{rs}")
+        for t in tasks:
+            vs = cell_verdicts(t, label, target)
+            graded = [v for v in vs if v is not None]
+            if not graded:
+                L.append(f"{t:<18}" + "   ·" * 0 + f"  {C['dim'] if color else ''}(no graded reps){rs}")
+                continue
+            mode_v, _ = Counter(graded).most_common(1)[0]
+            mode_short = _short_verdict(mode_v)
+            row = f"{t:<18}"
+            flips = 0
+            for v in vs:
+                if v is None:
+                    row += "   "  # ungraded
+                elif v == mode_v:
+                    row += f" {C['dim'] if color else ''}.{rs} "
+                else:
+                    flips += 1
+                    row += f" {C['fg_red'] if color else ''}X{rs if color else ''} "
+            row += f"  {flips}/{len(graded)} flips (mode={mode_short})"
+            L.append(row)
+    return "\n".join(L)
+
+
+def _short_verdict(v):
+    return {
+        "PASS": "P", "STRUCTURAL_PASS": "SP",
+        "FAIL": "F", "STRUCTURAL_FAIL": "SF",
+        "BAD_GRADE": "BG", "GRADER_FAILED": "GF", "MISSING_OUTPUT": "MO",
+    }.get(v, str(v)[:6] if v else "?")
+
+
+# ---------------------------------------------------------------------------
 def load_status():
     """Load status.json, tolerating missing/partial/corrupt files. Returns dict or None."""
     try:
@@ -368,10 +543,26 @@ def main():
     ap.add_argument("--oneline", action="store_true", help="single compact status line")
     ap.add_argument("--no-events", action="store_true", help="hide the recent-events feed")
     ap.add_argument("--no-sparkline", action="store_true", help="hide the completion sparkline")
+    # NEW analysis flags (read-only; all degrade gracefully + exit rc=0)
+    ap.add_argument("--json", action="store_true",
+                    help="compact machine-readable status to stdout (derived from grade.json)")
+    ap.add_argument("--trend", action="store_true",
+                    help="per-task cumulative-window pass-rate table (v1-3/5/10/20) per arm")
+    ap.add_argument("--flips", action="store_true",
+                    help="per-task flip map: cells differing from the task/arm modal verdict")
     args = ap.parse_args()
 
     def once():
         status = load_status()  # None if missing/partial — every renderer handles None
+        if args.json:
+            print(json_dump(status if status is not None else {}))
+            return
+        if args.trend:
+            print(trend_table(status if status is not None else {}, color=not args.no_color))
+            return
+        if args.flips:
+            print(flips_map(status if status is not None else {}, color=not args.no_color))
+            return
         if args.oneline:
             print(oneline(status, color=not args.no_color))
             return
@@ -393,7 +584,6 @@ def main():
             try:
                 once()
             except Exception as e:
-                # last-resort guard: a render error must never kill the watch loop
                 print(f"[dashboard] transient render error: {e}")
             time.sleep(15)
     else:
