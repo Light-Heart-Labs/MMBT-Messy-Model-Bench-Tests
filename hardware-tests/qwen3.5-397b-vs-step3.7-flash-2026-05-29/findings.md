@@ -1,8 +1,14 @@
-# Qwen3.5-397B-A17B (GGUF, llama.cpp) — microbench N=3, vs Step-3.7-Flash
+# Qwen3.5-397B-A17B (GGUF, llama.cpp) — microbench N=10, vs Step-3.7-Flash + 27B/Coder-Next (Q4)
 
-**N=3** (three replicates per cell). Pair this with [QUALITATIVE.md](QUALITATIVE.md): the pass/fail
-table below ties across models, and the differences that matter are qualitative. Phase-1 cells are
-graded with the **fixed** `phase1_grade.py` (see grading-correctness note below).
+**N=10** (ten replicates per cell, both arms; 240 cells, all `done_signal`). Pair this with
+[QUALITATIVE.md](QUALITATIVE.md): the pass/fail table below ties across a ~15× parameter range, and
+the differences that matter are qualitative. Phase-1 cells graded with the **fixed** `phase1_grade.py`.
+
+**Cross-model note:** the 27B / Coder-Next reference columns are the **Q4/AWQ** runs from
+`benchmarks/microbench-2026-04-28` (N=1, clean `done_signal`, older agent-pilot harness). We attempted
+fresh **Q8/FP8** runs of Qwen3.6-27B and Qwen3.6-35B-A3B on the current harness but **both were serving
+failures** (35B: 36/36 HTTP-400; 27B-Q8: 23/36 token-runaway + 8/36 HTTP-400, only 4 clean) — **excluded,
+not shown.** The Q4 artifacts are the trustworthy 27B/Coder comparison.
 
 ## Setup
 - **Model:** Qwen3.5-397B-A17B, unsloth UD-Q3_K_XL GGUF (~167 GB on disk, 5 shards).
@@ -14,27 +20,29 @@ graded with the **fixed** `phase1_grade.py` (see grading-correctness note below)
   `../step3.7-flash-nvfp4-dual-blackwell-2026-05-28/`. Cross-engine + cross-quant: **"best-as-each-ships,"
   not a clean precision study.**
 
-## Scorecard (N=3, pass count per cell)
+## Scorecard (N=10 for 397B; Step N=1/level; 27B+Coder Q4 N=1)
 
-| task | 397B no-think | 397B think | Step low/med/high | 27B (ref) | Coder (ref) |
+| task | 397B no-think | 397B think | Step low/med/high | 27B-Q4 (ref) | Coder-Q4 (ref) |
 |---|:--:|:--:|:--:|:--:|:--:|
-| p1_bugfix | 3/3 | 3/3 | ✓/✓/✓ | 3/3 | 2/3 |
-| p1_testwrite † | 0/3 | 0/3 | ✗/✗/✗ | 0/3 † | 0/3 † |
-| p1_refactor † | 0/3 | 0/3 | ✓/✗/✗ | 0/3 † | 0/3 † |
-| p2_extract | 3/3 | 3/3 | ✓/✓/✓ | 3/3 | 3/3 |
-| p2_ci | 3/3 | 3/3 | ✓/✓/✓ | 3/3 | 3/3 |
-| p2_hallucination | 3/3 | 3/3 | ✓/✓/✓ | 3/3 | 1/3 |
-| p2_triage | 3/3 | 3/3 | ~/✓/✓ | 3/3 | 3/3 |
-| p3_doc | 2/3 | **1/3** | ~/✓/✓ | 0/3 | 2/3 |
-| p3_business | 3/3 | 3/3 | ✓/~/✗ | 2/3 | 3/3 |
-| p3_market * | **1/3** | **3/3** | ✗/✓/✓ | 3/3 * | 0/3 |
-| p3_writing | 0/3 | 0/3 | ✗/~/✗ | 0/3 | 2/3 |
-| p3_pm | **2/3** | **0/3** | ✗/~/✓ | 0/3 | 1/3 |
-| **Total** | **23/36** | **22/36** | **7 / 8 / 8** | ~7/12 | ~7/12 |
+| p1_bugfix | 10/10 | 10/10 | ✓/✓/✓ | 3/3 | 2/3 |
+| p1_testwrite † | 0/10 | 0/10 | ✗/✗/✗ | 0/3 † | 0/3 † |
+| p1_refactor † | 0/10 | 0/10 | ✓/✗/✗ | 0/3 † | 0/3 † |
+| p2_extract | 10/10 | 10/10 | ✓/✓/✓ | 3/3 | 3/3 |
+| p2_ci | 10/10 | 10/10 | ✓/✓/✓ | 3/3 | 3/3 |
+| p2_hallucination | 10/10 | 10/10 | ✓/✓/✓ | 3/3 | 1/3 |
+| p2_triage | 10/10 | 10/10 | ~/✓/✓ | 3/3 | 3/3 |
+| p3_doc | 9/10 | **2/10** | ~/✓/✓ | 0/3 | 2/3 |
+| p3_business | 10/10 | 10/10 | ✓/~/✗ | 2/3 | 3/3 |
+| p3_market * | **8/10** | **10/10** | ✗/✓/✓ | 3/3 * | 0/3 |
+| p3_writing | 0/10 | 0/10 | ✗/~/✗ | 0/3 | 2/3 |
+| p3_pm | **5/10** | **0/10** | ✗/~/✓ | 0/3 | 1/3 |
+| **Total** | **82/120 (≈8.2/12)** | **72/120 (≈6/12)** | **7 / 8 / 8** | ~7/12 | ~7/12 |
 
-† `p1_refactor` fails on structure (no `output/` subpackage created), not the model's competence at the
-core edit. `p1_testwrite` — see the grading-correctness note below; the earlier "task-design" framing was
-partly a grader artifact. \* `p3_market` is graded STRUCTURAL_PASS (citation validity is a hand-grading dimension).
+† `p1_refactor` fails on structure (no `output/` subpackage created), not core-edit competence.
+`p1_testwrite` — see grading-correctness note; the earlier "task-design" framing was partly a grader
+artifact. \* `p3_market` is STRUCTURAL_PASS (citation validity is hand-graded). Step N=1/level, 27B/Coder
+Q4 N=1 — directional; only 397B is N=10. Full per-replicate stability table + finish-reason audit in
+[findings-n10.md](findings-n10.md).
 
 ### Grading-correctness fix (post-review, 2026-05-29)
 A review caught that `phase1_grade.py` read flat keys (`coverage_pct`, `ruff_issues`, `benchmark_s`) while
@@ -55,34 +63,35 @@ A review caught that `phase1_grade.py` read flat keys (`coverage_pct`, `ruff_iss
 
 ## Headline findings
 
-1. **Scale doesn't move the aggregate.** 397B lands at 23/36 (no-think) and 22/36 (think) — the *same
-   7–8/12 band* (by per-task majority) as a 27B, a ~30B coder, and an ~11B-active Flash. The interesting
-   signal is per-task and qualitative, not the total.
+1. **Scale doesn't move the aggregate — confirmed at N=10.** 397B lands at 82/120 (no-think) / 72/120
+   (think) = the *same 7–8/12 band* (by per-task majority) as Step-3.7-Flash (~11B active), Qwen3.6-27B
+   (Q4), and Qwen3-Coder-Next (Q4). A ~15× parameter spread barely moves aggregate pass-rate on this
+   suite. The signal is per-task and qualitative, not the total.
 
-2. **Thinking is net −1 for 397B (8/12→7/12 at N=1, 23/36→22/36 at N=3) — but N=3 overturns the N=1
-   "inert" reading.** At N=1 the loss looked like a single verbosity flip (`p3_doc`). With three
-   replicates, thinking is not inert — it **redistributes**: it *helps* `p3_market` (no-think 1/3 → think
-   **3/3**, stabilizing the wobbliest cell, zero runaways) but *hurts* `p3_pm` (2/3 → **0/3**) and `p3_doc`
-   (2/3 → 1/3, the verbosity-vs-word-limit story). Net −1, but as a wash of real per-task swings, not a
-   no-op. Reasoning changes *where* 397B succeeds without changing *how often*.
+2. **Thinking is net −10 at N=10 (82→72) — decisively negative, via concentrated redistribution.** N=3
+   hinted at this (−1); N=10 makes it unambiguous. Thinking **helps exactly one task** — `p3_market`
+   (no-think 8/10 → think **10/10**) — and **hurts two, hard**: `p3_doc` (9/10 → **2/10**, the
+   verbosity-blows-the-word-limit effect) and `p3_pm` (5/10 → **0/10**, over-deliberation wrecks
+   project-mgmt). Everywhere else identical. Reasoning changes *where* 397B succeeds, and on net makes it
+   worse here — "turn thinking on" is a per-task decision, not a default.
 
-3. **N=3 exposes which N=1 verdicts were luck.** Single replicates are noisy on the open-ended cells: in
-   the no-think arm, `p3_market` (N=1 ✓ → N=3 1/3) and `p3_pm` (N=1 ✗ → N=3 2/3) were single-draw
-   artifacts; `p3_doc` (✓ → 2/3) wobbles on the word limit. Zero-variance cells (3/3 or 0/3 across all
-   reps): p1_bugfix, the grounded mid-tier (p2_extract/ci/hallucination/triage), p3_business, and the
-   consistent fails. **Trust the mid-tier and bugfix; treat market/pm/doc as high-variance.**
+3. **N=10 overturns small-N luck — quantified.** The auto-generated stability table
+   ([findings-n10.md](findings-n10.md)) flags `p3_market` no-think as a **majority-verdict flip**: 1/3 at
+   N=3 (looked like a fail) → **8/10** at N=10 (clearly a pass). `p3_pm` no-think drifted 2/3 → 5/10 (a
+   true coin-flip), `p3_doc` 9/10 (occasional word-limit trip). Zero-variance cells (10/10 or 0/10):
+   p1_bugfix, the grounded mid-tier (p2_extract/ci/hallucination/triage), p3_business, and the consistent
+   fails. **Trust the mid-tier + bugfix; market/pm/doc are the high-variance cells — and small N misreads
+   them.** This is the headline methodological result.
 
-4. **397B is runaway-resistant — but no-think market research gets *stuck*.** Zero max_tokens/length
-   runaways across all 72 cells (the failure mode Step-3.7-Flash showed on `p3_market` at low effort).
-   69/72 finished `done_signal`; the 3 non-clean exits were **all no-think**: `p3_market` v2 & v3 hit the
-   500-iter **stuck threshold** (`stuck_no_workspace_change_for_500_iters` — spinning without progress, not
-   over-generating) and `p3_pm` v1 `model_stopped`. So 397B's pathology is *stalling*, not runaway — and
-   **thinking eliminates the market stall**: think `p3_market` is a clean 3/3 `done_signal` vs no-think's
-   1/3 (2 stuck). For market research, reasoning turns a stuck coin-flip into a lock.
+4. **397B is runaway-resistant; its pathology is *stalling*.** Across all 240 N=10 cells, **zero
+   max_tokens/length runaways** (the failure mode Flash showed on market at low effort, and that 27B-Q8
+   showed 23/36 times). 397B's only non-clean exits are *stalls* (stuck-loop / model_stopped), and
+   thinking specifically clears the no-think market stall. Failure *temperament* tracks training lineage,
+   not size: 397B + 27B(-AWQ) stall, while Coder-Next + Flash run away (see QUALITATIVE.md).
 
-5. **Cost still favors Flash.** 397B reaches the shared band at ~71 tok/s spanning both GPUs at Q3, vs
-   Flash ~99 tok/s on one engine. Flash is the better default; 397B earns its keep where its runaway
-   resistance + (thinking-on) market-research reliability matter.
+5. **Cost still favors the small models.** 397B reaches the shared band at ~71 tok/s spanning both GPUs
+   at Q3; Flash ~99 tok/s on one engine; 27B/Coder-Q4 far cheaper still. 397B earns its keep only where
+   runaway-resistance + (thinking-on) market reliability justify the cost.
 
 6. **Integration tax (a "messy model" finding).** Flash (vLLM) ran the harness out of the box. 397B
    (llama.cpp) needed `--reasoning-format none` (default extracts CoT into `reasoning_content`, leaving
@@ -92,3 +101,44 @@ A review caught that `phase1_grade.py` read flat keys (`coverage_pct`, `ruff_iss
 
 See [QUALITATIVE.md](QUALITATIVE.md) for the behavioral analysis (token economy, packaging style,
 failure-mode texture, reasoning shape) with per-cell citations.
+
+## Power behavior — are both GPUs ever near full power? No.
+
+Captured live with `tooling/gpu_power_logger.sh` (5s cadence, cell-tagged) over the 397B N=10 run;
+analyzed with `tooling/bench_power.py`. 3,868 paired samples.
+
+| GPU | mean | p50 | p90 | max | % of 600W cap |
+|---|--:|--:|--:|--:|--:|
+| GPU0 | 307W | 346 | 366 | **539** | 90% |
+| GPU1 | 279W | 324 | 335 | **475** | 79% |
+
+- **Combined both-GPU draw: median 670W (56% of the 1200W cap), max 985W (82%). 0 of 3,868 samples came
+  within 5% of full (1140W).** The pair never approaches the ceiling together.
+- **Draw by phase:** decode bursts (util>20%) average 339W/GPU; CPU-bound tool phases (the `bench.py` /
+  pytest calls in p1 cells, util<5%) drop to ~125W/GPU — a single GPU briefly nears its own 600W cap
+  during sustained decode, but most wall-clock is spent well below it.
+- **GPU0 leads GPU1 (+27W mean)** — the pipeline-parallel (`-sm layer`) signature: layers are split across
+  the cards and fire in sequence, so the two rarely peak simultaneously. Combined with the CPU-bound tool
+  phases, this is *why* the rig never thermally stresses on this workload.
+- **Why it matters:** the "both GPUs at 600W = 1200W" worst case simply does not occur for single-stream
+  agentic inference under pipeline parallelism. (The MiniMax-M2.7 run uses vLLM **tensor**-parallel, which
+  fires both GPUs per token — the expected contrast is a higher, more simultaneous combined draw; that
+  comparison is added when the MiniMax run lands.)
+
+## Cross-model qualitative (vs 27B / Coder-Next at Q4)
+
+The aggregate ties, but the four models differ sharply in *behavior* — and the cleanest cut is **failure
+temperament tracks training lineage, not parameter count**:
+
+- **Token economy:** 27B-Q4 is the "honest middle" — more tokens than Coder-Next on grounded tasks, far
+  fewer than 397B's scaffolding (397B over-documents with ADRs + navigation READMEs; Flash is terse;
+  27B's done-summaries are the cleanest to actually read).
+- **Failure signature:** **397B + 27B stall** (model_stopped / stuck-loop, never over-generate);
+  **Coder-Next + Flash run away** (Coder hit the 180k cap on test-writing and a 502-iter stuck loop on
+  market; Flash ran away on market at low effort). Two lineages, two temperaments — orthogonal to size.
+- **The Q8 cautionary note:** fresh Qwen3.6-27B-**Q8** on the current harness ran away 23/36 times — a
+  *serving-config* artifact, not the model (the Q4/AWQ 27B finishes clean). Quantization/serving choices
+  can manufacture a failure mode that looks like model behavior; always check finish-reasons, not just
+  pass/fail.
+
+See [QUALITATIVE.md](QUALITATIVE.md) for the full per-cell behavioral analysis.
