@@ -24,9 +24,9 @@ not shown.** The Q4 artifacts are the trustworthy 27B/Coder comparison.
 
 | task | 397B no-think | 397B think | Step low/med/high | 27B-Q4 (ref) | Coder-Q4 (ref) |
 |---|:--:|:--:|:--:|:--:|:--:|
-| p1_bugfix | 10/10 | 10/10 | ✓/✓/✓ | 3/3 | 2/3 |
-| p1_testwrite † | 0/10 | 0/10 | ✗/✗/✗ | 0/3 † | 0/3 † |
-| p1_refactor † | 0/10 | 0/10 | ✓/✗/✗ | 0/3 † | 0/3 † |
+| p1_bugfix | 10/10 | 10/10 | ✓/✓/✓ | ‡ | ‡ |
+| p1_testwrite † | 0/10 | 0/10 | ✗/✗/✗ | ‡ | ‡ |
+| p1_refactor † | 0/10 | 0/10 | ✓/✗/✗ | ‡ | ‡ |
 | p2_extract | 10/10 | 10/10 | ✓/✓/✓ | 3/3 | 3/3 |
 | p2_ci | 10/10 | 10/10 | ✓/✓/✓ | 3/3 | 3/3 |
 | p2_hallucination | 10/10 | 10/10 | ✓/✓/✓ | 3/3 | 1/3 |
@@ -40,8 +40,13 @@ not shown.** The Q4 artifacts are the trustworthy 27B/Coder comparison.
 
 † `p1_refactor` fails on structure (no `output/` subpackage created), not core-edit competence.
 `p1_testwrite` — see grading-correctness note; the earlier "task-design" framing was partly a grader
-artifact. \* `p3_market` is STRUCTURAL_PASS (citation validity is hand-graded). Step N=1/level, 27B/Coder
-Q4 N=1 — directional; only 397B is N=10. Full per-replicate stability table + finish-reason audit in
+artifact. \* `p3_market` is STRUCTURAL_PASS (citation validity is hand-graded).
+**‡ QUARANTINED — 27B/Coder phase-1 (p1_*) reference cells are withheld pending [issue #29].** They were
+graded by the same flat-vs-nested `phase1_grade.py` bug fixed in this entry, so the original published
+values are self-flagged as untrustworthy (p1_testwrite especially is likely a guaranteed-FAIL artifact).
+Their **p2/p3 cells are unaffected** by that bug and stay (used in the cross-model section below). The
+397B/Step p1 cells use the *fixed* grader and are valid. Step N=1/level, 27B/Coder Q4 N=1 (p2/p3 only) —
+directional; only 397B is N=10. Full per-replicate stability table + finish-reason audit in
 [findings-n10.md](findings-n10.md).
 
 ### Grading-correctness fix (post-review, 2026-05-29)
@@ -63,25 +68,35 @@ A review caught that `phase1_grade.py` read flat keys (`coverage_pct`, `ruff_iss
 
 ## Headline findings
 
-1. **Scale doesn't move the aggregate — confirmed at N=10.** 397B lands at 82/120 (no-think) / 72/120
-   (think) = the *same 7–8/12 band* (by per-task majority) as Step-3.7-Flash (~11B active), Qwen3.6-27B
-   (Q4), and Qwen3-Coder-Next (Q4). A ~15× parameter spread barely moves aggregate pass-rate on this
-   suite. The signal is per-task and qualitative, not the total.
+> **Lede (the two results that survive scrutiny):** this entry is **methodological, not "which model won."** Its two strongest, hardest-to-dismiss findings are (1) small-N misreads cells — a verdict that flips from fail→pass as N grows — and (2) on constraint-bound synthesis, *thinking actively hurts*, cross-validated across a 15× parameter range via the same mechanism. The "scale ties the aggregate" observation (now #3) is real but weaker — it leans on N=1 comparators and a cross-quant axis, so read it as suggestive, not a clean scaling law.
 
-2. **Thinking is net −10 at N=10 (82→72) — decisively negative, via concentrated redistribution.** N=3
-   hinted at this (−1); N=10 makes it unambiguous. Thinking **helps exactly one task** — `p3_market`
-   (no-think 8/10 → think **10/10**) — and **hurts two, hard**: `p3_doc` (9/10 → **2/10**, the
-   verbosity-blows-the-word-limit effect) and `p3_pm` (5/10 → **0/10**, over-deliberation wrecks
-   project-mgmt). Everywhere else identical. Reasoning changes *where* 397B succeeds, and on net makes it
-   worse here — "turn thinking on" is a per-task decision, not a default.
-
-3. **N=10 overturns small-N luck — quantified.** The auto-generated stability table
-   ([findings-n10.md](findings-n10.md)) flags `p3_market` no-think as a **majority-verdict flip**: 1/3 at
-   N=3 (looked like a fail) → **8/10** at N=10 (clearly a pass). `p3_pm` no-think drifted 2/3 → 5/10 (a
-   true coin-flip), `p3_doc` 9/10 (occasional word-limit trip). Zero-variance cells (10/10 or 0/10):
+1. **Small-N misreads cells — demonstrated, not asserted.** This is the differentiated contribution. The
+   auto-generated stability table ([findings-n10.md](findings-n10.md)) flags `p3_market` no-think as a
+   **majority-verdict flip**: 1/3 at N=3 (reads as a *fail*) → **8/10** at N=10 (clearly a *pass*).
+   `p3_pm` drifted 2/3 → 5/10 (a genuine coin-flip), `p3_doc` 9/10. Zero-variance cells (10/10 or 0/10):
    p1_bugfix, the grounded mid-tier (p2_extract/ci/hallucination/triage), p3_business, and the consistent
-   fails. **Trust the mid-tier + bugfix; market/pm/doc are the high-variance cells — and small N misreads
-   them.** This is the headline methodological result.
+   fails. **The open-ended cells (market/pm/doc) are where single-N reads are unsafe — and they're exactly
+   the cells everything else hinges on.** Caveat we hold ourselves to: see "Statistical honesty" below —
+   the high-variance cells have wide Wilson intervals, so per-cell deltas are suggestive, not tight.
+
+2. **Thinking is net-negative on constraint-bound synthesis, cross-validated across ~15× of scale.** For
+   397B, thinking goes 82→72 (−10): it **helps exactly one task** — `p3_market` (8/10 → **10/10**) — and
+   **hurts two**: `p3_doc` (9/10 → **2/10**) and `p3_pm` (5/10 → **0/10**). The `p3_doc` loss is mechanistic
+   and *reproduces on the 27B-Q4* (N=10): a draft→count-words→over-limit→edit→recount loop. 397B trips the
+   grader's 700-word limit; 27B-thinking literally `wall_killed`s in the loop ~40% of the time, which
+   no-think halves — and 27B's overall ship rate is **86.8% no-think vs 75% thinking**. Same mechanism,
+   opposite ends of the size range. **Reasoning is not a free upgrade; on constraint-bound synthesis it
+   backfires regardless of model size.** (Honest scope: "net −10" is carried by two cells, doc −7 + pm −5
+   — see "Statistical honesty.")
+
+3. **Aggregate ties across the lineup — but read it as suggestive, with two confounds.** 397B (82/120,
+   72/120), Step-3.7-Flash, Qwen3.6-27B-Q4, and Coder-Next-Q4 all land in the same ~7–8/12 band by per-task
+   majority. **Two reasons not to over-read this as "scale doesn't matter":** (a) **cross-quant** — this is
+   397B at *aggressive Q3_K_XL* (llama.cpp) vs an ~11B-active model at *NVFP4* (vLLM); it's
+   "scale-at-3-bit vs small-at-4-bit," not a clean scale axis; (b) **N-asymmetry** — only 397B is N=10;
+   Step is N=1/level and 27B/Coder are N=1, and this very entry proves N=1 misreads the open-ended cells.
+   "Turn thinking on" is therefore a per-task decision, not a default — but "scale ties" itself is the
+   most caveated claim here, not the headline.
 
 4. **397B is runaway-resistant; its pathology is *stalling*.** Across all 240 N=10 cells, **zero
    max_tokens/length runaways** (the failure mode Flash showed on market at low effort, and that 27B-Q8
@@ -101,6 +116,23 @@ A review caught that `phase1_grade.py` read flat keys (`coverage_pct`, `ruff_iss
 
 See [QUALITATIVE.md](QUALITATIVE.md) for the behavioral analysis (token economy, packaging style,
 failure-mode texture, reasoning shape) with per-cell citations.
+
+## Statistical honesty — how tight is "net −10"?
+
+The thinking-net-negative result rests on **two cells**, and at N=10 the per-cell verdicts have wide
+Wilson 95% intervals. Stated plainly so it isn't over-read:
+
+| cell | no-think | think | no-think Wilson 95% | think Wilson 95% | delta real? |
+|---|:--:|:--:|:--:|:--:|:--:|
+| p3_doc | 9/10 | 2/10 | [60%, 98%] | [6%, 51%] | **yes — CIs disjoint** |
+| p3_pm | 5/10 | 0/10 | [24%, 76%] | [0%, 28%] | borderline — CIs nearly touch |
+| p3_market | 8/10 | 10/10 | [49%, 94%] | [72%, 100%] | no — within noise |
+
+So the honest version of headline #2: the **`p3_doc` think-hurts effect is statistically clean** (disjoint
+intervals) *and* mechanistically explained (the word-limit loop, reproduced on 27B-Q4) — that's the load-
+bearing result. `p3_pm` is suggestive but not significant at N=10; `p3_market`'s +2 is noise. "Net −10"
+is directionally solid but driven by doc; don't quote it as a precise magnitude. The cross-model
+reproduction (same loop on 27B) is what makes the *direction* trustworthy, not the single-model delta.
 
 ## Power behavior — are both GPUs ever near full power? No.
 
