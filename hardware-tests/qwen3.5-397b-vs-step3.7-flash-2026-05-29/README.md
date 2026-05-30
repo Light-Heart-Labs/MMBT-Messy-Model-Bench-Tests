@@ -7,10 +7,14 @@ Step-3.7-Flash-NVFP4 entry on the same box.
 **N=10** — ten replicates per cell, both arms (240 cells, all `done_signal`; phase-1 graded with the fixed `phase1_grade.py`).
 
 ## TL;DR
-- **397B no-think 82/120, think 72/120; Step-3.7-Flash 7–8/12; 27B-Q4 & Coder-Next-Q4 ~7/12.** Aggregate ties across a ~15× param range — scale doesn't move the total (confirmed at N=10).
-- **Thinking is net-negative across a ~15× param range — same mechanism.** 397B think 72/120 < no-think 82/120 (−10), and Qwen3.6-27B-Q4 (N=10) ships **86.8% no-think vs 75% thinking** — both worse with thinking, both via the **`p3_doc` word-limit loop** (397B 9/10→2/10; 27B-thinking `wall_killed` ~40%). Reasoning isn't a free upgrade; on constraint-bound synthesis it backfires regardless of size. (Full cross-model think/no-think table in findings.md.)
-- **N=10 overturns small-N luck:** `p3_market` no-think flips 1/3 (N=3, looked like a fail) → 8/10 (clear pass) — auto-flagged in the stability table. The headline methodological result.
+
+*This entry is methodological, not "which model won." The two results that survive scrutiny lead; the "scale ties" observation is real but the most caveated, so it's demoted.*
+
+- **① Small-N misreads cells — demonstrated.** `p3_market` no-think flips **1/3 at N=3 (reads as fail) → 8/10 at N=10 (clear pass)**, auto-flagged in a stability table. Almost no local-AI benchmark shows this. The differentiated contribution.
+- **② Thinking is net-negative on constraint-bound synthesis — cross-validated across ~15× of scale.** 397B think 72/120 < no-think 82/120, and Qwen3.6-27B-Q4 (N=10) ships **86.8% no-think vs 75% thinking** — both worse, both via the **same `p3_doc` word-limit count→edit→recount loop** (397B 9/10→2/10, CIs disjoint; 27B-thinking `wall_killed` ~40%). Reasoning isn't a free upgrade. (The clean result is `p3_doc`; "net −10" is carried by 2 cells — see Statistical honesty.)
+- **③ Aggregate ties ~7–8/12 across 397B / Flash / 27B-Q4 / Coder-Q4 — but read as *suggestive*.** Two confounds keep this from being a scaling law: **cross-quant** (397B at Q3 vs ~11B-active at FP4 — not a clean scale axis) and **N-asymmetry** (only 397B is N=10; comparators are N=1, which this very entry proves misreads cells).
 - **Failure temperament tracks lineage, not size:** 397B + 27B *stall* (never over-generate); Coder-Next + Flash *run away*. Zero max_tokens runaways across all 240 397B cells.
+- ⚠️ 27B/Coder **phase-1 reference cells are quarantined** pending [issue #29] (same grader bug this entry fixed); their p2/p3 cells are unaffected and used in the cross-model comparison.
 - **Cross-model uses clean Q4/AWQ refs** for 27B/Coder; fresh Q8/FP8 runs excluded as serving failures (documented, not faked).
 - **GPU power:** combined both-GPU draw never within 5% of the 1200W cap (median 670W, max 985W=82%); GPU0 leads GPU1 — pipeline alternation. The pair never hits full power together.
 - The substance is qualitative — **read [QUALITATIVE.md](QUALITATIVE.md).**
