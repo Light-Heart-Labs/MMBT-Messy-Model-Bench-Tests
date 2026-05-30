@@ -1,26 +1,24 @@
-# Qwen3.5-397B-A17B on 2× RTX PRO 6000 Blackwell — microbench N=3 (+ Step-3.7-Flash comparison)
+# Qwen3.5-397B-A17B on 2× RTX PRO 6000 Blackwell — microbench N=10 (+ Step-3.7-Flash + 27B/Coder-Q4 + GPU power)
 
 A large MoE (397B total / ~17B active) run as a GGUF on llama.cpp, benched through the MMBT
 12-family agentic microbench in two reasoning modes (no-think / think) and compared against the
 Step-3.7-Flash-NVFP4 entry on the same box.
 
-**N=3** — three replicates per cell (phase-1 graded with the fixed `phase1_grade.py`).
+**N=10** — ten replicates per cell, both arms (240 cells, all `done_signal`; phase-1 graded with the fixed `phase1_grade.py`).
 
 ## TL;DR
-- **397B no-think 23/36, think 22/36; Step-3.7-Flash 7–8/12.** Aggregate ties across a ~15× param range.
-- **Thinking is net −1, but not inert** (N=3 correction): it *redistributes* — stabilizes `p3_market`
-  (1/3→3/3) while hurting `p3_pm` (2/3→0/3) and `p3_doc` (2/3→1/3). It changes *where* 397B succeeds,
-  not how often.
-- **397B never ran away** (zero max_tokens/length failures across 72 cells) where Flash did at low effort.
-  Its only non-clean exits: 2 no-think `p3_market` reps hit the 500-iter *stuck* threshold + 1 `p3_pm`
-  `model_stopped` — a stalling pathology, not runaway; thinking clears the market stall (think market 3/3).
-- **N=3 matters:** `p3_market`/`p3_pm`/`p3_doc` are high-variance; their N=1 verdicts were single-draw luck.
-- **Flash is the cheaper/faster default** (~99 vs ~71 tok/s, one engine vs both GPUs); 397B's case is
-  reliability (runaway resistance, thinking-on market research).
+- **397B no-think 82/120, think 72/120; Step-3.7-Flash 7–8/12; 27B-Q4 & Coder-Next-Q4 ~7/12.** Aggregate ties across a ~15× param range — scale doesn't move the total (confirmed at N=10).
+- **Thinking is net −10 at N=10** — helps `p3_market` (8/10→10/10) but craters `p3_doc` (9/10→2/10) and `p3_pm` (5/10→0/10). It changes *where* 397B succeeds, and on net makes it worse here. Per-task call, not a default.
+- **N=10 overturns small-N luck:** `p3_market` no-think flips 1/3 (N=3, looked like a fail) → 8/10 (clear pass) — auto-flagged in the stability table. The headline methodological result.
+- **Failure temperament tracks lineage, not size:** 397B + 27B *stall* (never over-generate); Coder-Next + Flash *run away*. Zero max_tokens runaways across all 240 397B cells.
+- **Cross-model uses clean Q4/AWQ refs** for 27B/Coder; fresh Q8/FP8 runs excluded as serving failures (documented, not faked).
+- **GPU power:** combined both-GPU draw never within 5% of the 1200W cap (median 670W, max 985W=82%); GPU0 leads GPU1 — pipeline alternation. The pair never hits full power together.
 - The substance is qualitative — **read [QUALITATIVE.md](QUALITATIVE.md).**
 
 ## Files
-- [findings.md](findings.md) — scorecard + headline findings.
+- [findings.md](findings.md) — N=10 scorecard + headline findings + power + cross-model qualitative.
+- [findings-n10.md](findings-n10.md) — auto-generated replicate-stability table (flags small-N flips) + finish-reason audit.
+- [power-analysis.md](power-analysis.md) — dual-GPU power percentiles, pipeline asymmetry, %-of-cap.
 - [QUALITATIVE.md](QUALITATIVE.md) — behavioral analysis beyond pass/fail (token economy, packaging,
   failure-mode texture, reasoning shape), every claim cited to a cell/file.
 - [manifest.json](manifest.json) — models, quant, engine, launch flags, run inventory, dates.
