@@ -103,6 +103,27 @@ def cell_finish_reason(logs: Path, run: str):
     return None
 
 
+def cell_finished(logs: Path, run: str) -> bool:
+    """True if the harness considers the cell finished (summary.json present).
+    This mirrors the autopilot's notion of a completed cell. A cell can be
+    finished but not yet graded (no grade.json) — that gap is exactly where the
+    autopilot scorecard (denominator = finished cells) and this report
+    (denominator = graded cells) diverge, so we surface it as a footnote."""
+    return (logs / run / "summary.json").exists()
+
+
+def done_but_ungraded(logs: Path, label: str, n: int):
+    """Run-names that are finished (summary.json) but have no grade.json yet,
+    over all tasks v1..n for an arm. Empty at a clean COMPLETE run."""
+    out = []
+    for t in TASKS:
+        for v in range(1, n + 1):
+            run = f"{t}_{label}_v{v}"
+            if cell_finished(logs, run) and cell_verdict(logs, run) is None:
+                out.append(run)
+    return out
+
+
 def arm_task_cells(logs: Path, task: str, label: str, n: int):
     """List of (v, verdict) for v in 1..n where a grade.json exists. verdict in
     {'pass','fail'}; cells without a grade are skipped (treated as not-yet-run)."""
@@ -162,6 +183,24 @@ def section_scorecard(logs: Path, n: int):
              "graded replicate exists for that cell. Step/27B/Coder columns are the published "
              "comparators carried from the N=3 entry (see tracking issue #29 — phase-1 reference cells "
              "may be provisional).")
+    # Reconciliation guard: surface finished-but-ungraded cells. These are the
+    # exact cells where this report's denominator (graded) differs from the
+    # autopilot --publish scorecard's denominator (finished). At a clean COMPLETE
+    # run there should be none; if any appear in an auto-published artifact it
+    # means grading lagged or partially failed and the two scorecards will not
+    # agree on x/N — worth a human look before trusting the totals.
+    ungraded = []
+    for label in (NOTHINK_LABEL, THINK_LABEL):
+        ungraded += done_but_ungraded(logs, label, n)
+    if ungraded:
+        L.append("")
+        L.append(f"> ⚠️ **{len(ungraded)} finished-but-ungraded cell(s)** (summary.json present, no "
+                 "grade.json): " + ", ".join(f"`{r}`" for r in ungraded[:30]) +
+                 (" …" if len(ungraded) > 30 else "") +
+                 ". These are EXCLUDED from the pass denominators above but ARE counted (as non-pass) "
+                 "by the autopilot `--publish` scorecard's denominator — so the two artifacts will "
+                 "disagree on `x/N` until grading completes. Expected to be empty on a clean COMPLETE "
+                 "run; if present in a published doc, regrade before trusting the totals.")
     return "\n".join(L)
 
 
