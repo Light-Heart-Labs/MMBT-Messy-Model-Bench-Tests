@@ -37,10 +37,11 @@ CELL_GLOB = "p*_397b-*_v*"
 # N=10 no-think baseline pass counts per task (totals to 82/120). Used for the
 # pass-rate delta enrichment. These are the published Phase-A N=10 numbers; if a
 # task is absent here we simply omit its delta.
+# Real N=10 no-think per-task pass counts (sums to 82/120 — verified against grade.json).
 BASELINE_N10_NOTHINK = {
-    "p1_bugfix": 7, "p1_testwrite": 8, "p1_refactor": 6,
-    "p2_extract": 7, "p2_ci": 5, "p2_hallucination": 6, "p2_triage": 7,
-    "p3_doc": 8, "p3_business": 7, "p3_market": 7, "p3_writing": 7, "p3_pm": 7,
+    "p1_bugfix": 10, "p1_testwrite": 0, "p1_refactor": 0,
+    "p2_extract": 10, "p2_ci": 10, "p2_hallucination": 10, "p2_triage": 10,
+    "p3_doc": 9, "p3_business": 10, "p3_market": 8, "p3_writing": 0, "p3_pm": 5,
 }
 BASELINE_N10_TOTAL_PASS = 82
 BASELINE_N10_TOTAL_CELLS = 120
