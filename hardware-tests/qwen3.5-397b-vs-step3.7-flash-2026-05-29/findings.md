@@ -142,3 +142,52 @@ temperament tracks training lineage, not parameter count**:
   pass/fail.
 
 See [QUALITATIVE.md](QUALITATIVE.md) for the full per-cell behavioral analysis.
+
+## Cross-model think-vs-no-think at N=10 (397B vs 27B-Q4, vs Coder-Next-Q4)
+
+The 27B/Coder reference columns above are N=1 (`microbench-2026-04-28`). But we have a **richer Q4
+dataset** that mirrors this study's exact design: `benchmarks/microbench-phase-b-2026-05-02` ran
+**Qwen3.6-27B-AWQ at N=10 in BOTH thinking and no-think arms** (plus Coder-Next N=10) on the open-ended P3
+differential cells. That lets us ask the *same* question of the 27B that we asked of the 397B — and the
+answer rhymes.
+
+**The headline: thinking is net-negative across a ~15× parameter range, via the same mechanism.**
+
+| | thinking | no-think | Δ | shared mechanism |
+|---|:--:|:--:|:--:|---|
+| **397B** (N=10, pass) | 72/120 | **82/120** | **−10** | thinking craters `p3_doc` (9/10→2/10) on word-limit overrun |
+| **27B-Q4** (N=10, ship on 4 differential cells) | 30/40 (75%) | **33/38 (86.8%)** | **+11.8pp for no-think** | thinking's `p3_doc` word-trim loop (4/10 `wall_killed`) drops to 2/10 without it |
+
+Both models are **more reliable with thinking OFF**, and on both the **`p3_doc` synthesis task is where
+thinking specifically hurts** — the model drafts, counts words, sees it's over the 700-word budget, edits,
+recounts, and loops. 397B trips the *grader's* word limit (9→2 PASS); 27B-thinking literally `wall_killed`s
+in the count-edit-recount loop ~40% of the time. Disabling thinking makes both "write once and ship."
+**This is the strongest cross-scale result in the suite: reasoning is not a free upgrade — on
+constraint-bound synthesis it actively backfires, independent of model size.**
+
+### Per-cell ship-rate, P3 differential cells (all N=10, done_signal)
+
+| cell | Coder-Next-Q4 | 27B-Q4 think | 27B-Q4 no-think | 397B no-think | 397B think |
+|---|:--:|:--:|:--:|:--:|:--:|
+| p2_hallucination | 10/10 | 7/10 | 5/10 (5 stuck) | 10/10 | 10/10 |
+| p3_business | 10/10 | 9/10 | 8/10 | 10/10 | 10/10 |
+| p3_doc | 10/10 | **6/10** | 8/10 | 9/10 | **2/10** |
+| p3_market | **0/10** | 8/10 | 7/10 | 8/10 | 10/10 |
+| p3_pm | 10/10 | 10/10 | 10/10 | 5/10 | 0/10 |
+
+(27B/Coder = ship-rate `done_signal`; 397B = PASS — not perfectly identical metrics, but the shapes are
+directly comparable. P1 coding cells excluded from the 27B cross-harness comparison: phase-b 27B-thinking
+P1 used an older harness sha, so those aren't clean cross-harness — see that entry's caveats.)
+
+### Failure temperament confirmed across the lineup (N=10, not anecdote)
+
+- **Coder-Next runs away / fails hard:** `p3_market` **0/10** (reproducible STRUCTURAL_FAIL, Wilson 95%
+  [0%, 27.8%]), `p2_hallucination` ~50% stuck. Bounded failure shapes, not flakes.
+- **27B stalls in loops:** the word-trim `wall_killed_identical_call_loop` (write⇄word-count), plus
+  `p3_market` scroll-loops (155-iter HTML-slice walks) — *stalling*, not over-generation.
+- **397B stalls too** (stuck-loop / model_stopped, zero max_tokens runaways) — same temperament as 27B.
+- **Flash runs away** (market at low effort) — same temperament as Coder-Next.
+
+So **failure temperament clusters by training lineage, not parameter count**: the two Qwen-derived models
+(397B, 27B) stall; the two others (Coder-Next, Flash) run away. A 15× size gap doesn't change the
+temperament; shared lineage does.

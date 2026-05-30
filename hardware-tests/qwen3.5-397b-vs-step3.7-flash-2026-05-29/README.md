@@ -8,7 +8,7 @@ Step-3.7-Flash-NVFP4 entry on the same box.
 
 ## TL;DR
 - **397B no-think 82/120, think 72/120; Step-3.7-Flash 7–8/12; 27B-Q4 & Coder-Next-Q4 ~7/12.** Aggregate ties across a ~15× param range — scale doesn't move the total (confirmed at N=10).
-- **Thinking is net −10 at N=10** — helps `p3_market` (8/10→10/10) but craters `p3_doc` (9/10→2/10) and `p3_pm` (5/10→0/10). It changes *where* 397B succeeds, and on net makes it worse here. Per-task call, not a default.
+- **Thinking is net-negative across a ~15× param range — same mechanism.** 397B think 72/120 < no-think 82/120 (−10), and Qwen3.6-27B-Q4 (N=10) ships **86.8% no-think vs 75% thinking** — both worse with thinking, both via the **`p3_doc` word-limit loop** (397B 9/10→2/10; 27B-thinking `wall_killed` ~40%). Reasoning isn't a free upgrade; on constraint-bound synthesis it backfires regardless of size. (Full cross-model think/no-think table in findings.md.)
 - **N=10 overturns small-N luck:** `p3_market` no-think flips 1/3 (N=3, looked like a fail) → 8/10 (clear pass) — auto-flagged in the stability table. The headline methodological result.
 - **Failure temperament tracks lineage, not size:** 397B + 27B *stall* (never over-generate); Coder-Next + Flash *run away*. Zero max_tokens runaways across all 240 397B cells.
 - **Cross-model uses clean Q4/AWQ refs** for 27B/Coder; fresh Q8/FP8 runs excluded as serving failures (documented, not faked).
