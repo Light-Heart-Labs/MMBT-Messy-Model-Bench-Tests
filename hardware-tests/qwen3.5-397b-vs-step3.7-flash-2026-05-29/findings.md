@@ -153,9 +153,26 @@ analyzed with `tooling/bench_power.py`. 3,868 paired samples.
   the cards and fire in sequence, so the two rarely peak simultaneously. Combined with the CPU-bound tool
   phases, this is *why* the rig never thermally stresses on this workload.
 - **Why it matters:** the "both GPUs at 600W = 1200W" worst case simply does not occur for single-stream
-  agentic inference under pipeline parallelism. (The MiniMax-M2.7 run uses vLLM **tensor**-parallel, which
-  fires both GPUs per token — the expected contrast is a higher, more simultaneous combined draw; that
-  comparison is added when the MiniMax run lands.)
+  agentic inference under pipeline parallelism. (Contrast confirmed by the MiniMax-M2.7 run, which uses
+  vLLM **tensor**-parallel: both GPUs fire per token, combined active-decode draw **median ~896W, peak
+  1089W (91% of cap), both GPUs >400W in 64% of samples, crossing 1000W** — the heaviest simultaneous
+  draw of the bench. TP-vs-pipeline topology, not model size, drives it. See
+  [findings-minimax-m2.7.md](findings-minimax-m2.7.md).)
+
+## MiniMax-M2.7-NVFP4 (added — N=5, vLLM TP=2) — see [findings-minimax-m2.7.md](findings-minimax-m2.7.md)
+
+Two findings, full detail in the linked doc:
+1. **A temperature serving-trap, not a capability gap.** At the bench's default `temp=0.3`, MiniMax-NVFP4
+   runs the agent loop correctly then degenerates into a repetition loop on its final turn
+   (`model_exceeded_max_tokens`): **14/19 coding cells ran away (testwrite 10/10)**. At the model card's
+   `temp=1.0/top_p=0.95/top_k=40`, the *same cells on the same 131072 cap* are **0/10 runaway**; all 60
+   N=5 cells: **58 `done_signal`, 0 runaway**. Clean A/B → sampling, not the model, not the cap.
+2. **An "exhaustive completer" temperament.** Aggregate **7/12 (35/60 cells)** — ties the ~7–8/12 band —
+   but the shape is distinctive and **complementary to 397B**: **p2 analysis a perfect 20/20** (thoroughness
+   pure upside), **scope-constrained coding 0/5 on both testwrite & refactor** (it edits files it was told
+   to leave alone — real over-reach, opposite of 397B's surgical restraint), `p3_market` exhausts context
+   (2× HTTP 400). *Deviation footnote: MiniMax alone runs temp=1.0 (off the temp=0.3 cohort) — justified
+   because temp=0.3 is off-spec for it; and N=5 vs the cohort's N=10/N=1.*
 
 ## Cross-model qualitative (vs 27B / Coder-Next at Q4)
 
