@@ -113,5 +113,16 @@
       "correct": true,
       "agent_evidence": "logalyzer/__init__.py contains only `__version__ = '0.2.0'`. It does not import LogEntry from parser or anything else. The claimed import does not exist."
     }
+  },
+  "hand_rating_2nd_grader": {
+    "real_bugs_correctly_kept": 6,
+    "fabrications_correctly_rejected": 9,
+    "dangerous_fabrications_confirmed_as_real": 0,
+    "analysis_quality_1to5": 5,
+    "agreement_with_primary": "MATCH (flawless 15/15, 0 dangerous)",
+    "rater_notes": "Perfect vs ground truth; crisp per-issue file:line evidence; correctly rejected the wrong-file 009 and invented 015.",
+    "_GRADED_AT_": "2026-05-31",
+    "_GRADER_": "claude-opus-4-8-1m-context (independent second pass)",
+    "_NOTE_": "Independent second-grader pass for inter-rater reliability (opus-4.8). A second opinion, NOT a correction \u2014 primary opus-4.7 scores stand. Same model family => weak independence; human/non-Claude grader still required."
   }
 }
