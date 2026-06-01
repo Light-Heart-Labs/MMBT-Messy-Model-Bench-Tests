@@ -241,10 +241,10 @@ All three arms use **Cyankiwi 4-bit AWQ** community quants. Multiple field repor
 
 What this means for the data here:
 - Within-quant comparison (Coder-Next vs 27B at the same Cyankiwi 4-bit AWQ) **is** informative — the differential is a model-behavior gap, not a quant artifact.
-- Absolute model capability at higher precision (FP8 / UD4 / BF16) is **not** characterized.
+- Absolute model capability at higher precision (FP8 / UD4 / BF16) is **partly characterized now** — see below.
 - Effects that depend on a thinking-mechanism (the `--no-think` ship-rate jump, the word-trim loop reduction) are **unlikely to be quant-specific** — they're about the trace, not the weights' precision.
 
-The FP8 re-run is the highest-priority follow-up.
+**Update (2026-05-31): the FP8 re-run is done.** A clean **Qwen3.6-27B-FP8** run of the full 12-family grid is published at [`hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/`](hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/). It confirms the prediction above: **thinking is still net-negative at FP8** (no-think 35/60 vs think 29/60), so that finding is *not* a 4-bit-AWQ artifact. FP8 serving was also stable (113/119 clean) where the earlier Q8 attempt was a serving failure. The AWQ-underperforms-FP8 *absolute-capability* question for 27B is now directly addressable from that entry; 35B-A3B at higher precision remains the open follow-up. See [`MICROBENCH-INDEX.md`](MICROBENCH-INDEX.md) for the full cross-quant picture.
 
 ### Other VRAM tiers
 

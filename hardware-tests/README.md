@@ -28,6 +28,8 @@ Do not mix those two tables in a cross-host ranking.
 | Bundle | Primary question | Main caution |
 |---|---|---|
 | [`qwen3.6-q8-fleet-2026-05-17`](qwen3.6-q8-fleet-2026-05-17/) | How do four local-AI hardware classes handle the same dense and MoE Qwen3.6 workloads? | Multi-user serving is held; Tower2 MoE uses a defended vLLM FP8 exception because native llama.cpp Q8 crashes. |
+| [`best-stack-followup-2026-05-17`](best-stack-followup-2026-05-17/) | What's the best serving stack per platform (MLX vs Metal on M5; ROCm 7 on Strix Halo)? | Platform-specific; MLX beats Metal on M5, ROCm 7 works on Strix, no prefill lift. |
+| [`qwen3.5-397b-vs-step3.7-flash-2026-05-29`](qwen3.5-397b-vs-step3.7-flash-2026-05-29/) | **(Model-behavior microbench, filed here for the rig.)** Does thinking help; do results tie across scale; 397B / Step-3.7 / MiniMax / 27B-Q4 refs. | Thinking net-negative across ~15× scale; small-N misreads cells; MiniMax temp serving-trap. A 12-family agentic microbench — see [`../MICROBENCH-INDEX.md`](../MICROBENCH-INDEX.md). Secondary: dual-GPU power. |
 | [`local-ai-hardware-valuation-2026-05-17`](local-ai-hardware-valuation-2026-05-17/) | What are buyers paying per usable memory GB, bandwidth, and measured 27B Q8 tok/s? | Prices and wall-power assumptions are time-bound inputs. |
 | [`vllm-power-sweep-2026-04-29`](vllm-power-sweep-2026-04-29/) | Where is the RTX PRO 6000 Blackwell LLM-serving power-cap plateau? | Tower2-only, vLLM-only, AWQ-INT4 models. |
 | [`ltx23-power-sweep-2026-05-05`](ltx23-power-sweep-2026-05-05/) | Does the same GPU power-cap curve apply to diffusion/video generation? | Workload-specific to the LTX-2.3 workflow tested. |
