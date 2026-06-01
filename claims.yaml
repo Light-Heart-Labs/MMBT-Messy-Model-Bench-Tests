@@ -426,6 +426,37 @@ claims:
     scope: MiniMax-M2.7-NVFP4, vLLM TP=2, power telemetry
     evidence: "hardware-tests/qwen3.5-397b-vs-step3.7-flash-2026-05-29/findings-minimax-m2.7.md § GPU power"
 
+  # ─── Qualitative grading (QUALITATIVE-SPOT-GRADES.md, tooling/QUALITATIVE-GRADING-PROTOCOL.md) ───
+
+  - id: qual.method.inter-rater-reproduces-with-rubric-wobble
+    text: >
+      An independent second-grader pass (opus-4.8) over the 3 "full" microbench
+      entries reproduced ~14/15 of the primary (opus-4.7) qualitative dim-scores;
+      the 2 single-point divergences both fell on under-specified rubric points
+      (source_skepticism conflates source-reliability-eval with claim-skepticism;
+      the adv-hallucination issue-009 citation rule is ambiguous). The qualitative
+      layer reproduces at the direction level; where it wobbles, the rubric is fuzzy.
+    status: provisional
+    scope: same-family second grader (opus-4.8 vs 4.7), 3 cells, N=1 each
+    evidence: "QUALITATIVE-SPOT-GRADES.md; hand_rating_2nd_grader blocks in the doc-synthesis/market-research/adversarial-hallucination grade.json"
+    caveats:
+      - "Same model family => weak inter-rater independence; a human/non-Claude grader is still required."
+      - "An independent audit downgraded 4 no-think/MiniMax spot-grade cells (grader-inflation), so single-pass scores are NOT safe to bank."
+
+  - id: qual.finding.binary-tie-hides-divergence
+    text: >
+      The ~7-8/12 aggregate microbench tie is a deceptive average: on cells where
+      models "both PASS" they diverge sharply in stance, calibration, source
+      skepticism, and safety (e.g. Coder ships the tightest memo but misses the
+      highest-severity planted signal; on adversarial-hallucination 27B is flawless
+      while Coder confirms an invented bug as real). The qualitative layer carries
+      the real differentiation the aggregate washes out.
+    status: provisional
+    scope: local AWQ microbench cells, single same-family grader, N=1 representatives
+    evidence: "QUALITATIVE-SPOT-GRADES.md; benchmarks/microbench-2026-04-28 grade.json hand-rating blocks"
+    caveats:
+      - "Provisional single-LLM-grader scores; not validated; not a ranking. Cloud models (Opus/GPT-5.5) are ungraded on these axes and cannot be Claude-graded (grader-independence)."
+
 # ─── Retracted ────────────────────────────────────────────────────────────────
 
 retracted:

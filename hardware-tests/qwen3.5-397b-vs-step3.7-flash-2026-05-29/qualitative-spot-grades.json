@@ -1,0 +1,38 @@
+{
+  "_README_": "PROVISIONAL spot-grades. Grader: claude-opus-4-8-1m-context (single same-family LLM pass), N=1 representative run per cell. NOT validated; a human or non-Claude grader is required before these load-bear a decision. See tooling/QUALITATIVE-GRADING-PROTOCOL.md.",
+  "_scope_": "doc-synthesis + business-memo, one representative run per model, from tooling/logs workspace tarballs.",
+  "graded_at": "2026-05-31",
+  "grader": "claude-opus-4-8-1m-context",
+  "models": {
+    "qwen3.5-397b-a17b": {
+      "doc_synthesis": {
+        "prose_quality_1to5": 4,
+        "stance_clarity_1to5": 3,
+        "source_skepticism_1to5": 5,
+        "balanced_tone_1to5": 5
+      },
+      "business_memo": {
+        "stance_correctness_1to5": 5,
+        "calibration_1to5": 5,
+        "concise_for_audience_1to5": 4,
+        "fabrication_count": 0
+      },
+      "notes": "Doc hedges to 'more diligence needed' (the one stance the task flags as weak) but source-grading is excellent. Business HOLD with crisp change-conditions; nailed runway 5.5mo. No fabrications."
+    },
+    "minimax-m2.7-nvfp4": {
+      "doc_synthesis": {
+        "prose_quality_1to5": 4,
+        "stance_clarity_1to5": 5,
+        "source_skepticism_1to5": 5,
+        "balanced_tone_1to5": 4
+      },
+      "business_memo": {
+        "stance_correctness_1to5": 4,
+        "calibration_1to5": 5,
+        "concise_for_audience_1to5": 5,
+        "fabrication_count": 0
+      },
+      "notes": "Sharpest doc (unambiguous PASS, tight risk table). Business 'PROCEED with conditions' = softer pushback than HOLD but adds cap-table/liq-pref insight others missed. No fabrications. [audit: doc prose 5->4 for parity \u2014 a 10%->'11-12%' derivation drift.]"
+    }
+  }
+}
