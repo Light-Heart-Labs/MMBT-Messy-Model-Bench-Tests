@@ -379,6 +379,53 @@ claims:
     caveats:
       - "Single task family; the mechanism (reasoning off the closed vocabulary) is read from transcripts, not a controlled ablation."
 
+  # ─── MiniMax-M2.7-NVFP4 (hardware-tests/qwen3.5-397b-vs-step3.7-flash-2026-05-29/findings-minimax-m2.7.md) ───
+
+  - id: hw.minimax.temp-serving-trap
+    text: >
+      MiniMax-M2.7-NVFP4 on vLLM TP=2 degenerates at the bench's default
+      temperature=0.3: it runs the agent loop correctly then enters a final-turn
+      repetition loop to max_tokens (14/19 coding cells ran away, p1_testwrite
+      10/10). At the model card's temperature=1.0/top_p=0.95/top_k=40 the same
+      cells on the same 131072 cap produce 0/10 runaways; all 60 cells finish
+      58 done_signal / 0 runaway. The runaway is a sampling trap, not the model
+      and not the token cap (identically-capped 397B: 0 runaways in 260 cells).
+    status: provisional
+    scope: MiniMax-M2.7-NVFP4, vLLM TP=2, sm_120, clean same-cell A/B (temp 0.3 vs 1.0)
+    evidence: "hardware-tests/qwen3.5-397b-vs-step3.7-flash-2026-05-29/findings-minimax-m2.7.md § The serving trap"
+    caveats:
+      - "Single rig; receipt.json records temperature but not top_p/top_k (full sampling profile in the doc + manifest)."
+      - "NVFP4 on sm_120 is a maturity-rough surface; --enable-expert-parallel not used."
+
+  - id: hw.minimax.exhaustive-completer
+    text: >
+      MiniMax-M2.7 is an "exhaustive completer": it aces open analysis (p2
+      extract/ci/hallucination/triage a perfect 20/20) but fails scope-constrained
+      coding (p1_testwrite 0/5, p1_refactor 0/5 on *_unchanged scope violations —
+      it edits files it was told to leave alone) and exhausts context on p3_market
+      (2 cells HTTP-400). Aggregate 35/60 (7/12) ties the field's band, but the
+      per-family shape is complementary to 397B's surgical restraint, not a tie.
+    status: provisional
+    scope: MiniMax-M2.7-NVFP4, vLLM TP=2, N=5, temp=1.0 (card sampling)
+    evidence: "hardware-tests/qwen3.5-397b-vs-step3.7-flash-2026-05-29/findings-minimax-m2.7.md § Scorecard + Qualitative"
+    caveats:
+      - "N=5 vs comparators' N=10/N=1; treat aggregate as +/-1 family."
+      - "p1_testwrite/refactor share the bench-wide starter-code task-design caveat, but MiniMax's failures are substantive scope violations, not the grader artifact."
+
+  - id: hw.minimax.tp2-power.held
+    text: >
+      The TP=2-vs-pipeline simultaneous-power-draw comparison for MiniMax-M2.7 is
+      held. Continuous per-sample power telemetry for the MiniMax run was not
+      reliably captured; only instantaneous per-cell nvidia-smi snapshots survive
+      (N=60: combined median 612W, balanced ~313W/~300W per GPU, 0/60 over 1000W),
+      and those undersample active-decode peaks. Earlier-cited figures
+      (~896W median / 1089W peak / 64% / "crosses 1000W") are withdrawn as
+      unverifiable. The architectural expectation (TP computes each layer on both
+      GPUs simultaneously, vs pipeline alternation) stands; a quantified peak does not.
+    status: held
+    scope: MiniMax-M2.7-NVFP4, vLLM TP=2, power telemetry
+    evidence: "hardware-tests/qwen3.5-397b-vs-step3.7-flash-2026-05-29/findings-minimax-m2.7.md § GPU power"
+
 # ─── Retracted ────────────────────────────────────────────────────────────────
 
 retracted:

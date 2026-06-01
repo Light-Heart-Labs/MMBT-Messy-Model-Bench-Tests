@@ -337,7 +337,7 @@ def execute_tool(name, args, log_dir, require_files=None, require_git_tag=False)
 
 def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
                max_completion_total=10**12, max_model_len=262144,
-               stuck_threshold=30, temperature=0.0,
+               stuck_threshold=30, temperature=0.0, top_p=None, top_k=None,
                require_files=None, require_git_tag=False, reasoning_effort=None,
                enable_thinking=None):
     """Run the agent until done() or limits hit. Returns final state dict."""
@@ -377,6 +377,13 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
             "max_tokens": max_tokens_safe,
             "stream": False,
         }
+        # Optional nucleus / top-k sampling. Some models specify a required operating point
+        # (e.g. MiniMax-M2 card: temperature=1.0, top_p=0.95, top_k=40) and degenerate into
+        # repetition loops under greedy decode. Sent only when set; seed=42 keeps it reproducible.
+        if top_p is not None:
+            payload["top_p"] = top_p
+        if top_k is not None:
+            payload["top_k"] = top_k  # vLLM OpenAI server accepts top_k as a top-level sampling param
         # Top-level chat_template_kwargs are passed through to the template render
         # (vLLM and llama.cpp --jinja both honor them). Each key is a no-op for
         # models whose template doesn't reference it.
@@ -445,8 +452,17 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
             finish_reason = f"model_exceeded_max_tokens_{max_tokens_safe}"
             break
 
-        # Append assistant message to history (preserve tool_calls so the model sees its own tool intents)
+        # Append assistant message to history (preserve tool_calls so the model sees its own tool intents).
+        # Interleaved-thinking models (e.g. MiniMax-M2, served with --reasoning-parser minimax_m2) split
+        # the <think> block out into a separate reasoning_content field. The MiniMax card REQUIRES
+        # retaining it across turns: "Do not remove the <think>...</think> part, otherwise the model's
+        # performance will be negatively affected" (their numbers: -36% tau2, -40% BrowseComp when prior
+        # thinking is stripped — state drift + weakened self-correction on long-horizon toolchains, which
+        # is exactly a clean agentic run that derails on a final turn). Pass reasoning_content back so the
+        # template re-renders the prior thinking. No-op for models that don't emit the field.
         assistant_msg = {"role": "assistant", "content": msg.get("content") or ""}
+        if msg.get("reasoning_content"):
+            assistant_msg["reasoning_content"] = msg["reasoning_content"]
         if msg.get("tool_calls"):
             assistant_msg["tool_calls"] = msg["tool_calls"]
         messages.append(assistant_msg)
@@ -561,6 +577,12 @@ def main():
                          "At temp=0 with seed=42, models can fall into fixed-point loops on long-horizon "
                          "tasks (same context → same response → same tool result → same response). "
                          "0.3-0.5 is typical for agentic work and breaks these traps without much off-task drift.")
+    ap.add_argument("--top-p", type=float, default=None,
+                    help="Nucleus sampling top_p, sent only when set. Pair with --temperature/--top-k to "
+                         "match a model's specified operating point (e.g. MiniMax-M2: temp=1.0 top_p=0.95 "
+                         "top_k=40). Leave unset to use the server default.")
+    ap.add_argument("--top-k", type=int, default=None,
+                    help="Top-k sampling, sent only when set (vLLM extension). See --top-p.")
     ap.add_argument("--stuck-threshold", type=int, default=30,
                     help="Iterations of unchanged workspace state hash before the harness aborts the run. "
                          "Default 30 was tuned on the memo/board/code tasks (whole job fits in ~100 iters, "
@@ -705,6 +727,7 @@ def main():
 
     summary = agent_loop(api_url, args.model, system_prompt, task, log_dir,
                          max_iters=args.max_iters, temperature=args.temperature,
+                         top_p=args.top_p, top_k=args.top_k,
                          stuck_threshold=args.stuck_threshold,
                          require_files=require_files,
                          require_git_tag=bool(args.require_git_tag),
