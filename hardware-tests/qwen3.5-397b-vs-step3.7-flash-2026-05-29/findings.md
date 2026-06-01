@@ -26,7 +26,7 @@ were serving failures** (35B: 36/36 HTTP-400; 27B-Q8: 23/36 token-runaway + 8/36
   `../step3.7-flash-nvfp4-dual-blackwell-2026-05-28/`. Cross-engine + cross-quant: **"best-as-each-ships,"
   not a clean precision study.**
 
-## Scorecard (N=10 for 397B; Step N=1/level; 27B+Coder Q4 N=1)
+## Scorecard (N=10 for 397B; Step N=3 at low/med, N=1 at high; 27B+Coder Q4 = single cited rep from N=3)
 
 | task | 397B no-think | 397B think | Step low/med/high | 27B-Q4 (ref) | Coder-Q4 (ref) |
 |---|:--:|:--:|:--:|:--:|:--:|
@@ -51,8 +51,10 @@ artifact. \* `p3_market` is STRUCTURAL_PASS (citation validity is hand-graded).
 graded by the same flat-vs-nested `phase1_grade.py` bug fixed in this entry, so the original published
 values are self-flagged as untrustworthy (p1_testwrite especially is likely a guaranteed-FAIL artifact).
 Their **p2/p3 cells are unaffected** by that bug and stay (used in the cross-model section below). The
-397B/Step p1 cells use the *fixed* grader and are valid. Step N=1/level, 27B/Coder Q4 N=1 (p2/p3 only) —
-directional; only 397B is N=10. Full per-replicate stability table + finish-reason audit in
+397B/Step p1 cells use the *fixed* grader and are valid. Step is **N=3 at low/medium, N=1 at high** (p2/p3
+cells; the p1 cells are N=1 at every level); the 27B/Coder Q4 columns are a **single cited representative
+from the N=3 [microbench-2026-04-28](../../benchmarks/microbench-2026-04-28/)** (p2/p3 only) — directional;
+only 397B is N=10. Full per-replicate stability table + finish-reason audit in
 [findings-n10.md](findings-n10.md).
 
 ### Grading-correctness fix (post-review, 2026-05-29)
@@ -100,7 +102,9 @@ A review caught that `phase1_grade.py` read flat keys (`coverage_pct`, `ruff_iss
    majority. **Two reasons not to over-read this as "scale doesn't matter":** (a) **cross-quant** — this is
    397B at *aggressive Q3_K_XL* (llama.cpp) vs an ~11B-active model at *NVFP4* (vLLM); it's
    "scale-at-3-bit vs small-at-4-bit," not a clean scale axis; (b) **N-asymmetry** — only 397B is N=10;
-   Step is N=1/level and 27B/Coder are N=1, and this very entry proves N=1 misreads the open-ended cells.
+   Step is N=3 at low/med (N=1 at high) and the 27B/Coder columns are a single cited representative, and
+   this very entry proves **small-N misreads the open-ended cells** (p3_market flips 1/3 at N=3 → 8/10 at
+   N=10 — even N=3 is unsafe here, let alone a single representative).
    "Turn thinking on" is therefore a per-task decision, not a default — but "scale ties" itself is the
    most caveated claim here, not the headline.
 

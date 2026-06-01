@@ -3,8 +3,9 @@
 MiniMax-M2.7 (230B-A10B MoE), served as **NVFP4 on vLLM tensor-parallel (TP=2)**, run through the MMBT
 12-family agentic microbench. Added to the [397B vs Step-3.7-Flash entry](findings.md) as a fifth model.
 
-**N=5** per cell (60 cells). Comparators in the main entry are N=10 (397B) / N=1 (Step, 27B-Q4, Coder-Q4) —
-so MiniMax is **N=5, an asymmetry to read with the same caution this entry already documents for small N.**
+**N=5** per cell (60 cells). Comparators in the main entry are N=10 (397B) / N=3 at low-med, N=1 at high
+(Step-3.7) / a single cited representative from N=3 (27B-Q4, Coder-Q4) — so MiniMax at **N=5** sits in the
+middle of that asymmetry, to read with the same caution this entry documents for small N.
 
 ## TL;DR — two findings, the first is the bigger one
 
