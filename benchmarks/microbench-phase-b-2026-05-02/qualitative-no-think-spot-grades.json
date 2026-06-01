@@ -1,0 +1,38 @@
+{
+  "_README_": "PROVISIONAL spot-grades. Grader: claude-opus-4-8-1m-context (single same-family LLM pass), N=1 representative run per cell. NOT validated; a human or non-Claude grader is required before these load-bear a decision. See tooling/QUALITATIVE-GRADING-PROTOCOL.md.",
+  "_CALIBRATION_FLAG_": "CALIBRATION CAUTION: the no-think pass returned uniform 5s across families in one session \u2014 either no-think genuinely excels (it is the 95.8%-ship arm) or the grader was under-critical. Ceiling estimate pending a second/non-Claude grader.",
+  "_scope_": "27B-AWQ no-think, one representative run per p3 family that has no published per-cell grade.json (doc/market/writing/pm). business-memo no-think is filled in its own grade.json (PR-A).",
+  "graded_at": "2026-05-31",
+  "grader": "claude-opus-4-8-1m-context",
+  "model": "qwen3.6-27b-awq-no-think",
+  "families": {
+    "doc_synthesis": {
+      "run": "p3_doc_27b-nothink_v1",
+      "prose_quality_1to5": 5,
+      "stance_clarity_1to5": 5,
+      "source_skepticism_1to5": 5,
+      "balanced_tone_1to5": 5
+    },
+    "market_research": {
+      "run": "p3_market_27b-nothink_v2",
+      "decision_criteria_explicit_1to5": 5,
+      "recommendation_specificity_1to5": 5,
+      "context_appropriateness_1to5": 5,
+      "fabricated_stats_count": 0,
+      "note": "one glitch token in a key-derivation cell"
+    },
+    "writing_editing": {
+      "run": "p3_writing_27b-nothink_v1",
+      "ceo_tone_fit_1to5": 5,
+      "customer_tone_fit_1to5": 5,
+      "legal_tone_fit_1to5": 5,
+      "faithfulness_1to5": 5,
+      "fabrication_count": 0
+    },
+    "project_management": {
+      "run": "p3_pm_27b-nothink_v1",
+      "structure_quality_1to5": 5,
+      "fabrication_count": 0
+    }
+  }
+}
