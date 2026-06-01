@@ -33,9 +33,10 @@ so MiniMax is **N=5, an asymmetry to read with the same caution this entry alrea
 | p1_testwrite | 0 / **10 runaway (100%)** | **5 `done_signal` / 0 runaway** |
 | all 60 cells (spec) | — | **58 `done_signal`, 0 runaway, 2 ctx-exhaustion** |
 
-A temp=0.3-runaway cell generated **71k–106k tokens in a single final turn** (100% of the per-turn cap).
-That is degenerate repetition, not legitimate output — and the identically-capped 397B (also 131072,
-also temp 0.3-equivalent path) had **0 runaways in 240 cells**, so the cap is not the cause.
+A temp=0.3-runaway cell generated **58k–106k tokens in a single final turn** (the testwrite cells cluster
+at 71k–106k; two bugfix cells dip to ~59k/75k). That is degenerate repetition, not legitimate output —
+and the identically-capped 397B (also 131072, also temp 0.3-equivalent path) had **0 runaways in 260
+cells**, so the cap is not the cause.
 
 ## Scorecard (N=5; PASS = grader verdict, majority ≥3/5 marks the family ✓)
 
@@ -86,17 +87,26 @@ per-family *shape* is distinctive** (and that shape, not the tie, is the finding
 **One-line verdict:** complementary to 397B. MiniMax aces analysis where 397B is average; 397B respects
 guardrails where MiniMax bulldozes them. A task-class strengths finding, not a scaling-law tie.
 
-## GPU power — TP=2 is the heaviest simultaneous draw of the bench
+## GPU power — TP=2 loads both GPUs in balance (no quantified peak this run)
 
-| | serving | combined draw | both GPUs hot at once | crosses 1000W |
-|---|---|---|---|---|
-| **MiniMax-M2.7** | vLLM **TP=2** (NVFP4) | active-decode median **~896W**, peak **1089W (91% of 1200 cap)** | **64% of samples** (>400W each) | **yes** |
-| 397B | llama.cpp **pipeline** | median 670W, max 985W | rarely | **never** (0 / 3868) |
+> **Data caveat (important):** continuous power sampling for the MiniMax run was **not reliably captured**
+> — the per-sample logger output for this run is missing/untagged, so the active-decode median/peak
+> percentiles are **not available**. An earlier draft of this doc cited specific figures
+> (~896W median / 1089W peak / 64%-of-samples / "crosses 1000W"); those are **unverifiable against any
+> committed data and are withdrawn.** The only surviving power data is the per-cell instantaneous
+> `receipt.json` `nvidia-smi` snapshot (one sample per cell), which is **not** a decode-peak measurement.
 
-The cause is parallelism mode, not size: **tensor-parallel makes both GPUs compute the same layers
-simultaneously** (so they fire together and push toward the PSU ceiling), whereas **pipeline-parallel
-alternates** them (GPU0 leads, combined draw stays well under the cap). MiniMax is balanced per-GPU
-(320W/363W mean) — TP splits evenly — vs 397B's GPU0-leads pipeline asymmetry.
+What the **60 receipt snapshots** show (instantaneous, N=60 cells): combined draw **median 612W, max 703W**,
+balanced per-GPU (**GPU0 ~313W / GPU1 ~300W median**), and **0/60 above 1000W**. These confirm TP=2's
+*balance* — both GPUs draw nearly equally, the signature of tensor-parallel splitting each layer across
+both cards — but because the snapshots are single instantaneous samples (likely caught outside sustained
+decode), they **undersample peak draw and cannot be compared** to 397B's continuously-sampled pipeline
+figures (median 670W / max 985W over 3,868 samples).
+
+**The defensible claim is architectural, not a measured peak:** tensor-parallel makes both GPUs compute
+each layer *simultaneously* (so they fire together), whereas pipeline-parallel *alternates* them (GPU0
+leads, combined draw staggered). MiniMax's balanced per-GPU snapshots are consistent with that; a
+quantified simultaneous-peak comparison to 397B would need a re-run with the per-sample logger fixed.
 
 ## Caveats (read these with the numbers)
 

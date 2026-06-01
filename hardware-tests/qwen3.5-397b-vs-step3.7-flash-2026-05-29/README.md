@@ -23,7 +23,8 @@ Step-3.7-Flash-NVFP4 entry on the same box.
 - [findings.md](findings.md) — N=10 scorecard + headline findings + power + cross-model qualitative.
 - [findings-minimax-m2.7.md](findings-minimax-m2.7.md) — **MiniMax-M2.7-NVFP4 (N=5, vLLM TP=2):** the
   temp=0.3→1.0 serving-trap (0 runaways at spec vs 74% at default), the "exhaustive completer" temperament
-  (p2 analysis 20/20, scope-constrained coding 0/5, p3_market ctx-exhaustion), and the heaviest TP=2 power draw.
+  (p2 analysis 20/20, scope-constrained coding 0/5, p3_market ctx-exhaustion), and the TP=2 power topology
+  (balanced both-GPU draw; continuous-sample peak not captured this run — see the doc's data caveat).
 - [findings-n10.md](findings-n10.md) — auto-generated replicate-stability table (flags small-N flips) + finish-reason audit.
 - [power-analysis.md](power-analysis.md) — dual-GPU power percentiles, pipeline asymmetry, %-of-cap.
 - [QUALITATIVE.md](QUALITATIVE.md) — behavioral analysis beyond pass/fail (token economy, packaging,

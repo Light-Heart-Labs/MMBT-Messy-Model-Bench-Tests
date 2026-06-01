@@ -46,6 +46,38 @@
     "n_per_cell": 10,
     "smoke_gate": "PASS (extraction, thinking off): tool-calling proven in harness, all fields correct, done_signal"
   },
+  "minimax_m2.7": {
+    "$note": "Fifth model folded into this entry (see findings-minimax-m2.7.md). Different model/engine/quant/sampling from the 397B GGUF rows above.",
+    "model": {
+      "hf_repo": "nvidia/MiniMax-M2.7-NVFP4",
+      "local_path": "~/models/nvidia-MiniMax-M2.7-NVFP4",
+      "quant_algo": "NVFP4",
+      "params": "230B total / ~10B active per token (MoE)",
+      "per_file_hashes": "See the HuggingFace repo for canonical per-file hashes; not recomputed locally."
+    },
+    "engine": {
+      "image": "vllm/vllm-openai:latest",
+      "note": "vLLM tensor-parallel TP=2, NVFP4 (--quantization modelopt), minimax_m2 tool/reasoning parsers, no --enable-expert-parallel. NVFP4 on sm_120 is a maturity-rough surface."
+    },
+    "serving_config": {
+      "tensor_parallel_size": 2,
+      "expert_parallel": false,
+      "max_model_len": 131072,
+      "extra_env": ["NCCL_P2P_DISABLE=1"],
+      "extra_flags": ["--disable-custom-all-reduce", "--trust-remote-code", "--quantization modelopt", "--tool-call-parser minimax_m2", "--reasoning-parser minimax_m2"]
+    },
+    "sampling": {
+      "temperature": 1.0,
+      "top_p": 0.95,
+      "top_k": 40,
+      "note": "Card-mandated sampling, a DELIBERATE deviation from the bench's cross-model temp=0.3 (at 0.3 the model degenerates into repetition loops — see results.minimax_temp_trap). receipt.json records temperature but NOT top_p/top_k; the full profile lives here and in the reproduce block."
+    },
+    "n_per_cell": 5,
+    "run_inventory": {
+      "cells": 60,
+      "finish_reasons": {"done_signal": 58, "ctx_exhaustion": 2, "runaway": 0}
+    }
+  },
   "results": {
     "397b_no_think_pass": "82/120 (N=10); 23/36 (N=3); 8/12 (N=1)",
     "397b_think_pass": "72/120 (N=10); 22/36 (N=3); 7/12 (N=1)",
@@ -56,11 +88,16 @@
     "cross_model": "Aggregate ties 7-8/12 across 397B / Step-3.7-Flash / Qwen3.6-27B-Q4 / Coder-Next-Q4 (~15x param range). 27B/Coder use Q4/AWQ refs (microbench-2026-04-28, N=1, clean); fresh Q8/FP8 EXCLUDED as serving failures (35B 36/36 HTTP-400, 27B-Q8 23/36 runaway). Failure temperament tracks lineage not size: 397B+27B stall, Coder+Flash run away.",
     "runaways": "zero max_tokens/length runaways across all 240 N=10 cells (Step-3.7-Flash ran away on p3_market at low effort; 27B-Q8 ran away 23/36). 397B pathology is stalling (stuck-loop / model_stopped), not runaway; thinking clears the no-think market stall. Failure temperament tracks training lineage not size.",
     "known_artifact": "p1_refactor fails on structure (no output/ subpackage). p1_testwrite fails on the 'only /tests/ may differ' rule — NOT incapacity: corrected grading shows think-mode reached 99% coverage / 153 passing tests.",
-    "phase1_grader_fix_2026-05-29": "phase1_grade.py read flat keys (coverage_pct/ruff_issues/benchmark_s) vs code_task_grader's nested coverage.line_coverage_pct/ruff.issue_count/benchmark.elapsed_s -> bugfix ruff/bench gates always-true, testwrite coverage gate always-false. Fixed and ALL phase-1 cells regraded; totals unchanged (8/12, 7/12) but now trustworthy."
+    "phase1_grader_fix_2026-05-29": "phase1_grade.py read flat keys (coverage_pct/ruff_issues/benchmark_s) vs code_task_grader's nested coverage.line_coverage_pct/ruff.issue_count/benchmark.elapsed_s -> bugfix ruff/bench gates always-true, testwrite coverage gate always-false. Fixed and ALL phase-1 cells regraded; totals unchanged (8/12, 7/12) but now trustworthy.",
+    "minimax_m2.7_pass": "35/60 cells = 7/12 families (N=5). Aces p2 analysis 20/20; 0/5 on scope-constrained coding (p1_testwrite, p1_refactor) via *_unchanged scope violations; p3_market 0/5 (2 ctx-exhaustion). 'Exhaustive completer' — complementary to 397B's surgical restraint.",
+    "minimax_m2.7_temp_trap": "At temp=0.3 (bench default) MiniMax-NVFP4 degenerates into final-turn repetition loops to max_tokens: 14/19 coding cells ran away (p1_testwrite 10/10). At card sampling temp=1.0/top_p=0.95/top_k=40, same cells/cap -> 0/10 runaway; all 60 cells 58 done_signal / 0 runaway. Sampling, not the model or the cap.",
+    "minimax_m2.7_power": "NOT reliably captured for this run (continuous per-sample logger output missing/untagged). Earlier-cited TP=2 peak figures (~896W/1089W/64%/'crosses 1000W') are WITHDRAWN as unverifiable. Only per-cell instantaneous nvidia-smi snapshots survive (N=60): combined median 612W, max 703W, balanced ~313W/~300W per GPU, 0/60 over 1000W -- but these undersample decode peaks and are not comparable to 397B's continuous-sample figures. Claim is architectural (TP loads both GPUs simultaneously), not a measured peak."
   },
   "caveats": [
     "N=10 per cell for 397B (Step N=1/level; 27B/Coder Q4 N=1). Open-ended cells p3_market/p3_pm/p3_doc are high-variance — see n_variance.",
     "Cross-engine (llama.cpp vs vLLM) AND cross-quant (Q3_K_XL vs NVFP4) vs Step-3.7-Flash: 'best-as-each-ships', NOT a clean precision study.",
-    "Some graders are binary and can fail high-quality output on format/length (see p3_writing); pair with QUALITATIVE.md."
+    "Some graders are binary and can fail high-quality output on format/length (see p3_writing); pair with QUALITATIVE.md.",
+    "MiniMax-M2.7 (5th model) runs at card-mandated temp=1.0/top_p=0.95/top_k=40 (NOT the temp=0.3 cohort) and N=5 (not N=10); a deliberate, documented deviation. Its continuous power telemetry was not captured this run — see minimax_m2.7_power.",
+    "MiniMax NVFP4 on sm_120 is a maturity-rough surface (vLLM has open repetition/kernel issues for MiniMax-NVFP4); --enable-expert-parallel was NOT used."
   ]
 }

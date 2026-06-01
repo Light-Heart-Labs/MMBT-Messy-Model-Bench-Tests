@@ -153,11 +153,12 @@ analyzed with `tooling/bench_power.py`. 3,868 paired samples.
   the cards and fire in sequence, so the two rarely peak simultaneously. Combined with the CPU-bound tool
   phases, this is *why* the rig never thermally stresses on this workload.
 - **Why it matters:** the "both GPUs at 600W = 1200W" worst case simply does not occur for single-stream
-  agentic inference under pipeline parallelism. (Contrast confirmed by the MiniMax-M2.7 run, which uses
-  vLLM **tensor**-parallel: both GPUs fire per token, combined active-decode draw **median ~896W, peak
-  1089W (91% of cap), both GPUs >400W in 64% of samples, crossing 1000W** — the heaviest simultaneous
-  draw of the bench. TP-vs-pipeline topology, not model size, drives it. See
-  [findings-minimax-m2.7.md](findings-minimax-m2.7.md).)
+  agentic inference under pipeline parallelism. (The MiniMax-M2.7 run uses vLLM **tensor**-parallel, which
+  computes each layer on both GPUs simultaneously rather than alternating them — architecturally a higher
+  simultaneous draw. Its per-cell `nvidia-smi` snapshots are balanced across both GPUs (~313W/~300W),
+  consistent with that. We do **not** quote a TP=2 active-decode peak here: continuous power sampling for
+  that run was not reliably captured, so any peak/percentile figure would be unverifiable. See
+  [findings-minimax-m2.7.md](findings-minimax-m2.7.md) § GPU power.)
 
 ## MiniMax-M2.7-NVFP4 (added — N=5, vLLM TP=2) — see [findings-minimax-m2.7.md](findings-minimax-m2.7.md)
 
