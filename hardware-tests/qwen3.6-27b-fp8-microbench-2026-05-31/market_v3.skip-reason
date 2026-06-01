@@ -1,0 +1,23 @@
+cell: p3_market_27b-fp8-think_v3
+status: dropped-stuck (operator-SIGTERM)
+market-think final N: 4 (v1, v2, v4, v5), not 5
+
+Why dropped:
+  market-research (--thinking on) on this cell entered a degenerate JS-pricing scrape loop on
+  every attempt: 20+ byte-identical tool calls re-running the same Playwright/curl Bitwarden/Keeper
+  price-extraction script against pages that never yield server-rendered text. Iteration count stays
+  low while the loop spins, so the harness --stuck-threshold 500 would not have caught it for hundreds
+  more iterations (~hours of wasted GPU).
+
+Attempts:
+  1. original run  — SIGTERM at iter 56 (Bitwarden curl-scrape loop).
+  2. redo (filler) — never executed: harness rm -rf of the leftover workspace failed because the
+     killed run left root-owned docker-sandbox files (.git/, research/); no summary produced.
+  3. redo#2        — SIGTERM at iter 27 (Playwright scrape loop, same pattern in a new disguise).
+
+Decision: recorded as a dropped-stuck rep rather than retried further. A 5th market-think rep adds no
+information — market-think's loop-proneness is itself a finding (see findings.md "Market" qualitative
+and the no-think v4 max_tokens runaway, which is the same failure mode).
+
+Note (harness bug): operator-killed cells can leave root-owned sandbox files that block the harness's
+own rm -rf workspace cleanup, causing a silent archive failure on the next run of that cell.

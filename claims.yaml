@@ -337,6 +337,48 @@ claims:
     caveats:
       - "Pairwise quality study found one 27B CI-fix grader regression that the binary grader missed."
 
+  # ─── Qwen3.6-27B-FP8 microbench (hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31) ───
+
+  - id: hw.27b-fp8.serving-viable-where-q8-failed
+    text: >
+      Qwen3.6-27B served as FP8 on vLLM (sm_120, one engine per GPU) is a stable
+      serving path on RTX PRO 6000 Blackwell, where the earlier Q8/FP8 attempt was
+      a serving failure: 113/119 cells finished clean (done_signal) vs the excluded
+      Q8 attempt's 4/36 clean (23/36 token-runaway + 8/36 HTTP-400).
+    status: provisional
+    scope: single rig, vLLM FP8, 12-family microbench, N=5, two reasoning modes
+    evidence: "hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/findings.md § Why this run exists; manifest.json run_inventory"
+    caveats:
+      - "6 cells still error (5 HTTP-400 + 1 max_tokens runaway), but all are deep-iteration loop-into-context-overflow on the two hardest tasks (market, business-think) — model behavior, not FP8 quant instability."
+      - "Single rig, single image digest. Cross-engine/cross-day variance not characterized."
+
+  - id: hw.27b-fp8.thinking-net-negative
+    text: >
+      On the MMBT 12-family agentic microbench, enabling thinking is net-negative
+      for Qwen3.6-27B-FP8: no-think scores 35/60 PASS vs think 29/60 (-6 cells).
+      Thinking wins exactly one family (p3_business, 5/5 vs 1/5 — a length-discipline
+      effect) and loses two outright (p2_triage, p3_writing).
+    status: provisional
+    scope: single rig, vLLM FP8, N=5 per cell, temp=0.3
+    evidence: "hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/findings.md § Headline + scorecard"
+    caveats:
+      - "Hand-grading dimensions (stance/calibration/fabrication) not yet filled."
+      - "p3_market is STRUCTURAL_PASS only; p1_testwrite/refactor are 0/5 in both modes due to a starter-code task-design issue, so they don't drive the think-vs-no-think delta."
+    promote_to_strong_when:
+      - "Reproduced with a different prompt corpus or independent grader at N>=5"
+
+  - id: hw.27b-fp8.overthinking-breaks-closed-vocab-triage
+    text: >
+      Thinking specifically breaks closed-vocabulary classification: p2_triage
+      (customer-support triage with a fixed label set) is 0/5 with thinking on vs
+      5/5 with thinking off, at the same ~10-14 iterations / ~7.2k tokens — the
+      model reasons its way off the allowed label set.
+    status: provisional
+    scope: single rig, vLLM FP8, p2_triage, N=5
+    evidence: "hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/findings.md § Headline (smoking gun)"
+    caveats:
+      - "Single task family; the mechanism (reasoning off the closed vocabulary) is read from transcripts, not a controlled ablation."
+
   # ─── MiniMax-M2.7-NVFP4 (hardware-tests/qwen3.5-397b-vs-step3.7-flash-2026-05-29/findings-minimax-m2.7.md) ───
 
   - id: hw.minimax.temp-serving-trap

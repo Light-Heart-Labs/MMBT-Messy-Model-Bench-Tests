@@ -33,6 +33,7 @@ Do not mix those two tables in a cross-host ranking.
 | [`ltx23-power-sweep-2026-05-05`](ltx23-power-sweep-2026-05-05/) | Does the same GPU power-cap curve apply to diffusion/video generation? | Workload-specific to the LTX-2.3 workflow tested. |
 | [`cpu-fullpower-2026-05-05`](cpu-fullpower-2026-05-05/) | Can the Tower2 Threadripper PRO CPU sustain rated 350 W on its cooling stack? | One rig, one cooling design, CPU-side validation only. |
 | [`step3.7-flash-nvfp4-dual-blackwell-2026-05-28`](step3.7-flash-nvfp4-dual-blackwell-2026-05-28/) | How do you serve Step-3.7-Flash NVFP4 with native FP4 on 2× RTX PRO 6000 Blackwell (no NVLink), and what tok/s does it give? | Single rig, vLLM dev image (not a tagged release), single run per throughput cell. |
+| [`qwen3.6-27b-fp8-microbench-2026-05-31`](qwen3.6-27b-fp8-microbench-2026-05-31/) | Is FP8 a stable serving path for Qwen3.6-27B where Q8 failed, and does thinking help on the agentic microbench? | Single rig, vLLM FP8, N=5; thinking is net-negative (35/60 no-think vs 29/60 think); hand-grading dimensions not yet filled. |
 
 ## What The Cross-Platform Study Can Settle
 

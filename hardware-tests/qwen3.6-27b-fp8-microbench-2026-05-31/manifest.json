@@ -1,0 +1,75 @@
+{
+  "$schema_note": "Read this BEFORE drawing conclusions. Machine-readable provenance for the qwen3.6-27b-fp8-microbench-2026-05-31 entry. Companion to README.md / findings.md.",
+  "bundle_id": "qwen3.6-27b-fp8-microbench-2026-05-31",
+  "snapshot_date_utc": "2026-05-31",
+  "kind": "agentic task benchmark (MMBT 12-family microbench), N=5 per cell, two reasoning modes",
+  "claim_scope": "Qwen3.6-27B dense served as FP8 on vLLM (one engine per GPU) on 2x RTX PRO 6000 Blackwell, run through the MMBT microbench in both --thinking on and --thinking off. Single rig. This is the clean FP8 redo of the Q8/FP8 27B run excluded as a serving failure in the qwen3.5-397b-vs-step3.7-flash-2026-05-29 entry.",
+  "hardware": {
+    "host": "Tower2 (ASUS Pro WS WRX90E-SAGE SE, Threadripper PRO 7965WX)",
+    "gpus": "2x NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 96 GB each",
+    "compute_capability": "12.0 (sm_120)",
+    "interconnect": "PCIe host bridge (no NVLink)",
+    "gpu_power_limit_w": 500,
+    "nvidia_driver": "595.58.03"
+  },
+  "engine": {
+    "image": "vllm/vllm-openai",
+    "image_digest": "sha256:a230095847e93bd4df9888b33dab956fa9504537b828a23657d2b26fed57b5c9",
+    "image_pull": "docker pull vllm/vllm-openai@sha256:a230095847e93bd4df9888b33dab956fa9504537b828a23657d2b26fed57b5c9",
+    "topology": "two independent single-GPU vLLM engines, one per GPU; port 8001 ran --thinking off, port 8002 ran --thinking on, concurrently"
+  },
+  "model": {
+    "hf_repo": "Qwen/Qwen3.6-27B-FP8",
+    "local_path": "~/models/Qwen-Qwen3.6-27B-FP8",
+    "served_model_name": "qwen3.6-27b-fp8",
+    "quant_algo": "FP8",
+    "params": "27B dense",
+    "per_file_hashes": "See the HuggingFace repo for canonical per-file hashes; not recomputed locally."
+  },
+  "serving_config": {
+    "tensor_parallel_size": 1,
+    "max_model_len": 131072,
+    "temperature": 0.3,
+    "note": "Cross-model bench default temp=0.3; --thinking toggled via the Qwen template enable_thinking var."
+  },
+  "harness": {
+    "tasks": "12 families (p1_bugfix, p1_testwrite, p1_refactor, p2_extract, p2_ci, p2_hallucination, p2_triage, p3_doc, p3_business, p3_market, p3_writing, p3_pm)",
+    "replicates_per_cell": 5,
+    "modes": ["nothink", "think"],
+    "stuck_threshold_iters": 500,
+    "run_label_nothink": "27b-fp8-nothink",
+    "run_label_think": "27b-fp8-think"
+  },
+  "run_inventory": {
+    "cells_attempted": 120,
+    "cells_graded": 119,
+    "finish_reasons": {
+      "done_signal": 113,
+      "api_error_http_400_bad_request": 5,
+      "model_exceeded_max_tokens": 1
+    },
+    "error_cells": [
+      "p3_business_27b-fp8-nothink_v3 (HTTP 400, context-overflow)",
+      "p3_business_27b-fp8-think_v2 (HTTP 400, iter 186, context-overflow)",
+      "p3_business_27b-fp8-think_v5 (HTTP 400, context-overflow)",
+      "p3_market_27b-fp8-nothink_v2 (HTTP 400, iter 239, context-overflow)",
+      "p3_market_27b-fp8-nothink_v4 (max_tokens runaway, scrape-loop)",
+      "p3_market_27b-fp8-think_v1 (HTTP 400, context-overflow)"
+    ],
+    "dropped_cells": [
+      "p3_market_27b-fp8-think_v3 (operator-SIGTERM, degenerate JS-scrape loop, 3 attempts; see market_v3.skip-reason)"
+    ],
+    "note": "The 6 error cells are deep-iteration loop-into-context-overflow on the two hardest tasks (market, business-think), NOT FP8 serving instability. Contrast the excluded Q8 attempt: 23/36 token-runaway + 8/36 HTTP-400."
+  },
+  "aggregate_scorecard": {
+    "nothink": "35/60 PASS",
+    "think": "29/60 PASS",
+    "headline": "thinking is net-negative for 27B on this bench (-6 cells); p2_triage 0/5 think vs 5/5 nothink; think wins only p3_business (length discipline)"
+  },
+  "caveats": [
+    "Hand-grading dimensions (stance/calibration/fabrication) not yet filled.",
+    "p3_market is STRUCTURAL_PASS only; citation validity is a hand-grading dimension.",
+    "p1_testwrite/refactor affected by a starter-code task-design issue (KNOWN-LIMITATIONS.md), not a model gap.",
+    "Q4/Coder reference columns in findings.md are N=1-3 from a prior run on an older grader; directional only."
+  ]
+}
