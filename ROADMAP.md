@@ -8,13 +8,15 @@
 
 ## Active follow-ups (in priority order)
 
-### 1. FP8 re-run of the 12-cell microbench grid &nbsp; **[contributor-welcome]**
+### 1. FP8 re-run of the 12-cell microbench grid &nbsp; ~~**[contributor-welcome]**~~ **✅ DONE (2026-05-31) for 27B**
 
 **Source**: [`KNOWN-LIMITATIONS.md` § Cyankiwi 4-bit AWQ field reports](KNOWN-LIMITATIONS.md#quantization-specificity), [`benchmarks/microbench-phase-b-2026-05-02/findings.md` § Recommended follow-ups](benchmarks/microbench-phase-b-2026-05-02/findings.md#recommended-follow-ups)
 
-Multiple practitioners report that the Cyankiwi 4-bit AWQ quants underperform official Qwen FP8 of the same base models. Re-running the full 12-cell × N=10 grid on FP8 would let current findings generalize across quants or be bounded as quant-specific.
+Multiple practitioners report that the Cyankiwi 4-bit AWQ quants underperform official Qwen FP8 of the same base models. Re-running the full 12-cell grid on FP8 would let current findings generalize across quants or be bounded as quant-specific.
 
-What to do: pull official Qwen FP8 quants, run the 4-command friendly path in [`tooling/ADDING-A-MODEL.md`](tooling/ADDING-A-MODEL.md) for each model arm, submit a PR with the results.
+**Done for Qwen3.6-27B:** [`hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/`](hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/) — full 12-family grid, N=5, both reasoning modes, official FP8 on vLLM. Result: the **thinking-net-negative** finding holds at FP8 (no-think 35/60 vs think 29/60), so it's not a 4-bit-AWQ artifact; FP8 serving was stable (113/119 clean) where the Q8 attempt failed. **Still open (contributor-welcome):** the same FP8/higher-precision re-run for **Coder-Next** and especially **35B-A3B** (fails at 4-bit; Q8 MoE also hits a Blackwell sm_120 kernel bug — a quant/engine-headroom question). See [`MICROBENCH-INDEX.md`](MICROBENCH-INDEX.md).
+
+What to do: pull official Qwen FP8 quants, run the 4-command friendly path in [`tooling/ADDING-A-MODEL.md`](tooling/ADDING-A-MODEL.md) for each remaining model arm, submit a PR with the results.
 
 Hardware: needs FP8-capable GPU. RTX PRO 6000 / H100 / similar.
 

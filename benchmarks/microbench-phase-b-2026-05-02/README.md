@@ -1,5 +1,7 @@
 # microbench-phase-b-2026-05-02 — N=10 expansion + 27B-no-think third arm
 
+> **Part of a larger arc.** This 12-family microbench has since been extended to more models (397B, Step-3.7-Flash, MiniMax-M2.7, a clean 27B-FP8 redo), some filed under `hardware-tests/` because they needed the dual-Blackwell rig. The **thinking-net-negative** finding first sharpened here (27B 86.8% no-think vs 75% think) recurs across that whole arc. Full cross-tree index + the four-"27B" disambiguation: [`../../MICROBENCH-INDEX.md`](../../MICROBENCH-INDEX.md).
+
 > **How this entry relates to [`microbench-2026-04-28`](../microbench-2026-04-28/)**: this entry is the *current* picture for the 4 differential cells (p2_hallucination, p3_business, p3_doc, p3_market) at N=10 across all three model arms, and the *first* picture for 27B-no-think across the full 12-family grid (N=10). The 2026-04-28 entry remains the current N=3 baseline for the other 8 cells on Coder-Next + 27B-thinking — it is **not superseded**, and many cross-references in this entry point back to it. **Read both for the full picture.**
 >
 > **Of the ~240 runs in this batch, this entry publishes one representative run per (cell × model arm) — 22 representatives total.** Per-run artifacts (cost.json / grade.json / label.json / summary.json / receipt.json) for the remaining ~220 runs live on the source bench's `submit/phase-b-overnight-2026-05-02` branch (sibling branch in this repo), which preserves the full transcripts + workspace tarballs for reproducibility.

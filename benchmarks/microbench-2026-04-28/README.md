@@ -2,6 +2,8 @@
 
 > 12 task families, 2 local models, N=3 each. Smaller-scope tasks than the dreamserver-PR-audit / wallstreet-intern-test benchmarks above — each task is a 5-30 minute deliverable rather than a multi-hour audit. Designed to surface task-class-specific differences between Qwen3.6-27B-AWQ and Qwen3-Coder-Next-AWQ that the larger benchmarks couldn't isolate.
 
+> **Part of a larger arc.** This same 12-family microbench has since been run on more models (397B, Step-3.7-Flash, MiniMax-M2.7, and a clean 27B-FP8 redo) — some of which live under `hardware-tests/` because they needed the dual-Blackwell rig. For the full cross-tree index and the disambiguation of the four "27B"s (AWQ here, vs Q8 / FP8 / 35B-A3B), see [`../../MICROBENCH-INDEX.md`](../../MICROBENCH-INDEX.md).
+
 ## Read these first
 
 - [`findings.md`](findings.md) — cross-cutting writeup. Headline reads, daily-driver-guide updates, caveats. Read this before drilling into individual task-family folders.

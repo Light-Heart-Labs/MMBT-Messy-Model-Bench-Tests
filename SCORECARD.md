@@ -5,6 +5,19 @@
 > **For a head-to-head decision between Coder-Next, 27B-thinking, and 27B-no-think organized by task class, see [`COMPARISON.md`](COMPARISON.md).** This SCORECARD is the grand summary; COMPARISON is the model-selection synthesis.
 >
 > **Read [`KNOWN-LIMITATIONS.md`](KNOWN-LIMITATIONS.md) before quoting any cell.** Several columns are hand-graded against ground truth where it exists, "not graded" where it doesn't. Confidence levels are noted per column.
+>
+> **⚠️ Scope of this SCORECARD (read before comparing to other entries).** Every "27B" cell below is
+> **Qwen3.6-27B at 4-bit AWQ** (Cyankiwi), and the tables cover only the `benchmarks/` microbench arms
+> (27B-AWQ / Coder-Next-AWQ). They do **not** include the later `hardware-tests/` microbenches —
+> **397B, Step-3.7-Flash, MiniMax-M2.7, and the clean 27B-FP8 redo** — nor do they disambiguate the four
+> different "27B"s (AWQ / Q8 / FP8 / 35B-A3B sibling). For the full microbench picture across both trees
+> and the quant disambiguation, see **[`MICROBENCH-INDEX.md`](MICROBENCH-INDEX.md)**.
+>
+> **Newer microbench results (summary; full detail in the linked entries):**
+> - **397B-A17B** (Q3 GGUF), N=10: no-think 82/120, think 72/120 — *thinking net-negative*.
+> - **27B-FP8**, N=5: no-think 35/60, think 29/60 — *thinking net-negative*; FP8 serving stable where Q8 failed. ([entry](hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/))
+> - **Step-3.7-Flash** (NVFP4): 7/8/8 low/med/high; **MiniMax-M2.7** (NVFP4), N=5: 35/60 — "exhaustive completer" + a temp=0.3 serving-trap. ([entry](hardware-tests/qwen3.5-397b-vs-step3.7-flash-2026-05-29/))
+> - Across ~15× of scale the aggregate ties ~7–8/12 and **thinking is net-negative everywhere** — the consistent cross-model finding.
 
 ## Cell-name legend (microbench)
 
@@ -257,6 +270,6 @@ These additions would tighten the recommendations above; until they land, the re
 3. **Failed-run artifacts published** (receipts + transcripts for the 5+ unsuccessful local-model runs not currently in MMBT). Would let a reader see expected failure modes per model.
 4. **N=10+ on the highest-signal cells** (Coder-Next on `dreamserver-1-pr-audit`, 27B on the same; both on `microbench-2026-04-28/adversarial-hallucination`). Would bound the variance the current N=3 only suggests.
 5. **Different PR shapes** in the dreamserver-1-pr-audit family — the current PR has subtle architectural distinctions; a docs-only PR or a security PR would test different failure modes.
-6. **Higher-precision quantizations** of the same models (FP8, BF16). Particularly for 35B-A3B which fails at 4-bit; might be a quantization-headroom issue rather than a base-model issue.
+6. **Higher-precision quantizations** of the same models (FP8, BF16). **Partly done (2026-05-31):** a clean **27B-FP8** run of the full 12-family grid is published ([`hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/`](hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/)) — FP8 serving is stable and the thinking-net-negative finding holds, so the headline conclusions generalize past 4-bit AWQ for 27B. Still open: **35B-A3B** at higher precision (it fails at 4-bit; the Q8 MoE path also hits a Blackwell sm_120 kernel bug — a quant/engine-headroom question, not yet settled).
 
 None of these are in scope for the current MMBT publication. They're separate experiments.
