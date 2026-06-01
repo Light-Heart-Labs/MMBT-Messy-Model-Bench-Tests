@@ -6,9 +6,15 @@ the differences that matter are qualitative. Phase-1 cells graded with the **fix
 
 **Cross-model note:** the 27B / Coder-Next reference columns are the **Q4/AWQ** runs from
 `benchmarks/microbench-2026-04-28` (N=1, clean `done_signal`, older agent-pilot harness). We attempted
-fresh **Q8/FP8** runs of Qwen3.6-27B and Qwen3.6-35B-A3B on the current harness but **both were serving
-failures** (35B: 36/36 HTTP-400; 27B-Q8: 23/36 token-runaway + 8/36 HTTP-400, only 4 clean) — **excluded,
-not shown.** The Q4 artifacts are the trustworthy 27B/Coder comparison.
+fresh **Q8/FP8** runs of Qwen3.6-27B and Qwen3.6-35B-A3B on the current harness but the **first attempts
+were serving failures** (35B: 36/36 HTTP-400; 27B-Q8: 23/36 token-runaway + 8/36 HTTP-400, only 4 clean)
+— **excluded, not shown** here. The Q4 artifacts are the trustworthy 27B/Coder comparison in *this* entry.
+
+> **Update (2026-05-31):** a clean **FP8** redo of Qwen3.6-27B succeeded — 113/119 cells finished cleanly,
+> serving was stable, and it has its own full N=5 entry:
+> [`hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/`](../qwen3.6-27b-fp8-microbench-2026-05-31/).
+> So the failure above was **Q8-serving-specific, not 27B-on-this-rig**; FP8 is a viable path. (The 35B-A3B
+> MoE failure is separate — the known Blackwell sm_120 MoE issue.)
 
 ## Setup
 - **Model:** Qwen3.5-397B-A17B, unsloth UD-Q3_K_XL GGUF (~167 GB on disk, 5 shards).
