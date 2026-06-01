@@ -65,5 +65,15 @@
     "concise_for_audience_1to5": null,
     "fabrication_count": null,
     "rater_notes": null
+  },
+  "hand_rating_2nd_grader": {
+    "stance_correctness_1to5": 5,
+    "calibration_1to5": 4,
+    "concise_for_audience_1to5": 4,
+    "fabrication_count": 0,
+    "rater_notes": "HOLD with clear PROCEED/PASS conditions; nails runway inconsistency & 24% ARR-vs-GAAP gap. 'Buying a customer list, not a product' is the sharpest insight. Tighter than think variant.",
+    "_GRADED_AT_": "2026-05-31",
+    "_GRADER_": "claude-opus-4-8-1m-context (provisional fill)",
+    "_NOTE_": "Provisional independent grade (opus-4.8) filling previously-null judgment dims. Single same-family LLM grader, N=1 representative run \u2014 NOT validated; needs a human/non-Claude grader before load-bearing. See tooling/QUALITATIVE-GRADING-PROTOCOL.md (added in the protocol PR)."
   }
 }
