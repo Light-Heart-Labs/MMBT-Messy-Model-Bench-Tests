@@ -16,6 +16,7 @@ but I'm making it public so that other people can use it too.
 | **"Coder-Next or 27B (or 27B-no-think) for my task?"** | [`COMPARISON.md`](COMPARISON.md) — head-to-head decision doc |
 | The full single-table comparison across all entries | [`SCORECARD.md`](SCORECARD.md) |
 | **All 12-family microbench results (across both trees) + the four "27B"s** | [`MICROBENCH-INDEX.md`](MICROBENCH-INDEX.md) — cross-tree microbench index + quant disambiguation |
+| Cross-model **qualitative** spot-grades (provisional, not a ranking) | [`QUALITATIVE-SPOT-GRADES.md`](QUALITATIVE-SPOT-GRADES.md) + [`tooling/QUALITATIVE-GRADING-PROTOCOL.md`](tooling/QUALITATIVE-GRADING-PROTOCOL.md) — single-grader provisional scores + grader-independence rules |
 | How repo size is managed | [`REPO-SPACE.md`](REPO-SPACE.md) — storage hotspots and artifact policy |
 | How to benchmark a new local model | [`tooling/ADDING-A-MODEL.md`](tooling/ADDING-A-MODEL.md) |
 | How to replay a specific past run | [`tooling/REPRODUCING.md`](tooling/REPRODUCING.md) |

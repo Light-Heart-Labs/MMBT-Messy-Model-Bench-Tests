@@ -37,6 +37,14 @@ the same `p3_doc` word-limit / over-production mechanism (see [issue #36](https:
 for the grader artifact that compounds it). Failure *temperament* tracks lineage, not size: Qwen-family
 models (397B, 27B) **stall**; Coder-Next / Flash / MiniMax(@temp0.3) **run away**.
 
+## Qualitative comparison
+
+Pass-rates tie; the qualitative layer is where models actually differ. Provisional cross-model
+qualitative spot-grades (stance, calibration, source-skepticism, safety) live in
+[`QUALITATIVE-SPOT-GRADES.md`](QUALITATIVE-SPOT-GRADES.md), graded per
+[`tooling/QUALITATIVE-GRADING-PROTOCOL.md`](tooling/QUALITATIVE-GRADING-PROTOCOL.md). **Single-grader,
+N=1, not validated, not a ranking** — read the header before quoting.
+
 ## Note on organization
 
 This index is the low-disruption fix for the cross-tree split (it avoids moving directories, which would

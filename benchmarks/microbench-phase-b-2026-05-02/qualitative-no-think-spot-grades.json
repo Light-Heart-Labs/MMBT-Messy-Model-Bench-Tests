@@ -16,23 +16,25 @@
     "market_research": {
       "run": "p3_market_27b-nothink_v2",
       "decision_criteria_explicit_1to5": 5,
-      "recommendation_specificity_1to5": 5,
-      "context_appropriateness_1to5": 5,
+      "recommendation_specificity_1to5": 4,
+      "context_appropriateness_1to5": 4,
       "fabricated_stats_count": 0,
-      "note": "one glitch token in a key-derivation cell"
+      "note": "DOWNGRADED 5->4 after audit: glitch token 'SECURE REMEMBERED' sits in the RECOMMENDED product's key-derivation row (a corrupted security claim in the load-bearing comparison), runner-up price self-contradicts ($4/mo body vs $48/yr header), and a date stub is unfilled. Not cosmetic."
     },
     "writing_editing": {
       "run": "p3_writing_27b-nothink_v1",
       "ceo_tone_fit_1to5": 5,
       "customer_tone_fit_1to5": 5,
-      "legal_tone_fit_1to5": 5,
+      "legal_tone_fit_1to5": 4,
       "faithfulness_1to5": 5,
-      "fabrication_count": 0
+      "fabrication_count": 0,
+      "note": "DOWNGRADED 5->4 after audit: legal summary imports out-of-scope 'second outage / prior in February' board-signal framing into what should be a dispassionate SLA-credit determination."
     },
     "project_management": {
       "run": "p3_pm_27b-nothink_v1",
       "structure_quality_1to5": 5,
       "fabrication_count": 0
     }
-  }
+  },
+  "_AUDIT_NOTE_": "Cells re-scored down after an independent third-pass audit caught defects the original pass demoted to flags rather than points. The uniform-5 pattern was partial grader-inflation, as the _CALIBRATION_FLAG_ warned."
 }

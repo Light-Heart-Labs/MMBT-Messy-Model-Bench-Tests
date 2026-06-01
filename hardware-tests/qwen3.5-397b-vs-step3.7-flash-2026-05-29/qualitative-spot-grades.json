@@ -21,7 +21,7 @@
     },
     "minimax-m2.7-nvfp4": {
       "doc_synthesis": {
-        "prose_quality_1to5": 5,
+        "prose_quality_1to5": 4,
         "stance_clarity_1to5": 5,
         "source_skepticism_1to5": 5,
         "balanced_tone_1to5": 4
@@ -32,7 +32,7 @@
         "concise_for_audience_1to5": 5,
         "fabrication_count": 0
       },
-      "notes": "Sharpest doc (unambiguous PASS, tight risk table). Business 'PROCEED with conditions' = softer pushback than HOLD but adds cap-table/liq-pref insight others missed. No fabrications."
+      "notes": "Sharpest doc (unambiguous PASS, tight risk table). Business 'PROCEED with conditions' = softer pushback than HOLD but adds cap-table/liq-pref insight others missed. No fabrications. [audit: doc prose 5->4 for parity \u2014 a 10%->'11-12%' derivation drift.]"
     }
   }
 }
