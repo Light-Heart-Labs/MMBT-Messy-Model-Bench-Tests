@@ -70,5 +70,15 @@
     "memo_clarity_1to5": 5,
     "_GRADED_AT_": "2026-04-28T07:30:00Z",
     "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
+  },
+  "hand_rating_2nd_grader": {
+    "stance_correctness_1to5": 5,
+    "calibration_1to5": 5,
+    "concise_for_audience_1to5": 3,
+    "fabrication_count": 0,
+    "rater_notes": "HOLD with explicit reverse-to-PROCEED / move-to-PASS triggers. Best calibration: separates hard facts (runway 5.5mo) from labeled inferences. Long (7 concerns) but prioritized. Misses B7 build-vs-buy & B8 signoff.",
+    "_GRADED_AT_": "2026-05-31",
+    "_GRADER_": "claude-opus-4-8-1m-context (provisional fill)",
+    "_NOTE_": "Provisional independent grade (opus-4.8) filling previously-null judgment dims. Single same-family LLM grader, N=1 representative run \u2014 NOT validated; needs a human/non-Claude grader before load-bearing. See tooling/QUALITATIVE-GRADING-PROTOCOL.md (added in the protocol PR)."
   }
 }

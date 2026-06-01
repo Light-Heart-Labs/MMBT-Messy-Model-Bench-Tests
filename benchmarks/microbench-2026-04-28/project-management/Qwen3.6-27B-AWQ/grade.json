@@ -126,5 +126,14 @@
     "milestone_clarity_1to5": 5,
     "_GRADED_AT_": "2026-04-28T07:30:00Z",
     "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
+  },
+  "hand_rating_2nd_grader": {
+    "structure_quality_1to5": 5,
+    "owner_accuracy_0to6": 4,
+    "fabrication_count": 0,
+    "rater_notes": "Clean structured report; 6 workstreams, correct owners Marcus/Jen/Roman/Priya+Marcus. Maevia & legal surfaced as risks/asks not Sara-owned workstreams. No fabrications.",
+    "_GRADED_AT_": "2026-05-31",
+    "_GRADER_": "claude-opus-4-8-1m-context (provisional fill)",
+    "_NOTE_": "Provisional independent grade (opus-4.8) filling previously-null judgment dims. Single same-family LLM grader, N=1 representative run \u2014 NOT validated; needs a human/non-Claude grader before load-bearing. See tooling/QUALITATIVE-GRADING-PROTOCOL.md (added in the protocol PR)."
   }
 }
