@@ -69,14 +69,14 @@
     "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
   },
   "hand_rating_2nd_grader": {
-    "_NOTE_": "Independent second-grader pass for inter-rater reliability (see tooling/QUALITATIVE-GRADING-PROTOCOL.md). A second opinion, NOT a correction — the primary opus-4.7 scores stand. Same model family (Claude), so inter-rater independence is weak; a human or non-Claude grader is still required before these load-bear a decision.",
+    "_NOTE_": "Independent second-grader pass for inter-rater reliability (see tooling/QUALITATIVE-GRADING-PROTOCOL.md). A second opinion, NOT a correction \u2014 the primary opus-4.7 scores stand. Same model family (Claude), so inter-rater independence is weak; a human or non-Claude grader is still required before these load-bear a decision.",
     "prose_quality_1to5": 4,
     "stance_clarity_1to5": 5,
-    "source_skepticism_1to5": 4,
+    "source_skepticism_1to5": 3,
     "balanced_tone_1to5": 4,
     "fabrication_count": 0,
-    "agreement_with_primary": "3/4 dims identical; DIVERGENCE on source_skepticism: 2nd grader 4 vs primary 3 (+1)",
-    "rater_notes": "Independent read of deliverable/brief.md. prose 4 / stance 5 / tone 4 agree with primary. DIVERGENCE on source_skepticism (4 vs primary's 3): primary scored 3 because the brief lacks an explicit per-source reliability section (true). But the brief shows strong CLAIM-level skepticism — it singles out the company's 'net retention above 110%' claim as 'inconsistent with this level of churn ... Without verification, this is a red flag' and conditions the whole recommendation on independently verifying 3 specific items. The 'source_skepticism' dimension conflates (a) evaluating source RELIABILITY [27B does this; Coder doesn't] with (b) skeptical posture toward input CLAIMS [Coder does this well]. Under (a) Coder is a 3; under (b) a 4-5. So the 5-vs-3 model spread overstates the gap — the real difference is 'Coder lacks a source-reliability table,' not 'Coder is credulous.' RECOMMEND splitting this dimension into source_reliability_eval and claim_skepticism. No fabrications detected.",
+    "agreement_with_primary": "FULL (4/4 dims identical) after audit-revert of source_skepticism 4->3",
+    "rater_notes": "AUDIT REVERT: originally scored 4 (vs primary 3) on the argument that Coder shows strong CLAIM-level skepticism ('110% net retention ... red flag ... without verification'). On audit, reverted to 3 to match the rubric-as-WRITTEN (source_skepticism = evaluating source RELIABILITY, which this brief lacks \u2014 no per-source reliability section, unlike 27B). The +1 only holds if the dimension is split into source_reliability_eval (3) + claim_skepticism (4-5) \u2014 RECOMMENDED, but not adopted here. prose 4 / stance 5 / tone 4 unchanged, all agree with primary.",
     "_GRADED_AT_": "2026-05-31",
     "_GRADER_": "claude-opus-4-8-1m-context (independent second pass)"
   }
