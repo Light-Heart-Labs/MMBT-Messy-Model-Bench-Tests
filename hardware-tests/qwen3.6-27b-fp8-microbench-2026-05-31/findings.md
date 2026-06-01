@@ -34,6 +34,8 @@ serving path for this model** — which closes the gap the published 397B entry 
 |---|---|---|
 | **Aggregate** | **35/60 (58%)** | **29/60 (48%)** |
 
+(Think `p3_market` is **3/4** — its 5th rep, v3, is a dropped-stuck cell, so the think arm is 29 of **59** graded; counted out of /60 for a like-for-like aggregate with no-think. See caveats.)
+
 No-think aggregate-ties the field's ~7–8/12 band (same 58% as MiniMax-M2.7, near 397B-no-think). Think
 mode is **6 cells worse**, and the divergence is mechanistic, not noise:
 
@@ -115,6 +117,9 @@ citation validity is a hand-grading dimension.
 
 ```bash
 # FP8 served on vLLM, one engine per GPU (ports 8001 / 8002 for the two thinking modes, run concurrently).
+# Sampling: the bench's cross-model default temperature=0.3 (run_microbench.sh default; no BENCH_TEMP override).
+# GPU power cap was 500 W per card (the production nvidia-powerlimit.service cap) — NOTE this differs from
+# the 397B entry's 600 W; the 27B-FP8 run makes no power claims, so the cap only affects wall-time, not pass rates.
 bash tooling/scripts/run_microbench.sh qwen3.6-27b-fp8 8001 27b-fp8-nothink 5 "" off 131072
 bash tooling/scripts/run_microbench.sh qwen3.6-27b-fp8 8002 27b-fp8-think   5 "" on  131072
 bash tooling/scripts/grade_microbench.sh 27b-fp8-nothink

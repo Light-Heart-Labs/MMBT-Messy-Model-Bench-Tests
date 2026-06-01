@@ -1,5 +1,10 @@
 # Qwen3.6-27B (dense, FP8) — full microbench N=5, think vs no-think
 
+> **Where this lives:** this is a **model-behavior** study (the 12-family agentic microbench), filed under
+> `hardware-tests/` only because it needed the dual-Blackwell rig — its headline is model quality, not a
+> power/thermal result. For every 12-family microbench across both trees, see
+> [`../../MICROBENCH-INDEX.md`](../../MICROBENCH-INDEX.md).
+
 The clean FP8 redo of the Qwen3.6-27B run that the
 [397B vs Step-3.7-Flash entry](../qwen3.5-397b-vs-step3.7-flash-2026-05-29/) had to **exclude as a Q8/FP8
 serving failure**. This time: 120 cells attempted, **113/119 clean `done_signal`** — FP8 serving is
