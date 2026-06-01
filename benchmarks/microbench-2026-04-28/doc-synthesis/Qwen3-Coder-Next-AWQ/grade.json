@@ -67,5 +67,17 @@
     "rater_notes": "Solid brief, slightly less polished than 27B. Recommendation is specific (Pass + 3 conditions to revisit). Lacks an explicit Source Quality / source-reliability evaluation \u2014 cites sources but takes them at face value (lower source skepticism). Balance is OK ('Conditions for Reconsideration' acknowledges positives) but not as deliberate as 27B's 'The Good' / 'Five Red Flags' structure. Word count 626 is comfortably under the 700 limit (vs 27B's 765). Captured 7 of 8 planted facts (per the programmatic grader) vs 27B's 8 of 8.",
     "_GRADED_AT_": "2026-04-28T07:00:00Z",
     "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
+  },
+  "hand_rating_2nd_grader": {
+    "_NOTE_": "Independent second-grader pass for inter-rater reliability (see tooling/QUALITATIVE-GRADING-PROTOCOL.md). A second opinion, NOT a correction \u2014 the primary opus-4.7 scores stand. Same model family (Claude), so inter-rater independence is weak; a human or non-Claude grader is still required before these load-bear a decision.",
+    "prose_quality_1to5": 4,
+    "stance_clarity_1to5": 5,
+    "source_skepticism_1to5": 3,
+    "balanced_tone_1to5": 4,
+    "fabrication_count": 0,
+    "agreement_with_primary": "FULL (4/4 dims identical) after audit-revert of source_skepticism 4->3",
+    "rater_notes": "AUDIT REVERT: originally scored 4 (vs primary 3) on the argument that Coder shows strong CLAIM-level skepticism ('110% net retention ... red flag ... without verification'). On audit, reverted to 3 to match the rubric-as-WRITTEN (source_skepticism = evaluating source RELIABILITY, which this brief lacks \u2014 no per-source reliability section, unlike 27B). The +1 only holds if the dimension is split into source_reliability_eval (3) + claim_skepticism (4-5) \u2014 RECOMMENDED, but not adopted here. prose 4 / stance 5 / tone 4 unchanged, all agree with primary.",
+    "_GRADED_AT_": "2026-05-31",
+    "_GRADER_": "claude-opus-4-8-1m-context (independent second pass)"
   }
 }
