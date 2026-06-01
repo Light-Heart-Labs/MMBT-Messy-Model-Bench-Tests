@@ -65,6 +65,14 @@ MAXLEN="${7:-}"             # optional: served context window (e.g. 131072 for t
 MAXLEN_FLAG=""
 [ -n "$MAXLEN" ] && MAXLEN_FLAG="--max-model-len $MAXLEN"
 
+# Sampling overrides via env (default keeps the cross-model temp=0.3 protocol). Some models
+# specify a required operating point and loop under low temp — e.g. MiniMax-M2 card mandates
+# temperature=1.0, top_p=0.95, top_k=40. Set BENCH_TEMP / BENCH_TOP_P / BENCH_TOP_K to deviate;
+# the deviation is recorded per-run in receipt.json (temperature) and must be footnoted in findings.
+TEMP="${BENCH_TEMP:-0.3}"
+TOPP_FLAG=""; [ -n "${BENCH_TOP_P:-}" ] && TOPP_FLAG="--top-p $BENCH_TOP_P"
+TOPK_FLAG=""; [ -n "${BENCH_TOP_K:-}" ] && TOPK_FLAG="--top-k $BENCH_TOP_K"
+
 # Guard: run names + the idempotent skip check are keyed by LABEL only. If an
 # effort is set but not encoded in the label, a later effort would reuse the same
 # run names and be skipped as "already complete". Fail fast instead.
@@ -157,7 +165,9 @@ for entry in "${TASKS[@]}"; do
       "$TOOLING/tasks/$task_file" \
       --model "$MODEL" \
       --port "$PORT" \
-      --temperature 0.3 \
+      --temperature "$TEMP" \
+      $TOPP_FLAG \
+      $TOPK_FLAG \
       --stuck-threshold 500 \
       $REASONING_FLAG \
       $THINKING_FLAG \

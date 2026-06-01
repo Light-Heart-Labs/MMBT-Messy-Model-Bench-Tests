@@ -6,9 +6,15 @@ the differences that matter are qualitative. Phase-1 cells graded with the **fix
 
 **Cross-model note:** the 27B / Coder-Next reference columns are the **Q4/AWQ** runs from
 `benchmarks/microbench-2026-04-28` (N=1, clean `done_signal`, older agent-pilot harness). We attempted
-fresh **Q8/FP8** runs of Qwen3.6-27B and Qwen3.6-35B-A3B on the current harness but **both were serving
-failures** (35B: 36/36 HTTP-400; 27B-Q8: 23/36 token-runaway + 8/36 HTTP-400, only 4 clean) — **excluded,
-not shown.** The Q4 artifacts are the trustworthy 27B/Coder comparison.
+fresh **Q8/FP8** runs of Qwen3.6-27B and Qwen3.6-35B-A3B on the current harness but the **first attempts
+were serving failures** (35B: 36/36 HTTP-400; 27B-Q8: 23/36 token-runaway + 8/36 HTTP-400, only 4 clean)
+— **excluded, not shown** here. The Q4 artifacts are the trustworthy 27B/Coder comparison in *this* entry.
+
+> **Update (2026-05-31):** a clean **FP8** redo of Qwen3.6-27B succeeded — 113/119 cells finished cleanly,
+> serving was stable, and it has its own full N=5 entry:
+> [`hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/`](../qwen3.6-27b-fp8-microbench-2026-05-31/).
+> So the failure above was **Q8-serving-specific, not 27B-on-this-rig**; FP8 is a viable path. (The 35B-A3B
+> MoE failure is separate — the known Blackwell sm_120 MoE issue.)
 
 ## Setup
 - **Model:** Qwen3.5-397B-A17B, unsloth UD-Q3_K_XL GGUF (~167 GB on disk, 5 shards).
@@ -154,8 +160,26 @@ analyzed with `tooling/bench_power.py`. 3,868 paired samples.
   phases, this is *why* the rig never thermally stresses on this workload.
 - **Why it matters:** the "both GPUs at 600W = 1200W" worst case simply does not occur for single-stream
   agentic inference under pipeline parallelism. (The MiniMax-M2.7 run uses vLLM **tensor**-parallel, which
-  fires both GPUs per token — the expected contrast is a higher, more simultaneous combined draw; that
-  comparison is added when the MiniMax run lands.)
+  computes each layer on both GPUs simultaneously rather than alternating them — architecturally a higher
+  simultaneous draw. Its per-cell `nvidia-smi` snapshots are balanced across both GPUs (~313W/~300W),
+  consistent with that. We do **not** quote a TP=2 active-decode peak here: continuous power sampling for
+  that run was not reliably captured, so any peak/percentile figure would be unverifiable. See
+  [findings-minimax-m2.7.md](findings-minimax-m2.7.md) § GPU power.)
+
+## MiniMax-M2.7-NVFP4 (added — N=5, vLLM TP=2) — see [findings-minimax-m2.7.md](findings-minimax-m2.7.md)
+
+Two findings, full detail in the linked doc:
+1. **A temperature serving-trap, not a capability gap.** At the bench's default `temp=0.3`, MiniMax-NVFP4
+   runs the agent loop correctly then degenerates into a repetition loop on its final turn
+   (`model_exceeded_max_tokens`): **14/19 coding cells ran away (testwrite 10/10)**. At the model card's
+   `temp=1.0/top_p=0.95/top_k=40`, the *same cells on the same 131072 cap* are **0/10 runaway**; all 60
+   N=5 cells: **58 `done_signal`, 0 runaway**. Clean A/B → sampling, not the model, not the cap.
+2. **An "exhaustive completer" temperament.** Aggregate **7/12 (35/60 cells)** — ties the ~7–8/12 band —
+   but the shape is distinctive and **complementary to 397B**: **p2 analysis a perfect 20/20** (thoroughness
+   pure upside), **scope-constrained coding 0/5 on both testwrite & refactor** (it edits files it was told
+   to leave alone — real over-reach, opposite of 397B's surgical restraint), `p3_market` exhausts context
+   (2× HTTP 400). *Deviation footnote: MiniMax alone runs temp=1.0 (off the temp=0.3 cohort) — justified
+   because temp=0.3 is off-spec for it; and N=5 vs the cohort's N=10/N=1.*
 
 ## Cross-model qualitative (vs 27B / Coder-Next at Q4)
 

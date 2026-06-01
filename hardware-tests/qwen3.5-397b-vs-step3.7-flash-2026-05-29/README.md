@@ -6,6 +6,8 @@ Step-3.7-Flash-NVFP4 entry on the same box.
 
 **N=10** — ten replicates per cell, both arms (240 cells, all `done_signal`; phase-1 graded with the fixed `phase1_grade.py`).
 
+> **Where this lives:** this is a **model-behavior** study (the 12-family agentic microbench), physically filed under `hardware-tests/` only because it needed the dual-Blackwell rig. For every 12-family microbench across both trees, see [`../../MICROBENCH-INDEX.md`](../../MICROBENCH-INDEX.md).
+
 ## TL;DR
 
 *This entry is methodological, not "which model won." The two results that survive scrutiny lead; the "scale ties" observation is real but the most caveated, so it's demoted.*
@@ -15,12 +17,16 @@ Step-3.7-Flash-NVFP4 entry on the same box.
 - **③ Aggregate ties ~7–8/12 across 397B / Flash / 27B-Q4 / Coder-Q4 — but read as *suggestive*.** Two confounds keep this from being a scaling law: **cross-quant** (397B at Q3 vs ~11B-active at FP4 — not a clean scale axis) and **N-asymmetry** (only 397B is N=10; comparators are N=1, which this very entry proves misreads cells).
 - **Failure temperament tracks lineage, not size:** 397B + 27B *stall* (never over-generate); Coder-Next + Flash *run away*. Zero max_tokens runaways across all 240 397B cells.
 - ⚠️ 27B/Coder **phase-1 reference cells are quarantined** pending [issue #29] (same grader bug this entry fixed); their p2/p3 cells are unaffected and used in the cross-model comparison.
-- **Cross-model uses clean Q4/AWQ refs** for 27B/Coder; fresh Q8/FP8 runs excluded as serving failures (documented, not faked).
+- **Cross-model uses clean Q4/AWQ refs** for 27B/Coder; the *first* fresh Q8/FP8 attempts were excluded as serving failures (documented, not faked). **Update (2026-05-31):** a clean **FP8** redo of 27B since succeeded — full entry at [`../qwen3.6-27b-fp8-microbench-2026-05-31/`](../qwen3.6-27b-fp8-microbench-2026-05-31/); the failure was **Q8-serving-specific**, not 27B-on-this-rig.
 - **GPU power:** combined both-GPU draw never within 5% of the 1200W cap (median 670W, max 985W=82%); GPU0 leads GPU1 — pipeline alternation. The pair never hits full power together.
 - The substance is qualitative — **read [QUALITATIVE.md](QUALITATIVE.md).**
 
 ## Files
 - [findings.md](findings.md) — N=10 scorecard + headline findings + power + cross-model qualitative.
+- [findings-minimax-m2.7.md](findings-minimax-m2.7.md) — **MiniMax-M2.7-NVFP4 (N=5, vLLM TP=2):** the
+  temp=0.3→1.0 serving-trap (0 runaways at spec vs 74% at default), the "exhaustive completer" temperament
+  (p2 analysis 20/20, scope-constrained coding 0/5, p3_market ctx-exhaustion), and the TP=2 power topology
+  (balanced both-GPU draw; continuous-sample peak not captured this run — see the doc's data caveat).
 - [findings-n10.md](findings-n10.md) — auto-generated replicate-stability table (flags small-N flips) + finish-reason audit.
 - [power-analysis.md](power-analysis.md) — dual-GPU power percentiles, pipeline asymmetry, %-of-cap.
 - [QUALITATIVE.md](QUALITATIVE.md) — behavioral analysis beyond pass/fail (token economy, packaging,
