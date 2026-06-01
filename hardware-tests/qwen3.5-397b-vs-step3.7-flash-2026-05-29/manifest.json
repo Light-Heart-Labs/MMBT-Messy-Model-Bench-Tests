@@ -94,7 +94,7 @@
     "minimax_m2.7_power": "NOT reliably captured for this run (continuous per-sample logger output missing/untagged). Earlier-cited TP=2 peak figures (~896W/1089W/64%/'crosses 1000W') are WITHDRAWN as unverifiable. Only per-cell instantaneous nvidia-smi snapshots survive (N=60): combined median 612W, max 703W, balanced ~313W/~300W per GPU, 0/60 over 1000W -- but these undersample decode peaks and are not comparable to 397B's continuous-sample figures. Claim is architectural (TP loads both GPUs simultaneously), not a measured peak."
   },
   "caveats": [
-    "N=10 per cell for 397B (Step N=1/level; 27B/Coder Q4 N=1). Open-ended cells p3_market/p3_pm/p3_doc are high-variance — see n_variance.",
+    "N=10 per cell for 397B. Step-3.7 is N=3 at low/medium and N=1 at high on the p2/p3 cells (p1 cells N=1 at every level). The 27B/Coder Q4 columns are a single cited representative from the N=3 microbench-2026-04-28, NOT N=1 runs. Open-ended cells p3_market/p3_pm/p3_doc are high-variance — see n_variance.",
     "Cross-engine (llama.cpp vs vLLM) AND cross-quant (Q3_K_XL vs NVFP4) vs Step-3.7-Flash: 'best-as-each-ships', NOT a clean precision study.",
     "Some graders are binary and can fail high-quality output on format/length (see p3_writing); pair with QUALITATIVE.md.",
     "MiniMax-M2.7 (5th model) runs at card-mandated temp=1.0/top_p=0.95/top_k=40 (NOT the temp=0.3 cohort) and N=5 (not N=10); a deliberate, documented deviation. Its continuous power telemetry was not captured this run — see minimax_m2.7_power.",
