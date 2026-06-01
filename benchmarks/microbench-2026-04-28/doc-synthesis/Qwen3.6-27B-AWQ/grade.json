@@ -67,5 +67,17 @@
     "rater_notes": "Excellent across the board, despite the FAIL on word limit. Brief is well-organized: clear PASS recommendation up front, 'The Good' before 'Five Red Flags' (balance), explicit 'Source Quality' section evaluating each of 5 sources by reliability (rare for an LLM-generated brief \u2014 shows real skepticism), 'What Would Change Our View' with quantified conditions, 'Bottom Line' restating the recommendation. All 8 planted facts surface naturally in the narrative. The 765-word length isn't bloat \u2014 content is tight and every paragraph carries weight. The trim-to-700 problem is the model's failure to compress, not the brief being padded.",
     "_GRADED_AT_": "2026-04-28T07:00:00Z",
     "_GRADER_": "claude-opus-4.7-1m-context (auto-grading session continuation)"
+  },
+  "hand_rating_2nd_grader": {
+    "_NOTE_": "Independent second-grader pass for inter-rater reliability (see tooling/QUALITATIVE-GRADING-PROTOCOL.md). A second opinion, NOT a correction — the primary opus-4.7 scores stand. Same model family (Claude), so inter-rater independence is weak; a human or non-Claude grader is still required before these load-bear a decision.",
+    "prose_quality_1to5": 5,
+    "stance_clarity_1to5": 5,
+    "source_skepticism_1to5": 5,
+    "balanced_tone_1to5": 5,
+    "fabrication_count": 0,
+    "agreement_with_primary": "FULL (4/4 dims identical)",
+    "rater_notes": "Independent read of deliverable/brief.md confirms 5/5/5/5. The explicit 'Source Quality' section rating each of 5 sources by reliability ('not independently audited', 'one person's account', 'likely authentic given specificity') is genuine source-level skepticism and is rare in an LLM brief. The public-vs-internal reconciliation ($42M headline vs $36-37M adjusted; $720M->$560M repricing read as signal) and quantified 'What Would Change Our View' triggers are decision-grade. No fabrications detected against the 5 sources. Agrees with primary that the 758w (765 per grader) length is a compression failure, not padding.",
+    "_GRADED_AT_": "2026-05-31",
+    "_GRADER_": "claude-opus-4-8-1m-context (independent second pass)"
   }
 }
