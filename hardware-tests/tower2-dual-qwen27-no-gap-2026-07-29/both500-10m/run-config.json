@@ -1,0 +1,17 @@
+{
+  "tag": "no-gap-both500-10m",
+  "started_at": "2026-07-29T21:35:09.781Z",
+  "model_path": "/models/cyankiwi-Qwen3.6-27B-AWQ-INT4",
+  "image_id": "sha256:a230095847e93bd4df9888b33dab956fa9504537b828a23657d2b26fed57b5c9",
+  "gpu1_model_id": "sanctuary",
+  "duration_s": 600,
+  "warmup_s": 120,
+  "cooldown_s": 60,
+  "concurrency_per_gpu": 32,
+  "max_tokens": 1024,
+  "min_warmup_power_gpu0_w": 475,
+  "min_warmup_power_gpu1_w": 475,
+  "gpu0_power_limit_w": 500,
+  "gpu1_power_limit_w": 500,
+  "gpu_abort_c": 96
+}
