@@ -27,6 +27,7 @@ Do not mix those two tables in a cross-host ranking.
 
 | Bundle | Primary question | Main caution |
 |---|---|---|
+| [`tower2-dual-qwen27-600w-2026-07-29`](tower2-dual-qwen27-600w-2026-07-29/) | Can both RTX PRO 6000 Blackwell GPUs sustain dense Qwen3.6-27B inference at 600 W each for 30 minutes, and where do temperatures, clocks, and fans settle? | One Tower2 run with independent AWQ-INT4 vLLM engines; host CPU/CCD temperatures, not GPU throttling, were the limiting thermal observation. |
 | [`qwen3.6-q8-fleet-2026-05-17`](qwen3.6-q8-fleet-2026-05-17/) | How do four local-AI hardware classes handle the same dense and MoE Qwen3.6 workloads? | Multi-user serving is held; Tower2 MoE uses a defended vLLM FP8 exception because native llama.cpp Q8 crashes. |
 | [`best-stack-followup-2026-05-17`](best-stack-followup-2026-05-17/) | What's the best serving stack per platform (MLX vs Metal on M5; ROCm 7 on Strix Halo)? | Platform-specific; MLX beats Metal on M5, ROCm 7 works on Strix, no prefill lift. |
 | [`qwen3.5-397b-vs-step3.7-flash-2026-05-29`](qwen3.5-397b-vs-step3.7-flash-2026-05-29/) | **(Model-behavior microbench, filed here for the rig.)** Does thinking help; do results tie across scale; 397B / Step-3.7 / MiniMax / 27B-Q4 refs. | Thinking net-negative across ~15× scale; small-N misreads cells; MiniMax temp serving-trap. A 12-family agentic microbench — see [`../MICROBENCH-INDEX.md`](../MICROBENCH-INDEX.md). Secondary: dual-GPU power. |
