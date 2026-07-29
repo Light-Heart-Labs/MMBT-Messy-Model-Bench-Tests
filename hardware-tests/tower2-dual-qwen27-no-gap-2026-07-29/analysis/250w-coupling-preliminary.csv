@@ -1,0 +1,9 @@
+comparison,metric,gpu0_bottom_delta,gpu1_top_delta,unit,interpretation
+both_loaded_minus_bottom_loaded_top_idle,mean_power,-0.001,228.185,W,Top workload added 228.185 W while bottom power was unchanged
+both_loaded_minus_bottom_loaded_top_idle,mean_temperature,-0.565,23.832,C,Top self-heating signal is large; bottom response is inside unnormalized run-to-run variation
+both_loaded_minus_bottom_loaded_top_idle,last_5m_temperature,-0.982,23.362,C,Steady top self-heating signal at matched bottom load
+both_loaded_minus_bottom_loaded_top_idle,mean_fan,-0.348,10.146,percentage_points,Top workload required substantially more fan
+both_loaded_minus_bottom_loaded_top_idle,last_5m_graphics_clock,-6.850,592.066,MHz,Loaded-versus-idle clocks are not a thermal-efficiency comparison
+both250_top_minus_bottom,mean_temperature,,15.120,C,Loaded top positional penalty at equal power
+both250_top_minus_bottom,last_5m_temperature,,16.118,C,Loaded top positional penalty after heat soak
+bottom_loaded_top_idle,top_start_to_last_5m_temperature,,13.805,C,Within-run neighbor-heating transient; start was 31 C and is not an inlet measurement
