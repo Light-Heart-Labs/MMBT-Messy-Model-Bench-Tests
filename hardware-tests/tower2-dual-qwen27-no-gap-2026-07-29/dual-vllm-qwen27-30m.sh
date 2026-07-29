@@ -17,6 +17,8 @@ DURATION_S=1800
 WARMUP_S=120
 COOLDOWN_S=60
 CONCURRENCY=32
+CONCURRENCY_GPU0=""
+CONCURRENCY_GPU1=""
 MAX_TOKENS=1024
 MIN_WARMUP_POWER_W=570
 MIN_WARMUP_POWER_GPU0_W=""
@@ -24,6 +26,10 @@ MIN_WARMUP_POWER_GPU1_W=""
 GPU0_POWER_LIMIT_W=600
 GPU1_POWER_LIMIT_W=600
 GPU_ABORT_C=92
+MAX_START_TEMP_GPU0_C=45
+MAX_START_TEMP_GPU1_C=45
+TELEMETRY_INTERVAL_MS=1000
+AMBIENT_C=""
 GPU0_PORT=8001
 GPU1_PORT=8002
 GPU0_CONTAINER="tower2-qwen27-gpu0-thermal"
@@ -53,6 +59,8 @@ Options:
   --warmup SECONDS         Saturation warm-up (default: 120)
   --cooldown SECONDS       Logged cooldown (default: 60)
   --concurrency N          Concurrent requests per GPU (default: 32)
+  --concurrency-gpu0 N     GPU0 request workers; 0 leaves GPU0 idle
+  --concurrency-gpu1 N     GPU1 request workers; 0 leaves GPU1 idle
   --max-tokens N           Maximum generated tokens/request (default: 1024)
   --min-power W            Required warm-up mean per GPU (default: 570)
   --min-power-gpu0 W       Required GPU0 warm-up mean (overrides --min-power)
@@ -60,6 +68,10 @@ Options:
   --gpu0-power-limit W     GPU0/bottom power limit (default: 600)
   --gpu1-power-limit W     GPU1/top power limit (default: 600)
   --gpu-abort-c C          Emergency GPU-temperature cutoff (default: 92)
+  --max-start-temp-gpu0 C Maximum allowed GPU0 pre-run temperature (default: 45)
+  --max-start-temp-gpu1 C Maximum allowed GPU1 pre-run temperature (default: 45)
+  --telemetry-ms MS        GPU telemetry interval in milliseconds (default: 1000)
+  --ambient-c C            Manually measured room/chassis inlet temperature
 
 Before --run:
   sudo -v
@@ -78,6 +90,8 @@ while (($#)); do
     --warmup) WARMUP_S="${2:?missing value for --warmup}"; shift 2 ;;
     --cooldown) COOLDOWN_S="${2:?missing value for --cooldown}"; shift 2 ;;
     --concurrency) CONCURRENCY="${2:?missing value for --concurrency}"; shift 2 ;;
+    --concurrency-gpu0) CONCURRENCY_GPU0="${2:?missing value for --concurrency-gpu0}"; shift 2 ;;
+    --concurrency-gpu1) CONCURRENCY_GPU1="${2:?missing value for --concurrency-gpu1}"; shift 2 ;;
     --max-tokens) MAX_TOKENS="${2:?missing value for --max-tokens}"; shift 2 ;;
     --min-power) MIN_WARMUP_POWER_W="${2:?missing value for --min-power}"; shift 2 ;;
     --min-power-gpu0) MIN_WARMUP_POWER_GPU0_W="${2:?missing value for --min-power-gpu0}"; shift 2 ;;
@@ -85,33 +99,63 @@ while (($#)); do
     --gpu0-power-limit) GPU0_POWER_LIMIT_W="${2:?missing value for --gpu0-power-limit}"; shift 2 ;;
     --gpu1-power-limit) GPU1_POWER_LIMIT_W="${2:?missing value for --gpu1-power-limit}"; shift 2 ;;
     --gpu-abort-c) GPU_ABORT_C="${2:?missing value for --gpu-abort-c}"; shift 2 ;;
+    --max-start-temp-gpu0) MAX_START_TEMP_GPU0_C="${2:?missing value for --max-start-temp-gpu0}"; shift 2 ;;
+    --max-start-temp-gpu1) MAX_START_TEMP_GPU1_C="${2:?missing value for --max-start-temp-gpu1}"; shift 2 ;;
+    --telemetry-ms) TELEMETRY_INTERVAL_MS="${2:?missing value for --telemetry-ms}"; shift 2 ;;
+    --ambient-c) AMBIENT_C="${2:?missing value for --ambient-c}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
   esac
 done
 
-for value in DURATION_S WARMUP_S COOLDOWN_S CONCURRENCY MAX_TOKENS; do
+for value in DURATION_S WARMUP_S COOLDOWN_S CONCURRENCY MAX_TOKENS TELEMETRY_INTERVAL_MS; do
   [[ "${!value}" =~ ^[1-9][0-9]*$ ]] || {
     echo "$value must be a positive integer" >&2
     exit 2
   }
 done
+CONCURRENCY_GPU0="${CONCURRENCY_GPU0:-$CONCURRENCY}"
+CONCURRENCY_GPU1="${CONCURRENCY_GPU1:-$CONCURRENCY}"
+for value in CONCURRENCY_GPU0 CONCURRENCY_GPU1; do
+  [[ "${!value}" =~ ^[0-9]+$ ]] || {
+    echo "$value must be a non-negative integer" >&2
+    exit 2
+  }
+done
+((CONCURRENCY_GPU0 + CONCURRENCY_GPU1 > 0)) || {
+  echo "At least one GPU must have non-zero concurrency" >&2
+  exit 2
+}
+((TELEMETRY_INTERVAL_MS >= 100)) || {
+  echo "TELEMETRY_INTERVAL_MS must be at least 100" >&2
+  exit 2
+}
 [[ "$MIN_WARMUP_POWER_W" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
   echo "MIN_WARMUP_POWER_W must be numeric" >&2
   exit 2
 }
-MIN_WARMUP_POWER_GPU0_W="${MIN_WARMUP_POWER_GPU0_W:-$MIN_WARMUP_POWER_W}"
-MIN_WARMUP_POWER_GPU1_W="${MIN_WARMUP_POWER_GPU1_W:-$MIN_WARMUP_POWER_W}"
+if [[ -z "$MIN_WARMUP_POWER_GPU0_W" ]]; then
+  ((CONCURRENCY_GPU0 == 0)) && MIN_WARMUP_POWER_GPU0_W=0 || MIN_WARMUP_POWER_GPU0_W="$MIN_WARMUP_POWER_W"
+fi
+if [[ -z "$MIN_WARMUP_POWER_GPU1_W" ]]; then
+  ((CONCURRENCY_GPU1 == 0)) && MIN_WARMUP_POWER_GPU1_W=0 || MIN_WARMUP_POWER_GPU1_W="$MIN_WARMUP_POWER_W"
+fi
 for value in MIN_WARMUP_POWER_GPU0_W MIN_WARMUP_POWER_GPU1_W GPU0_POWER_LIMIT_W GPU1_POWER_LIMIT_W; do
   [[ "${!value}" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
     echo "$value must be numeric" >&2
     exit 2
   }
 done
-[[ "$GPU_ABORT_C" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
-  echo "GPU_ABORT_C must be numeric" >&2
+for value in GPU_ABORT_C MAX_START_TEMP_GPU0_C MAX_START_TEMP_GPU1_C; do
+  [[ "${!value}" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
+    echo "$value must be numeric" >&2
+    exit 2
+  }
+done
+if [[ -n "$AMBIENT_C" && ! "$AMBIENT_C" =~ ^-?[0-9]+([.][0-9]+)?$ ]]; then
+  echo "AMBIENT_C must be numeric" >&2
   exit 2
-}
+fi
 [[ "$TAG" =~ ^[A-Za-z0-9._-]+$ ]] || {
   echo "TAG may contain only letters, digits, dot, underscore, and dash" >&2
   exit 2
@@ -139,9 +183,17 @@ sanctuary_model_ok() {
     | jq -e '.data | length > 0' >/dev/null
 }
 
+sanctuary_idle_ok() {
+  local metrics running waiting
+  metrics="$(curl -fsS -m 5 "http://127.0.0.1:${GPU1_PORT}/metrics")" || return 1
+  running="$(awk '$1 ~ /^vllm:num_requests_running[{]/ {sum+=$2} END{print sum+0}' <<<"$metrics")"
+  waiting="$(awk '$1 ~ /^vllm:num_requests_waiting[{]/ {sum+=$2} END{print sum+0}' <<<"$metrics")"
+  awk -v running="$running" -v waiting="$waiting" 'BEGIN{exit !((running+0)==0 && (waiting+0)==0)}'
+}
+
 telemetry_probe() {
   nvidia-smi \
-    --query-gpu=index,timestamp,temperature.gpu,temperature.memory,power.draw.average,power.draw.instant,power.limit,enforced.power.limit,clocks.current.graphics,clocks.current.sm,clocks.current.memory,utilization.gpu,utilization.memory,fan.speed,pstate,memory.used,clocks_event_reasons.sw_power_cap,clocks_event_reasons.hw_thermal_slowdown,clocks_event_reasons.hw_power_brake_slowdown,clocks_event_reasons.sw_thermal_slowdown \
+    --query-gpu=index,timestamp,temperature.gpu,temperature.memory,power.draw.average,power.draw.instant,power.limit,enforced.power.limit,clocks.current.graphics,clocks.current.sm,clocks.current.memory,utilization.gpu,utilization.memory,fan.speed,pstate,memory.used,clocks_event_reasons.sw_power_cap,clocks_event_reasons.hw_thermal_slowdown,clocks_event_reasons.hw_power_brake_slowdown,clocks_event_reasons.sw_thermal_slowdown,temperature.gpu.tlimit,clocks_event_reasons_counters.sw_power_cap,clocks_event_reasons_counters.sw_thermal_slowdown,clocks_event_reasons_counters.hw_thermal_slowdown,clocks_event_reasons_counters.hw_power_brake_slowdown \
     --format=csv,noheader,nounits
 }
 
@@ -172,9 +224,27 @@ run_checks() {
     echo "GPU1 Sanctuary is not a healthy Qwen3.6-27B instance pinned to GPU 1" >&2
     failed=1
   }
+  sanctuary_idle_ok || {
+    echo "GPU1 Sanctuary has running or waiting production requests" >&2
+    failed=1
+  }
 
   telemetry_probe >/dev/null || {
     echo "Required NVIDIA telemetry fields are unavailable" >&2
+    failed=1
+  }
+
+  local start_temp0 start_temp1
+  read -r start_temp0 start_temp1 < <(
+    nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits \
+      | awk 'NR==1{a=$1} NR==2{b=$1} END{print a+0,b+0}'
+  )
+  awk -v value="$start_temp0" -v limit="$MAX_START_TEMP_GPU0_C" 'BEGIN{exit !(value>limit)}' && {
+    echo "GPU0 start temperature ${start_temp0} C exceeds ${MAX_START_TEMP_GPU0_C} C" >&2
+    failed=1
+  }
+  awk -v value="$start_temp1" -v limit="$MAX_START_TEMP_GPU1_C" 'BEGIN{exit !(value>limit)}' && {
+    echo "GPU1 start temperature ${start_temp1} C exceeds ${MAX_START_TEMP_GPU1_C} C" >&2
     failed=1
   }
 
@@ -207,7 +277,7 @@ run_checks() {
 
   echo
   nvidia-smi \
-    --query-gpu=index,name,power.draw,power.limit,temperature.gpu,clocks.current.graphics,utilization.gpu,memory.used \
+    --query-gpu=index,name,power.draw,power.limit,temperature.gpu,temperature.gpu.tlimit,fan.speed,clocks.current.graphics,utilization.gpu,memory.used \
     --format=csv,noheader
   echo
   docker inspect "$SANCTUARY_CONTAINER" \
@@ -248,6 +318,7 @@ WORKERS_STOP_FILE="$OUT/.stop-workers"
 ABORT_FILE="$OUT/.abort"
 STOPPED_FILE="$OUT/stopped-containers.txt"
 SUMMARY_JSON="$OUT/summary.json"
+CHECKSUMS="$OUT/SHA256SUMS"
 GPU0_PAYLOAD="$OUT/gpu0-payload.json"
 GPU1_PAYLOAD="$OUT/gpu1-payload.json"
 IMAGE_ID="$(docker inspect "$SANCTUARY_CONTAINER" --format '{{.Image}}')"
@@ -255,6 +326,16 @@ GPU1_MODEL_ID="$(curl -fsS "http://127.0.0.1:${GPU1_PORT}/v1/models" | jq -r '.d
 GPU0_MODEL_ID="tower2-qwen27-gpu0"
 ORIGINAL_LIMIT_0="$(nvidia-smi -i 0 --query-gpu=power.limit --format=csv,noheader,nounits | awk '{print $1}')"
 ORIGINAL_LIMIT_1="$(nvidia-smi -i 1 --query-gpu=power.limit --format=csv,noheader,nounits | awk '{print $1}')"
+read -r START_HW_THERMAL_0 START_HW_BRAKE_0 < <(
+  nvidia-smi -i 0 \
+    --query-gpu=clocks_event_reasons_counters.hw_thermal_slowdown,clocks_event_reasons_counters.hw_power_brake_slowdown \
+    --format=csv,noheader,nounits | awk -F, '{gsub(/ /,""); print $1,$2}'
+)
+read -r START_HW_THERMAL_1 START_HW_BRAKE_1 < <(
+  nvidia-smi -i 1 \
+    --query-gpu=clocks_event_reasons_counters.hw_thermal_slowdown,clocks_event_reasons_counters.hw_power_brake_slowdown \
+    --format=csv,noheader,nounits | awk -F, '{gsub(/ /,""); print $1,$2}'
+)
 
 exec > >(tee -a "$RUN_LOG") 2>&1
 
@@ -352,6 +433,12 @@ cleanup() {
 
   rm -f "$PHASE_FILE" "$STOP_FILE" "$WORKERS_STOP_FILE" "$ABORT_FILE"
   log "Cleanup complete; original GPU services and power limits restored"
+  (
+    cd "$OUT"
+    find . -maxdepth 1 -type f ! -name SHA256SUMS -printf '%P\n' \
+      | sort \
+      | xargs -r sha256sum
+  ) > "$CHECKSUMS"
   exit "$rc"
 }
 trap cleanup EXIT INT TERM
@@ -377,12 +464,18 @@ jq -n \
   --argjson warmup_s "$WARMUP_S" \
   --argjson cooldown_s "$COOLDOWN_S" \
   --argjson concurrency_per_gpu "$CONCURRENCY" \
+  --argjson concurrency_gpu0 "$CONCURRENCY_GPU0" \
+  --argjson concurrency_gpu1 "$CONCURRENCY_GPU1" \
   --argjson max_tokens "$MAX_TOKENS" \
   --argjson min_warmup_power_gpu0_w "$MIN_WARMUP_POWER_GPU0_W" \
   --argjson min_warmup_power_gpu1_w "$MIN_WARMUP_POWER_GPU1_W" \
   --argjson gpu0_power_limit_w "$GPU0_POWER_LIMIT_W" \
   --argjson gpu1_power_limit_w "$GPU1_POWER_LIMIT_W" \
   --argjson gpu_abort_c "$GPU_ABORT_C" \
+  --argjson max_start_temp_gpu0_c "$MAX_START_TEMP_GPU0_C" \
+  --argjson max_start_temp_gpu1_c "$MAX_START_TEMP_GPU1_C" \
+  --argjson telemetry_interval_ms "$TELEMETRY_INTERVAL_MS" \
+  --arg ambient_c "$AMBIENT_C" \
   '{
     tag:$tag,
     started_at:$started_at,
@@ -393,15 +486,25 @@ jq -n \
     warmup_s:$warmup_s,
     cooldown_s:$cooldown_s,
     concurrency_per_gpu:$concurrency_per_gpu,
+    concurrency_gpu0:$concurrency_gpu0,
+    concurrency_gpu1:$concurrency_gpu1,
     max_tokens:$max_tokens,
     min_warmup_power_gpu0_w:$min_warmup_power_gpu0_w,
     min_warmup_power_gpu1_w:$min_warmup_power_gpu1_w,
     gpu0_power_limit_w:$gpu0_power_limit_w,
     gpu1_power_limit_w:$gpu1_power_limit_w,
-    gpu_abort_c:$gpu_abort_c
+    gpu_abort_c:$gpu_abort_c,
+    max_start_temp_gpu0_c:$max_start_temp_gpu0_c,
+    max_start_temp_gpu1_c:$max_start_temp_gpu1_c,
+    telemetry_interval_ms:$telemetry_interval_ms,
+    ambient_c:(if $ambient_c == "" then null else ($ambient_c | tonumber) end)
   }' > "$OUT/run-config.json"
 
 nvidia-smi -q > "$OUT/nvidia-before.txt"
+nvidia-smi -q -x > "$OUT/nvidia-before.xml"
+uname -a > "$OUT/host-before.txt"
+docker ps --no-trunc > "$OUT/containers-before.txt"
+curl -fsS "http://127.0.0.1:${GPU1_PORT}/metrics" > "$OUT/gpu1-vllm-metrics-before.txt"
 docker inspect "$SANCTUARY_CONTAINER" > "$OUT/sanctuary-inspect.json"
 
 log "Stopping GPU containers that conflict with an isolated GPU0 replica"
@@ -430,45 +533,49 @@ log "Setting GPU0/bottom to ${GPU0_POWER_LIMIT_W} W and GPU1/top to ${GPU1_POWER
 sudo -n nvidia-smi -i 0 -pl "$GPU0_POWER_LIMIT_W"
 sudo -n nvidia-smi -i 1 -pl "$GPU1_POWER_LIMIT_W"
 
-log "Launching identical Qwen3.6-27B AWQ-INT4 vLLM replica on GPU0"
-docker run -d --rm \
-  --name "$GPU0_CONTAINER" \
-  --gpus '"device=0"' \
-  -v "${MODEL_SOURCE}:/models:ro" \
-  -p "127.0.0.1:${GPU0_PORT}:8000" \
-  "$IMAGE_ID" \
-  --model "$MODEL_PATH" \
-  --served-model-name "$GPU0_MODEL_ID" \
-  --host 0.0.0.0 \
-  --port 8000 \
-  --tensor-parallel-size 1 \
-  --gpu-memory-utilization 0.92 \
-  --max-model-len 262144 \
-  --trust-remote-code \
-  --enable-auto-tool-choice \
-  --tool-call-parser qwen3_coder
-GPU0_STARTED=1
+if ((CONCURRENCY_GPU0 > 0)); then
+  log "Launching identical Qwen3.6-27B AWQ-INT4 vLLM replica on GPU0"
+  docker run -d --rm \
+    --name "$GPU0_CONTAINER" \
+    --gpus '"device=0"' \
+    -v "${MODEL_SOURCE}:/models:ro" \
+    -p "127.0.0.1:${GPU0_PORT}:8000" \
+    "$IMAGE_ID" \
+    --model "$MODEL_PATH" \
+    --served-model-name "$GPU0_MODEL_ID" \
+    --host 0.0.0.0 \
+    --port 8000 \
+    --tensor-parallel-size 1 \
+    --gpu-memory-utilization 0.92 \
+    --max-model-len 262144 \
+    --trust-remote-code \
+    --enable-auto-tool-choice \
+    --tool-call-parser qwen3_coder
+  GPU0_STARTED=1
 
-log "Waiting for GPU0 vLLM readiness"
-ready=0
-for _ in $(seq 1 180); do
-  if [[ "$(docker inspect "$GPU0_CONTAINER" --format '{{.State.Running}}' 2>/dev/null || true)" != "true" ]]; then
+  log "Waiting for GPU0 vLLM readiness"
+  ready=0
+  for _ in $(seq 1 180); do
+    if [[ "$(docker inspect "$GPU0_CONTAINER" --format '{{.State.Running}}' 2>/dev/null || true)" != "true" ]]; then
+      docker logs "$GPU0_CONTAINER" 2>&1 | tail -100
+      echo "GPU0 vLLM container exited during startup" >&2
+      exit 1
+    fi
+    if curl -fsS -m 3 "http://127.0.0.1:${GPU0_PORT}/v1/models" \
+        | jq -e --arg id "$GPU0_MODEL_ID" '.data[] | select(.id == $id)' >/dev/null; then
+      ready=1
+      break
+    fi
+    sleep 5
+  done
+  [[ "$ready" -eq 1 ]] || {
     docker logs "$GPU0_CONTAINER" 2>&1 | tail -100
-    echo "GPU0 vLLM container exited during startup" >&2
+    echo "GPU0 vLLM did not become ready" >&2
     exit 1
-  fi
-  if curl -fsS -m 3 "http://127.0.0.1:${GPU0_PORT}/v1/models" \
-      | jq -e --arg id "$GPU0_MODEL_ID" '.data[] | select(.id == $id)' >/dev/null; then
-    ready=1
-    break
-  fi
-  sleep 5
-done
-[[ "$ready" -eq 1 ]] || {
-  docker logs "$GPU0_CONTAINER" 2>&1 | tail -100
-  echo "GPU0 vLLM did not become ready" >&2
-  exit 1
-}
+  }
+else
+  log "GPU0 concurrency is 0; leaving GPU0 isolated and idle"
+fi
 
 PROMPT="Write a continuous, highly detailed technical analysis of a hypothetical datacenter cooling incident. Keep generating dense explanatory prose, calculations, diagnostics, and remediation steps until the token limit."
 jq -n \
@@ -485,7 +592,10 @@ jq -n \
   > "$GPU1_PAYLOAD"
 
 gpu_logger() {
-  echo "ts_wall_iso,ts_mono_s,phase,index,nvidia_timestamp,temp_gpu_c,temp_memory_c,power_avg_w,power_instant_w,power_limit_w,enforced_power_limit_w,graphics_clock_mhz,sm_clock_mhz,memory_clock_mhz,gpu_util_pct,memory_util_pct,fan_pct,pstate,memory_used_mib,sw_power_cap,hw_thermal_slowdown,hw_power_brake_slowdown,sw_thermal_slowdown" > "$GPU_CSV"
+  local interval_ns next_sample_ns now_ns sleep_s
+  interval_ns=$((TELEMETRY_INTERVAL_MS * 1000000))
+  next_sample_ns="$(date +%s%N)"
+  echo "ts_wall_iso,ts_mono_s,phase,index,nvidia_timestamp,temp_gpu_c,temp_memory_c,power_avg_w,power_instant_w,power_limit_w,enforced_power_limit_w,graphics_clock_mhz,sm_clock_mhz,memory_clock_mhz,gpu_util_pct,memory_util_pct,fan_pct,pstate,memory_used_mib,sw_power_cap,hw_thermal_slowdown,hw_power_brake_slowdown,sw_thermal_slowdown,temp_tlimit_margin_c,sw_power_cap_counter_us,sw_thermal_slowdown_counter_us,hw_thermal_slowdown_counter_us,hw_power_brake_counter_us" > "$GPU_CSV"
   while [[ ! -f "$STOP_FILE" ]]; do
     wall="$(date -u +%FT%T.%3NZ)"
     mono="$(awk 'BEGIN{getline x < "/proc/uptime"; split(x,a," "); print a[1]}')"
@@ -506,12 +616,19 @@ gpu_logger() {
         "$wall" "$phase" "$GPU_ABORT_C" "$(tr '\n' ';' <<<"$sample")" \
         > "$ABORT_FILE"
     fi
-    sleep 1
+    next_sample_ns=$((next_sample_ns + interval_ns))
+    now_ns="$(date +%s%N)"
+    if ((next_sample_ns > now_ns)); then
+      sleep_s="$(awk -v ns="$((next_sample_ns - now_ns))" 'BEGIN{printf "%.6f",ns/1000000000}')"
+      sleep "$sleep_s"
+    else
+      next_sample_ns="$now_ns"
+    fi
   done
 }
 
 host_logger() {
-  echo "ts_wall_iso,ts_mono_s,phase,cpu_tctl_c,cpu_ccd_max_c,cpu_avg_mhz,nvme_max_c" > "$HOST_CSV"
+  echo "ts_wall_iso,ts_mono_s,phase,ambient_c,cpu_tctl_c,cpu_ccd_max_c,cpu_avg_mhz,nvme_max_c" > "$HOST_CSV"
   while [[ ! -f "$STOP_FILE" ]]; do
     wall="$(date -u +%FT%T.%3NZ)"
     mono="$(awk 'BEGIN{getline x < "/proc/uptime"; split(x,a," "); print a[1]}')"
@@ -521,7 +638,7 @@ host_logger() {
     ccd="$(awk '/Tccd/{v=$2; gsub(/[+°C]/,"",v); if(v+0>m)m=v+0} END{if(m)printf "%.1f",m}' <<<"$sensor_text")"
     nvme="$(awk '/^Composite/{v=$2; gsub(/[+°C]/,"",v); if(v+0>m)m=v+0} END{if(m)printf "%.1f",m}' <<<"$sensor_text")"
     mhz="$(awk '/cpu MHz/{s+=$4;n++} END{printf "%.0f",(n?s/n:0)}' /proc/cpuinfo)"
-    printf '%s,%s,%s,%s,%s,%s,%s\n' "$wall" "$mono" "$phase" "$tctl" "$ccd" "$mhz" "$nvme" >> "$HOST_CSV"
+    printf '%s,%s,%s,%s,%s,%s,%s,%s\n' "$wall" "$mono" "$phase" "$AMBIENT_C" "$tctl" "$ccd" "$mhz" "$nvme" >> "$HOST_CSV"
     sleep 1
   done
 }
@@ -544,14 +661,16 @@ request_worker() {
   done
 }
 
-log "Starting 1 Hz telemetry and ${CONCURRENCY} request workers per GPU"
+log "Starting ${TELEMETRY_INTERVAL_MS} ms GPU telemetry; workers GPU0=${CONCURRENCY_GPU0} GPU1=${CONCURRENCY_GPU1}"
 gpu_logger &
 LOGGER_PID=$!
 host_logger &
 HOST_LOGGER_PID=$!
-for _ in $(seq 1 "$CONCURRENCY"); do
+for ((worker=0; worker<CONCURRENCY_GPU0; worker++)); do
   request_worker gpu0 "http://127.0.0.1:${GPU0_PORT}" "$GPU0_PAYLOAD" &
   WORKER_PIDS+=("$!")
+done
+for ((worker=0; worker<CONCURRENCY_GPU1; worker++)); do
   request_worker gpu1 "http://127.0.0.1:${GPU1_PORT}" "$GPU1_PAYLOAD" &
   WORKER_PIDS+=("$!")
 done
@@ -605,10 +724,12 @@ while (( $(date +%s) < deadline )); do
     echo "GPU1 Sanctuary endpoint became unhealthy" >&2
     exit 1
   }
-  [[ "$(docker inspect "$GPU0_CONTAINER" --format '{{.State.Running}}' 2>/dev/null || true)" == "true" ]] || {
-    echo "GPU0 vLLM container exited" >&2
-    exit 1
-  }
+  if ((CONCURRENCY_GPU0 > 0)); then
+    [[ "$(docker inspect "$GPU0_CONTAINER" --format '{{.State.Running}}' 2>/dev/null || true)" == "true" ]] || {
+      echo "GPU0 vLLM container exited" >&2
+      exit 1
+    }
+  fi
 
   current_max_temp="$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits | awk 'm<$1{m=$1}END{print m+0}')"
   awk -v t="$current_max_temp" -v limit="$GPU_ABORT_C" 'BEGIN{exit !(t>=limit)}' && {
@@ -631,11 +752,28 @@ while (( $(date +%s) < deadline )); do
     exit 1
   fi
 
+  if nvidia-smi \
+      --query-gpu=index,clocks_event_reasons_counters.hw_thermal_slowdown,clocks_event_reasons_counters.hw_power_brake_slowdown \
+      --format=csv,noheader,nounits \
+      | awk -F, \
+          -v h0="$START_HW_THERMAL_0" -v b0="$START_HW_BRAKE_0" \
+          -v h1="$START_HW_THERMAL_1" -v b1="$START_HW_BRAKE_1" '
+          {
+            for (i=1;i<=NF;i++) gsub(/ /,"",$i)
+            if ($1 == 0 && ($2+0 > h0+0 || $3+0 > b0+0)) hit=1
+            if ($1 == 1 && ($2+0 > h1+0 || $3+0 > b1+0)) hit=1
+          }
+          END {exit (hit ? 0 : 1)}
+        '; then
+    echo "Emergency cutoff: cumulative hardware thermal or power-brake counter increased" >&2
+    exit 1
+  fi
+
   now="$(date +%s)"
   if ((now >= next_update)); then
     elapsed=$((now - started_epoch))
     snapshot="$(nvidia-smi \
-      --query-gpu=index,power.draw.average,temperature.gpu,clocks.current.graphics,utilization.gpu \
+      --query-gpu=index,power.draw.average,temperature.gpu,temperature.gpu.tlimit,fan.speed,clocks.current.graphics,utilization.gpu,clocks_event_reasons.sw_power_cap,clocks_event_reasons.sw_thermal_slowdown,clocks_event_reasons.hw_thermal_slowdown \
       --format=csv,noheader)"
     log "Progress ${elapsed}/${DURATION_S}s"
     printf '%s\n' "$snapshot"
@@ -656,7 +794,11 @@ LOGGER_PID=""
 HOST_LOGGER_PID=""
 
 nvidia-smi -q > "$OUT/nvidia-after.txt"
-docker logs "$GPU0_CONTAINER" > "$OUT/gpu0-vllm.log" 2>&1 || true
+nvidia-smi -q -x > "$OUT/nvidia-after.xml"
+curl -fsS "http://127.0.0.1:${GPU1_PORT}/metrics" > "$OUT/gpu1-vllm-metrics-after.txt" || true
+if ((GPU0_STARTED == 1)); then
+  docker logs "$GPU0_CONTAINER" > "$OUT/gpu0-vllm.log" 2>&1 || true
+fi
 
 python3 "$(dirname "$0")/summarize-dual-vllm.py" \
   "$GPU_CSV" "$HOST_CSV" "$REQUESTS_CSV" "$SUMMARY_JSON" \

@@ -55,9 +55,36 @@ def slice_stats(rows, field, first=True, seconds=300):
     return stats([number(row.get(field)) for row in selected])
 
 
+def linear_slope_per_minute(rows, field, last_seconds=180):
+    points = [
+        (number(row.get("ts_mono_s")), number(row.get(field)))
+        for row in rows
+    ]
+    points = [(x, y) for x, y in points if x is not None and y is not None]
+    if len(points) < 2:
+        return None
+    end = max(x for x, _ in points)
+    points = [(x, y) for x, y in points if x >= end - last_seconds]
+    if len(points) < 2:
+        return None
+    x_mean = statistics.fmean(x for x, _ in points)
+    y_mean = statistics.fmean(y for _, y in points)
+    denominator = sum((x - x_mean) ** 2 for x, _ in points)
+    if denominator == 0:
+        return None
+    slope_per_second = (
+        sum((x - x_mean) * (y - y_mean) for x, y in points) / denominator
+    )
+    return round(slope_per_second * 60, 4)
+
+
 gpu_csv, host_csv, requests_csv, output_json = map(Path, sys.argv[1:5])
 nvidia_before = Path(sys.argv[5]) if len(sys.argv) > 5 else None
 nvidia_after = Path(sys.argv[6]) if len(sys.argv) > 6 else None
+config_path = gpu_csv.parent / "run-config.json"
+config = {}
+if config_path.exists():
+    config = json.loads(config_path.read_text(encoding="utf-8"))
 
 measured_by_gpu = defaultdict(list)
 with gpu_csv.open(newline="", encoding="utf-8") as handle:
@@ -67,19 +94,36 @@ with gpu_csv.open(newline="", encoding="utf-8") as handle:
         measured_by_gpu[row["index"].strip()].append(row)
 
 summary = {"phase": "measured", "gpus": {}, "host": {}, "requests": {}}
+duration_s = number(config.get("duration_s"))
+interval_ms = number(config.get("telemetry_interval_ms"))
 for gpu, rows in sorted(measured_by_gpu.items()):
     power_values = [number(row.get("power_avg_w")) for row in rows]
     power_values = [value for value in power_values if value is not None]
-    saturation_fraction = (
-        sum(value >= 570 for value in power_values) / len(power_values)
-        if power_values
+    target_power = number(config.get(f"gpu{gpu}_power_limit_w"))
+    target_fraction = (
+        sum(value >= target_power * 0.95 for value in power_values) / len(power_values)
+        if power_values and target_power is not None
         else None
     )
+    expected_samples = None
+    if duration_s and interval_ms:
+        expected_samples = duration_s * 1000 / interval_ms
     summary["gpus"][gpu] = {
         "samples": len(rows),
+        "expected_samples": round(expected_samples, 1) if expected_samples else None,
+        "sample_completeness": (
+            round(min(1.0, len(rows) / expected_samples), 4)
+            if expected_samples
+            else None
+        ),
+        "target_power_w": target_power,
         "power_avg_w": stats(power_values),
         "power_instant_w": stats([number(row.get("power_instant_w")) for row in rows]),
         "temp_gpu_c": stats([number(row.get("temp_gpu_c")) for row in rows]),
+        "temp_memory_c": stats([number(row.get("temp_memory_c")) for row in rows]),
+        "temp_tlimit_margin_c": stats(
+            [number(row.get("temp_tlimit_margin_c")) for row in rows]
+        ),
         "graphics_clock_mhz": stats(
             [number(row.get("graphics_clock_mhz")) for row in rows]
         ),
@@ -89,11 +133,18 @@ for gpu, rows in sorted(measured_by_gpu.items()):
         ),
         "gpu_util_pct": stats([number(row.get("gpu_util_pct")) for row in rows]),
         "fan_pct": stats([number(row.get("fan_pct")) for row in rows]),
-        "fraction_samples_at_or_above_570w": (
-            round(saturation_fraction, 4)
-            if saturation_fraction is not None
+        "fraction_samples_at_or_above_95pct_target": (
+            round(target_fraction, 4)
+            if target_fraction is not None
             else None
         ),
+        "steady_state_slopes_per_min": {
+            "temp_gpu_c": linear_slope_per_minute(rows, "temp_gpu_c"),
+            "graphics_clock_mhz": linear_slope_per_minute(
+                rows, "graphics_clock_mhz"
+            ),
+            "fan_pct": linear_slope_per_minute(rows, "fan_pct"),
+        },
         "first_5m": {
             "power_avg_w": slice_stats(rows, "power_avg_w", first=True),
             "temp_gpu_c": slice_stats(rows, "temp_gpu_c", first=True),
@@ -121,6 +172,19 @@ for gpu, rows in sorted(measured_by_gpu.items()):
                 for row in rows
             ),
         },
+        "sampled_counter_deltas_us": {
+            key: (
+                (number(rows[-1].get(key)) or 0)
+                - (number(rows[0].get(key)) or 0)
+            )
+            for key in (
+                "sw_power_cap_counter_us",
+                "sw_thermal_slowdown_counter_us",
+                "hw_thermal_slowdown_counter_us",
+                "hw_power_brake_counter_us",
+            )
+            if key in rows[0]
+        },
     }
 
 host_rows = []
@@ -130,6 +194,7 @@ with host_csv.open(newline="", encoding="utf-8") as handle:
             host_rows.append(row)
 summary["host"] = {
     "samples": len(host_rows),
+    "ambient_c": stats([number(row.get("ambient_c")) for row in host_rows]),
     "cpu_tctl_c": stats([number(row.get("cpu_tctl_c")) for row in host_rows]),
     "cpu_ccd_max_c": stats([number(row.get("cpu_ccd_max_c")) for row in host_rows]),
     "cpu_avg_mhz": stats([number(row.get("cpu_avg_mhz")) for row in host_rows]),
@@ -148,6 +213,9 @@ for gpu in ("gpu0", "gpu1"):
         status_counts[row.get("http_status", "unknown")] += 1
     summary["requests"][gpu] = {
         "completed": len(rows),
+        "requests_per_second": (
+            round(len(rows) / duration_s, 4) if duration_s else None
+        ),
         "status_counts": dict(sorted(status_counts.items())),
         "duration_s": stats([number(row.get("duration_s")) for row in rows]),
     }
@@ -184,6 +252,24 @@ for gpu, gpu_summary in summary["gpus"].items():
         key: after_counters.get(gpu, {}).get(key, 0)
         - before_counters.get(gpu, {}).get(key, 0)
         for key in sorted(keys)
+    }
+
+if "0" in summary["gpus"] and "1" in summary["gpus"]:
+    bottom = summary["gpus"]["0"]
+    top = summary["gpus"]["1"]
+
+    def mean_delta(field):
+        bottom_stats = bottom.get(field)
+        top_stats = top.get(field)
+        if not bottom_stats or not top_stats:
+            return None
+        return round(top_stats["mean"] - bottom_stats["mean"], 3)
+
+    summary["top_minus_bottom"] = {
+        "temp_gpu_c": mean_delta("temp_gpu_c"),
+        "fan_pct": mean_delta("fan_pct"),
+        "graphics_clock_mhz": mean_delta("graphics_clock_mhz"),
+        "power_avg_w": mean_delta("power_avg_w"),
     }
 
 output_json.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")

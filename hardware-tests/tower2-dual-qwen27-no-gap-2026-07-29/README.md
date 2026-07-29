@@ -8,6 +8,7 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`bottom250-top-idle-10m`](bottom250-top-idle-10m/) | 52.41°C / 55°C / 31.0% mean | Idle: 43.14°C / 45°C / 30.0% mean | No thermal or power-brake counter growth |
 | [`both250-10m`](both250-10m/) | 51.85°C / 54°C / 30.7% mean | 66.97°C / 70°C / 40.1% mean | Power-limit derating only; thermal counters zero |
 | [`bottom600-top400-2m`](bottom600-top400-2m/) | 76.25°C / 80°C / 45.4% mean | 76.58°C / 87°C / 45.2% mean | Power-limit derating; thermal counters zero |
 | [`bottom600-top400-30m`](bottom600-top400-30m/) | 80.59°C / 84°C / 49.8% mean | 87.94°C / 92°C / 67.8% mean | Heat-associated boost loss under power cap; thermal counters zero |
@@ -24,9 +25,13 @@ The attempted equal 600/600 W 30-minute cell hit the 96°C emergency cutoff afte
 
 The equal 250/250 W cell held both cards at 100% utilization and exactly 250 W for ten minutes. GPU0/bottom averaged 51.85°C at 30.7% fan and 803.6 MHz. GPU1/top averaged 66.97°C at 40.1% fan and 775.5 MHz. The 15.12°C positional temperature delta persisted at low power, but the mean frequency delta narrowed to 28.1 MHz and both thermal counters remained zero.
 
+The first single-card isolation cell loaded only GPU0/bottom at 250 W while leaving the model-resident GPU1/top at 0% utilization. GPU0 stabilized at a 53.03°C last-five-minute mean. The idle top card rose from 31°C before the run to a 44.81°C last-five-minute mean while drawing only 21.8 W, directly measuring substantial bottom-to-top neighbor heating. This control is not ambient-normalized because external temperature probes were not yet attached.
+
 [`STACKED_GPU_RESEARCH_PLAN.md`](STACKED_GPU_RESEARCH_PLAN.md) defines the controlled matrix, instrumentation, reduced-order thermal model, and publication formats intended to turn the two-card measurements into bounded three- and four-card stack forecasts.
 
 [`COMPREHENSIVE_RESEARCH_AND_TEST_PLAN.md`](COMPREHENSIVE_RESEARCH_AND_TEST_PLAN.md) is the canonical execution plan with hypotheses, exact test tiers, acceptance and safety gates, statistical methods, data architecture, model validation, resource estimates, and the publication package.
+
+[`INSTRUMENTATION_AUDIT.md`](INSTRUMENTATION_AUDIT.md) records the telemetry available on Tower2, the current environmental-sensor gap, the harness improvements made for the expanded matrix, and the boundary between internally useful measurements and transferable stack forecasts.
 
 ## Read order
 
