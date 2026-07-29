@@ -8,6 +8,7 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`bottom-idle-top250-10m`](bottom-idle-top250-10m/) | Idle: 29.28°C / 32°C / 30.0% mean | 56.92°C / 60°C / 33.8% mean | No thermal counters; qualified by late GPU0 background-power activity |
 | [`bottom250-top-idle-10m`](bottom250-top-idle-10m/) | 52.41°C / 55°C / 31.0% mean | Idle: 43.14°C / 45°C / 30.0% mean | No thermal or power-brake counter growth |
 | [`both250-10m`](both250-10m/) | 51.85°C / 54°C / 30.7% mean | 66.97°C / 70°C / 40.1% mean | Power-limit derating only; thermal counters zero |
 | [`bottom600-top400-2m`](bottom600-top400-2m/) | 76.25°C / 80°C / 45.4% mean | 76.58°C / 87°C / 45.2% mean | Power-limit derating; thermal counters zero |
@@ -34,6 +35,8 @@ The first single-card isolation cell loaded only GPU0/bottom at 250 W while leav
 [`INSTRUMENTATION_AUDIT.md`](INSTRUMENTATION_AUDIT.md) records the telemetry available on Tower2, the current environmental-sensor gap, the harness improvements made for the expanded matrix, and the boundary between internally useful measurements and transferable stack forecasts.
 
 [`analysis/250W_PRELIMINARY_COUPLING.md`](analysis/250W_PRELIMINARY_COUPLING.md) compares the equal-load and bottom-only 250 W cells. It finds a strong bottom-to-top heating signal and no resolvable top-to-bottom penalty yet; the reverse isolation cell and randomized repeats are still required before fitting directional coefficients.
+
+[`analysis/250W_FACTORIAL_COUPLING.md`](analysis/250W_FACTORIAL_COUPLING.md) adds the reverse isolation cell and derives preliminary closed-loop self-heating and directional coupling coefficients. Bottom-to-top coupling is approximately 0.042–0.047°C/W at this operating point; top-to-bottom coupling remains indistinguishable from zero. The reverse cell is quality-flagged and requires a clean repeat before model fitting.
 
 ## Read order
 

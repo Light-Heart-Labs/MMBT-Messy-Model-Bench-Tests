@@ -108,6 +108,17 @@ for gpu, rows in sorted(measured_by_gpu.items()):
     expected_samples = None
     if duration_s and interval_ms:
         expected_samples = duration_s * 1000 / interval_ms
+    slopes = {
+        "temp_gpu_c": linear_slope_per_minute(rows, "temp_gpu_c"),
+        "graphics_clock_mhz": linear_slope_per_minute(rows, "graphics_clock_mhz"),
+        "fan_pct": linear_slope_per_minute(rows, "fan_pct"),
+    }
+    steady_state = (
+        slopes["temp_gpu_c"] is not None
+        and slopes["fan_pct"] is not None
+        and abs(slopes["temp_gpu_c"]) < 0.1
+        and abs(slopes["fan_pct"]) < 0.2
+    )
     summary["gpus"][gpu] = {
         "samples": len(rows),
         "expected_samples": round(expected_samples, 1) if expected_samples else None,
@@ -138,13 +149,8 @@ for gpu, rows in sorted(measured_by_gpu.items()):
             if target_fraction is not None
             else None
         ),
-        "steady_state_slopes_per_min": {
-            "temp_gpu_c": linear_slope_per_minute(rows, "temp_gpu_c"),
-            "graphics_clock_mhz": linear_slope_per_minute(
-                rows, "graphics_clock_mhz"
-            ),
-            "fan_pct": linear_slope_per_minute(rows, "fan_pct"),
-        },
+        "steady_state": steady_state,
+        "steady_state_slopes_per_min": slopes,
         "first_5m": {
             "power_avg_w": slice_stats(rows, "power_avg_w", first=True),
             "temp_gpu_c": slice_stats(rows, "temp_gpu_c", first=True),

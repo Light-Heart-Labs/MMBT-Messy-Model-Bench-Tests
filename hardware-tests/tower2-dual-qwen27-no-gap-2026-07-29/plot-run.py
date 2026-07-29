@@ -89,15 +89,34 @@ colors = {"0": "#43bff5", "1": "#ff9142"}
 image = Image.new("RGB", (width, height), bg)
 draw = ImageDraw.Draw(image)
 
-draw.text((70, 38), "Tower2 no-gap single-card isolation · 250 W", fill=text, font=font(38, True))
+concurrency = {
+    "0": config.get("concurrency_gpu0", config.get("concurrency_per_gpu", 0)),
+    "1": config.get("concurrency_gpu1", config.get("concurrency_per_gpu", 0)),
+}
+role = {
+    gpu: ("loaded" if concurrency[gpu] else "model-resident idle" if gpu == "1" else "isolated idle")
+    for gpu in ("0", "1")
+}
+caps = (config.get("gpu0_power_limit_w"), config.get("gpu1_power_limit_w"))
+if bool(concurrency["0"]) != bool(concurrency["1"]):
+    loaded_gpu = "0" if concurrency["0"] else "1"
+    title = f"Tower2 no-gap single-card isolation · GPU{loaded_gpu} at {caps[int(loaded_gpu)]:g} W"
+else:
+    loaded_gpu = None
+    title = f"Tower2 no-gap dual-card thermal run · {caps[0]:g}/{caps[1]:g} W"
+draw.text((70, 38), title, fill=text, font=font(38, True))
 subtitle = (
     f"Qwen3.6-27B AWQ-INT4 · {config['duration_s'] // 60}-minute measured window · "
-    f"GPU0 bottom loaded, GPU1 top model-resident idle"
+    f"GPU0 bottom {role['0']}, GPU1 top {role['1']}"
 )
 draw.text((70, 92), subtitle, fill=muted, font=font(22))
 
 legend_y = 142
-for gpu, label, x in (("0", "GPU0 bottom · loaded", 72), ("1", "GPU1 top · idle", 355)):
+legend_items = (
+    ("0", f"GPU0 bottom · {role['0']}", 72),
+    ("1", f"GPU1 top · {role['1']}", 410),
+)
+for gpu, label, x in legend_items:
     draw.ellipse((x, legend_y, x + 17, legend_y + 17), fill=colors[gpu])
     draw.text((x + 27, legend_y - 5), label, fill=text, font=font(21))
 
@@ -152,14 +171,13 @@ for panel_index, (title, field, unit) in enumerate(metrics):
     draw.text((right - 10, y0 + 7), annotation, fill=muted, font=font(18), anchor="ra")
 
 footer_y = 1182
-loaded = summary["gpus"]["0"]
-idle = summary["gpus"]["1"]
+gpu0 = summary["gpus"]["0"]
+gpu1 = summary["gpus"]["1"]
 footer = (
-    f"PASS · GPU0: {loaded['power_avg_w']['mean']:.2f} W, "
-    f"{loaded['temp_gpu_c']['mean']:.2f}°C, {loaded['fan_pct']['mean']:.1f}% fan · "
-    f"GPU1 idle: {idle['power_avg_w']['mean']:.2f} W, "
-    f"{idle['temp_gpu_c']['mean']:.2f}°C, {idle['fan_pct']['mean']:.1f}% fan · "
-    "thermal and power-brake counter deltas: 0"
+    f"PASS · GPU0 {role['0']}: {gpu0['power_avg_w']['mean']:.2f} W, "
+    f"{gpu0['temp_gpu_c']['mean']:.2f}°C, {gpu0['fan_pct']['mean']:.1f}% fan · "
+    f"GPU1 {role['1']}: {gpu1['power_avg_w']['mean']:.2f} W, "
+    f"{gpu1['temp_gpu_c']['mean']:.2f}°C, {gpu1['fan_pct']['mean']:.1f}% fan"
 )
 draw.rounded_rectangle((50, footer_y - 12, 1760, footer_y + 45), radius=14, fill="#0b4638")
 draw.text((75, footer_y), footer, fill="#a8f5d4", font=font(19))

@@ -1,0 +1,9 @@
+window,coefficient,delta_temperature_c,delta_power_w,apparent_c_per_w,quality
+first_5m,bottom_self,22.641,231.447,0.097824,clean_interval_but_not_randomized
+first_5m,top_self,24.303,228.901,0.106173,clean_interval_but_not_randomized
+first_5m,bottom_to_top,9.605,231.447,0.041500,cleanest_directional_estimate
+first_5m,top_to_bottom,-0.148,228.901,-0.000647,indistinguishable_from_zero
+last_5m,bottom_self,22.494,222.978,0.100880,idle_bottom_power_contaminated
+last_5m,top_self,23.362,227.471,0.102703,reverse_cell_not_steady
+last_5m,bottom_to_top,10.498,222.978,0.047081,idle_bottom_power_contaminated
+last_5m,top_to_bottom,-0.982,227.471,-0.004317,indistinguishable_from_zero
