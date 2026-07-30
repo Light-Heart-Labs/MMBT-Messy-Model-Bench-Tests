@@ -96,3 +96,28 @@ seconds before the five-minute continuous soak could begin. It then completed
 304 seconds without a reset and began the run from 32/34 C GPUs, 58.1 C CPU
 Tctl, and 41.9 C hottest NVMe. GPU-only preflight would have admitted this
 session substantially earlier.
+
+### Paired-block matching and covariates
+
+Maximum start gates reduce hidden heat-state variation but do not make starts
+identical: a later run may cool below a threshold before setup begins. For
+paired fan-policy interpretation, each block therefore records and compares
+the final eligible GPU0/GPU1 temperatures, CPU Tctl, and hottest NVMe
+temperature. A prospective tightly matched block requires absolute between-run
+start differences no larger than:
+
+- 3 C for each GPU;
+- 3 C for CPU Tctl; and
+- 1 C for hottest NVMe Composite.
+
+These tolerances are admission limits for a paired contrast, not evidence that
+the remaining mismatch is negligible. Analyses retain all start values plus
+loaded CPU and NVMe means as nuisance covariates, report both full-window and
+last-five-minute responses, and alternate policy order across blocks. A run
+outside the pair tolerances may remain an admissible replicate for its
+individual V3HOST cell but cannot count as a tightly matched causal pair.
+
+The first 300 W V3HOST block met the boundary tolerances, but its 40/60 run
+started 3/2 C cooler on GPU0/GPU1 and 1 C cooler on NVMe than its 60/40 run.
+Loaded CPU and NVMe means were also 1.930 and 1.251 C cooler. Its raw fan-policy
+contrast is therefore published as preliminary and covariate-confounded.

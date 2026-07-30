@@ -28,9 +28,15 @@ by execution order/session heat; the
 [`crossover figure`](analysis/200w-fan-policy-crossover.png) and
 [`paired block table`](analysis/200w-fan-policy-paired-blocks.csv) retain that
 limitation explicitly.
+The first stricter 300/300 W whole-system-reset pair is preserved in
+[`300W_V3HOST_FAN_POLICY_BLOCK1.md`](analysis/300W_V3HOST_FAN_POLICY_BLOCK1.md).
+It demonstrates improved heat-state observability while showing that one-sided
+start gates still require explicit GPU/CPU/NVMe covariates and randomized
+replication before a causal fan-policy coefficient can be claimed.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b40-t60-sym300-v3host-15m-r3`](ng-fan-b40-t60-sym300-v3host-15m-r3/) | 54.43 C / 57 C / 40.0%, 1,439 RPM | 67.73 C / 71 C / 60.0%, 1,917 RPM | First paired V3HOST 40/60 population replicate; host/start covariates retained; counters zero |
 | [`ng-fan-b60-t40-sym300-v3host-15m-r3`](ng-fan-b60-t40-sym300-v3host-15m-r3/) | 56.08 C / 59 C / 60.0%, 1,917 RPM | 69.66 C / 74 C / 40.0%, 1,439 RPM | First V3HOST population replicate (raw campaign label R3); whole-system reset passed; counters zero |
 | [`ng-fan-b60-t40-sym300-v2-15m-r2`](ng-fan-b60-t40-sym300-v2-15m-r2/) | 54.84 C / 59 C / 60.0%, 1,917 RPM | 68.40 C / 73 C / 40.0%, 1,439 RPM | 300 W 60/40 n=2/3; reversed-order block exposes later-run heat bias; counters zero |
 | [`ng-fan-b40-t60-sym300-v2-15m-r2`](ng-fan-b40-t60-sym300-v2-15m-r2/) | 53.98 C / 57 C / 40.0%, 1,439 RPM | 67.47 C / 71 C / 60.0%, 1,917 RPM | 300 W 40/60 n=2/3; reversed-order block started; counters zero |
