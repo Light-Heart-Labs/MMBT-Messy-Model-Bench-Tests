@@ -367,6 +367,66 @@ At minimum, run three valid replicates of:
 | 500/500 | 70/70, 85/85, 100/100 bump first | selected safe pairs |
 | 250/idle and idle/250 | 30/30, 50/50, 70/70, 85/85 | sweep the idle neighbor's fan |
 
+#### Joint power-cap x fan-policy response surface
+
+The fixed-fan program is not limited to the original 250/250, 500/500, and
+600/400 operating points. Those runs cannot reveal how a different fan
+allocation would have changed the same power condition. Treat bottom power,
+top power, bottom fan RPM, and top fan RPM as jointly controlled experimental
+axes.
+
+Build the symmetric power spine at 50 W resolution:
+
+| Family | Bottom/top power caps |
+|---|---|
+| Symmetric spine | 200/200, 250/250, 300/300, 350/350, 400/400, 450/450, 500/500, 550/550 W |
+| Boundary confirmation | selected safe 600/600 W bump/abort cells only; do not repeat the known unsafe automatic-fan exposure unchanged |
+
+At each new power level, qualify fan policies from high airflow toward lower
+airflow with a guarded bump test. The final admissible matrix should contain
+overlapping equal-fan and crossed-fan policies at enough levels to identify
+both the power response and its interaction with fan allocation. Do not infer
+a low-fan 500--550 W result from the safe 250 W surface.
+
+Measure directional asymmetry with reversed power pairs. The initial
+high-information candidate set is:
+
+| Lower/higher pair | Bottom-hot orientation | Top-hot orientation |
+|---|---:|---:|
+| 200/400 W | 400/200 | 200/400 |
+| 250/400 W | 400/250 | 250/400 |
+| 250/500 W | 500/250 | 250/500 |
+| 250/600 W | 600/250 | 250/600 |
+| 300/500 W | 500/300 | 300/500 |
+| 400/500 W | 500/400 | 400/500 |
+| 400/600 W | 600/400 | 400/600 |
+| 500/550 W | 550/500 | 500/550 |
+
+Run each admitted modeling cell to at least `n=3`. Test selected equal,
+bottom-biased, and top-biased fan policies in both orientations. These
+direction-reversed pairs separate card position, self-heating, neighbor heat,
+and airflow direction; a one-direction 600/400 run cannot do that.
+
+A literal grid of every 50 W power pair, every fan allocation, and three
+replicates would exceed one thousand runs. Use a sequential response-surface
+design instead:
+
+1. measure the complete symmetric power spine under automatic control and a
+   safety-qualified fixed-fan reference policy;
+2. measure the full matched-total-RPM allocation sweep at 250/250, 400/400,
+   and the highest safe 500/500 or 550/550 anchor;
+3. measure the direction-reversed asymmetric candidates under equal and
+   selected crossed-fan policies;
+4. fit the provisional interaction model without changing the held-out
+   validation cells;
+5. add cells where cross-validated error, forecast uncertainty, curvature, or
+   proximity to the thermal/fan ceiling is greatest;
+6. stop adding interior cells only when prospective prediction gates are met,
+   while retaining boundary and nonlinear-knee replication.
+
+This design preserves the requested broad power/fan coverage while spending
+run time on information rather than redundant points.
+
 Add constant aggregate-fan-budget allocation sweeps so cooperative policies
 are compared fairly rather than simply using more cooling:
 
@@ -782,7 +842,12 @@ Use `measured`, `interpolated`, or `extrapolated` in every row.
 2. Run fixed equal-fan 250/250 points at 30%, 50%, 70%, and 85%.
 3. Run crossed-fan 250/250 points.
 4. Run bottom-only and top-only neighbor-fan sweeps.
-5. Expand fixed-fan tests to 400/400 and safe 500/500 points.
+5. Run the 200/200 through 550/550 W symmetric spine in 50 W steps, using
+   bump-qualified overlapping fixed-fan policies.
+6. Expand the full matched-RPM allocation sweep to 400/400 and a safe
+   500/500 or 550/550 anchor.
+7. Run direction-reversed asymmetric power pairs under equal and selected
+   crossed-fan policies.
 
 ### Session 5 — identity and configuration airflow
 
@@ -811,7 +876,15 @@ A cold-start standard cell currently requires roughly:
 - approximately 3–5 minutes of engine startup, cleanup, and verification;
 - additional time to return to a standardized idle temperature.
 
-Budget 20–30 minutes per standard cell. The essential pre-spacing program is approximately 25–35 additional cells depending on overlap, safety failures, and adaptive stopping: about 10–18 test-hours across multiple sessions, plus sensor setup, card swap, analysis, and publication work.
+Budget 20–30 minutes per standard cell. The expanded joint power/fan candidate
+universe contains hundreds of possible cells and more than one thousand runs
+after replication, so it is explicitly a sequential design rather than a
+blind full factorial. A first useful no-gap response surface is expected to
+require roughly 45–80 unique admitted cells, or 135–240 admissible runs at
+`n=3`, depending on overlap, safety exclusions, nonlinear knees, and
+prospective model error. That is approximately 45–100 test-hours across
+multiple sessions, plus sensor setup, card swap, analysis, and publication
+work.
 
 ## 18. Immediate next actions
 
@@ -821,9 +894,11 @@ Budget 20–30 minutes per standard cell. The essential pre-spacing program is a
 4. Extend the harness to log those sensors and higher-frequency NVIDIA/DCGM fields.
 5. Complete the fixed-fan 250 W identification matrix before interpreting a
    raw temperature delta as a position-only penalty.
-5. Run the 250 W bottom-only and top-only controls.
-6. Run 300/300 and 400/400 symmetric cells.
-7. Fit the first self-heating and coupling curves before choosing the rest of the matrix.
+6. Run the 250 W bottom-only and top-only controls.
+7. Begin the 200/200 through 550/550 W symmetric spine in 50 W steps.
+8. Run the first direction-reversed asymmetric power/fan anchors.
+9. Fit the first self-heating, fan-allocation, and directional-coupling
+   surfaces before adaptively selecting the remaining matrix.
 
 ## 19. References
 
