@@ -23,7 +23,7 @@ Two validation levels are tracked:
 | NG-FAN-B60-T40-SYM250-V2-15M | 3 | 3 | 0 | Internally validated at n=3; frozen temperature interpolation error was +0.020/+0.277 C |
 | NG-FAN-B40-T60-SYM250-V2-15M | 3 | 3 | 0 | Internally validated at n=3; frozen temperature interpolation error was +0.156/+0.584 C |
 | NG-FAN-B40-T60-SYM200-V2-15M | 2 | 3 | 0 | R1/R2 admissible; one replicate and paired 60/40 blocks required |
-| NG-FAN-B60-T40-SYM200-V2-15M | 2 | 3 | 0 | R1/R2 admissible; thermal order drift exposed; block 3 will reverse execution order |
+| NG-FAN-B60-T40-SYM200-V2-15M | 3 | 3 | 0 | Internally validated at n=3; block 3 reverses order and confirms session/heat-soak drift must be modeled |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 
 `NG-SINGLE-T-250` is the first cell to reach three internally admissible replicates. Replicates 2, 4, and 5 were independently initialized execution blocks with cleanup/cooldown between them, but all occurred during one campaign session. The cell is therefore validated for the internal Tower2/no-gap model with an explicit within-session limitation. No cell is transferable yet.
