@@ -1,5 +1,11 @@
 # Fan-aware interpretation of the no-gap results
 
+> New fixed-fan result: the first matched-total-RPM crossed-policy triplet is
+> documented in
+> [`CROSSED_FAN_POLICY_PRELIMINARY.md`](CROSSED_FAN_POLICY_PRELIMINARY.md).
+> At `n=1`, bottom/top 70/30% cooled both cards relative to 50/50 and the exact
+> reverse 30/70 allocation, while producing the smallest inter-card clock gap.
+
 ## Scope
 
 Every completed standard load cell before the new fixed-fan bump used NVIDIA's

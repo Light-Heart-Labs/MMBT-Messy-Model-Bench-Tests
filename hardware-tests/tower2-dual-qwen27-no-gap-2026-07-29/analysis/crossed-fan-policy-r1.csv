@@ -1,0 +1,4 @@
+policy,bottom_fan_pct,top_fan_pct,bottom_fan_rpm,top_fan_rpm,total_card_level_rpm,bottom_temp_mean_c,top_temp_mean_c,max_card_temp_c,bottom_clock_mean_mhz,top_clock_mean_mhz,total_clock_mean_mhz,top_minus_bottom_clock_mhz,bottom_requests_per_s,top_requests_per_s,internal_admissible
+50/50,50,50,1678.123,1678.147,3356.270,46.293,57.541,60,811.635,797.396,1609.031,-14.239,0.9956,0.9244,true
+70/30,70,30,2157.131,1200.074,3357.205,45.311,56.259,59,806.668,802.214,1608.882,-4.454,0.9600,0.9244,true
+30/70,30,70,1200.056,2157.131,3357.187,46.654,56.596,59,818.249,790.434,1608.683,-27.815,0.9600,0.8889,true

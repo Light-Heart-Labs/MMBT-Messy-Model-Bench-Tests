@@ -8,6 +8,7 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b30-t70-sym250-v2-15m-r1`](ng-fan-b30-t70-sym250-v2-15m-r1/) | 46.65 C / 49 C / 30.0%, 1,200 RPM | 56.60 C / 59 C / 70.0%, 2,157 RPM | V2 n=1/3; reverse control is hotter and less top-clock-balanced than 70/30 |
 | [`ng-fan-b70-t30-sym250-v2-15m-r1`](ng-fan-b70-t30-sym250-v2-15m-r1/) | 45.31 C / 48 C / 70.0%, 2,157 RPM | 56.26 C / 59 C / 30.0%, 1,200 RPM | V2 n=1/3; both cards cooler than 50/50 at total RPM matched within 0.028% |
 | [`ng-fan-eq50-sym250-v2-15m-r1`](ng-fan-eq50-sym250-v2-15m-r1/) | 46.29 C / 49 C / 50.0%, 1,678 RPM | 57.54 C / 60 C / 50.0%, 1,678 RPM | V2 fixed-fan baseline n=1/3; all plateau and event gates passed |
 | [`ng-fan-eq30-sym250-r3-excluded`](ng-fan-eq30-sym250-r3-excluded/) | 51.26 C / 54 C / 30.0%, 1,200 RPM | 67.68 C / 73 C / 30.0%, 1,200 RPM | Excluded: top closing slope +0.2186 C/min; operating point reproduced R1/R2 |
@@ -112,6 +113,14 @@ table is
 [`analysis/auto-fan-operating-points.csv`](analysis/auto-fan-operating-points.csv);
 fixed-fan observations are kept separately in
 [`analysis/fan-controlled-operating-points.csv`](analysis/fan-controlled-operating-points.csv).
+
+[`analysis/CROSSED_FAN_POLICY_PRELIMINARY.md`](analysis/CROSSED_FAN_POLICY_PRELIMINARY.md)
+documents the first matched-total-RPM 50/50, 70/30, and 30/70 fixed-fan
+triplet. At `n=1`, bottom-biased 70/30 was cooler on both cards and reduced the
+top-minus-bottom clock gap to -4.454 MHz. The source table and comparison
+figure are
+[`analysis/crossed-fan-policy-r1.csv`](analysis/crossed-fan-policy-r1.csv) and
+[`analysis/crossed-fan-policy-r1.png`](analysis/crossed-fan-policy-r1.png).
 
 [`analysis/250W_PRELIMINARY_COUPLING.md`](analysis/250W_PRELIMINARY_COUPLING.md) compares the equal-load and bottom-only 250 W cells. It finds a strong bottom-to-top heating signal and no resolvable top-to-bottom penalty yet; the reverse isolation cell and randomized repeats are still required before fitting directional coefficients.
 
