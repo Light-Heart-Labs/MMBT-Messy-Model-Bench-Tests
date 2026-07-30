@@ -56,3 +56,6 @@ contribute individual-cell replication but cannot be treated as a tightly
 matched causal pair.
 
 Machine-readable source: [`300w-v3host-fan-policy-block1.csv`](300w-v3host-fan-policy-block1.csv).
+
+The reversed-order, tightly matched follow-up is published separately as
+[`300W_V3HOST_FAN_POLICY_BLOCK2.md`](300W_V3HOST_FAN_POLICY_BLOCK2.md).

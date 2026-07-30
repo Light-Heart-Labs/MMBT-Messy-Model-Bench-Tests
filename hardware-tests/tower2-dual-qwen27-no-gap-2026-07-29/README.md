@@ -33,9 +33,15 @@ The first stricter 300/300 W whole-system-reset pair is preserved in
 It demonstrates improved heat-state observability while showing that one-sided
 start gates still require explicit GPU/CPU/NVMe covariates and randomized
 replication before a causal fan-policy coefficient can be claimed.
+The reversed-order
+[`tightly matched block 2`](analysis/300W_V3HOST_FAN_POLICY_BLOCK2.md)
+finds that moving approximately 478 RPM from top to bottom cools both cards
+while transferring roughly one clock bin from bottom to top; combined
+last-five-minute clock changes by only +0.025 MHz.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b60-t40-sym300-v3host-15m-r4`](ng-fan-b60-t40-sym300-v3host-15m-r4/) | 53.71 C / 57 C / 60.0%, 1,917 RPM | 67.28 C / 71 C / 40.0%, 1,439 RPM | V3HOST 60/40 population n=2/3; matched block 2 shows clock redistribution with unchanged total; counters zero |
 | [`ng-fan-b40-t60-sym300-v3host-15m-r4`](ng-fan-b40-t60-sym300-v3host-15m-r4/) | 54.48 C / 57 C / 40.0%, 1,439 RPM | 67.78 C / 71 C / 60.0%, 1,917 RPM | V3HOST population n=2/3; reproduced R3 within 0.052 C and 0.493 MHz; counters zero |
 | [`ng-fan-b40-t60-sym300-v3host-15m-r3`](ng-fan-b40-t60-sym300-v3host-15m-r3/) | 54.43 C / 57 C / 40.0%, 1,439 RPM | 67.73 C / 71 C / 60.0%, 1,917 RPM | First paired V3HOST 40/60 population replicate; host/start covariates retained; counters zero |
 | [`ng-fan-b60-t40-sym300-v3host-15m-r3`](ng-fan-b60-t40-sym300-v3host-15m-r3/) | 56.08 C / 59 C / 60.0%, 1,917 RPM | 69.66 C / 74 C / 40.0%, 1,439 RPM | First V3HOST population replicate (raw campaign label R3); whole-system reset passed; counters zero |
