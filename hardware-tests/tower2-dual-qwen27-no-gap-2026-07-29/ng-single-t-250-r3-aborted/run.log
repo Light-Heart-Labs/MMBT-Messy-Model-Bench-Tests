@@ -1,0 +1,40 @@
+[2026-07-30T00:20:11Z] Output: /home/michael/thermal-tests/runs/2026-07-30T00-20-11Z-ng-single-t-250-r3
+[2026-07-30T00:20:12Z] Stopping GPU containers that conflict with an isolated GPU0 replica
+ods-llama-server
+ods-whisper
+ods-comfyui
+ods-embeddings
+[2026-07-30T00:20:49Z] Setting GPU0/bottom to 250 W and GPU1/top to 250 W
+Power limit for GPU 00000000:01:00.0 was set to 250.00 W from 600.00 W.
+All done.
+Power limit for GPU 00000000:E1:00.0 was set to 250.00 W from 600.00 W.
+All done.
+[2026-07-30T00:20:49Z] GPU0 concurrency is 0; leaving GPU0 isolated and idle
+[2026-07-30T00:20:49Z] Starting 250 ms GPU telemetry; workers GPU0=0 GPU1=32
+[2026-07-30T00:20:49Z] Warm-up started (120s)
+[2026-07-30T00:22:49Z] Trailing 30s warm-up mean board power: GPU0=18.58W GPU1=249.99W
+[2026-07-30T00:22:49Z] Measured GPU0=250 W / GPU1=250 W run started (600s)
+[2026-07-30T00:23:53Z] Progress 64/600s
+0, 18.05 W, 29, 64, 30 %, 180 MHz, 0 %, Not Active, Not Active, Not Active
+1, 250.00 W, 54, 39, 31 %, 172 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-30T00:24:51Z] Progress 122/600s
+0, 17.95 W, 29, 64, 30 %, 180 MHz, 0 %, Not Active, Not Active, Not Active
+1, 249.99 W, 55, 38, 32 %, 802 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-30T00:25:49Z] Progress 180/600s
+0, 17.83 W, 29, 64, 30 %, 180 MHz, 0 %, Not Active, Not Active, Not Active
+1, 250.00 W, 56, 37, 33 %, 802 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-30T00:26:53Z] Progress 244/600s
+0, 17.81 W, 29, 64, 30 %, 180 MHz, 0 %, Not Active, Not Active, Not Active
+1, 250.00 W, 56, 37, 33 %, 795 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-30T00:27:51Z] Progress 302/600s
+0, 17.32 W, 29, 64, 30 %, 180 MHz, 0 %, Not Active, Not Active, Not Active
+1, 250.00 W, 57, 37, 33 %, 795 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-30T00:28:49Z] Progress 360/600s
+0, 18.84 W, 29, 64, 30 %, 180 MHz, 0 %, Not Active, Not Active, Not Active
+1, 249.99 W, 57, 36, 34 %, 795 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-30T00:29:53Z] Progress 424/600s
+0, 17.59 W, 29, 64, 30 %, 180 MHz, 0 %, Not Active, Not Active, Not Active
+1, 249.99 W, 57, 36, 34 %, 795 MHz, 100 %, Active, Not Active, Not Active
+Workload-isolation cutoff: Sanctuary exceeds the controlled GPU1 worker count or has a wait queue
+[2026-07-30T00:30:15Z] Interrupted/failed workload; restarting Sanctuary to clear admitted requests
+[2026-07-30T00:31:21Z] Cleanup complete; original GPU services and power limits restored

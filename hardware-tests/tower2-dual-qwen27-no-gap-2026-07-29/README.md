@@ -8,6 +8,7 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-single-t-250-r3-aborted`](ng-single-t-250-r3-aborted/) | Partial: isolated idle 29.00°C / 29°C / 30.0% | Partial: 55.78°C / 59°C / 32.7% | Excluded: external Sanctuary request at 7.404m |
 | [`ng-single-t-250-r2`](ng-single-t-250-r2/) | Isolated idle: 28.90°C / 29°C / 30.0% mean | 55.86°C / 58°C / 32.9% mean | Internally admissible n=1/3; thermal counters zero |
 | [`bottom-idle-top250-10m`](bottom-idle-top250-10m/) | Idle: 29.28°C / 32°C / 30.0% mean | 56.92°C / 60°C / 33.8% mean | No thermal counters; qualified by late GPU0 background-power activity |
 | [`bottom250-top-idle-10m`](bottom250-top-idle-10m/) | 52.41°C / 55°C / 31.0% mean | Idle: 43.14°C / 45°C / 30.0% mean | No thermal or power-brake counter growth |

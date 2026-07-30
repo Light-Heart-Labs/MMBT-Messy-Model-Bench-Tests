@@ -54,7 +54,13 @@ def fmt(value, suffix="", digits=1):
 run_dir = Path(sys.argv[1]).resolve()
 output = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else run_dir / "thermal-stress.png"
 config = json.loads((run_dir / "run-config.json").read_text(encoding="utf-8"))
-summary = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
+summary_path = run_dir / "summary.json"
+partial = not summary_path.exists()
+summary = (
+    json.loads(summary_path.read_text(encoding="utf-8"))
+    if summary_path.exists()
+    else {"gpus": {}}
+)
 
 rows = {"0": [], "1": []}
 with (run_dir / "gpu-telemetry.csv").open(newline="", encoding="utf-8") as handle:
@@ -78,6 +84,18 @@ for gpu, gpu_rows in rows.items():
             if numeric(row.get(field)) is not None
         ]
         series[(gpu, field)] = downsample(rolling_median(points))
+    if partial:
+        summary["gpus"][gpu] = {}
+        for _, field, _ in metrics:
+            values = [
+                numeric(row.get(field))
+                for row in gpu_rows
+                if numeric(row.get(field)) is not None
+            ]
+            summary["gpus"][gpu][field] = {
+                "mean": statistics.fmean(values),
+                "max": max(values),
+            }
 
 width, height = 1800, 1260
 bg = "#08131f"
@@ -104,9 +122,18 @@ if bool(concurrency["0"]) != bool(concurrency["1"]):
 else:
     loaded_gpu = None
     title = f"Tower2 no-gap dual-card thermal run · {caps[0]:g}/{caps[1]:g} W"
+if partial:
+    title = "ABORTED / PARTIAL · " + title
 draw.text((70, 38), title, fill=text, font=font(38, True))
 subtitle = (
-    f"Qwen3.6-27B AWQ-INT4 · {config['duration_s'] // 60}-minute measured window · "
+    f"Qwen3.6-27B AWQ-INT4 · "
+    + (
+        f"{max(point[0] for points in series.values() for point in points):.1f} of "
+        f"{config['duration_s'] / 60:g} measured minutes · "
+        if partial
+        else f"{config['duration_s'] // 60}-minute measured window · "
+    )
+    +
     f"GPU0 bottom {role['0']}, GPU1 top {role['1']}"
 )
 if config.get("cell_id"):
@@ -176,13 +203,23 @@ footer_y = 1182
 gpu0 = summary["gpus"]["0"]
 gpu1 = summary["gpus"]["1"]
 footer = (
-    f"PASS · GPU0 {role['0']}: {gpu0['power_avg_w']['mean']:.2f} W, "
+    f"{'ABORTED / EXCLUDED' if partial else 'PASS'} · "
+    f"GPU0 {role['0']}: {gpu0['power_avg_w']['mean']:.2f} W, "
     f"{gpu0['temp_gpu_c']['mean']:.2f}°C, {gpu0['fan_pct']['mean']:.1f}% fan · "
     f"GPU1 {role['1']}: {gpu1['power_avg_w']['mean']:.2f} W, "
     f"{gpu1['temp_gpu_c']['mean']:.2f}°C, {gpu1['fan_pct']['mean']:.1f}% fan"
 )
-draw.rounded_rectangle((50, footer_y - 12, 1760, footer_y + 45), radius=14, fill="#0b4638")
-draw.text((75, footer_y), footer, fill="#a8f5d4", font=font(19))
+draw.rounded_rectangle(
+    (50, footer_y - 12, 1760, footer_y + 45),
+    radius=14,
+    fill="#5b2730" if partial else "#0b4638",
+)
+draw.text(
+    (75, footer_y),
+    footer,
+    fill="#ffd0d5" if partial else "#a8f5d4",
+    font=font(19),
+)
 draw.text(
     (1750, 1240),
     f"Source: gpu-telemetry.csv · requested {config.get('telemetry_interval_ms', 1000)} ms polling · "

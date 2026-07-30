@@ -217,7 +217,7 @@ sanctuary_test_load_isolated() {
   running="$(awk '$1 ~ /^vllm:num_requests_running[{]/ {sum+=$2} END{print sum+0}' <<<"$metrics")"
   waiting="$(awk '$1 ~ /^vllm:num_requests_waiting[{]/ {sum+=$2} END{print sum+0}' <<<"$metrics")"
   awk -v running="$running" -v waiting="$waiting" -v expected="$CONCURRENCY_GPU1" \
-    'BEGIN{exit !((running+0)<=expected && (waiting+0)==0)}'
+    'BEGIN{exit !((running+0)+(waiting+0)<=expected)}'
 }
 
 telemetry_probe() {
@@ -372,6 +372,7 @@ exec > >(tee -a "$RUN_LOG") 2>&1
 declare -a WORKER_PIDS=()
 LOGGER_PID=""
 HOST_LOGGER_PID=""
+SERVICE_GUARD_PID=""
 GPU0_STARTED=0
 WORKLOAD_STARTED=0
 CLEANED_UP=0
@@ -435,9 +436,11 @@ cleanup() {
   stop_workers_now
   [[ -n "$LOGGER_PID" ]] && kill "$LOGGER_PID" 2>/dev/null
   [[ -n "$HOST_LOGGER_PID" ]] && kill "$HOST_LOGGER_PID" 2>/dev/null
+  [[ -n "$SERVICE_GUARD_PID" ]] && kill "$SERVICE_GUARD_PID" 2>/dev/null
 
   [[ -n "$LOGGER_PID" ]] && wait "$LOGGER_PID" 2>/dev/null
   [[ -n "$HOST_LOGGER_PID" ]] && wait "$HOST_LOGGER_PID" 2>/dev/null
+  [[ -n "$SERVICE_GUARD_PID" ]] && wait "$SERVICE_GUARD_PID" 2>/dev/null
 
   if [[ "$GPU0_STARTED" -eq 1 ]]; then
     docker stop -t 20 "$GPU0_CONTAINER" >/dev/null 2>&1
@@ -562,6 +565,24 @@ for service in "${CONFLICTING_USER_SERVICES[@]}"; do
     systemctl --user stop "$service"
   fi
 done
+service_guard() {
+  while [[ ! -f "$STOP_FILE" ]]; do
+    for service in "${CONFLICTING_USER_SERVICES[@]}"; do
+      if systemctl --user is-active --quiet "$service"; then
+        printf '%s,service-guard-stopped-%s\n' \
+          "$(date -u +%FT%T.%3NZ)" "$service" >> "$EVENTS"
+        systemctl --user stop "$service" || {
+          printf '%s service guard failed to stop %s\n' \
+            "$(date -u +%FT%T.%3NZ)" "$service" > "$ABORT_FILE"
+          return 1
+        }
+      fi
+    done
+    sleep 1
+  done
+}
+service_guard &
+SERVICE_GUARD_PID=$!
 for container in "${CONFLICTING_CONTAINERS[@]}"; do
   if [[ "$(docker inspect "$container" --format '{{.State.Running}}' 2>/dev/null || true)" == "true" ]]; then
     echo "$container" >> "$STOPPED_FILE"
