@@ -183,7 +183,15 @@ else:
     subtitle += " · fans " + " / ".join(fan_policy_labels)
 if config.get("cell_id"):
     subtitle += f" · {config['cell_id']} R{config.get('replicate', 1)}"
-draw.text((70, 92), subtitle, fill=muted, font=font(22))
+subtitle_font_size = 22
+subtitle_font = font(subtitle_font_size)
+while (
+    draw.textbbox((0, 0), subtitle, font=subtitle_font)[2] > width - 140
+    and subtitle_font_size > 14
+):
+    subtitle_font_size -= 1
+    subtitle_font = font(subtitle_font_size)
+draw.text((70, 92), subtitle, fill=muted, font=subtitle_font)
 
 legend_y = 142
 legend_items = (

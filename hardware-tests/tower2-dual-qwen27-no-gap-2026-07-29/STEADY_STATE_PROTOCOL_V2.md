@@ -57,3 +57,42 @@ whether direct top-card fan work is more effective, and whether a cooler lower
 card can carry useful airflow duty for the stack at constant aggregate command.
 Each cell requires at least three admissible independent replicates before its
 means become validated model inputs.
+
+## V3HOST whole-system reset amendment
+
+The paired 200 W and 300 W crossover blocks demonstrated that GPU core
+temperature alone is not a sufficient preflight reset variable. Later runs
+were systematically warmer even after both GPUs passed the 45 C/0% utilization
+gate and completed the five-minute soak. CPU and NVMe telemetry rose across
+the same execution sequence, showing that heat remained in the chassis and
+supporting components after the GPU cores appeared cool.
+
+`V3HOST` is a prospective comparability amendment. It retains the complete
+`v2-fixed-quantized` admission rule and adds configurable whole-system start
+gates to the harness. The first Tower2 300 W cells require all of the following
+before the five-minute continuous soak begins:
+
+- GPU0 and GPU1 at or below 45 C and 0% utilization;
+- CPU Tctl at or below 70 C;
+- hottest NVMe Composite sensor at or below 41.9 C; and
+- external GPU request sources quiesced throughout the gate and soak.
+
+The preflight CSV records GPU temperatures/utilization, CPU Tctl, hottest NVMe
+Composite, monotonic time, and gate state every five seconds. Any threshold
+violation resets the continuous-soak clock. The preflight timeout is
+configurable and is 3600 seconds for these cells.
+
+These thresholds are internal Tower2 heat-state controls, not universal
+hardware limits or calibrated ambient substitutes. They were selected to
+approximate the early-session host state observed in the campaign. Results
+using the stricter reset use new cell IDs containing `V3HOST`; they are not
+silently pooled with earlier V2 replicates. Each V3HOST cell independently
+requires at least three admissible replicates.
+
+The first V3HOST exposure provided direct evidence that the additional reset
+variables are material. Both GPU cores became eligible while the hottest NVMe
+was still above threshold; the harness waited approximately 9 minutes 45
+seconds before the five-minute continuous soak could begin. It then completed
+304 seconds without a reset and began the run from 32/34 C GPUs, 58.1 C CPU
+Tctl, and 41.9 C hottest NVMe. GPU-only preflight would have admitted this
+session substantially earlier.
