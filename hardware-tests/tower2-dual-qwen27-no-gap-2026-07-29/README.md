@@ -21,6 +21,7 @@ validated knot while retaining v1 for auditability.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b40-t60-sym250-v2-15m-r1`](ng-fan-b40-t60-sym250-v2-15m-r1/) | 46.68 C / 49 C / 40.0%, 1,439 RPM | 57.81 C / 61 C / 60.0%, 1,917 RPM | V2 interpolation check n=1/3; all gates passed and counters zero |
 | [`ng-fan-b60-t40-sym250-v2-15m-r3`](ng-fan-b60-t40-sym250-v2-15m-r3/) | 46.11 C / 48 C / 60.0%, 1,917 RPM | 57.25 C / 60 C / 40.0%, 1,439 RPM | V2 interpolation check internally validated at n=3; counters zero |
 | [`ng-fan-b60-t40-sym250-v2-15m-r2`](ng-fan-b60-t40-sym250-v2-15m-r2/) | 45.89 C / 48 C / 60.0%, 1,917 RPM | 57.32 C / 60 C / 40.0%, 1,439 RPM | V2 interpolation check n=2/3; tightly reproduced R1; counters zero |
 | [`ng-fan-b60-t40-sym250-v2-15m-r1`](ng-fan-b60-t40-sym250-v2-15m-r1/) | 45.92 C / 48 C / 60.0%, 1,917 RPM | 57.28 C / 60 C / 40.0%, 1,439 RPM | V2 interpolation check n=1/3; small thermal prediction error; counters zero |
