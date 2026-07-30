@@ -18,7 +18,7 @@ Two validation levels are tracked:
 | NG-SINGLE-T-250 | 3 | 3 | 0 | Within-campaign internally validated; cross-session and environmental validation pending |
 | NG-FAN-EQ30-SYM250 | 1 | 3 | 0 | R1 admissible; R2/R3 closely reproduced it but failed the quantization-sensitive strict slope gate; define a prospective v2 plateau rule before further repeats |
 | NG-FAN-EQ50-SYM250-V2-15M | 2 | 3 | 0 | R1/R2 passed with tight repeatability; one more admissible replicate required |
-| NG-FAN-B70-T30-SYM250-V2-15M | 1 | 3 | 0 | R1 passed and cooled both cards versus 50/50 at matched total RPM; two more replicates required |
+| NG-FAN-B70-T30-SYM250-V2-15M | 2 | 3 | 0 | R1/R2 passed and tightly repeated the cooler thermal operating point; one more admissible replicate required |
 | NG-FAN-B30-T70-SYM250-V2-15M | 2 | 3 | 0 | R1/R2 passed and repeated the large top clock deficit; one more admissible replicate required |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 
