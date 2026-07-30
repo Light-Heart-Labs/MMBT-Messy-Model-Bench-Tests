@@ -8,6 +8,7 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b30-t70-sym250-v2-15m-r2`](ng-fan-b30-t70-sym250-v2-15m-r2/) | 46.61 C / 49 C / 30.0%, 1,200 RPM | 56.86 C / 60 C / 70.0%, 2,157 RPM | V2 n=2/3; tightly reproduced R1 and its top clock deficit |
 | [`ng-fan-eq50-sym250-v2-15m-r2`](ng-fan-eq50-sym250-v2-15m-r2/) | 46.47 C / 49 C / 50.0%, 1,678 RPM | 57.77 C / 61 C / 50.0%, 1,678 RPM | V2 fixed-fan baseline n=2/3; tightly reproduced R1 |
 | [`ng-fan-b30-t70-sym250-v2-15m-r1`](ng-fan-b30-t70-sym250-v2-15m-r1/) | 46.65 C / 49 C / 30.0%, 1,200 RPM | 56.60 C / 59 C / 70.0%, 2,157 RPM | V2 n=1/3; reverse control is hotter and less top-clock-balanced than 70/30 |
 | [`ng-fan-b70-t30-sym250-v2-15m-r1`](ng-fan-b70-t30-sym250-v2-15m-r1/) | 45.31 C / 48 C / 70.0%, 2,157 RPM | 56.26 C / 59 C / 30.0%, 1,200 RPM | V2 n=1/3; both cards cooler than 50/50 at total RPM matched within 0.028% |
