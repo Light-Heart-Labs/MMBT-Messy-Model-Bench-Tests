@@ -220,6 +220,15 @@ figure are
 
 [`analysis/250W_FACTORIAL_COUPLING.md`](analysis/250W_FACTORIAL_COUPLING.md) adds the reverse isolation cell and derives preliminary closed-loop self-heating and directional coupling coefficients. Bottom-to-top coupling is approximately 0.042–0.047°C/W at this operating point; top-to-bottom coupling remains indistinguishable from zero. The reverse cell is quality-flagged and requires a clean repeat before model fitting.
 
+[`analysis/FAN_ISOLATION_OWN_BOTTOM_R1.md`](analysis/FAN_ISOLATION_OWN_BOTTOM_R1.md)
+reports the first saturated 300 W bottom-card own-fan block. Raising only the
+loaded bottom card from 30% to 50% to 70% reduced its mean temperature from
+56.449 to 53.337 to 50.814 C and reduced the idle top neighbor from 44.978 to
+41.876 to 39.388 C. The small clock/latency response was non-monotonic, with
+the best R1 observation at 50%. Each setting is `n=1/3`; R2 and R3 rotate the
+execution order before any fan-response or optimal-control coefficient is
+promoted.
+
 ## Read order
 
 1. Each run directory's `REPORT.md` gives the human-readable result.
