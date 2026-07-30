@@ -1,0 +1,10 @@
+run_id,status,measured_window_s,load_pattern,bottom_power_mean_w,top_power_mean_w,bottom_temp_mean_c,top_temp_mean_c,top_minus_bottom_temp_c,bottom_fan_mean_pct,top_fan_mean_pct,top_minus_bottom_fan_pp,bottom_graphics_clock_mean_mhz,top_graphics_clock_mean_mhz,top_temp_max_c,fan_policy,physical_rpm_available
+both250-10m,qualified_pilot,600,loaded-loaded,249.994,249.994,51.849,66.969,15.120,30.673,40.146,9.473,803.591,775.503,70,automatic,false
+ng-sym-250-r2,internally_admissible_clock_channel_flagged,600,loaded-loaded,249.995,249.995,52.730,67.613,14.883,31.212,40.470,9.258,2610.000,180.000,71,automatic,false
+both500-10m,qualified_pilot,600,loaded-loaded,499.989,499.972,70.198,89.568,19.370,42.909,78.544,35.635,2508.981,2104.105,93,automatic,false
+bottom600-top400-30m,qualified_pilot,1800,loaded-loaded,599.987,399.992,80.587,87.940,7.353,49.825,67.807,17.982,2726.672,1343.843,92,automatic,false
+both600-30m-aborted,aborted_thermal_limit,approximately_300,loaded-loaded,599.980,589.730,74.970,92.650,17.680,45.600,99.400,53.800,2739.000,2559.000,96,automatic,false
+ng-single-b-250-r2,internally_admissible,600,loaded-idle,249.994,22.548,53.465,44.266,-9.199,31.457,30.000,-1.457,1539.067,180.000,46,automatic,false
+ng-single-t-250-r2,internally_admissible,600,idle-loaded,18.572,249.994,28.900,55.862,26.962,30.000,32.915,2.915,180.000,710.563,58,automatic,false
+ng-single-t-250-r4,internally_admissible,600,idle-loaded,18.327,249.995,29.000,56.347,27.347,30.000,33.239,3.239,180.000,594.629,59,automatic,false
+ng-single-t-250-r5,internally_admissible,600,idle-loaded,18.150,249.994,29.000,56.391,27.391,30.000,33.258,3.258,177.700,598.703,59,automatic,false

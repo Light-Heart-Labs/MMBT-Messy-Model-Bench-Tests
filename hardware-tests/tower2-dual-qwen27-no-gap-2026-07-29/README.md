@@ -61,6 +61,12 @@ the stock automatic controller.
 
 `aggregate-validation.py` regenerates the machine-readable [`validation-aggregates.json`](analysis/validation-aggregates.json) and [`validation-aggregates.csv`](analysis/validation-aggregates.csv) tables used to track replicate dispersion and determine when a cell actually reaches `n=3`.
 
+[`analysis/FAN_AWARE_CLOSED_LOOP_INTERPRETATION.md`](analysis/FAN_AWARE_CLOSED_LOOP_INTERPRETATION.md)
+separates what the stock automatic-controller results establish from the
+fixed-airflow questions they cannot yet answer. Its machine-readable source
+table is
+[`analysis/auto-fan-operating-points.csv`](analysis/auto-fan-operating-points.csv).
+
 [`analysis/250W_PRELIMINARY_COUPLING.md`](analysis/250W_PRELIMINARY_COUPLING.md) compares the equal-load and bottom-only 250 W cells. It finds a strong bottom-to-top heating signal and no resolvable top-to-bottom penalty yet; the reverse isolation cell and randomized repeats are still required before fitting directional coefficients.
 
 [`analysis/250W_FACTORIAL_COUPLING.md`](analysis/250W_FACTORIAL_COUPLING.md) adds the reverse isolation cell and derives preliminary closed-loop self-heating and directional coupling coefficients. Bottom-to-top coupling is approximately 0.042–0.047°C/W at this operating point; top-to-bottom coupling remains indistinguishable from zero. The reverse cell is quality-flagged and requires a clean repeat before model fitting.
