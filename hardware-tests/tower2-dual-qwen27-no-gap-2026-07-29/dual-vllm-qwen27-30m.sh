@@ -32,6 +32,8 @@ GPU1_FIXED_FAN_PCT=""
 GPU_ABORT_C=92
 MAX_START_TEMP_GPU0_C=45
 MAX_START_TEMP_GPU1_C=45
+MAX_START_CPU_TCTL_C=999
+MAX_START_NVME_C=999
 MAX_IDLE_POWER_GPU0_W=50
 MAX_IDLE_POWER_GPU1_W=50
 TELEMETRY_INTERVAL_MS=1000
@@ -39,6 +41,7 @@ FAN_TELEMETRY_INTERVAL_MS=1000
 NVML_CLOCK_BASE_MS=173
 NVML_CLOCK_JITTER_MS=101
 PREFLIGHT_SOAK_S=300
+PREFLIGHT_TIMEOUT_S=3600
 STEADY_STATE_PROTOCOL="v1-slope"
 AMBIENT_C=""
 NVIDIA_SETTINGS_DISPLAY=":0"
@@ -90,12 +93,16 @@ Options:
   --gpu-abort-c C          Emergency GPU-temperature cutoff (default: 92)
   --max-start-temp-gpu0 C Maximum allowed GPU0 pre-run temperature (default: 45)
   --max-start-temp-gpu1 C Maximum allowed GPU1 pre-run temperature (default: 45)
+  --max-start-cpu-tctl C  Maximum CPU Tctl at start (default: disabled)
+  --max-start-nvme C      Maximum hottest NVMe Composite at start (default: disabled)
   --max-idle-power-gpu0 W Abort if idle GPU0 exceeds this power (default: 50)
   --max-idle-power-gpu1 W Abort if idle GPU1 exceeds this power (default: 50)
   --telemetry-ms MS        GPU telemetry interval in milliseconds (default: 1000)
   --nvml-clock-base-ms MS  Independent NVML clock sampler base delay (default: 173)
   --nvml-clock-jitter-ms MS Random delay added to the NVML sampler (default: 101)
   --preflight-soak SECONDS Continuous cool/idle soak after start gates (default: 300)
+  --preflight-timeout SECONDS
+                           Maximum total preflight wait (default: 3600)
   --steady-state-protocol NAME
                            v1-slope or v2-fixed-quantized (v2 requires fixed
                            fans and at least 900 measured seconds)
@@ -133,12 +140,15 @@ while (($#)); do
     --gpu-abort-c) GPU_ABORT_C="${2:?missing value for --gpu-abort-c}"; shift 2 ;;
     --max-start-temp-gpu0) MAX_START_TEMP_GPU0_C="${2:?missing value for --max-start-temp-gpu0}"; shift 2 ;;
     --max-start-temp-gpu1) MAX_START_TEMP_GPU1_C="${2:?missing value for --max-start-temp-gpu1}"; shift 2 ;;
+    --max-start-cpu-tctl) MAX_START_CPU_TCTL_C="${2:?missing value for --max-start-cpu-tctl}"; shift 2 ;;
+    --max-start-nvme) MAX_START_NVME_C="${2:?missing value for --max-start-nvme}"; shift 2 ;;
     --max-idle-power-gpu0) MAX_IDLE_POWER_GPU0_W="${2:?missing value for --max-idle-power-gpu0}"; shift 2 ;;
     --max-idle-power-gpu1) MAX_IDLE_POWER_GPU1_W="${2:?missing value for --max-idle-power-gpu1}"; shift 2 ;;
     --telemetry-ms) TELEMETRY_INTERVAL_MS="${2:?missing value for --telemetry-ms}"; shift 2 ;;
     --nvml-clock-base-ms) NVML_CLOCK_BASE_MS="${2:?missing value for --nvml-clock-base-ms}"; shift 2 ;;
     --nvml-clock-jitter-ms) NVML_CLOCK_JITTER_MS="${2:?missing value for --nvml-clock-jitter-ms}"; shift 2 ;;
     --preflight-soak) PREFLIGHT_SOAK_S="${2:?missing value for --preflight-soak}"; shift 2 ;;
+    --preflight-timeout) PREFLIGHT_TIMEOUT_S="${2:?missing value for --preflight-timeout}"; shift 2 ;;
     --steady-state-protocol) STEADY_STATE_PROTOCOL="${2:?missing value for --steady-state-protocol}"; shift 2 ;;
     --ambient-c) AMBIENT_C="${2:?missing value for --ambient-c}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
@@ -176,6 +186,10 @@ done
   echo "PREFLIGHT_SOAK_S must be a non-negative integer" >&2
   exit 2
 }
+[[ "$PREFLIGHT_TIMEOUT_S" =~ ^[1-9][0-9]*$ ]] || {
+  echo "PREFLIGHT_TIMEOUT_S must be a positive integer" >&2
+  exit 2
+}
 ((NVML_CLOCK_BASE_MS >= 20)) || {
   echo "NVML_CLOCK_BASE_MS must be at least 20" >&2
   exit 2
@@ -191,6 +205,12 @@ if [[ -z "$MIN_WARMUP_POWER_GPU1_W" ]]; then
   ((CONCURRENCY_GPU1 == 0)) && MIN_WARMUP_POWER_GPU1_W=0 || MIN_WARMUP_POWER_GPU1_W="$MIN_WARMUP_POWER_W"
 fi
 for value in MIN_WARMUP_POWER_GPU0_W MIN_WARMUP_POWER_GPU1_W GPU0_POWER_LIMIT_W GPU1_POWER_LIMIT_W MAX_IDLE_POWER_GPU0_W MAX_IDLE_POWER_GPU1_W; do
+  [[ "${!value}" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
+    echo "$value must be numeric" >&2
+    exit 2
+  }
+done
+for value in MAX_START_TEMP_GPU0_C MAX_START_TEMP_GPU1_C MAX_START_CPU_TCTL_C MAX_START_NVME_C; do
   [[ "${!value}" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
     echo "$value must be numeric" >&2
     exit 2
@@ -438,7 +458,7 @@ fi
 
 PREFLIGHT_SERVICE_GUARD_PID=""
 PREFLIGHT_CSV_TMP="$(mktemp /tmp/tower2-preflight-telemetry.XXXXXX.csv)"
-printf 'ts_wall_iso,ts_mono_s,gpu0_temp_c,gpu0_util_pct,gpu1_temp_c,gpu1_util_pct,gate_state\n' \
+printf 'ts_wall_iso,ts_mono_s,gpu0_temp_c,gpu0_util_pct,gpu1_temp_c,gpu1_util_pct,cpu_tctl_c,nvme_max_c,gate_state\n' \
   > "$PREFLIGHT_CSV_TMP"
 declare -a PREFLIGHT_STOPPED_USER_SERVICES=()
 
@@ -467,7 +487,7 @@ preflight_service_guard() {
 }
 
 preflight_quiesce() {
-  local service deadline sample temp0 util0 temp1 util1 stable_since=-1
+  local service deadline sample sensor_text temp0 util0 temp1 util1 tctl nvme stable_since=-1
   local stable_elapsed=0 next_log=0 gate_state wall mono
   log "Preflight isolation: quiescing external GPU request sources"
   for service in "${CONFLICTING_USER_SERVICES[@]}"; do
@@ -479,7 +499,7 @@ preflight_quiesce() {
   preflight_service_guard &
   PREFLIGHT_SERVICE_GUARD_PID=$!
 
-  deadline=$((SECONDS + 900))
+  deadline=$((SECONDS + PREFLIGHT_TIMEOUT_S))
   while ((SECONDS < deadline)); do
     sample="$(nvidia-smi \
       --query-gpu=index,temperature.gpu,utilization.gpu \
@@ -490,28 +510,35 @@ preflight_quiesce() {
     read -r temp1 util1 < <(
       awk -F, '$1+0 == 1 {gsub(/ /,""); print $2,$3}' <<<"$sample"
     )
+    sensor_text="$(sensors 2>/dev/null)"
+    tctl="$(awk '/^Tctl:/{v=$2; gsub(/[+°C]/,"",v); print v; exit}' <<<"$sensor_text")"
+    nvme="$(awk '/^Composite:/{v=$2; gsub(/[+°C]/,"",v); if(v+0>m)m=v+0} END{if(m)printf "%.1f",m}' <<<"$sensor_text")"
+    tctl="${tctl:-999}"
+    nvme="${nvme:-999}"
     wall="$(date -u +%FT%T.%3NZ)"
     mono="$(awk 'BEGIN{getline x < "/proc/uptime"; split(x,a," "); print a[1]}')"
     if awk \
       -v t0="$temp0" -v u0="$util0" -v lim0="$MAX_START_TEMP_GPU0_C" \
       -v t1="$temp1" -v u1="$util1" -v lim1="$MAX_START_TEMP_GPU1_C" \
-      'BEGIN {exit !((t0 <= lim0 && u0 == 0) && (t1 <= lim1 && u1 == 0))}'; then
+      -v cpu="$tctl" -v limcpu="$MAX_START_CPU_TCTL_C" \
+      -v nvme="$nvme" -v limnvme="$MAX_START_NVME_C" \
+      'BEGIN {exit !((t0 <= lim0 && u0 == 0) && (t1 <= lim1 && u1 == 0) && cpu <= limcpu && nvme <= limnvme)}'; then
       if ((stable_since < 0)); then
         stable_since=$SECONDS
         next_log=0
-        log "Preflight soak started: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}%"
+        log "Preflight soak started: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}% CPU=${tctl}C NVMe=${nvme}C"
       fi
       stable_elapsed=$((SECONDS - stable_since))
       gate_state="soak-${stable_elapsed}-of-${PREFLIGHT_SOAK_S}s"
       if ((stable_elapsed >= PREFLIGHT_SOAK_S)); then
-        printf '%s,%s,%s,%s,%s,%s,ready\n' \
-          "$wall" "$mono" "$temp0" "$util0" "$temp1" "$util1" \
+        printf '%s,%s,%s,%s,%s,%s,%s,%s,ready\n' \
+          "$wall" "$mono" "$temp0" "$util0" "$temp1" "$util1" "$tctl" "$nvme" \
           >> "$PREFLIGHT_CSV_TMP"
-        log "Preflight isolation ready after ${stable_elapsed}s continuous soak: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}%"
+        log "Preflight isolation ready after ${stable_elapsed}s continuous soak: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}% CPU=${tctl}C NVMe=${nvme}C"
         return 0
       fi
       if ((SECONDS >= next_log)); then
-        log "Preflight soak ${stable_elapsed}/${PREFLIGHT_SOAK_S}s: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}%"
+        log "Preflight soak ${stable_elapsed}/${PREFLIGHT_SOAK_S}s: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}% CPU=${tctl}C NVMe=${nvme}C"
         next_log=$((SECONDS + 30))
       fi
     else
@@ -519,16 +546,16 @@ preflight_quiesce() {
       stable_elapsed=0
       gate_state="cooldown"
       if ((SECONDS >= next_log)); then
-        log "Preflight cooldown: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}%"
+        log "Preflight cooldown: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}% CPU=${tctl}C NVMe=${nvme}C"
         next_log=$((SECONDS + 30))
       fi
     fi
-    printf '%s,%s,%s,%s,%s,%s,%s\n' \
-      "$wall" "$mono" "$temp0" "$util0" "$temp1" "$util1" "$gate_state" \
+    printf '%s,%s,%s,%s,%s,%s,%s,%s,%s\n' \
+      "$wall" "$mono" "$temp0" "$util0" "$temp1" "$util1" "$tctl" "$nvme" "$gate_state" \
       >> "$PREFLIGHT_CSV_TMP"
     sleep 5
   done
-  echo "Preflight isolation/cooldown exceeded 900 seconds" >&2
+  echo "Preflight isolation/cooldown exceeded ${PREFLIGHT_TIMEOUT_S} seconds" >&2
   return 1
 }
 
@@ -799,6 +826,8 @@ jq -n \
   --argjson gpu_abort_c "$GPU_ABORT_C" \
   --argjson max_start_temp_gpu0_c "$MAX_START_TEMP_GPU0_C" \
   --argjson max_start_temp_gpu1_c "$MAX_START_TEMP_GPU1_C" \
+  --argjson max_start_cpu_tctl_c "$MAX_START_CPU_TCTL_C" \
+  --argjson max_start_nvme_c "$MAX_START_NVME_C" \
   --argjson max_idle_power_gpu0_w "$MAX_IDLE_POWER_GPU0_W" \
   --argjson max_idle_power_gpu1_w "$MAX_IDLE_POWER_GPU1_W" \
   --argjson telemetry_interval_ms "$TELEMETRY_INTERVAL_MS" \
@@ -806,6 +835,7 @@ jq -n \
   --argjson nvml_clock_base_ms "$NVML_CLOCK_BASE_MS" \
   --argjson nvml_clock_jitter_ms "$NVML_CLOCK_JITTER_MS" \
   --argjson preflight_soak_s "$PREFLIGHT_SOAK_S" \
+  --argjson preflight_timeout_s "$PREFLIGHT_TIMEOUT_S" \
   --arg steady_state_protocol "$STEADY_STATE_PROTOCOL" \
   --arg ambient_c "$AMBIENT_C" \
   '{
@@ -842,12 +872,15 @@ jq -n \
     gpu_abort_c:$gpu_abort_c,
     max_start_temp_gpu0_c:$max_start_temp_gpu0_c,
     max_start_temp_gpu1_c:$max_start_temp_gpu1_c,
+    max_start_cpu_tctl_c:$max_start_cpu_tctl_c,
+    max_start_nvme_c:$max_start_nvme_c,
     max_idle_power_gpu0_w:$max_idle_power_gpu0_w,
     max_idle_power_gpu1_w:$max_idle_power_gpu1_w,
     telemetry_interval_ms:$telemetry_interval_ms,
     nvml_clock_base_ms:$nvml_clock_base_ms,
     nvml_clock_jitter_ms:$nvml_clock_jitter_ms,
     preflight_soak_s:$preflight_soak_s,
+    preflight_timeout_s:$preflight_timeout_s,
     steady_state_protocol:$steady_state_protocol,
     fan_telemetry:{
       source:"nvidia-settings NV-CONTROL",
