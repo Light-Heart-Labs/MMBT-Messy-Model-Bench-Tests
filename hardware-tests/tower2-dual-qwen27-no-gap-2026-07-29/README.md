@@ -31,6 +31,7 @@ limitation explicitly.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b60-t40-sym300-v2-15m-r2`](ng-fan-b60-t40-sym300-v2-15m-r2/) | 54.84 C / 59 C / 60.0%, 1,917 RPM | 68.40 C / 73 C / 40.0%, 1,439 RPM | 300 W 60/40 n=2/3; reversed-order block exposes later-run heat bias; counters zero |
 | [`ng-fan-b40-t60-sym300-v2-15m-r2`](ng-fan-b40-t60-sym300-v2-15m-r2/) | 53.98 C / 57 C / 40.0%, 1,439 RPM | 67.47 C / 71 C / 60.0%, 1,917 RPM | 300 W 40/60 n=2/3; reversed-order block started; counters zero |
 | [`ng-fan-b40-t60-sym300-v2-15m-r1`](ng-fan-b40-t60-sym300-v2-15m-r1/) | 53.66 C / 56 C / 40.0%, 1,439 RPM | 66.95 C / 71 C / 60.0%, 1,917 RPM | First paired 300 W 40/60 replicate; order/session confounding retained; counters zero |
 | [`ng-fan-b60-t40-sym300-v2-15m-r1`](ng-fan-b60-t40-sym300-v2-15m-r1/) | 52.68 C / 55 C / 60.0%, 1,917 RPM | 66.11 C / 70 C / 40.0%, 1,439 RPM | First 300 W power-spine replicate; all gates passed; counters zero |

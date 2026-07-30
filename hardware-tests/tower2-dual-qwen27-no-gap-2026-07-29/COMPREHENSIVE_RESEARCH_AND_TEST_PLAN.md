@@ -81,6 +81,12 @@ Those are the identification problems this plan resolves.
   lower/upstream card can reduce a hotter card's local inlet/core temperature
   or required fan duty enough to increase safe stack power or reduce peak
   temperature at the same aggregate fan/noise budget.
+- **H11 — local RPM/clock tradeoff:** When a card is pinned at its board-power
+  cap, additional local fan RPM may correlate with a small clock loss because
+  fan electrical demand competes with GPU silicon inside the reported board
+  budget. A neighboring card's fan can provide airflow assistance without
+  consuming the loaded card's power budget. This must be separated from
+  temperature, run order, and shared-airflow effects before causal use.
 
 ## 4. Scope
 
@@ -447,6 +453,53 @@ card's fan. A change in loaded-card temperature, local inlet temperature, or
 required fan RPM measures neighbor-assisted or neighbor-disrupted airflow.
 Repeat in both directions because bottom-to-top and top-to-bottom coupling need
 not be symmetric.
+
+#### Local fan-power versus shared-airflow isolation
+
+The validated 200/250 W allocation data show a small negative association
+between a card's own RPM and its own graphics clock while the other card often
+gains clock. Do not interpret this as a causal fan penalty from the allocation
+surface alone. Run the following randomized experiment in both physical-card
+orientations, with at least three admissible independent blocks per cell:
+
+| Family | Loaded-card condition | Loaded-card fan | Neighbor condition | Neighbor fan | Identifies |
+|---|---|---|---|---|---|
+| Same-card saturated sweep | workload pinned at 250 or 300 W cap | randomized 30, 50, 70% | idle, fixed | 50% | local RPM effect when fan and silicon may share a capped board budget |
+| Neighbor-airflow sweep | workload pinned at same cap, own fan fixed 50% | 50% | idle | randomized 30, 50, 70% | cross-card airflow without stealing the loaded card's board-power allowance |
+| Power-headroom sweep | reduced workload at least 30 W below a higher cap | randomized 30, 50, 70% | idle, fixed | 50% | whether the negative own-RPM/clock association disappears without an active power cap |
+| Crossed dual-load confirmation | both workloads pinned at the selected cap | 40/60 and 60/40 policies | loaded | paired allocation | whether the isolated coefficients predict the observed two-card redistribution |
+
+Randomize fan-step order within each block and balance which physical card and
+position is loaded first. Require the same preflight thermal reset, fixed
+workload payload, fan-target tracking, independent NVML clock stream, and
+throughput accounting used by the primary campaign. Record:
+
+- board power, SW power-cap state/counter, graphics clock distribution, and
+  throughput;
+- all four fan duties and RPMs;
+- loaded-card and neighbor temperatures plus calibrated local inlets when
+  available;
+- PSU/12V-2x6 power if an external meter is available;
+- test order, preflight endpoint, and chassis heat-state covariates.
+
+Interpret the contrasts prospectively:
+
+- an own-fan clock penalty present only while the SW power cap is continuously
+  active, but absent with power headroom, supports fan/silicon budget
+  competition;
+- a neighbor-fan change in loaded-card temperature, clock, or throughput
+  supports shared airflow because the neighbor's fan cannot consume the loaded
+  card's power allowance;
+- persistence of the own-fan association with power headroom requires another
+  mechanism, such as shared pressure/recirculation, fan vibration, or an
+  unmeasured workload/session covariate;
+- no causal claim is promoted until the direction reproduces at `n >= 3` and
+  survives order/session adjustment.
+
+If supported safely by the installed driver, add a diagnostic fixed-graphics-
+clock cell and sweep fan RPM while measuring board and external input power.
+That cell is instrumentation evidence only and does not replace the
+application-throughput cells.
 
 Do not normalize temperature by dividing by fan percentage. Fan percentage is
 not airflow, RPM is not necessarily linear with duty, and heat transfer is

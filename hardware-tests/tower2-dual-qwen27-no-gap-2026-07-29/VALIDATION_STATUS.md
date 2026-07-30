@@ -24,7 +24,7 @@ Two validation levels are tracked:
 | NG-FAN-B40-T60-SYM250-V2-15M | 3 | 3 | 0 | Internally validated at n=3; frozen temperature interpolation error was +0.156/+0.584 C |
 | NG-FAN-B40-T60-SYM200-V2-15M | 3 | 3 | 0 | Internally validated at n=3; completed paired crossover exposes execution-order/session heat as a material nuisance variable |
 | NG-FAN-B60-T40-SYM200-V2-15M | 3 | 3 | 0 | Internally validated at n=3; block 3 reverses order and confirms session/heat-soak drift must be modeled |
-| NG-FAN-B60-T40-SYM300-V2-15M | 1 | 3 | 0 | R1 admissible; paired 40/60 cell and two more replicates required |
+| NG-FAN-B60-T40-SYM300-V2-15M | 2 | 3 | 0 | R1/R2 admissible; reversed block confirms later-run heat bias; one more replicate required |
 | NG-FAN-B40-T60-SYM300-V2-15M | 2 | 3 | 0 | R1/R2 admissible with exact throughput reproduction; one more replicate and paired 60/40 blocks required |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 
