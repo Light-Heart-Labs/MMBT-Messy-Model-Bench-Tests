@@ -14,7 +14,7 @@ Two validation levels are tracked:
 | NG-SYM-250 | 0 | 3 | 0 | Clean n=3 campaign required |
 | NG-SYM-500 | 1 | 3 | 0 | Two internal replicates plus environmental instrumentation required |
 | NG-ASYM-600-400 | 1 | 3 | 0 | Two internal replicates plus environmental instrumentation required |
-| NG-SINGLE-B-250 | 0 | 3 | 0 | Clean n=3 campaign required |
+| NG-SINGLE-B-250 | 1 | 3 | 0 | Replicate 2 admissible; two more internal replicates required |
 | NG-SINGLE-T-250 | 3 | 3 | 0 | Within-campaign internally validated; cross-session and environmental validation pending |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 

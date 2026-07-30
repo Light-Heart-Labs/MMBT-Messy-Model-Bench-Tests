@@ -1,0 +1,20 @@
+● openclaw-gateway.service - OpenClaw Gateway (v2026.6.33)
+     Loaded: loaded (/home/michael/.config/systemd/user/openclaw-gateway.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-07-29 21:04:39 EDT; 5min ago
+   Main PID: 1125409 (node)
+      Tasks: 11 (limit: 308344)
+     Memory: 301.2M (peak: 668.6M)
+        CPU: 9.371s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/openclaw-gateway.service
+             └─1125409 /usr/bin/node /home/michael/.npm-global/lib/node_modules/openclaw/dist/index.js gateway --port 18789
+
+Jul 29 21:04:43 Tower2 node[1125409]: 2026-07-29T21:04:43.829-04:00 [gateway] starting channels and sidecars...
+Jul 29 21:04:43 Tower2 node[1125409]: 2026-07-29T21:04:43.885-04:00 [discord] [default] starting provider
+Jul 29 21:04:44 Tower2 node[1125409]: 2026-07-29T21:04:44.113-04:00 [gateway] ready
+Jul 29 21:04:44 Tower2 node[1125409]: 2026-07-29T21:04:44.200-04:00 [heartbeat] disabled
+Jul 29 21:04:44 Tower2 node[1125409]: 2026-07-29T21:04:44.442-04:00 [discord] channels resolved: 1529265329388261476 (guild:Grace's Good Place; aliases:guild:1529265329388261476)
+Jul 29 21:04:44 Tower2 node[1125409]: 2026-07-29T21:04:44.717-04:00 [discord] [default] Discord bot probe resolved @Sanctuary
+Jul 29 21:04:44 Tower2 node[1125409]: 2026-07-29T21:04:44.718-04:00 [discord] [default] Discord Message Content Intent is limited; bots under 100 servers can use it without verification.
+Jul 29 21:04:44 Tower2 node[1125409]: 2026-07-29T21:04:44.812-04:00 [discord] client initialized as 1529273484008489143; awaiting gateway readiness
+Jul 29 21:04:50 Tower2 node[1125409]: 2026-07-29T21:04:50.006-04:00 [gateway] provider auth state pre-warmed in 818ms eventLoopMax=10.3ms
+Jul 29 21:04:54 Tower2 node[1125409]: 2026-07-29T21:04:54.140-04:00 [gateway] agent runtime plugins pre-warmed in 28ms
