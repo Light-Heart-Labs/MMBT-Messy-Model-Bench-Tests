@@ -21,9 +21,17 @@ validated knot while retaining v1 for auditability. A second prospective
 check at 40/60 missed by +0.156/+0.584 C; the
 [`v3 model`](analysis/fan-allocation-response-v3.json) now contains all five
 validated allocation knots while preserving both prior models.
+The 200/200 W 40/60 and 60/40 cells have also reached `n=3`. Their
+[`paired crossover analysis`](analysis/200W_FAN_POLICY_CROSSOVER.md) shows
+directionally consistent clock redistribution but a thermal contrast confounded
+by execution order/session heat; the
+[`crossover figure`](analysis/200w-fan-policy-crossover.png) and
+[`paired block table`](analysis/200w-fan-policy-paired-blocks.csv) retain that
+limitation explicitly.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b40-t60-sym200-v2-15m-r3`](ng-fan-b40-t60-sym200-v2-15m-r3/) | 43.71 C / 46 C / 40.0%, 1,439 RPM | 52.36 C / 55 C / 60.0%, 1,917 RPM | 200 W 40/60 internally validated at n=3; crossover block complete; counters zero |
 | [`ng-fan-b60-t40-sym200-v2-15m-r3`](ng-fan-b60-t40-sym200-v2-15m-r3/) | 42.74 C / 45 C / 60.0%, 1,917 RPM | 51.50 C / 54 C / 40.0%, 1,439 RPM | 200 W 60/40 internally validated at n=3; block-3 order reversed; counters zero |
 | [`ng-fan-b60-t40-sym200-v2-15m-r2`](ng-fan-b60-t40-sym200-v2-15m-r2/) | 42.36 C / 44 C / 60.0%, 1,917 RPM | 51.37 C / 54 C / 40.0%, 1,439 RPM | Reversed 200 W n=2/3; thermal order drift exposed; clocks rebalanced; counters zero |
 | [`ng-fan-b40-t60-sym200-v2-15m-r2`](ng-fan-b40-t60-sym200-v2-15m-r2/) | 42.28 C / 45 C / 40.0%, 1,439 RPM | 50.90 C / 54 C / 60.0%, 1,917 RPM | 200 W power-spine n=2/3; all gates passed; shared block drift retained |
