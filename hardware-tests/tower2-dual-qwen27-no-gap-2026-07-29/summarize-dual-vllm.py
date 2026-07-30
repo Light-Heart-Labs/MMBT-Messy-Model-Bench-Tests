@@ -209,6 +209,46 @@ summary["host"] = {
     "nvme_max_c": stats([number(row.get("nvme_max_c")) for row in host_rows]),
 }
 
+nvml_clock_path = gpu_csv.parent / "gpu-nvml-clock.csv"
+summary["independent_nvml_clock"] = {"available": False, "gpus": {}}
+if nvml_clock_path.exists():
+    nvml_by_gpu = defaultdict(list)
+    with nvml_clock_path.open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            if row.get("phase", "").strip() == "measured":
+                nvml_by_gpu[row["gpu"].strip()].append(row)
+    summary["independent_nvml_clock"]["available"] = bool(nvml_by_gpu)
+    for gpu, rows in sorted(nvml_by_gpu.items()):
+        independent_graphics = stats(
+            [number(row.get("graphics_clock_mhz")) for row in rows]
+        )
+        primary_graphics = summary["gpus"].get(gpu, {}).get("graphics_clock_mhz")
+        mean_ratio = None
+        if (
+            independent_graphics
+            and primary_graphics
+            and independent_graphics["mean"] != 0
+        ):
+            mean_ratio = round(
+                primary_graphics["mean"] / independent_graphics["mean"], 6
+            )
+        summary["independent_nvml_clock"]["gpus"][gpu] = {
+            "samples": len(rows),
+            "graphics_clock_mhz": independent_graphics,
+            "sm_clock_mhz": stats(
+                [number(row.get("sm_clock_mhz")) for row in rows]
+            ),
+            "memory_clock_mhz": stats(
+                [number(row.get("memory_clock_mhz")) for row in rows]
+            ),
+            "power_w": stats([number(row.get("power_w")) for row in rows]),
+            "temp_gpu_c": stats([number(row.get("temp_gpu_c")) for row in rows]),
+            "gpu_util_pct": stats(
+                [number(row.get("gpu_util_pct")) for row in rows]
+            ),
+            "primary_to_independent_graphics_mean_ratio": mean_ratio,
+        }
+
 all_request_rows = []
 with requests_csv.open(newline="", encoding="utf-8") as handle:
     for row in csv.DictReader(handle):

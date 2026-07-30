@@ -8,6 +8,7 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-sym-250-r2`](ng-sym-250-r2/) | 52.73°C / 55°C / 31.2% mean | 67.61°C / 71°C / 40.5% mean | Thermally admissible n=1/3; counters zero; GPU1 clock channel flagged |
 | [`ng-single-b-250-r2`](ng-single-b-250-r2/) | 53.47°C / 56°C / 31.5% mean | Isolated idle: 44.27°C / 46°C / 30.0% mean | Internally admissible n=1/3; thermal counters zero |
 | [`ng-single-t-250-r5`](ng-single-t-250-r5/) | Isolated idle: 29.00°C / 29°C / 30.0% mean | 56.39°C / 59°C / 33.3% mean | Third admissible replicate; within-campaign n=3 validated |
 | [`ng-single-t-250-r4`](ng-single-t-250-r4/) | Isolated idle: 29.00°C / 29°C / 30.0% mean | 56.35°C / 59°C / 33.2% mean | Internally admissible replicate; thermal counters zero |
@@ -36,6 +37,8 @@ The first single-card isolation cell loaded only GPU0/bottom at 250 W while leav
 The reverse isolation cell, `NG-SINGLE-T-250`, is the first to reach three internally admissible replicates. Across replicates 2, 4, and 5, the loaded top card averaged 56.200 ± 0.294°C, its last-five-minute temperature averaged 56.941 ± 0.140°C, and its fan averaged 33.137 ± 0.193%. Throughput was exactly 0.9067 requests/s in every run and all thermal/brake counters remained zero. The idle bottom card averaged 28.967 ± 0.058°C. This establishes within-campaign repeatability, not cross-chassis transferability; all three runs occurred in one campaign session and no calibrated ambient/local-inlet probes were available. See [`analysis/NG-SINGLE-T-250_VALIDATION.md`](analysis/NG-SINGLE-T-250_VALIDATION.md).
 
 The first clean bottom-loaded replicate, `NG-SINGLE-B-250` R2, reproduced the directional-heating pilot under strict workload isolation. The 250 W bottom card averaged 53.465°C while the idle top card averaged 44.266°C and reached a 45.863°C last-five-minute mean at only 22.548 W. The corresponding clean reverse cell leaves the idle bottom card near 29°C, strengthening the evidence that coupling is strongly bottom-to-top. This cell remains `n=1/3`; coefficients will not be promoted into the validated model until two more admissible replicates exist.
+
+The first clean symmetric replicate, `NG-SYM-250` R2, reproduced the pilot’s thermal result: 52.730°C bottom, 67.613°C top, and a 14.883°C positional delta at equal 250 W caps. Both temperature slopes reached steady state and all thermal/brake counters stayed at zero. GPU1’s clock channel reported a physically inconsistent fixed 180/405 MHz while power, utilization, and throughput remained high; that channel is explicitly excluded from frequency-model fitting until an independent sampler is added. The thermal, fan, power, request-performance, and event-counter channels remain admissible.
 
 [`STACKED_GPU_RESEARCH_PLAN.md`](STACKED_GPU_RESEARCH_PLAN.md) defines the controlled matrix, instrumentation, reduced-order thermal model, and publication formats intended to turn the two-card measurements into bounded three- and four-card stack forecasts.
 

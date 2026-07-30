@@ -63,6 +63,17 @@ def metrics(summary):
         values[f"top_minus_bottom.{field}"] = nested(
             summary, "top_minus_bottom", field
         )
+    for gpu in ("0", "1"):
+        independent = nested(
+            summary,
+            "independent_nvml_clock",
+            "gpus",
+            gpu,
+            "graphics_clock_mhz",
+            "mean",
+        )
+        if independent is not None:
+            values[f"gpu{gpu}.independent_nvml_clock_mean_mhz"] = independent
     return {key: value for key, value in values.items() if value is not None}
 
 
@@ -78,12 +89,27 @@ for row in registry_rows:
     if not summary_path.exists():
         raise FileNotFoundError(summary_path)
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    run_metrics = metrics(summary)
+    metric_exclusions = {
+        item.strip()
+        for item in row.get("metric_exclusions", "").split("|")
+        if item.strip()
+    }
+    unknown_exclusions = metric_exclusions - run_metrics.keys()
+    if unknown_exclusions:
+        raise ValueError(
+            f"{row['run_id']} declares unknown metric exclusions: "
+            f"{sorted(unknown_exclusions)}"
+        )
+    for metric_name in metric_exclusions:
+        run_metrics.pop(metric_name)
     groups[row["cell_id"]].append(
         {
             "run_id": row["run_id"],
             "replicate": int(row["replicate"]),
             "artifact_path": row["artifact_path"],
-            "metrics": metrics(summary),
+            "metric_exclusions": sorted(metric_exclusions),
+            "metrics": run_metrics,
         }
     )
 
@@ -127,6 +153,7 @@ for cell_id, runs in sorted(groups.items()):
                 "run_id": run["run_id"],
                 "replicate": run["replicate"],
                 "artifact_path": run["artifact_path"],
+                "metric_exclusions": run["metric_exclusions"],
             }
             for run in sorted(runs, key=lambda item: item["replicate"])
         ],

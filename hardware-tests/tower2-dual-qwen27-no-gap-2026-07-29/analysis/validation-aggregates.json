@@ -8,7 +8,8 @@
         {
           "run_id": "2026-07-29T20-48-03Z",
           "replicate": 1,
-          "artifact_path": "bottom600-top400-30m"
+          "artifact_path": "bottom600-top400-30m",
+          "metric_exclusions": []
         }
       ],
       "aggregates": {
@@ -117,7 +118,8 @@
         {
           "run_id": "2026-07-30T01-10-21Z",
           "replicate": 2,
-          "artifact_path": "ng-single-b-250-r2"
+          "artifact_path": "ng-single-b-250-r2",
+          "metric_exclusions": []
         }
       ],
       "aggregates": {
@@ -306,17 +308,20 @@
         {
           "run_id": "2026-07-30T00-01-02Z",
           "replicate": 2,
-          "artifact_path": "ng-single-t-250-r2"
+          "artifact_path": "ng-single-t-250-r2",
+          "metric_exclusions": []
         },
         {
           "run_id": "2026-07-30T00-34-00Z",
           "replicate": 4,
-          "artifact_path": "ng-single-t-250-r4"
+          "artifact_path": "ng-single-t-250-r4",
+          "metric_exclusions": []
         },
         {
           "run_id": "2026-07-30T00-50-49Z",
           "replicate": 5,
-          "artifact_path": "ng-single-t-250-r5"
+          "artifact_path": "ng-single-t-250-r5",
+          "metric_exclusions": []
         }
       ],
       "aggregates": {
@@ -498,6 +503,176 @@
         }
       }
     },
+    "NG-SYM-250": {
+      "n": 1,
+      "internally_validated": false,
+      "runs": [
+        {
+          "run_id": "2026-07-30T01-34-16Z",
+          "replicate": 2,
+          "artifact_path": "ng-sym-250-r2",
+          "metric_exclusions": [
+            "gpu1.clock_last5_mean_mhz",
+            "gpu1.clock_mean_mhz",
+            "top_minus_bottom.graphics_clock_mhz"
+          ]
+        }
+      ],
+      "aggregates": {
+        "gpu0.clock_last5_mean_mhz": {
+          "n": 1,
+          "mean": 2610.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 2610.0,
+          "max": 2610.0
+        },
+        "gpu0.clock_mean_mhz": {
+          "n": 1,
+          "mean": 2610.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 2610.0,
+          "max": 2610.0
+        },
+        "gpu0.fan_mean_pct": {
+          "n": 1,
+          "mean": 31.212,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 31.212,
+          "max": 31.212
+        },
+        "gpu0.fan_slope_pp_per_min": {
+          "n": 1,
+          "mean": 0.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "gpu0.power_mean_w": {
+          "n": 1,
+          "mean": 249.995,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 249.995,
+          "max": 249.995
+        },
+        "gpu0.requests_per_second": {
+          "n": 1,
+          "mean": 1.0133,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1.0133,
+          "max": 1.0133
+        },
+        "gpu0.temp_last5_mean_c": {
+          "n": 1,
+          "mean": 53.038,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 53.038,
+          "max": 53.038
+        },
+        "gpu0.temp_mean_c": {
+          "n": 1,
+          "mean": 52.73,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 52.73,
+          "max": 52.73
+        },
+        "gpu0.temp_slope_c_per_min": {
+          "n": 1,
+          "mean": 0.0142,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0142,
+          "max": 0.0142
+        },
+        "gpu1.fan_mean_pct": {
+          "n": 1,
+          "mean": 40.47,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 40.47,
+          "max": 40.47
+        },
+        "gpu1.fan_slope_pp_per_min": {
+          "n": 1,
+          "mean": 0.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "gpu1.power_mean_w": {
+          "n": 1,
+          "mean": 249.995,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 249.995,
+          "max": 249.995
+        },
+        "gpu1.requests_per_second": {
+          "n": 1,
+          "mean": 0.8533,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.8533,
+          "max": 0.8533
+        },
+        "gpu1.temp_last5_mean_c": {
+          "n": 1,
+          "mean": 69.028,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 69.028,
+          "max": 69.028
+        },
+        "gpu1.temp_mean_c": {
+          "n": 1,
+          "mean": 67.613,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 67.613,
+          "max": 67.613
+        },
+        "gpu1.temp_slope_c_per_min": {
+          "n": 1,
+          "mean": -0.0019,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": -0.0019,
+          "max": -0.0019
+        },
+        "top_minus_bottom.fan_pct": {
+          "n": 1,
+          "mean": 9.258,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 9.258,
+          "max": 9.258
+        },
+        "top_minus_bottom.power_avg_w": {
+          "n": 1,
+          "mean": 0.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "top_minus_bottom.temp_gpu_c": {
+          "n": 1,
+          "mean": 14.883,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 14.883,
+          "max": 14.883
+        }
+      }
+    },
     "NG-SYM-500": {
       "n": 1,
       "internally_validated": false,
@@ -505,7 +680,8 @@
         {
           "run_id": "2026-07-29T21-35-09Z",
           "replicate": 1,
-          "artifact_path": "both500-10m"
+          "artifact_path": "both500-10m",
+          "metric_exclusions": []
         }
       ],
       "aggregates": {

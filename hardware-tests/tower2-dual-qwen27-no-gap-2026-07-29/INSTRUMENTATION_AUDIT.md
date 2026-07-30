@@ -50,11 +50,15 @@ The canonical `dual-vllm-qwen27-30m.sh` harness now:
 - generates SHA-256 hashes for the completed run artifacts after cleanup.
 - records stable matrix-cell and replicate identifiers for the `n >= 3` validation ledger;
 - stops the OpenClaw gateway to clear its GPU embedding workers, aborts if a worker respawns, and restores the service after cleanup;
+- isolates external request sources before evaluating the start-temperature gates, waits for both GPUs to reach 0% utilization and the configured temperature limits, and restores any service stopped during preflight even if the run is rejected;
 - applies a configurable maximum-power cutoff to every nominally idle GPU;
 - verifies that Sanctuary's cumulative successful-request delta exactly matches the controlled request log before a run can pass;
-- emits machine-readable internal and transferable admissibility candidates.
+- emits machine-readable internal and transferable admissibility candidates;
+- records a second graphics/SM/memory-clock stream through direct NVML calls at a randomized 173â€“274 ms cadence, independent of the fixed-period primary telemetry logger.
 
-The summarizer now reports target-relative power saturation, telemetry completeness, temperature-limit margin, steady-state slopes, sampled counter deltas, request rate, ambient statistics when supplied, and top-minus-bottom deltas.
+The independent NVML stream was added after `NG-SYM-250` replicate 2 reported a physically inconsistent fixed 180 MHz graphics/SM and 405 MHz memory clock while GPU1 simultaneously held 250 W, 100% utilization, and substantial request throughput. The thermal and workload channels passed, but the affected primary-clock metrics are excluded from validation aggregation. The jittered stream is preserved and summarized separately so clock-source disagreements remain visible rather than being silently reconciled.
+
+The summarizer now reports target-relative power saturation, telemetry completeness, temperature-limit margin, steady-state slopes, sampled counter deltas, request rate, ambient statistics when supplied, top-minus-bottom deltas, and independent NVML clock distributions. The validation registry supports per-run `metric_exclusions`, allowing a bad sensor channel to be removed from a model without discarding otherwise admissible thermal evidence.
 
 ## Required additions before transferable 3x/4x claims
 

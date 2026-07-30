@@ -33,6 +33,8 @@ MAX_START_TEMP_GPU1_C=45
 MAX_IDLE_POWER_GPU0_W=50
 MAX_IDLE_POWER_GPU1_W=50
 TELEMETRY_INTERVAL_MS=1000
+NVML_CLOCK_BASE_MS=173
+NVML_CLOCK_JITTER_MS=101
 AMBIENT_C=""
 GPU0_PORT=8001
 GPU1_PORT=8002
@@ -82,6 +84,8 @@ Options:
   --max-idle-power-gpu0 W Abort if idle GPU0 exceeds this power (default: 50)
   --max-idle-power-gpu1 W Abort if idle GPU1 exceeds this power (default: 50)
   --telemetry-ms MS        GPU telemetry interval in milliseconds (default: 1000)
+  --nvml-clock-base-ms MS  Independent NVML clock sampler base delay (default: 173)
+  --nvml-clock-jitter-ms MS Random delay added to the NVML sampler (default: 101)
   --ambient-c C            Manually measured room/chassis inlet temperature
 
 Before --run:
@@ -117,13 +121,15 @@ while (($#)); do
     --max-idle-power-gpu0) MAX_IDLE_POWER_GPU0_W="${2:?missing value for --max-idle-power-gpu0}"; shift 2 ;;
     --max-idle-power-gpu1) MAX_IDLE_POWER_GPU1_W="${2:?missing value for --max-idle-power-gpu1}"; shift 2 ;;
     --telemetry-ms) TELEMETRY_INTERVAL_MS="${2:?missing value for --telemetry-ms}"; shift 2 ;;
+    --nvml-clock-base-ms) NVML_CLOCK_BASE_MS="${2:?missing value for --nvml-clock-base-ms}"; shift 2 ;;
+    --nvml-clock-jitter-ms) NVML_CLOCK_JITTER_MS="${2:?missing value for --nvml-clock-jitter-ms}"; shift 2 ;;
     --ambient-c) AMBIENT_C="${2:?missing value for --ambient-c}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
   esac
 done
 
-for value in DURATION_S WARMUP_S COOLDOWN_S CONCURRENCY MAX_TOKENS TELEMETRY_INTERVAL_MS REPLICATE; do
+for value in DURATION_S WARMUP_S COOLDOWN_S CONCURRENCY MAX_TOKENS TELEMETRY_INTERVAL_MS NVML_CLOCK_BASE_MS REPLICATE; do
   [[ "${!value}" =~ ^[1-9][0-9]*$ ]] || {
     echo "$value must be a positive integer" >&2
     exit 2
@@ -143,6 +149,14 @@ done
 }
 ((TELEMETRY_INTERVAL_MS >= 100)) || {
   echo "TELEMETRY_INTERVAL_MS must be at least 100" >&2
+  exit 2
+}
+[[ "$NVML_CLOCK_JITTER_MS" =~ ^[0-9]+$ ]] || {
+  echo "NVML_CLOCK_JITTER_MS must be a non-negative integer" >&2
+  exit 2
+}
+((NVML_CLOCK_BASE_MS >= 20)) || {
+  echo "NVML_CLOCK_BASE_MS must be at least 20" >&2
   exit 2
 }
 [[ "$MIN_WARMUP_POWER_W" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
@@ -325,6 +339,74 @@ if [[ "$ACTION" == "check" ]]; then
   exit
 fi
 
+PREFLIGHT_SERVICE_GUARD_PID=""
+declare -a PREFLIGHT_STOPPED_USER_SERVICES=()
+
+preflight_restore() {
+  local service
+  set +e
+  if [[ -n "$PREFLIGHT_SERVICE_GUARD_PID" ]]; then
+    kill "$PREFLIGHT_SERVICE_GUARD_PID" 2>/dev/null
+    wait "$PREFLIGHT_SERVICE_GUARD_PID" 2>/dev/null
+  fi
+  for service in "${PREFLIGHT_STOPPED_USER_SERVICES[@]:-}"; do
+    [[ -n "$service" ]] && systemctl --user start "$service" >/dev/null 2>&1
+  done
+}
+
+preflight_service_guard() {
+  while true; do
+    for service in "${CONFLICTING_USER_SERVICES[@]}"; do
+      if systemctl --user is-active --quiet "$service"; then
+        systemctl --user stop "$service" >/dev/null 2>&1 || return 1
+      fi
+    done
+    sleep 1
+  done
+}
+
+preflight_quiesce() {
+  local service deadline sample temp0 util0 temp1 util1
+  log "Preflight isolation: quiescing external GPU request sources"
+  for service in "${CONFLICTING_USER_SERVICES[@]}"; do
+    if systemctl --user is-active --quiet "$service"; then
+      PREFLIGHT_STOPPED_USER_SERVICES+=("$service")
+      systemctl --user stop "$service"
+    fi
+  done
+  preflight_service_guard &
+  PREFLIGHT_SERVICE_GUARD_PID=$!
+
+  deadline=$((SECONDS + 900))
+  while ((SECONDS < deadline)); do
+    sample="$(nvidia-smi \
+      --query-gpu=index,temperature.gpu,utilization.gpu \
+      --format=csv,noheader,nounits)"
+    read -r temp0 util0 < <(
+      awk -F, '$1+0 == 0 {gsub(/ /,""); print $2,$3}' <<<"$sample"
+    )
+    read -r temp1 util1 < <(
+      awk -F, '$1+0 == 1 {gsub(/ /,""); print $2,$3}' <<<"$sample"
+    )
+    if awk \
+      -v t0="$temp0" -v u0="$util0" -v lim0="$MAX_START_TEMP_GPU0_C" \
+      -v t1="$temp1" -v u1="$util1" -v lim1="$MAX_START_TEMP_GPU1_C" \
+      'BEGIN {exit !(
+        t0 <= lim0 && u0 == 0 &&
+        t1 <= lim1 && u1 == 0
+      )}'; then
+      log "Preflight isolation ready: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}%"
+      return 0
+    fi
+    log "Preflight cooldown: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}%"
+    sleep 5
+  done
+  echo "Preflight isolation/cooldown exceeded 900 seconds" >&2
+  return 1
+}
+
+trap preflight_restore EXIT INT TERM
+preflight_quiesce
 run_checks
 sudo -n true 2>/dev/null || {
   echo "Sudo credentials are not primed. Run: sudo -v" >&2
@@ -338,6 +420,7 @@ mkdir -p "$OUT"
 
 RUN_LOG="$OUT/run.log"
 GPU_CSV="$OUT/gpu-telemetry.csv"
+NVML_CLOCK_CSV="$OUT/gpu-nvml-clock.csv"
 HOST_CSV="$OUT/host-telemetry.csv"
 REQUESTS_CSV="$OUT/requests.csv"
 EVENTS="$OUT/events.log"
@@ -372,7 +455,9 @@ exec > >(tee -a "$RUN_LOG") 2>&1
 declare -a WORKER_PIDS=()
 LOGGER_PID=""
 HOST_LOGGER_PID=""
-SERVICE_GUARD_PID=""
+NVML_LOGGER_PID=""
+SERVICE_GUARD_PID="$PREFLIGHT_SERVICE_GUARD_PID"
+PREFLIGHT_SERVICE_GUARD_PID=""
 GPU0_STARTED=0
 WORKLOAD_STARTED=0
 CLEANED_UP=0
@@ -436,10 +521,12 @@ cleanup() {
   stop_workers_now
   [[ -n "$LOGGER_PID" ]] && kill "$LOGGER_PID" 2>/dev/null
   [[ -n "$HOST_LOGGER_PID" ]] && kill "$HOST_LOGGER_PID" 2>/dev/null
+  [[ -n "$NVML_LOGGER_PID" ]] && kill "$NVML_LOGGER_PID" 2>/dev/null
   [[ -n "$SERVICE_GUARD_PID" ]] && kill "$SERVICE_GUARD_PID" 2>/dev/null
 
   [[ -n "$LOGGER_PID" ]] && wait "$LOGGER_PID" 2>/dev/null
   [[ -n "$HOST_LOGGER_PID" ]] && wait "$HOST_LOGGER_PID" 2>/dev/null
+  [[ -n "$NVML_LOGGER_PID" ]] && wait "$NVML_LOGGER_PID" 2>/dev/null
   [[ -n "$SERVICE_GUARD_PID" ]] && wait "$SERVICE_GUARD_PID" 2>/dev/null
 
   if [[ "$GPU0_STARTED" -eq 1 ]]; then
@@ -479,6 +566,12 @@ cleanup() {
   ) > "$CHECKSUMS"
   exit "$rc"
 }
+
+: > "$STOPPED_FILE"
+: > "$STOPPED_USER_SERVICES_FILE"
+for service in "${PREFLIGHT_STOPPED_USER_SERVICES[@]:-}"; do
+  [[ -n "$service" ]] && echo "$service" >> "$STOPPED_USER_SERVICES_FILE"
+done
 trap cleanup EXIT INT TERM
 
 exec 9>"$LOCK_FILE"
@@ -517,6 +610,8 @@ jq -n \
   --argjson max_idle_power_gpu0_w "$MAX_IDLE_POWER_GPU0_W" \
   --argjson max_idle_power_gpu1_w "$MAX_IDLE_POWER_GPU1_W" \
   --argjson telemetry_interval_ms "$TELEMETRY_INTERVAL_MS" \
+  --argjson nvml_clock_base_ms "$NVML_CLOCK_BASE_MS" \
+  --argjson nvml_clock_jitter_ms "$NVML_CLOCK_JITTER_MS" \
   --arg ambient_c "$AMBIENT_C" \
   '{
     tag:$tag,
@@ -543,6 +638,8 @@ jq -n \
     max_idle_power_gpu0_w:$max_idle_power_gpu0_w,
     max_idle_power_gpu1_w:$max_idle_power_gpu1_w,
     telemetry_interval_ms:$telemetry_interval_ms,
+    nvml_clock_base_ms:$nvml_clock_base_ms,
+    nvml_clock_jitter_ms:$nvml_clock_jitter_ms,
     ambient_c:(if $ambient_c == "" then null else ($ambient_c | tonumber) end)
   }' > "$OUT/run-config.json"
 
@@ -557,8 +654,6 @@ curl -fsS "http://127.0.0.1:${GPU1_PORT}/metrics" > "$OUT/gpu1-vllm-metrics-befo
 docker inspect "$SANCTUARY_CONTAINER" > "$OUT/sanctuary-inspect.json"
 
 log "Stopping GPU containers that conflict with an isolated GPU0 replica"
-: > "$STOPPED_FILE"
-: > "$STOPPED_USER_SERVICES_FILE"
 for service in "${CONFLICTING_USER_SERVICES[@]}"; do
   if systemctl --user is-active --quiet "$service"; then
     echo "$service" >> "$STOPPED_USER_SERVICES_FILE"
@@ -581,6 +676,10 @@ service_guard() {
     sleep 1
   done
 }
+if [[ -n "$SERVICE_GUARD_PID" ]]; then
+  kill "$SERVICE_GUARD_PID" 2>/dev/null || true
+  wait "$SERVICE_GUARD_PID" 2>/dev/null || true
+fi
 service_guard &
 SERVICE_GUARD_PID=$!
 for container in "${CONFLICTING_CONTAINERS[@]}"; do
@@ -746,6 +845,13 @@ gpu_logger &
 LOGGER_PID=$!
 host_logger &
 HOST_LOGGER_PID=$!
+python3 "$(dirname "$0")/nvml-clock-logger.py" \
+  --output "$NVML_CLOCK_CSV" \
+  --phase-file "$PHASE_FILE" \
+  --stop-file "$STOP_FILE" \
+  --base-ms "$NVML_CLOCK_BASE_MS" \
+  --jitter-ms "$NVML_CLOCK_JITTER_MS" &
+NVML_LOGGER_PID=$!
 for ((worker=0; worker<CONCURRENCY_GPU0; worker++)); do
   request_worker gpu0 "http://127.0.0.1:${GPU0_PORT}" "$GPU0_PAYLOAD" &
   WORKER_PIDS+=("$!")
@@ -760,6 +866,11 @@ printf 'warmup\n' > "$PHASE_FILE"
 printf '%s,warmup-started\n' "$(date -u +%FT%T.%3NZ)" >> "$EVENTS"
 log "Warm-up started (${WARMUP_S}s)"
 sleep "$WARMUP_S"
+
+kill -0 "$NVML_LOGGER_PID" 2>/dev/null || {
+  echo "Independent NVML clock logger exited during warm-up" >&2
+  exit 1
+}
 
 gate_window_s=$((WARMUP_S / 4))
 ((gate_window_s < 5)) && gate_window_s=5
@@ -913,9 +1024,10 @@ printf 'cooldown\n' > "$PHASE_FILE"
 log "Requests drained; logging ${COOLDOWN_S}s cooldown"
 sleep "$COOLDOWN_S"
 touch "$STOP_FILE"
-wait "$LOGGER_PID" "$HOST_LOGGER_PID" 2>/dev/null || true
+wait "$LOGGER_PID" "$HOST_LOGGER_PID" "$NVML_LOGGER_PID" 2>/dev/null || true
 LOGGER_PID=""
 HOST_LOGGER_PID=""
+NVML_LOGGER_PID=""
 
 nvidia-smi -q > "$OUT/nvidia-after.txt"
 nvidia-smi -q -x > "$OUT/nvidia-after.xml"

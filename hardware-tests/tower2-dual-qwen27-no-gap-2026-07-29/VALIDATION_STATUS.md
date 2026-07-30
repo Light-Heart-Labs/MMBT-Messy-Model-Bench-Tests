@@ -11,7 +11,7 @@ Two validation levels are tracked:
 
 | Cell | Internal admissible | Required | Transferable admissible | Status |
 |---|---:|---:|---:|---|
-| NG-SYM-250 | 0 | 3 | 0 | Clean n=3 campaign required |
+| NG-SYM-250 | 1 | 3 | 0 | Replicate 2 thermally admissible; clock channel flagged; two more internal replicates required |
 | NG-SYM-500 | 1 | 3 | 0 | Two internal replicates plus environmental instrumentation required |
 | NG-ASYM-600-400 | 1 | 3 | 0 | Two internal replicates plus environmental instrumentation required |
 | NG-SINGLE-B-250 | 1 | 3 | 0 | Replicate 2 admissible; two more internal replicates required |
@@ -20,7 +20,7 @@ Two validation levels are tracked:
 
 `NG-SINGLE-T-250` is the first cell to reach three internally admissible replicates. Replicates 2, 4, and 5 were independently initialized execution blocks with cleanup/cooldown between them, but all occurred during one campaign session. The cell is therefore validated for the internal Tower2/no-gap model with an explicit within-session limitation. No cell is transferable yet.
 
-[`VALIDATION_REGISTRY.csv`](VALIDATION_REGISTRY.csv) is the machine-readable run ledger. Every future run must declare a stable `cell_id` and `replicate`, and the registry must state whether it counts toward internal and transferable validation.
+[`VALIDATION_REGISTRY.csv`](VALIDATION_REGISTRY.csv) is the machine-readable run ledger. Every future run must declare a stable `cell_id` and `replicate`, and the registry must state whether it counts toward internal and transferable validation. The optional `metric_exclusions` field removes quality-flagged channels from aggregation without discarding otherwise admissible thermal or workload evidence.
 
 [`analysis/validation-aggregates.json`](analysis/validation-aggregates.json) and [`analysis/validation-aggregates.csv`](analysis/validation-aggregates.csv) are regenerated from the registry by `aggregate-validation.py`. They expose per-cell `n`, validation state, replicate membership, mean, sample standard deviation, coefficient of variation, and extrema for each modeled response.
 
