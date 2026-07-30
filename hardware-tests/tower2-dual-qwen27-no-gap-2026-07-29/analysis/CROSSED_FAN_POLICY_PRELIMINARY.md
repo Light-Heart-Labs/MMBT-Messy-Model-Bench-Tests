@@ -1,5 +1,10 @@
 # Preliminary crossed-fan policy result
 
+> Superseded by the replicated
+> [`MATCHED_RPM_FAN_POLICY_VALIDATED.md`](MATCHED_RPM_FAN_POLICY_VALIDATED.md)
+> result (`n=3` per policy). This file remains as the preregistered preliminary
+> interpretation of replicate 1.
+
 ## Result
 
 The first 250/250 W v2 triplet directly tested where a fixed aggregate fan

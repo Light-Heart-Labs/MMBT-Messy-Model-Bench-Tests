@@ -6,6 +6,16 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 ## Results
 
+The fixed-fan 250/250 W matched-RPM experiment is now internally validated at
+`n=3` per policy. See the
+[`validated analysis`](analysis/MATCHED_RPM_FAN_POLICY_VALIDATED.md), its
+[`publication figure`](analysis/matched-rpm-policy-n3.png), and the
+[`machine-readable effects`](analysis/matched-rpm-policy-effects-n3.csv).
+The first bounded fan-allocation artifact is
+[`fan-allocation-response-v1.json`](analysis/fan-allocation-response-v1.json);
+it permits interpolation only within 30/70–70/30 at 250/250 W and explicitly
+prohibits power or stack-size extrapolation.
+
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
 | [`ng-fan-b70-t30-sym250-v2-15m-r3`](ng-fan-b70-t30-sym250-v2-15m-r3/) | 45.66 C / 48 C / 70.0%, 2,157 RPM | 56.35 C / 59 C / 30.0%, 1,200 RPM | V2 bottom-biased policy internally validated at n=3; clocks balanced and counters zero |
