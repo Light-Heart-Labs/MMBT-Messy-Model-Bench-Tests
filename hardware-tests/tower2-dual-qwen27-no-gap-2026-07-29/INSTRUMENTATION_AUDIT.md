@@ -81,19 +81,35 @@ The independent NVML stream was added after `NG-SYM-250` replicate 2 reported a 
 
 ## Fixed-fan control status
 
-NV-CONTROL advertises `GPUFanControlState` and `GPUTargetFanSpeed`, but a
-fail-safe idle mapping test on 2026-07-29 found that target assignments return
-`Unknown Error` under the current X-server configuration. Both GPU control
-states were explicitly restored to automatic mode after the test. No
-fixed-fan result has been collected, and the presence of queryable attributes
-must not be described as working manual fan control.
+The first fail-safe idle mapping test returned `Unknown Error` for target
+assignments because Tower2 had an obsolete 510.47.03 `nvidia-settings` client
+against the active 595.58.03 driver. A temporarily extracted matching 595.58.03
+client successfully enabled manual control on idle GPU0, commanded both of its
+fans together, observed their duty/RPM ramp, and restored both GPUs to
+automatic mode. The matching `nvidia-settings` and `libxnvctrl0` packages were
+then installed without restarting X or the host.
 
-The likely missing prerequisite is an X-server Coolbits fan-control option.
-Enabling it would require an X configuration change and display-server restart
-or host reboot, which was not attempted while Tower2 was serving a live 600 W
-GPU1 production workload. Until a controlled maintenance window is approved,
-the campaign can collect actual RPM under the stock controller but cannot yet
-execute the fixed-fan identification matrix.
+The harness now rejects a client/driver version mismatch, rejects a start if
+either card is already in manual mode, accepts independent 30–100% fixed-fan
+targets, verifies both physical fans reach the target with nonzero RPM, records
+the policy in `run-config.json`, and restores automatic mode on normal,
+failed, interrupted, and thermal-abort exits. No fixed-fan loaded result has
+yet been admitted; each new power/fan combination still requires a safe bump
+test before a standard measured cell.
+
+The first harness-level bump (R1) exposed a privilege-context bug:
+NV-CONTROL assignments executed as the display user printed `Operation not
+permitted` but returned a successful process status. Because 30% was already
+the automatic idle value, a target/current-only check could falsely pass. The
+run was terminated during warmup and is published as an instrumentation
+failure with no measured window. The harness now performs assignments as root
+with GDM's Xauthority and explicitly requires `GPUFanControlState=1`.
+
+R2 then completed the guarded two-minute 250/250 W, 30/30% bump. All four fans
+delivered complete 1 Hz traces near 1,201 RPM, both fixed policies passed
+target tracking, and automatic state was verified after cleanup. The run is
+excluded from validation because temperatures remained non-steady, not because
+fan control failed.
 
 The summarizer now reports target-relative power saturation, telemetry completeness, temperature-limit margin, steady-state slopes, sampled counter deltas, request rate, ambient statistics when supplied, top-minus-bottom deltas, and independent NVML clock distributions. The validation registry supports per-run `metric_exclusions`, allowing a bad sensor channel to be removed from a model without discarding otherwise admissible thermal evidence.
 

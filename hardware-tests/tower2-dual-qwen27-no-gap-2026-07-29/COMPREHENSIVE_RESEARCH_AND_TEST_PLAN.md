@@ -54,6 +54,9 @@ Those are the identification problems this plan resolves.
 5. How does the answer change with ambient temperature and airflow?
 6. Does the observed asymmetry follow the physical position or the individual GPU?
 7. Can a two-card thermal network predict safe operating envelopes for three and four cards?
+8. Can cooler/lower-position cards improve whole-stack cooling by carrying
+   more fan duty, and what cooperative fan/power policy maximizes stack
+   throughput or thermal headroom for a chosen noise and fan-power budget?
 
 ### 3.2 Testable hypotheses
 
@@ -65,6 +68,14 @@ Those are the identification problems this plan resolves.
 - **H6 — identity confound:** Some portion of the gap follows the physical GPU because of cooler contact, fan performance, or voltage-frequency efficiency.
 - **H7 — workload dependence:** Prefill-heavy, decode-heavy, compute-heavy, and memory-heavy workloads yield different temperature and frequency surfaces at the same stated power.
 - **H8 — stack compounding:** A three- or four-card stack incurs more than a simple linear multiple of the two-card top-position penalty when airflow resistance and inlet heating compound.
+- **H9 — airflow free-riding:** Under independent automatic control, a cooler
+  lower card rejects substantial heat while running relatively slow fans,
+  leaving the hotter upstream/top card to supply disproportionate airflow and
+  approach its fan ceiling.
+- **H10 — cooperative fan benefit:** Increasing fan duty on a cooler
+  lower/upstream card can reduce a hotter card's local inlet/core temperature
+  or required fan duty enough to increase safe stack power or reduce peak
+  temperature at the same aggregate fan/noise budget.
 
 ## 4. Scope
 
@@ -77,6 +88,9 @@ Those are the identification problems this plan resolves.
 - Dense Qwen inference and selected synthetic/application workload classes.
 - GPU, host, environmental, electrical, acoustic, and workload telemetry.
 - Steady-state and transient thermal modeling.
+- Independent and cooperative per-card fan-control policies, including
+  deployment optimization for thermal headroom, throughput, fan power, wear,
+  and acoustics.
 - Bounded three- and four-card forecasts.
 
 ### 4.2 Out of scope for the first release
@@ -324,10 +338,11 @@ controlled inputs as well as measured outputs.
 
 Tower2 exposes four physical GPU fans through `nvidia-settings`, including
 commanded duty, current duty, and per-fan RPM. The verified mapping is fans
-0–1 for GPU0/bottom and fans 2–3 for GPU1/top. Manual target assignments fail
-under the current X-server configuration, so fixed-fan execution remains
-gated on a controlled Coolbits configuration/restart and a fail-safe idle
-validation; advertised attributes alone are not proof that control works.
+0–1 for GPU0/bottom and fans 2–3 for GPU1/top. After replacing the mismatched
+510 client with the driver-matched 595.58.03 client, a fail-safe idle test
+verified independent manual targets and automatic-control restoration without
+an X restart. Fixed-fan execution is now gated by per-cell bump testing rather
+than missing control capability.
 
 Run two complementary families:
 
@@ -346,6 +361,20 @@ At minimum, run three valid replicates of:
 | 400/400 | 50/50, 70/70, 85/85 | selected high-information pairs |
 | 500/500 | 70/70, 85/85, 100/100 bump first | selected safe pairs |
 | 250/idle and idle/250 | 30/30, 50/50, 70/70, 85/85 | sweep the idle neighbor's fan |
+
+Add constant aggregate-fan-budget allocation sweeps so cooperative policies
+are compared fairly rather than simply using more cooling:
+
+| Aggregate commanded duty | Bottom/top allocation patterns |
+|---:|---|
+| 100 percentage points | 30/70, 40/60, 50/50, 60/40, 70/30 |
+| 130 percentage points | 50/80, 60/70, 65/65, 70/60, 80/50 |
+| 160 percentage points | 60/100, 70/90, 80/80, 90/70, 100/60 |
+
+For each fan budget, compare maximum card temperature, temperature spread,
+minimum thermal-limit margin, fan RPM/power/noise proxy, clock, throughput,
+and remaining fan authority. The recommended policy may be unequal even at
+equal GPU power.
 
 The single-loaded crossed-fan cells directly test the “fans in series” idea:
 hold the loaded card's power and fan fixed, then change only the neighboring

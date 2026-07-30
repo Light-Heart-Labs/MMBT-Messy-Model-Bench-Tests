@@ -27,6 +27,8 @@ MIN_WARMUP_POWER_GPU0_W=""
 MIN_WARMUP_POWER_GPU1_W=""
 GPU0_POWER_LIMIT_W=600
 GPU1_POWER_LIMIT_W=600
+GPU0_FIXED_FAN_PCT=""
+GPU1_FIXED_FAN_PCT=""
 GPU_ABORT_C=92
 MAX_START_TEMP_GPU0_C=45
 MAX_START_TEMP_GPU1_C=45
@@ -82,6 +84,8 @@ Options:
   --min-power-gpu1 W       Required GPU1 warm-up mean (overrides --min-power)
   --gpu0-power-limit W     GPU0/bottom power limit (default: 600)
   --gpu1-power-limit W     GPU1/top power limit (default: 600)
+  --gpu0-fan-pct PCT       Fix both GPU0 fans at 30-100%; omitted means automatic
+  --gpu1-fan-pct PCT       Fix both GPU1 fans at 30-100%; omitted means automatic
   --gpu-abort-c C          Emergency GPU-temperature cutoff (default: 92)
   --max-start-temp-gpu0 C Maximum allowed GPU0 pre-run temperature (default: 45)
   --max-start-temp-gpu1 C Maximum allowed GPU1 pre-run temperature (default: 45)
@@ -120,6 +124,8 @@ while (($#)); do
     --min-power-gpu1) MIN_WARMUP_POWER_GPU1_W="${2:?missing value for --min-power-gpu1}"; shift 2 ;;
     --gpu0-power-limit) GPU0_POWER_LIMIT_W="${2:?missing value for --gpu0-power-limit}"; shift 2 ;;
     --gpu1-power-limit) GPU1_POWER_LIMIT_W="${2:?missing value for --gpu1-power-limit}"; shift 2 ;;
+    --gpu0-fan-pct) GPU0_FIXED_FAN_PCT="${2:?missing value for --gpu0-fan-pct}"; shift 2 ;;
+    --gpu1-fan-pct) GPU1_FIXED_FAN_PCT="${2:?missing value for --gpu1-fan-pct}"; shift 2 ;;
     --gpu-abort-c) GPU_ABORT_C="${2:?missing value for --gpu-abort-c}"; shift 2 ;;
     --max-start-temp-gpu0) MAX_START_TEMP_GPU0_C="${2:?missing value for --max-start-temp-gpu0}"; shift 2 ;;
     --max-start-temp-gpu1) MAX_START_TEMP_GPU1_C="${2:?missing value for --max-start-temp-gpu1}"; shift 2 ;;
@@ -184,6 +190,17 @@ for value in MIN_WARMUP_POWER_GPU0_W MIN_WARMUP_POWER_GPU1_W GPU0_POWER_LIMIT_W 
     echo "$value must be numeric" >&2
     exit 2
   }
+done
+for value in GPU0_FIXED_FAN_PCT GPU1_FIXED_FAN_PCT; do
+  candidate="${!value}"
+  [[ -z "$candidate" || "$candidate" =~ ^[0-9]+$ ]] || {
+    echo "$value must be an integer from 30 through 100" >&2
+    exit 2
+  }
+  if [[ -n "$candidate" ]] && ((candidate < 30 || candidate > 100)); then
+    echo "$value must be from 30 through 100" >&2
+    exit 2
+  fi
 done
 for value in GPU_ABORT_C MAX_START_TEMP_GPU0_C MAX_START_TEMP_GPU1_C; do
   [[ "${!value}" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
@@ -250,6 +267,13 @@ telemetry_probe() {
     --format=csv,noheader,nounits
 }
 
+nvidia_settings() {
+  sudo -n env \
+    DISPLAY="$NVIDIA_SETTINGS_DISPLAY" \
+    XAUTHORITY="$NVIDIA_SETTINGS_XAUTHORITY" \
+    nvidia-settings "$@"
+}
+
 fan_telemetry_probe() {
   local -a query_args=()
   local fan
@@ -260,10 +284,7 @@ fan_telemetry_probe() {
       -q "[fan:${fan}]/GPUCurrentFanSpeedRPM"
     )
   done
-  sudo -n -u gdm env \
-    DISPLAY="$NVIDIA_SETTINGS_DISPLAY" \
-    XAUTHORITY="$NVIDIA_SETTINGS_XAUTHORITY" \
-    nvidia-settings -t "${query_args[@]}"
+  nvidia_settings -t "${query_args[@]}"
 }
 
 run_checks() {
@@ -302,12 +323,32 @@ run_checks() {
     echo "Required NVIDIA telemetry fields are unavailable" >&2
     failed=1
   }
-  sudo -n -u gdm test -r "$NVIDIA_SETTINGS_XAUTHORITY" || {
+  sudo -n test -r "$NVIDIA_SETTINGS_XAUTHORITY" || {
     echo "NVIDIA X authority is unavailable: $NVIDIA_SETTINGS_XAUTHORITY" >&2
     failed=1
   }
   [[ "$(fan_telemetry_probe 2>/dev/null | wc -l)" -eq 12 ]] || {
     echo "Four-fan duty/target/RPM telemetry is unavailable" >&2
+    failed=1
+  }
+  local driver_version settings_version
+  driver_version="$(
+    nvidia-smi --query-gpu=driver_version --format=csv,noheader \
+      | head -1 | tr -d ' '
+  )"
+  settings_version="$(
+    nvidia-settings --version 2>&1 \
+      | awk '/nvidia-settings:  version/{print $3; exit}'
+  )"
+  [[ "$settings_version" == "$driver_version" ]] || {
+    echo "nvidia-settings ${settings_version:-unknown} does not match driver $driver_version" >&2
+    failed=1
+  }
+  local fan_control_state0 fan_control_state1
+  fan_control_state0="$(nvidia_settings -t -q '[gpu:0]/GPUFanControlState' 2>/dev/null || true)"
+  fan_control_state1="$(nvidia_settings -t -q '[gpu:1]/GPUFanControlState' 2>/dev/null || true)"
+  [[ "$fan_control_state0" == "0" && "$fan_control_state1" == "0" ]] || {
+    echo "GPU fans must begin in automatic mode; states are GPU0=$fan_control_state0 GPU1=$fan_control_state1" >&2
     failed=1
   }
 
@@ -531,6 +572,58 @@ PREFLIGHT_SERVICE_GUARD_PID=""
 GPU0_STARTED=0
 WORKLOAD_STARTED=0
 CLEANED_UP=0
+FAN_CONTROL_CHANGED=0
+
+restore_automatic_fans() {
+  local state0 state1
+  if [[ "$FAN_CONTROL_CHANGED" -eq 1 ]]; then
+    nvidia_settings -a '[gpu:0]/GPUFanControlState=0' >/dev/null
+    nvidia_settings -a '[gpu:1]/GPUFanControlState=0' >/dev/null
+    state0="$(nvidia_settings -t -q '[gpu:0]/GPUFanControlState')"
+    state1="$(nvidia_settings -t -q '[gpu:1]/GPUFanControlState')"
+    [[ "$state0" == "0" && "$state1" == "0" ]] || {
+      echo "Failed to restore automatic fan control: GPU0=$state0 GPU1=$state1" >&2
+      return 1
+    }
+    FAN_CONTROL_CHANGED=0
+  fi
+}
+
+set_fixed_fan_pair() {
+  local gpu="$1" target="$2"
+  local fan_a=$((gpu * 2)) fan_b=$((gpu * 2 + 1))
+  local attempt current_a current_b target_a target_b rpm_a rpm_b
+
+  [[ -n "$target" ]] || return 0
+  FAN_CONTROL_CHANGED=1
+  nvidia_settings -a "[gpu:${gpu}]/GPUFanControlState=1" >/dev/null
+  [[ "$(nvidia_settings -t -q "[gpu:${gpu}]/GPUFanControlState")" == "1" ]] || {
+    echo "GPU${gpu} manual fan-control state did not engage" >&2
+    return 1
+  }
+  nvidia_settings -a "[fan:${fan_a}]/GPUTargetFanSpeed=${target}" >/dev/null
+  nvidia_settings -a "[fan:${fan_b}]/GPUTargetFanSpeed=${target}" >/dev/null
+
+  for attempt in $(seq 1 30); do
+    current_a="$(nvidia_settings -t -q "[fan:${fan_a}]/GPUCurrentFanSpeed")"
+    current_b="$(nvidia_settings -t -q "[fan:${fan_b}]/GPUCurrentFanSpeed")"
+    target_a="$(nvidia_settings -t -q "[fan:${fan_a}]/GPUTargetFanSpeed")"
+    target_b="$(nvidia_settings -t -q "[fan:${fan_b}]/GPUTargetFanSpeed")"
+    rpm_a="$(nvidia_settings -t -q "[fan:${fan_a}]/GPUCurrentFanSpeedRPM")"
+    rpm_b="$(nvidia_settings -t -q "[fan:${fan_b}]/GPUCurrentFanSpeedRPM")"
+    if [[ "$target_a" == "$target" && "$target_b" == "$target" ]] \
+      && ((rpm_a > 0 && rpm_b > 0)) \
+      && ((current_a >= target - 2 && current_a <= target + 2)) \
+      && ((current_b >= target - 2 && current_b <= target + 2)); then
+      log "Fixed GPU${gpu} fans ${fan_a}/${fan_b} at ${target}%: ${current_a}%/${rpm_a} RPM, ${current_b}%/${rpm_b} RPM"
+      return 0
+    fi
+    sleep 1
+  done
+
+  echo "GPU${gpu} fans failed to reach ${target}%: fan${fan_a}=${current_a}%/${rpm_a}RPM target=${target_a}; fan${fan_b}=${current_b}%/${rpm_b}RPM target=${target_b}" >&2
+  return 1
+}
 
 stop_workers_now() {
   touch "$WORKERS_STOP_FILE"
@@ -589,6 +682,7 @@ cleanup() {
   set +e
   touch "$STOP_FILE"
   stop_workers_now
+  restore_automatic_fans
   [[ -n "$LOGGER_PID" ]] && kill "$LOGGER_PID" 2>/dev/null
   [[ -n "$FAN_LOGGER_PID" ]] && kill "$FAN_LOGGER_PID" 2>/dev/null
   [[ -n "$HOST_LOGGER_PID" ]] && kill "$HOST_LOGGER_PID" 2>/dev/null
@@ -678,6 +772,8 @@ jq -n \
   --argjson min_warmup_power_gpu1_w "$MIN_WARMUP_POWER_GPU1_W" \
   --argjson gpu0_power_limit_w "$GPU0_POWER_LIMIT_W" \
   --argjson gpu1_power_limit_w "$GPU1_POWER_LIMIT_W" \
+  --arg gpu0_fixed_fan_pct "$GPU0_FIXED_FAN_PCT" \
+  --arg gpu1_fixed_fan_pct "$GPU1_FIXED_FAN_PCT" \
   --argjson gpu_abort_c "$GPU_ABORT_C" \
   --argjson max_start_temp_gpu0_c "$MAX_START_TEMP_GPU0_C" \
   --argjson max_start_temp_gpu1_c "$MAX_START_TEMP_GPU1_C" \
@@ -708,6 +804,18 @@ jq -n \
     min_warmup_power_gpu1_w:$min_warmup_power_gpu1_w,
     gpu0_power_limit_w:$gpu0_power_limit_w,
     gpu1_power_limit_w:$gpu1_power_limit_w,
+    gpu0_fan_policy:(
+      if $gpu0_fixed_fan_pct == ""
+      then {mode:"automatic",target_pct:null}
+      else {mode:"fixed",target_pct:($gpu0_fixed_fan_pct | tonumber)}
+      end
+    ),
+    gpu1_fan_policy:(
+      if $gpu1_fixed_fan_pct == ""
+      then {mode:"automatic",target_pct:null}
+      else {mode:"fixed",target_pct:($gpu1_fixed_fan_pct | tonumber)}
+      end
+    ),
     gpu_abort_c:$gpu_abort_c,
     max_start_temp_gpu0_c:$max_start_temp_gpu0_c,
     max_start_temp_gpu1_c:$max_start_temp_gpu1_c,
@@ -841,6 +949,15 @@ if ((CONCURRENCY_GPU0 > 0)); then
   }
 else
   log "GPU0 concurrency is 0; leaving GPU0 isolated and idle"
+fi
+
+set_fixed_fan_pair 0 "$GPU0_FIXED_FAN_PCT"
+set_fixed_fan_pair 1 "$GPU1_FIXED_FAN_PCT"
+if [[ -n "$GPU0_FIXED_FAN_PCT" || -n "$GPU1_FIXED_FAN_PCT" ]]; then
+  printf '%s,fixed-fan-policy-applied,gpu0=%s,gpu1=%s\n' \
+    "$(date -u +%FT%T.%3NZ)" \
+    "${GPU0_FIXED_FAN_PCT:-auto}" "${GPU1_FIXED_FAN_PCT:-auto}" \
+    >> "$EVENTS"
 fi
 
 PROMPT="Write a continuous, highly detailed technical analysis of a hypothetical datacenter cooling incident. Keep generating dense explanatory prose, calculations, diagnostics, and remediation steps until the token limit."
@@ -1159,6 +1276,11 @@ LOGGER_PID=""
 FAN_LOGGER_PID=""
 HOST_LOGGER_PID=""
 NVML_LOGGER_PID=""
+if [[ "$FAN_CONTROL_CHANGED" -eq 1 ]]; then
+  restore_automatic_fans
+  printf '%s,automatic-fan-control-restored\n' "$(date -u +%FT%T.%3NZ)" >> "$EVENTS"
+  sleep 3
+fi
 
 nvidia-smi -q > "$OUT/nvidia-after.txt"
 nvidia-smi -q -x > "$OUT/nvidia-after.xml"

@@ -2,8 +2,9 @@
 
 ## Scope
 
-Every completed load cell so far used NVIDIA's stock automatic fan controller.
-These data therefore describe **closed-loop operating points**:
+Every completed standard load cell before the new fixed-fan bump used NVIDIA's
+stock automatic fan controller. Those data therefore describe **closed-loop
+operating points**:
 
 ```text
 power + inlet conditions + layout -> temperature -> fan command -> temperature
@@ -12,6 +13,33 @@ power + inlet conditions + layout -> temperature -> fan command -> temperature
 They do not identify a position-only thermal resistance at equal airflow. The
 raw source table is
 [`auto-fan-operating-points.csv`](auto-fan-operating-points.csv).
+
+The campaign has now also completed its first successful fixed-fan safety
+bump. Fixed-fan results are tracked separately in
+[`fan-controlled-operating-points.csv`](fan-controlled-operating-points.csv)
+so transient control checks cannot be mistaken for steady automatic-controller
+cells.
+
+## First fixed-fan evidence
+
+`NG-FAN-EQ30-SYM250-BUMP` R2 held both GPUs at 250 W/100% utilization while all
+four physical fans remained at exactly 30% and approximately 1,201 RPM. Across
+the two-minute measured window:
+
+| Metric | Bottom | Top |
+|---|---:|---:|
+| Mean / maximum temperature | 48.116 / 51°C | 57.321 / 64°C |
+| End-of-window temperature | 50°C | 63°C |
+| Closing temperature slope | +2.8106°C/min | +6.1990°C/min |
+| Mean graphics clock | 814.911 MHz | 802.017 MHz |
+
+The top averaged 9.205°C hotter and ended 13°C hotter under genuinely equal fan
+duty and RPM. This is the first direct observation with controller response
+removed, but it is not an equilibrium coefficient: both cards—especially the
+top—were still warming quickly. Its value is proof of independent control,
+RPM measurement, directional divergence, safety cutoff operation, and
+automatic restoration. A longer guarded exposure is required to find the
+30/30% equilibrium or its safe boundary.
 
 ## What is established now
 
@@ -114,9 +142,9 @@ Two complementary output models should be published:
 2. **Fixed-airflow model:** predicts intrinsic self/cross heating at controlled
    fan RPM and measured local inlet conditions.
 
-The fixed-fan matrix is currently gated by Tower2's X-server configuration:
-NV-CONTROL fan target assignments fail even though duty and RPM are readable.
-Enabling and validating that capability requires a maintenance window for an
-X configuration change/restart. Beginning with the next admissible run, all
-four physical fan RPMs are logged at 1 Hz so the automatic-controller model can
-advance immediately.
+The original fixed-fan test failed because the installed 510
+`nvidia-settings` client did not match the active 595.58.03 driver. A matching
+client successfully commanded and restored both physical fans on the idle
+bottom card, and the matched package is now installed. Beginning with the next
+admissible run, all four physical fan RPMs are logged at 1 Hz. Fixed-fan loaded
+cells can now proceed through the required bump-test sequence.

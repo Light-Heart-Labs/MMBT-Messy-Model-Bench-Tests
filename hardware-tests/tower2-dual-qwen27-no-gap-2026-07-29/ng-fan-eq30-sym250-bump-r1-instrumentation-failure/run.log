@@ -1,0 +1,107 @@
+[2026-07-30T02:51:10Z] Output: /home/michael/thermal-tests/runs/2026-07-30T02-51-10Z-ng-fan-eq30-sym250-bump
+[2026-07-30T02:51:11Z] Stopping GPU containers that conflict with an isolated GPU0 replica
+ods-llama-server
+ods-whisper
+ods-comfyui
+ods-embeddings
+[2026-07-30T02:51:47Z] Setting GPU0/bottom to 250 W and GPU1/top to 250 W
+Power limit for GPU 00000000:01:00.0 was set to 250.00 W from 600.00 W.
+All done.
+Power limit for GPU 00000000:E1:00.0 was set to 250.00 W from 600.00 W.
+All done.
+[2026-07-30T02:51:48Z] Launching identical Qwen3.6-27B AWQ-INT4 vLLM replica on GPU0
+c81a6196bcd34752b7957e3027eac1982a400d529cb5802cfe0b081d3da4f65f
+[2026-07-30T02:51:48Z] Waiting for GPU0 vLLM readiness
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+
+ERROR: The current user does not have permission for operation
+
+
+ERROR: Error assigning value 1 to attribute 'GPUFanControlState' (Tower2:0[gpu:0]) as specified in assignment '[gpu:0]/GPUFanControlState=1' (Operation not permitted for the current user).
+
+
+ERROR: The current user does not have permission for operation
+
+
+ERROR: Error assigning value 30 to attribute 'GPUTargetFanSpeed' (Tower2:0[fan:0]) as specified in assignment '[fan:0]/GPUTargetFanSpeed=30' (Operation not permitted for the current user).
+
+
+ERROR: The current user does not have permission for operation
+
+
+ERROR: Error assigning value 30 to attribute 'GPUTargetFanSpeed' (Tower2:0[fan:1]) as specified in assignment '[fan:1]/GPUTargetFanSpeed=30' (Operation not permitted for the current user).
+
+[2026-07-30T02:55:04Z] Fixed GPU0 fans 0/1 at 30%: 30%/1200 RPM, 30%/1200 RPM
+
+ERROR: The current user does not have permission for operation
+
+
+ERROR: Error assigning value 1 to attribute 'GPUFanControlState' (Tower2:0[gpu:1]) as specified in assignment '[gpu:1]/GPUFanControlState=1' (Operation not permitted for the current user).
+
+
+ERROR: The current user does not have permission for operation
+
+
+ERROR: Error assigning value 30 to attribute 'GPUTargetFanSpeed' (Tower2:0[fan:2]) as specified in assignment '[fan:2]/GPUTargetFanSpeed=30' (Operation not permitted for the current user).
+
+
+ERROR: The current user does not have permission for operation
+
+
+ERROR: Error assigning value 30 to attribute 'GPUTargetFanSpeed' (Tower2:0[fan:3]) as specified in assignment '[fan:3]/GPUTargetFanSpeed=30' (Operation not permitted for the current user).
+
+[2026-07-30T02:55:05Z] Fixed GPU1 fans 2/3 at 30%: 30%/1200 RPM, 30%/1201 RPM
+[2026-07-30T02:55:05Z] Starting 250 ms GPU telemetry; workers GPU0=32 GPU1=32
+[2026-07-30T02:55:05Z] Warm-up started (60s)
+
+ERROR: The current user does not have permission for operation
+
+
+ERROR: Error assigning value 0 to attribute 'GPUFanControlState' (Tower2:0[gpu:0]) as specified in assignment '[gpu:0]/GPUFanControlState=0' (Operation not permitted for the current user).
+
+
+ERROR: The current user does not have permission for operation
+
+
+ERROR: Error assigning value 0 to attribute 'GPUFanControlState' (Tower2:0[gpu:1]) as specified in assignment '[gpu:1]/GPUFanControlState=0' (Operation not permitted for the current user).
+
+[2026-07-30T02:56:11Z] Interrupted/failed workload; restarting Sanctuary to clear admitted requests
+[2026-07-30T02:57:13Z] Cleanup complete; original GPU services and power limits restored

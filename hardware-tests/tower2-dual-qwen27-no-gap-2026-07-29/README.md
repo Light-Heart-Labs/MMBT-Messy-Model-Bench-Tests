@@ -8,6 +8,8 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-eq30-sym250-bump-r2`](ng-fan-eq30-sym250-bump-r2/) | 48.12°C / 51°C / 30.0%, 1,201 RPM | 57.32°C / 64°C / 30.0%, 1,201 RPM | Successful 2m fixed-fan bump; excluded as intentionally non-steady |
+| [`ng-fan-eq30-sym250-bump-r1-instrumentation-failure`](ng-fan-eq30-sym250-bump-r1-instrumentation-failure/) | Warmup only | Warmup only | Excluded: privilege-context bug prevented manual state; caught before measurement |
 | [`ng-single-b-250-r3-excluded`](ng-single-b-250-r3-excluded/) | 53.66°C / 56°C / 31.8% mean | Isolated idle: 44.91°C / 47°C / 30.0% mean | Excluded: GPU0 fan and GPU1 temperature remained non-steady |
 | [`ng-sym-250-r2`](ng-sym-250-r2/) | 52.73°C / 55°C / 31.2% mean | 67.61°C / 71°C / 40.5% mean | Thermally admissible n=1/3; counters zero; GPU1 clock channel flagged |
 | [`ng-single-b-250-r2`](ng-single-b-250-r2/) | 53.47°C / 56°C / 31.5% mean | Isolated idle: 44.27°C / 46°C / 30.0% mean | Internally admissible n=1/3; thermal counters zero |
@@ -43,6 +45,16 @@ The first clean symmetric replicate, `NG-SYM-250` R2, reproduced the pilot’s t
 
 `NG-SINGLE-B-250` R3 completed cleanly but is excluded because the idle top temperature was still rising at +0.4834°C/min and the loaded bottom fan at +0.4158 pp/min over the closing three minutes. It followed an unrelated 600 W production heat load on the top card, showing that a cool GPU core does not prove the surrounding chassis/inter-card thermal mass has equilibrated. The run also validated the randomized NVML clock sampler: its 799.476 MHz GPU0 mean agreed with the primary logger’s 799.680 MHz mean to within 0.026%.
 
+The first successful fixed-fan exposure, `NG-FAN-EQ30-SYM250-BUMP` R2,
+held all four fans at 30% and approximately 1,201 RPM while both GPUs sustained
+250 W and 100% utilization. Over the intentionally short two-minute measured
+window, the bottom averaged 48.116°C and the top 57.321°C; the top-minus-bottom
+mean was 9.205°C and the end-of-window gap was 13°C. Both cards were still
+heating rapidly (+2.8106 and +6.1990°C/min), so this is control/safety
+validation rather than equilibrium evidence. Manual states were verified
+during load, all four RPM streams were complete, and automatic control was
+verified after cleanup.
+
 [`STACKED_GPU_RESEARCH_PLAN.md`](STACKED_GPU_RESEARCH_PLAN.md) defines the controlled matrix, instrumentation, reduced-order thermal model, and publication formats intended to turn the two-card measurements into bounded three- and four-card stack forecasts.
 
 [`COMPREHENSIVE_RESEARCH_AND_TEST_PLAN.md`](COMPREHENSIVE_RESEARCH_AND_TEST_PLAN.md) is the canonical execution plan with hypotheses, exact test tiers, acceptance and safety gates, statistical methods, data architecture, model validation, resource estimates, and the publication package.
@@ -53,9 +65,10 @@ Beginning with the next run, the harness also records all four physical GPU
 fans in `gpu-fan-telemetry.csv`: fans 0–1 are GPU0/bottom and fans 2–3 are
 GPU1/top. Each sample includes current and target duty plus actual RPM, and new
 runs cannot qualify if that channel is missing or incomplete. Fixed-fan
-targets are not yet available under Tower2's current X-server configuration;
-the advertised NV-CONTROL assignments fail, so all published runs to date use
-the stock automatic controller.
+targets became available after replacing an obsolete 510 `nvidia-settings`
+client with the 595.58.03 build matching the active driver. All published runs
+to date still use the stock automatic controller; loaded fixed-fan cells begin
+only after bump-test validation.
 
 [`VALIDATION_STATUS.md`](VALIDATION_STATUS.md) and [`VALIDATION_REGISTRY.csv`](VALIDATION_REGISTRY.csv) enforce the campaign-wide `n >= 3` rule. Qualified pilots and excluded runs remain visible but never count toward the three admissible replicates required for validation.
 
@@ -65,7 +78,9 @@ the stock automatic controller.
 separates what the stock automatic-controller results establish from the
 fixed-airflow questions they cannot yet answer. Its machine-readable source
 table is
-[`analysis/auto-fan-operating-points.csv`](analysis/auto-fan-operating-points.csv).
+[`analysis/auto-fan-operating-points.csv`](analysis/auto-fan-operating-points.csv);
+fixed-fan observations are kept separately in
+[`analysis/fan-controlled-operating-points.csv`](analysis/fan-controlled-operating-points.csv).
 
 [`analysis/250W_PRELIMINARY_COUPLING.md`](analysis/250W_PRELIMINARY_COUPLING.md) compares the equal-load and bottom-only 250 W cells. It finds a strong bottom-to-top heating signal and no resolvable top-to-bottom penalty yet; the reverse isolation cell and randomized repeats are still required before fitting directional coefficients.
 

@@ -438,6 +438,38 @@ fan_telemetry_pass = (
         for fan in summary["fan_telemetry"]["fans"].values()
     )
 )
+fan_policy_tracking = {}
+for gpu in ("0", "1"):
+    policy = config.get(f"gpu{gpu}_fan_policy", {"mode": "automatic"})
+    target = number(policy.get("target_pct"))
+    relevant_fans = [
+        fan
+        for fan in summary["fan_telemetry"]["fans"].values()
+        if str(fan["gpu"]) == gpu
+    ]
+    if policy.get("mode") == "fixed":
+        passed = (
+            target is not None
+            and len(relevant_fans) == 2
+            and all(
+                fan["target_pct"] is not None
+                and fan["target_pct"]["min"] == target
+                and fan["target_pct"]["max"] == target
+                and fan["absolute_target_tracking_error_pct"] is not None
+                and fan["absolute_target_tracking_error_pct"]["p95"] <= 2
+                for fan in relevant_fans
+            )
+        )
+    else:
+        passed = True
+    fan_policy_tracking[gpu] = {
+        "mode": policy.get("mode", "automatic"),
+        "target_pct": target,
+        "pass": passed,
+    }
+fan_policy_tracking_pass = all(
+    policy["pass"] for policy in fan_policy_tracking.values()
+)
 
 per_gpu_quality = {}
 for gpu, gpu_summary in summary["gpus"].items():
@@ -480,12 +512,14 @@ internal_candidate = workload_isolation_pass and all(
         else gates["idle_power_gate_pass"] is True
     )
     for gates in per_gpu_quality.values()
-) and (fan_telemetry_pass or not fan_telemetry_required)
+) and (fan_telemetry_pass or not fan_telemetry_required) and fan_policy_tracking_pass
 summary["quality_gates"] = {
     "per_gpu": per_gpu_quality,
     "workload_isolation_pass": workload_isolation_pass,
     "fan_telemetry_required": fan_telemetry_required,
     "fan_telemetry_pass": fan_telemetry_pass,
+    "fan_policy_tracking": fan_policy_tracking,
+    "fan_policy_tracking_pass": fan_policy_tracking_pass,
     "internal_admissible_candidate": internal_candidate,
     "transferable_admissible_candidate": (
         internal_candidate and summary["host"]["ambient_c"] is not None

@@ -73,11 +73,22 @@ status_label = (
     else "PASS"
 )
 
-rows = {"0": [], "1": []}
+all_rows = []
 with (run_dir / "gpu-telemetry.csv").open(newline="", encoding="utf-8") as handle:
-    for row in csv.DictReader(handle):
-        if row.get("phase", "").strip() == "measured":
-            rows[row["index"].strip()].append(row)
+    all_rows = list(csv.DictReader(handle))
+
+available_phases = {row.get("phase", "").strip() for row in all_rows}
+selected_phase = (
+    "measured"
+    if "measured" in available_phases
+    else "warmup"
+    if "warmup" in available_phases
+    else next(iter(available_phases), "unknown")
+)
+rows = {"0": [], "1": []}
+for row in all_rows:
+    if row.get("phase", "").strip() == selected_phase:
+        rows[row["index"].strip()].append(row)
 
 t0 = min(numeric(row["ts_mono_s"]) for gpu_rows in rows.values() for row in gpu_rows)
 metrics = (
@@ -136,17 +147,40 @@ else:
 if partial or excluded:
     title = status_label + " · " + title
 draw.text((70, 38), title, fill=text, font=font(38, True))
-subtitle = (
-    f"Qwen3.6-27B AWQ-INT4 · "
-    + (
+if partial and selected_phase == "measured":
+    window_text = (
         f"{max(point[0] for points in series.values() for point in points):.1f} of "
-        f"{config['duration_s'] / 60:g} measured minutes · "
-        if partial
-        else f"{config['duration_s'] // 60}-minute measured window · "
+        f"{config['duration_s'] / 60:g} measured minutes"
     )
-    +
+elif partial:
+    window_text = (
+        f"{max(point[0] for points in series.values() for point in points):.1f}-minute "
+        f"{selected_phase}-only trace"
+    )
+else:
+    window_text = f"{config['duration_s'] // 60}-minute measured window"
+subtitle = (
+    f"Qwen3.6-27B AWQ-INT4 · {window_text} · "
     f"GPU0 bottom {role['0']}, GPU1 top {role['1']}"
 )
+fan_policy_labels = []
+run_log_text = (
+    (run_dir / "run.log").read_text(encoding="utf-8", errors="replace")
+    if (run_dir / "run.log").exists()
+    else ""
+)
+fan_control_failed = "Operation not permitted" in run_log_text
+if fan_control_failed:
+    subtitle += " · requested fixed-fan control failed"
+else:
+    for gpu in ("0", "1"):
+        policy = config.get(f"gpu{gpu}_fan_policy", {"mode": "automatic"})
+        fan_policy_labels.append(
+            f"GPU{gpu} {policy.get('target_pct'):g}% fixed"
+            if policy.get("mode") == "fixed"
+            else f"GPU{gpu} auto"
+        )
+    subtitle += " · fans " + " / ".join(fan_policy_labels)
 if config.get("cell_id"):
     subtitle += f" · {config['cell_id']} R{config.get('replicate', 1)}"
 draw.text((70, 92), subtitle, fill=muted, font=font(22))
