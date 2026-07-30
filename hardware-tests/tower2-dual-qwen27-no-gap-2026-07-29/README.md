@@ -18,6 +18,7 @@ prohibits power or stack-size extrapolation.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b60-t40-sym250-v2-15m-r2`](ng-fan-b60-t40-sym250-v2-15m-r2/) | 45.89 C / 48 C / 60.0%, 1,917 RPM | 57.32 C / 60 C / 40.0%, 1,439 RPM | V2 interpolation check n=2/3; tightly reproduced R1; counters zero |
 | [`ng-fan-b60-t40-sym250-v2-15m-r1`](ng-fan-b60-t40-sym250-v2-15m-r1/) | 45.92 C / 48 C / 60.0%, 1,917 RPM | 57.28 C / 60 C / 40.0%, 1,439 RPM | V2 interpolation check n=1/3; small thermal prediction error; counters zero |
 | [`ng-fan-b70-t30-sym250-v2-15m-r3`](ng-fan-b70-t30-sym250-v2-15m-r3/) | 45.66 C / 48 C / 70.0%, 2,157 RPM | 56.35 C / 59 C / 30.0%, 1,200 RPM | V2 bottom-biased policy internally validated at n=3; clocks balanced and counters zero |
 | [`ng-fan-b30-t70-sym250-v2-15m-r3`](ng-fan-b30-t70-sym250-v2-15m-r3/) | 46.66 C / 49 C / 30.0%, 1,200 RPM | 57.01 C / 60 C / 70.0%, 2,157 RPM | V2 reverse policy internally validated at n=3; repeated top throughput deficit |
