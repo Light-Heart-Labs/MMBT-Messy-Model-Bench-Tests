@@ -1,8 +1,11 @@
 # Own-fan versus neighbor-fan mechanism isolation
 
-**Status:** prospective; execution-ready after an idle V3HOST preflight  
-**Configuration:** current no-gap layout  
-**First power anchor:** one loaded GPU at a continuously enforced 300 W cap  
+**Status:** prospective; execution-ready after an idle V3HOST preflight
+
+**Configuration:** current no-gap layout
+
+**First power anchor:** one loaded GPU at a continuously enforced 300 W cap
+
 **Purpose:** separate local fan/power-budget effects from shared airflow
 
 ## 1. Identification problem
@@ -122,4 +125,3 @@ promoted only when:
 Family D, crossed dual-load confirmation, is run only after Families A-C
 produce coefficients. It tests whether those coefficients prospectively
 predict the existing 40/60 versus 60/40 redistribution at 300/300 W.
-

@@ -1,8 +1,10 @@
 # Tower2 spacing-response protocol
 
-**Status:** prospective; freeze before the first post-no-gap run  
+**Status:** prospective; freeze before the first post-no-gap run
+
 **Purpose:** convert the no-gap campaign into a measured clearance-response
-surface and bounded 2x/3x/4x engineering forecasts  
+surface and bounded 2x/3x/4x engineering forecasts
+
 **Primary comparison:** current 0 mm layout versus the prior approximately
 3-inch layout, recorded as its measured shroud-to-shroud clearance
 
@@ -199,4 +201,3 @@ Promotion beyond a bounded forecast requires at least one physical 3-card
 stack or an instrumented surrogate heat/flow layer. A 4-card recommendation
 requires the 3-card validation error to remain inside the prospective gate and
 must state the chassis, spacing, inlet, fan, workload, and power envelope.
-
