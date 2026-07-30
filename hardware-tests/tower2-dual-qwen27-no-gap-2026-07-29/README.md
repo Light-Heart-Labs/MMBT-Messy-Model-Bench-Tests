@@ -45,6 +45,25 @@ confirms the clock/latency redistribution but shows that the block-2 thermal
 advantage did not reproduce in block 3; the resulting thermal coefficient is
 small and uncertain.
 
+## Prospective follow-up protocols
+
+The post-no-gap experiment is frozen in
+[`SPACING_RESPONSE_PROTOCOL.md`](SPACING_RESPONSE_PROTOCOL.md). Its
+[`machine-readable bridge matrix`](analysis/spacing-response-bridge-matrix.csv),
+[`operator workbook`](analysis/spacing-response-bridge-matrix.xlsx),
+[`data dictionary`](analysis/spacing-response-data-dictionary.csv), and
+[`model specification`](analysis/spacing-response-model-spec-v1.json) define
+an A-B-A design: current no-gap evidence, a measured approximately 3-inch
+endpoint plus near-contact intermediate gaps, and a final no-gap return.
+The design contains 59 inferential cells at `n=3`, five safety-only bumps, and
+ten held-out intermediate-gap cells for prospective validation.
+
+The next no-gap mechanism experiment is
+[`FAN_MECHANISM_ISOLATION_PROTOCOL.md`](FAN_MECHANISM_ISOLATION_PROTOCOL.md).
+It separately varies the loaded card's fan and the idle neighbor's fan, adds a
+power-headroom control, balances step order with three Latin-square blocks,
+and forbids execution until Tower2 passes the frozen idle V3HOST preflight.
+
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
 | [`ng-fan-b40-t60-sym300-v3host-15m-r5`](ng-fan-b40-t60-sym300-v3host-15m-r5/) | 53.82 C / 57 C / 40.0%, 1,439 RPM | 67.16 C / 70 C / 60.0%, 1,917 RPM | V3HOST 40/60 internally validated at n=3; matched block 3; counters zero |

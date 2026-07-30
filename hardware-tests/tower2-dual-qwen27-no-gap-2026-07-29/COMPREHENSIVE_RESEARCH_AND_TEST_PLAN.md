@@ -921,6 +921,10 @@ Repeat 250/250, 400/400, and 500/500 at one-gap and intended-final spacing. Thes
 
 ### Spacing-response follow-up campaign
 
+The frozen execution document is
+[`SPACING_RESPONSE_PROTOCOL.md`](SPACING_RESPONSE_PROTOCOL.md), with its
+machine-readable bridge matrix and prospective model schema in `analysis/`.
+
 The first post-no-gap configuration should be the prior approximately
 three-inch separation, measured as the actual minimum shroud-to-shroud distance
 in millimeters. It is the widely spaced reference endpoint, not by itself a
@@ -994,17 +998,22 @@ work.
 
 ## 18. Immediate next actions
 
-1. Extend the harness to log all four GPU fan duties and actual RPM values.
-2. Verify fan-to-GPU mapping and add fail-safe fixed-fan controls.
-3. Acquire/install local inlet, inter-card, exhaust, and room temperature sensors.
-4. Extend the harness to log those sensors and higher-frequency NVIDIA/DCGM fields.
-5. Complete the fixed-fan 250 W identification matrix before interpreting a
-   raw temperature delta as a position-only penalty.
-6. Run the 250 W bottom-only and top-only controls.
-7. Begin the 200/200 through 550/550 W symmetric spine in 50 W steps.
-8. Run the first direction-reversed asymmetric power/fan anchors.
-9. Fit the first self-heating, fan-allocation, and directional-coupling
-   surfaces before adaptively selecting the remaining matrix.
+1. Keep new campaign runs blocked while unrelated GPU workloads violate the
+   frozen idle baseline.
+2. Execute the prospective own-fan/neighbor-fan isolation blocks in
+   [`FAN_MECHANISM_ISOLATION_PROTOCOL.md`](FAN_MECHANISM_ISOLATION_PROTOCOL.md)
+   after Tower2 returns to an idle V3HOST preflight.
+3. Acquire/install local inlet, inter-card, exhaust, and room temperature
+   sensors before making transferable spacing claims.
+4. Complete the 300 W isolation mechanism study at `n >= 3` per loaded
+   position, then prospectively confirm its coefficients under dual load.
+5. Continue the 200/200 through 550/550 W symmetric spine in 50 W steps and
+   the direction-reversed asymmetric power/fan anchors.
+6. Fit the self-heating, fan-allocation, and directional-coupling surfaces
+   before adaptively selecting remaining no-gap cells.
+7. When the no-gap matrix is frozen, execute
+   [`SPACING_RESPONSE_PROTOCOL.md`](SPACING_RESPONSE_PROTOCOL.md), beginning
+   with the measured approximately 3-inch endpoint.
 
 ## 19. References
 

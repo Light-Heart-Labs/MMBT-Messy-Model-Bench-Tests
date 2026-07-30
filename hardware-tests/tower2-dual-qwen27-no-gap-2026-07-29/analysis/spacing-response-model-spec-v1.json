@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "status": "prospective",
+  "primary_predictor": {
+    "name": "gap_min_mm",
+    "basis_candidates": [
+      "monotone_constrained_spline",
+      "saturating_exponential"
+    ],
+    "linear_interpolation_only": false
+  },
+  "primary_responses": [
+    "gpu0_temp_rise_over_local_inlet_c",
+    "gpu1_temp_rise_over_local_inlet_c",
+    "gpu0_clock_mean_mhz",
+    "gpu1_clock_mean_mhz",
+    "gpu0_request_rate",
+    "gpu1_request_rate",
+    "gpu0_latency_mean_s",
+    "gpu1_latency_mean_s",
+    "gpu0_required_fan_rpm",
+    "gpu1_required_fan_rpm",
+    "minimum_thermal_margin_c"
+  ],
+  "fixed_effects": [
+    "gpu0_board_power_w",
+    "gpu1_board_power_w",
+    "gpu0_fan_rpm",
+    "gpu1_fan_rpm",
+    "gpu0_local_inlet_c",
+    "gpu1_local_inlet_c",
+    "room_ambient_c",
+    "layout_id",
+    "card_identity_at_position",
+    "execution_order"
+  ],
+  "interactions": [
+    "gap_min_mm:gpu0_board_power_w",
+    "gap_min_mm:gpu1_board_power_w",
+    "gap_min_mm:gpu0_fan_rpm",
+    "gap_min_mm:gpu1_fan_rpm",
+    "gpu0_board_power_w:gpu1_board_power_w",
+    "gpu0_fan_rpm:gpu1_fan_rpm",
+    "position:card_identity"
+  ],
+  "random_or_blocking_effects": [
+    "session_id",
+    "replicate_block",
+    "layout_install_event"
+  ],
+  "directional_terms": [
+    "self_resistance_bottom",
+    "self_resistance_top",
+    "coupling_bottom_to_top",
+    "coupling_top_to_bottom"
+  ],
+  "validation": {
+    "minimum_admissible_replicates_per_cell": 3,
+    "blocked_cross_validation": "leave_one_session_out",
+    "held_out_gap_target_mm": 20,
+    "held_out_gap_substitution": "nearest_mechanically_available_intermediate_gap",
+    "publish_mae_by_gpu": true,
+    "publish_worst_error_by_gpu": true,
+    "publish_prediction_intervals": true
+  },
+  "forecast_policy": {
+    "two_card": "interpolation_only_inside_measured_gap_power_fan_layout_envelope",
+    "three_card": "bounded_model_based_until_physical_or_surrogate_validation",
+    "four_card": "bounded_model_based_and_requires_acceptable_three_card_validation",
+    "pairwise_superposition_assumed": false
+  }
+}

@@ -1,0 +1,31 @@
+field,type,unit,required,description
+phase,string,,true,"A1 current no-gap evidence, B spacing response, or A2 no-gap return"
+layout_code,string,,true,stable mechanical-layout identifier
+target_gap_mm,number,mm,true,nominal design target; never substitute for measured clearance
+actual_gap_mm,number,mm,true,minimum measured shroud-to-shroud clearance used by the model
+gap_front_mm,number,mm,true,front clearance measurement
+gap_middle_mm,number,mm,true,middle clearance measurement
+gap_rear_mm,number,mm,true,rear clearance measurement
+cell_id,string,,true,stable prospective experimental cell identifier
+replicate,integer,,true,independently initialized admissible replicate number
+session_id,string,,true,thermal/session blocking identifier
+install_event_id,string,,true,physical reseat/layout-change event
+gpu_position,category,,true,bottom or top
+gpu_uuid,string,,true,physical card identity
+board_power_w,number,W,true,time-aligned mean or sample board power
+fan_command_pct,number,%,true,commanded duty; blank only for automatic mode
+fan_rpm,number,rpm,true,"physical fan RPM, retaining every fan channel"
+local_inlet_c,number,C,true,calibrated local card inlet temperature
+gpu_temp_c,number,C,true,GPU temperature
+temp_rise_c,number,C,true,GPU temperature minus local inlet temperature
+room_ambient_c,number,C,true,calibrated room ambient
+intercard_channel_c,number,C,true,temperature in the inter-card channel
+exhaust_c,number,C,true,card exhaust temperature
+graphics_clock_mhz,number,MHz,true,time-aligned graphics clock
+request_rate,number,requests/s,true,completed application request rate
+latency_mean_s,number,s,true,mean completed-request duration
+thermal_margin_c,number,C,true,frozen cutoff minus observed temperature
+clock_event_reasons,string,,true,active NVIDIA clock-event reasons/counters
+admissible,boolean,,true,whether the run counts toward n>=3
+exclusion_reason,string,,false,prospective or observed reason an inadmissible run is excluded
+photo_manifest,string,,true,paths or hashes for layout photographs
