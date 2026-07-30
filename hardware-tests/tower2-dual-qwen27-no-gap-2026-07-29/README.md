@@ -38,9 +38,16 @@ The reversed-order
 finds that moving approximately 478 RPM from top to bottom cools both cards
 while transferring roughly one clock bin from bottom to top; combined
 last-five-minute clock changes by only +0.025 MHz.
+The completed
+[`validated 300 W analysis`](analysis/300W_V3HOST_FAN_POLICY_VALIDATED.md)
+uses the two tightly matched crossover blocks for the causal contrast. It
+confirms the clock/latency redistribution but shows that the block-2 thermal
+advantage did not reproduce in block 3; the resulting thermal coefficient is
+small and uncertain.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b40-t60-sym300-v3host-15m-r5`](ng-fan-b40-t60-sym300-v3host-15m-r5/) | 53.82 C / 57 C / 40.0%, 1,439 RPM | 67.16 C / 70 C / 60.0%, 1,917 RPM | V3HOST 40/60 internally validated at n=3; matched block 3; counters zero |
 | [`ng-fan-b60-t40-sym300-v3host-15m-r5`](ng-fan-b60-t40-sym300-v3host-15m-r5/) | 53.81 C / 57 C / 60.0%, 1,917 RPM | 67.38 C / 71 C / 40.0%, 1,439 RPM | V3HOST 60/40 internally validated at n=3; sub-second GPU0 boundary transient retained; counters zero |
 | [`ng-fan-b60-t40-sym300-v3host-15m-r4`](ng-fan-b60-t40-sym300-v3host-15m-r4/) | 53.71 C / 57 C / 60.0%, 1,917 RPM | 67.28 C / 71 C / 40.0%, 1,439 RPM | V3HOST 60/40 population n=2/3; matched block 2 shows clock redistribution with unchanged total; counters zero |
 | [`ng-fan-b40-t60-sym300-v3host-15m-r4`](ng-fan-b40-t60-sym300-v3host-15m-r4/) | 54.48 C / 57 C / 40.0%, 1,439 RPM | 67.78 C / 71 C / 60.0%, 1,917 RPM | V3HOST population n=2/3; reproduced R3 within 0.052 C and 0.493 MHz; counters zero |
