@@ -24,6 +24,7 @@ validated allocation knots while preserving both prior models.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b60-t40-sym200-v2-15m-r1`](ng-fan-b60-t40-sym200-v2-15m-r1/) | 41.09 C / 43 C / 60.0%, 1,917 RPM | 50.31 C / 52 C / 40.0%, 1,439 RPM | First reversed 200 W power-spine anchor n=1/3; all gates passed and counters zero |
 | [`ng-fan-b40-t60-sym200-v2-15m-r1`](ng-fan-b40-t60-sym200-v2-15m-r1/) | 41.83 C / 44 C / 40.0%, 1,439 RPM | 50.42 C / 53 C / 60.0%, 1,917 RPM | First 200 W power-spine anchor n=1/3; all gates passed and counters zero |
 | [`ng-fan-b40-t60-sym250-v2-15m-r3`](ng-fan-b40-t60-sym250-v2-15m-r3/) | 46.71 C / 49 C / 40.0%, 1,439 RPM | 57.91 C / 61 C / 60.0%, 1,917 RPM | V2 interpolation check internally validated at n=3; counters zero |
 | [`ng-fan-b40-t60-sym250-v2-15m-r2`](ng-fan-b40-t60-sym250-v2-15m-r2/) | 46.70 C / 49 C / 40.0%, 1,439 RPM | 57.85 C / 61 C / 60.0%, 1,917 RPM | V2 interpolation check n=2/3; tightly reproduced R1 and counters zero |
