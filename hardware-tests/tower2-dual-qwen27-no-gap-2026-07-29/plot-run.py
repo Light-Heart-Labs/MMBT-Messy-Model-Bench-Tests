@@ -109,6 +109,8 @@ subtitle = (
     f"Qwen3.6-27B AWQ-INT4 · {config['duration_s'] // 60}-minute measured window · "
     f"GPU0 bottom {role['0']}, GPU1 top {role['1']}"
 )
+if config.get("cell_id"):
+    subtitle += f" · {config['cell_id']} R{config.get('replicate', 1)}"
 draw.text((70, 92), subtitle, fill=muted, font=font(22))
 
 legend_y = 142
@@ -183,7 +185,8 @@ draw.rounded_rectangle((50, footer_y - 12, 1760, footer_y + 45), radius=14, fill
 draw.text((75, footer_y), footer, fill="#a8f5d4", font=font(19))
 draw.text(
     (1750, 1240),
-    "Source: gpu-telemetry.csv · requested 250 ms polling · 2026-07-29",
+    f"Source: gpu-telemetry.csv · requested {config.get('telemetry_interval_ms', 1000)} ms polling · "
+    f"{config.get('started_at', '')[:10]}",
     fill=muted,
     font=font(15),
     anchor="ra",

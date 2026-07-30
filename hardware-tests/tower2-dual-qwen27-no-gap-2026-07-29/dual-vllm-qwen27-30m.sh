@@ -13,6 +13,8 @@ set -Eeuo pipefail
 
 ACTION="check"
 TAG="qwen27-dual-600w-30m"
+CELL_ID=""
+REPLICATE=1
 DURATION_S=1800
 WARMUP_S=120
 COOLDOWN_S=60
@@ -28,6 +30,8 @@ GPU1_POWER_LIMIT_W=600
 GPU_ABORT_C=92
 MAX_START_TEMP_GPU0_C=45
 MAX_START_TEMP_GPU1_C=45
+MAX_IDLE_POWER_GPU0_W=50
+MAX_IDLE_POWER_GPU1_W=50
 TELEMETRY_INTERVAL_MS=1000
 AMBIENT_C=""
 GPU0_PORT=8001
@@ -44,6 +48,9 @@ CONFLICTING_CONTAINERS=(
   ods-comfyui
   ods-embeddings
 )
+CONFLICTING_USER_SERVICES=(
+  openclaw-gateway.service
+)
 
 usage() {
   cat <<'EOF'
@@ -55,6 +62,8 @@ Options:
   --check                  Readiness checks only (default; no changes)
   --run                    Run the guarded saturation test
   --tag NAME               Output tag
+  --cell-id NAME           Stable matrix-cell identifier (default: --tag)
+  --replicate N            Positive replicate number (default: 1)
   --duration SECONDS       Measured duration (default: 1800)
   --warmup SECONDS         Saturation warm-up (default: 120)
   --cooldown SECONDS       Logged cooldown (default: 60)
@@ -70,6 +79,8 @@ Options:
   --gpu-abort-c C          Emergency GPU-temperature cutoff (default: 92)
   --max-start-temp-gpu0 C Maximum allowed GPU0 pre-run temperature (default: 45)
   --max-start-temp-gpu1 C Maximum allowed GPU1 pre-run temperature (default: 45)
+  --max-idle-power-gpu0 W Abort if idle GPU0 exceeds this power (default: 50)
+  --max-idle-power-gpu1 W Abort if idle GPU1 exceeds this power (default: 50)
   --telemetry-ms MS        GPU telemetry interval in milliseconds (default: 1000)
   --ambient-c C            Manually measured room/chassis inlet temperature
 
@@ -86,6 +97,8 @@ while (($#)); do
     --check) ACTION="check"; shift ;;
     --run) ACTION="run"; shift ;;
     --tag) TAG="${2:?missing value for --tag}"; shift 2 ;;
+    --cell-id) CELL_ID="${2:?missing value for --cell-id}"; shift 2 ;;
+    --replicate) REPLICATE="${2:?missing value for --replicate}"; shift 2 ;;
     --duration) DURATION_S="${2:?missing value for --duration}"; shift 2 ;;
     --warmup) WARMUP_S="${2:?missing value for --warmup}"; shift 2 ;;
     --cooldown) COOLDOWN_S="${2:?missing value for --cooldown}"; shift 2 ;;
@@ -101,6 +114,8 @@ while (($#)); do
     --gpu-abort-c) GPU_ABORT_C="${2:?missing value for --gpu-abort-c}"; shift 2 ;;
     --max-start-temp-gpu0) MAX_START_TEMP_GPU0_C="${2:?missing value for --max-start-temp-gpu0}"; shift 2 ;;
     --max-start-temp-gpu1) MAX_START_TEMP_GPU1_C="${2:?missing value for --max-start-temp-gpu1}"; shift 2 ;;
+    --max-idle-power-gpu0) MAX_IDLE_POWER_GPU0_W="${2:?missing value for --max-idle-power-gpu0}"; shift 2 ;;
+    --max-idle-power-gpu1) MAX_IDLE_POWER_GPU1_W="${2:?missing value for --max-idle-power-gpu1}"; shift 2 ;;
     --telemetry-ms) TELEMETRY_INTERVAL_MS="${2:?missing value for --telemetry-ms}"; shift 2 ;;
     --ambient-c) AMBIENT_C="${2:?missing value for --ambient-c}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
@@ -108,7 +123,7 @@ while (($#)); do
   esac
 done
 
-for value in DURATION_S WARMUP_S COOLDOWN_S CONCURRENCY MAX_TOKENS TELEMETRY_INTERVAL_MS; do
+for value in DURATION_S WARMUP_S COOLDOWN_S CONCURRENCY MAX_TOKENS TELEMETRY_INTERVAL_MS REPLICATE; do
   [[ "${!value}" =~ ^[1-9][0-9]*$ ]] || {
     echo "$value must be a positive integer" >&2
     exit 2
@@ -140,7 +155,7 @@ fi
 if [[ -z "$MIN_WARMUP_POWER_GPU1_W" ]]; then
   ((CONCURRENCY_GPU1 == 0)) && MIN_WARMUP_POWER_GPU1_W=0 || MIN_WARMUP_POWER_GPU1_W="$MIN_WARMUP_POWER_W"
 fi
-for value in MIN_WARMUP_POWER_GPU0_W MIN_WARMUP_POWER_GPU1_W GPU0_POWER_LIMIT_W GPU1_POWER_LIMIT_W; do
+for value in MIN_WARMUP_POWER_GPU0_W MIN_WARMUP_POWER_GPU1_W GPU0_POWER_LIMIT_W GPU1_POWER_LIMIT_W MAX_IDLE_POWER_GPU0_W MAX_IDLE_POWER_GPU1_W; do
   [[ "${!value}" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
     echo "$value must be numeric" >&2
     exit 2
@@ -158,6 +173,11 @@ if [[ -n "$AMBIENT_C" && ! "$AMBIENT_C" =~ ^-?[0-9]+([.][0-9]+)?$ ]]; then
 fi
 [[ "$TAG" =~ ^[A-Za-z0-9._-]+$ ]] || {
   echo "TAG may contain only letters, digits, dot, underscore, and dash" >&2
+  exit 2
+}
+CELL_ID="${CELL_ID:-$TAG}"
+[[ "$CELL_ID" =~ ^[A-Za-z0-9._-]+$ ]] || {
+  echo "CELL_ID may contain only letters, digits, dot, underscore, and dash" >&2
   exit 2
 }
 
@@ -189,6 +209,15 @@ sanctuary_idle_ok() {
   running="$(awk '$1 ~ /^vllm:num_requests_running[{]/ {sum+=$2} END{print sum+0}' <<<"$metrics")"
   waiting="$(awk '$1 ~ /^vllm:num_requests_waiting[{]/ {sum+=$2} END{print sum+0}' <<<"$metrics")"
   awk -v running="$running" -v waiting="$waiting" 'BEGIN{exit !((running+0)==0 && (waiting+0)==0)}'
+}
+
+sanctuary_test_load_isolated() {
+  local metrics running waiting
+  metrics="$(curl -fsS -m 5 "http://127.0.0.1:${GPU1_PORT}/metrics")" || return 1
+  running="$(awk '$1 ~ /^vllm:num_requests_running[{]/ {sum+=$2} END{print sum+0}' <<<"$metrics")"
+  waiting="$(awk '$1 ~ /^vllm:num_requests_waiting[{]/ {sum+=$2} END{print sum+0}' <<<"$metrics")"
+  awk -v running="$running" -v waiting="$waiting" -v expected="$CONCURRENCY_GPU1" \
+    'BEGIN{exit !((running+0)<=expected && (waiting+0)==0)}'
 }
 
 telemetry_probe() {
@@ -317,6 +346,7 @@ STOP_FILE="$OUT/.stop"
 WORKERS_STOP_FILE="$OUT/.stop-workers"
 ABORT_FILE="$OUT/.abort"
 STOPPED_FILE="$OUT/stopped-containers.txt"
+STOPPED_USER_SERVICES_FILE="$OUT/stopped-user-services.txt"
 SUMMARY_JSON="$OUT/summary.json"
 CHECKSUMS="$OUT/SHA256SUMS"
 GPU0_PAYLOAD="$OUT/gpu0-payload.json"
@@ -430,6 +460,11 @@ cleanup() {
       [[ -n "$container" ]] && docker start "$container" >/dev/null 2>&1
     done < "$STOPPED_FILE"
   fi
+  if [[ -f "$STOPPED_USER_SERVICES_FILE" ]]; then
+    while IFS= read -r service; do
+      [[ -n "$service" ]] && systemctl --user start "$service" >/dev/null 2>&1
+    done < "$STOPPED_USER_SERVICES_FILE"
+  fi
 
   rm -f "$PHASE_FILE" "$STOP_FILE" "$WORKERS_STOP_FILE" "$ABORT_FILE"
   log "Cleanup complete; original GPU services and power limits restored"
@@ -456,6 +491,8 @@ printf 'ts_iso,gpu,phase,http_status,duration_s,response_bytes\n' > "$REQUESTS_C
 
 jq -n \
   --arg tag "$TAG" \
+  --arg cell_id "$CELL_ID" \
+  --argjson replicate "$REPLICATE" \
   --arg started_at "$(date -u +%FT%T.%3NZ)" \
   --arg image_id "$IMAGE_ID" \
   --arg model_path "$MODEL_PATH" \
@@ -474,10 +511,14 @@ jq -n \
   --argjson gpu_abort_c "$GPU_ABORT_C" \
   --argjson max_start_temp_gpu0_c "$MAX_START_TEMP_GPU0_C" \
   --argjson max_start_temp_gpu1_c "$MAX_START_TEMP_GPU1_C" \
+  --argjson max_idle_power_gpu0_w "$MAX_IDLE_POWER_GPU0_W" \
+  --argjson max_idle_power_gpu1_w "$MAX_IDLE_POWER_GPU1_W" \
   --argjson telemetry_interval_ms "$TELEMETRY_INTERVAL_MS" \
   --arg ambient_c "$AMBIENT_C" \
   '{
     tag:$tag,
+    cell_id:$cell_id,
+    replicate:$replicate,
     started_at:$started_at,
     model_path:$model_path,
     image_id:$image_id,
@@ -496,6 +537,8 @@ jq -n \
     gpu_abort_c:$gpu_abort_c,
     max_start_temp_gpu0_c:$max_start_temp_gpu0_c,
     max_start_temp_gpu1_c:$max_start_temp_gpu1_c,
+    max_idle_power_gpu0_w:$max_idle_power_gpu0_w,
+    max_idle_power_gpu1_w:$max_idle_power_gpu1_w,
     telemetry_interval_ms:$telemetry_interval_ms,
     ambient_c:(if $ambient_c == "" then null else ($ambient_c | tonumber) end)
   }' > "$OUT/run-config.json"
@@ -504,11 +547,21 @@ nvidia-smi -q > "$OUT/nvidia-before.txt"
 nvidia-smi -q -x > "$OUT/nvidia-before.xml"
 uname -a > "$OUT/host-before.txt"
 docker ps --no-trunc > "$OUT/containers-before.txt"
+systemctl --user --no-pager status "${CONFLICTING_USER_SERVICES[@]}" > "$OUT/user-services-before.txt" 2>&1 || true
+nvidia-smi --query-compute-apps=gpu_uuid,pid,process_name,used_memory \
+  --format=csv > "$OUT/gpu-processes-before.csv"
 curl -fsS "http://127.0.0.1:${GPU1_PORT}/metrics" > "$OUT/gpu1-vllm-metrics-before.txt"
 docker inspect "$SANCTUARY_CONTAINER" > "$OUT/sanctuary-inspect.json"
 
 log "Stopping GPU containers that conflict with an isolated GPU0 replica"
 : > "$STOPPED_FILE"
+: > "$STOPPED_USER_SERVICES_FILE"
+for service in "${CONFLICTING_USER_SERVICES[@]}"; do
+  if systemctl --user is-active --quiet "$service"; then
+    echo "$service" >> "$STOPPED_USER_SERVICES_FILE"
+    systemctl --user stop "$service"
+  fi
+done
 for container in "${CONFLICTING_CONTAINERS[@]}"; do
   if [[ "$(docker inspect "$container" --format '{{.State.Running}}' 2>/dev/null || true)" == "true" ]]; then
     echo "$container" >> "$STOPPED_FILE"
@@ -517,6 +570,12 @@ for container in "${CONFLICTING_CONTAINERS[@]}"; do
 done
 
 sleep 3
+nvidia-smi --query-compute-apps=gpu_uuid,pid,process_name,used_memory \
+  --format=csv > "$OUT/gpu-processes-isolated.csv"
+pgrep -f 'memory-core-local-embedding-worker[.]js' >/dev/null && {
+  echo "OpenClaw embedding worker survived GPU isolation" >&2
+  exit 1
+}
 sanctuary_model_ok || {
   echo "Sanctuary Qwen27 on GPU1 became unhealthy during isolation" >&2
   exit 1
@@ -704,6 +763,26 @@ awk -v a="$warm0" -v b="$warm1" -v min0="$MIN_WARMUP_POWER_GPU0_W" -v min1="$MIN
     echo "Saturation gate failed: GPU0 must average at least ${MIN_WARMUP_POWER_GPU0_W} W and GPU1 at least ${MIN_WARMUP_POWER_GPU1_W} W during warm-up" >&2
     exit 1
   }
+sanctuary_test_load_isolated || {
+  echo "Workload-isolation gate failed: Sanctuary exceeds the controlled GPU1 worker count or has a wait queue" >&2
+  exit 1
+}
+pgrep -f 'memory-core-local-embedding-worker[.]js' >/dev/null && {
+  echo "Workload-isolation gate failed: OpenClaw embedding worker is active" >&2
+  exit 1
+}
+if ((CONCURRENCY_GPU0 == 0)); then
+  awk -v value="$warm0" -v limit="$MAX_IDLE_POWER_GPU0_W" 'BEGIN{exit !(value>limit)}' && {
+    echo "Idle-isolation gate failed: GPU0 averaged ${warm0} W (limit ${MAX_IDLE_POWER_GPU0_W} W)" >&2
+    exit 1
+  }
+fi
+if ((CONCURRENCY_GPU1 == 0)); then
+  awk -v value="$warm1" -v limit="$MAX_IDLE_POWER_GPU1_W" 'BEGIN{exit !(value>limit)}' && {
+    echo "Idle-isolation gate failed: GPU1 averaged ${warm1} W (limit ${MAX_IDLE_POWER_GPU1_W} W)" >&2
+    exit 1
+  }
+fi
 
 printf 'measured\n' > "$PHASE_FILE"
 printf '%s,measured-started\n' "$(date -u +%FT%T.%3NZ)" >> "$EVENTS"
@@ -724,6 +803,14 @@ while (( $(date +%s) < deadline )); do
     echo "GPU1 Sanctuary endpoint became unhealthy" >&2
     exit 1
   }
+  sanctuary_test_load_isolated || {
+    echo "Workload-isolation cutoff: Sanctuary exceeds the controlled GPU1 worker count or has a wait queue" >&2
+    exit 1
+  }
+  pgrep -f 'memory-core-local-embedding-worker[.]js' >/dev/null && {
+    echo "Workload-isolation cutoff: OpenClaw embedding worker became active" >&2
+    exit 1
+  }
   if ((CONCURRENCY_GPU0 > 0)); then
     [[ "$(docker inspect "$GPU0_CONTAINER" --format '{{.State.Running}}' 2>/dev/null || true)" == "true" ]] || {
       echo "GPU0 vLLM container exited" >&2
@@ -736,6 +823,22 @@ while (( $(date +%s) < deadline )); do
     echo "Emergency cutoff: GPU temperature reached ${current_max_temp} C (limit ${GPU_ABORT_C} C)" >&2
     exit 1
   }
+  read -r current_power0 current_power1 < <(
+    nvidia-smi --query-gpu=power.draw.average --format=csv,noheader,nounits \
+      | awk 'NR==1{a=$1} NR==2{b=$1} END{print a+0,b+0}'
+  )
+  if ((CONCURRENCY_GPU0 == 0)); then
+    awk -v value="$current_power0" -v limit="$MAX_IDLE_POWER_GPU0_W" 'BEGIN{exit !(value>limit)}' && {
+      echo "Isolation cutoff: idle GPU0 reached ${current_power0} W (limit ${MAX_IDLE_POWER_GPU0_W} W)" >&2
+      exit 1
+    }
+  fi
+  if ((CONCURRENCY_GPU1 == 0)); then
+    awk -v value="$current_power1" -v limit="$MAX_IDLE_POWER_GPU1_W" 'BEGIN{exit !(value>limit)}' && {
+      echo "Isolation cutoff: idle GPU1 reached ${current_power1} W (limit ${MAX_IDLE_POWER_GPU1_W} W)" >&2
+      exit 1
+    }
+  fi
 
   if nvidia-smi \
       --query-gpu=clocks_event_reasons.hw_thermal_slowdown,clocks_event_reasons.hw_power_brake_slowdown \
@@ -795,6 +898,8 @@ HOST_LOGGER_PID=""
 
 nvidia-smi -q > "$OUT/nvidia-after.txt"
 nvidia-smi -q -x > "$OUT/nvidia-after.xml"
+nvidia-smi --query-compute-apps=gpu_uuid,pid,process_name,used_memory \
+  --format=csv > "$OUT/gpu-processes-after.csv"
 curl -fsS "http://127.0.0.1:${GPU1_PORT}/metrics" > "$OUT/gpu1-vllm-metrics-after.txt" || true
 if ((GPU0_STARTED == 1)); then
   docker logs "$GPU0_CONTAINER" > "$OUT/gpu0-vllm.log" 2>&1 || true
@@ -802,7 +907,17 @@ fi
 
 python3 "$(dirname "$0")/summarize-dual-vllm.py" \
   "$GPU_CSV" "$HOST_CSV" "$REQUESTS_CSV" "$SUMMARY_JSON" \
-  "$OUT/nvidia-before.txt" "$OUT/nvidia-after.txt"
+  "$OUT/nvidia-before.txt" "$OUT/nvidia-after.txt" \
+  "$OUT/gpu1-vllm-metrics-before.txt" "$OUT/gpu1-vllm-metrics-after.txt"
+
+jq -e '
+  .workload_isolation.success_delta_matches_controlled_log == true and
+  .workload_isolation.controlled_errors_all_gpus_all_phases == 0 and
+  .quality_gates.internal_admissible_candidate == true
+' "$SUMMARY_JSON" >/dev/null || {
+  echo "Post-run validation gate failed; see ${SUMMARY_JSON}" >&2
+  exit 1
+}
 
 log "PASS — summary: $SUMMARY_JSON"
 cat "$SUMMARY_JSON"

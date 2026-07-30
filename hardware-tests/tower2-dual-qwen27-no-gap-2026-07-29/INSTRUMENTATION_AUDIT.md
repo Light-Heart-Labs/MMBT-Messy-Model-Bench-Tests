@@ -48,6 +48,11 @@ The canonical `dual-vllm-qwen27-30m.sh` harness now:
 - records before/after NVIDIA XML, host state, container state, and Sanctuary metrics;
 - writes target power, per-GPU concurrency, start gates, and telemetry cadence into `run-config.json`;
 - generates SHA-256 hashes for the completed run artifacts after cleanup.
+- records stable matrix-cell and replicate identifiers for the `n >= 3` validation ledger;
+- stops the OpenClaw gateway to clear its GPU embedding workers, aborts if a worker respawns, and restores the service after cleanup;
+- applies a configurable maximum-power cutoff to every nominally idle GPU;
+- verifies that Sanctuary's cumulative successful-request delta exactly matches the controlled request log before a run can pass;
+- emits machine-readable internal and transferable admissibility candidates.
 
 The summarizer now reports target-relative power saturation, telemetry completeness, temperature-limit margin, steady-state slopes, sampled counter deltas, request rate, ambient statistics when supplied, and top-minus-bottom deltas.
 

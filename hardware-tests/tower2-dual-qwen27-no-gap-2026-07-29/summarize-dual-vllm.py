@@ -81,6 +81,8 @@ def linear_slope_per_minute(rows, field, last_seconds=180):
 gpu_csv, host_csv, requests_csv, output_json = map(Path, sys.argv[1:5])
 nvidia_before = Path(sys.argv[5]) if len(sys.argv) > 5 else None
 nvidia_after = Path(sys.argv[6]) if len(sys.argv) > 6 else None
+metrics_before = Path(sys.argv[7]) if len(sys.argv) > 7 else None
+metrics_after = Path(sys.argv[8]) if len(sys.argv) > 8 else None
 config_path = gpu_csv.parent / "run-config.json"
 config = {}
 if config_path.exists():
@@ -207,11 +209,13 @@ summary["host"] = {
     "nvme_max_c": stats([number(row.get("nvme_max_c")) for row in host_rows]),
 }
 
-request_rows = []
+all_request_rows = []
 with requests_csv.open(newline="", encoding="utf-8") as handle:
     for row in csv.DictReader(handle):
-        if row.get("phase", "").strip() == "measured":
-            request_rows.append(row)
+        all_request_rows.append(row)
+request_rows = [
+    row for row in all_request_rows if row.get("phase", "").strip() == "measured"
+]
 for gpu in ("gpu0", "gpu1"):
     rows = [row for row in request_rows if row.get("gpu") == gpu]
     status_counts = defaultdict(int)
@@ -225,6 +229,48 @@ for gpu in ("gpu0", "gpu1"):
         "status_counts": dict(sorted(status_counts.items())),
         "duration_s": stats([number(row.get("duration_s")) for row in rows]),
     }
+
+
+def prometheus_metric_sum(path, metric):
+    if path is None or not path.exists():
+        return None
+    total = 0.0
+    found = False
+    prefix = metric + "{"
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if line.startswith(prefix):
+            total += float(line.rsplit(None, 1)[1])
+            found = True
+    return total if found else None
+
+
+success_before = prometheus_metric_sum(metrics_before, "vllm:request_success_total")
+success_after = prometheus_metric_sum(metrics_after, "vllm:request_success_total")
+success_delta = (
+    success_after - success_before
+    if success_before is not None and success_after is not None
+    else None
+)
+controlled_gpu1_success = sum(
+    row.get("gpu") == "gpu1" and row.get("http_status") == "200"
+    for row in all_request_rows
+)
+controlled_gpu1_errors = sum(
+    row.get("gpu") == "gpu1" and row.get("http_status") != "200"
+    for row in all_request_rows
+)
+controlled_errors_all_gpus = sum(
+    row.get("http_status") != "200" for row in all_request_rows
+)
+summary["workload_isolation"] = {
+    "vllm_success_delta": success_delta,
+    "controlled_gpu1_http_200_all_phases": controlled_gpu1_success,
+    "controlled_gpu1_errors_all_phases": controlled_gpu1_errors,
+    "controlled_errors_all_gpus_all_phases": controlled_errors_all_gpus,
+    "success_delta_matches_controlled_log": (
+        success_delta == controlled_gpu1_success if success_delta is not None else None
+    ),
+}
 
 
 def throttle_counters(path):
@@ -277,5 +323,56 @@ if "0" in summary["gpus"] and "1" in summary["gpus"]:
         "graphics_clock_mhz": mean_delta("graphics_clock_mhz"),
         "power_avg_w": mean_delta("power_avg_w"),
     }
+
+per_gpu_quality = {}
+for gpu, gpu_summary in summary["gpus"].items():
+    workers = int(config.get(f"concurrency_gpu{gpu}", config.get("concurrency_per_gpu", 0)))
+    if workers > 0:
+        power_gate = (
+            gpu_summary["fraction_samples_at_or_above_95pct_target"] is not None
+            and gpu_summary["fraction_samples_at_or_above_95pct_target"] >= 0.95
+        )
+        idle_power_gate = None
+    else:
+        idle_limit = number(config.get(f"max_idle_power_gpu{gpu}_w"))
+        power_gate = None
+        idle_power_gate = (
+            idle_limit is not None
+            and gpu_summary["power_avg_w"] is not None
+            and gpu_summary["power_avg_w"]["max"] <= idle_limit
+        )
+    per_gpu_quality[gpu] = {
+        "workers": workers,
+        "sample_completeness_pass": (
+            gpu_summary["sample_completeness"] is not None
+            and gpu_summary["sample_completeness"] >= 0.95
+        ),
+        "steady_state_pass": gpu_summary["steady_state"],
+        "loaded_power_gate_pass": power_gate,
+        "idle_power_gate_pass": idle_power_gate,
+    }
+
+workload_isolation_pass = (
+    summary["workload_isolation"]["success_delta_matches_controlled_log"] is True
+    and controlled_errors_all_gpus == 0
+)
+internal_candidate = workload_isolation_pass and all(
+    gates["sample_completeness_pass"]
+    and gates["steady_state_pass"]
+    and (
+        gates["loaded_power_gate_pass"] is True
+        if gates["workers"] > 0
+        else gates["idle_power_gate_pass"] is True
+    )
+    for gates in per_gpu_quality.values()
+)
+summary["quality_gates"] = {
+    "per_gpu": per_gpu_quality,
+    "workload_isolation_pass": workload_isolation_pass,
+    "internal_admissible_candidate": internal_candidate,
+    "transferable_admissible_candidate": (
+        internal_candidate and summary["host"]["ambient_c"] is not None
+    ),
+}
 
 output_json.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")

@@ -218,16 +218,26 @@ NVIDIA DCGM profiling should be evaluated for higher-frequency activity data. Re
 
 ### 8.3 Acceptance criteria
 
-A standard cell is valid when:
+A single replicate is admissible when:
 
 - sample completeness is at least 95%;
 - both workload instances remain healthy;
 - intended utilization and power gates are met;
 - no uncontrolled production work overlaps;
-- environmental sensors are complete;
+- required environmental sensors are complete for any transferable claim;
 - time synchronization error is documented and acceptable;
 - no emergency abort occurs;
-- final thermal slope satisfies the steady-state criterion, or the run is explicitly labeled `not_steady`.
+- final thermal slope satisfies the steady-state criterion.
+
+A run labeled `not_steady`, environmentally unnormalized, contaminated, aborted, or otherwise outside these gates remains a useful diagnostic or safety pilot, but it does not count toward validation `n`.
+
+A test cell or study conclusion is validated only when:
+
+- at least three admissible, independent replicates (`n >= 3`) exist for every condition supporting the conclusion;
+- replicates span at least three sessions or randomized blocks unless a documented design constraint prevents it;
+- all replicate IDs, exclusions, and exclusion reasons are published;
+- between-replicate dispersion and confidence or prediction intervals are reported;
+- no invalid or qualified pilot is silently substituted for a missing valid replicate.
 
 ### 8.4 Safety and stop criteria
 
@@ -245,14 +255,14 @@ The existing no-gap 600/600 W condition is a known failed cell and must not be r
 
 ## 9. Test matrix
 
-### 9.1 Tier 0 — completed anchors
+### 9.1 Tier 0 — completed pilots and anchors
 
 | ID | Bottom/top power | Duration | Status |
 |---|---:|---:|---|
-| NG-SYM-250-R1 | 250/250 W | 10 min | PASS |
-| NG-SYM-500-R1 | 500/500 W | 10 min | PASS; 1.054 s top SW thermal |
-| NG-ASYM-600-400-R1 | 600/400 W | 30 min | PASS |
-| NG-SYM-600-R1 | 600/600 W | Intended 30 min | Safety abort near 5 min |
+| NG-SYM-250-R1 | 250/250 W | 10 min | PASS pilot; not validated until n=3 |
+| NG-SYM-500-R1 | 500/500 W | 10 min | PASS pilot; 1.054 s top SW thermal; not validated until n=3 |
+| NG-ASYM-600-400-R1 | 600/400 W | 30 min | PASS pilot; not validated until n=3 |
+| NG-SYM-600-R1 | 600/600 W | Intended 30 min | Safety abort near 5 min; failed pilot, never counted toward n |
 
 ### 9.2 Tier 1 — essential before changing spacing
 
@@ -261,10 +271,10 @@ The existing no-gap 600/600 W condition is a known failed cell and must not be r
 | ID family | Bottom/top load | Power levels | Repeats |
 |---|---|---|---:|
 | NG-IDLE | Idle/idle | Default | 3 sessions |
-| NG-SINGLE-B | Loaded/idle | 250, 400, 500, 600 W | 1 each |
-| NG-SINGLE-T | Idle/loaded | 250, 400, 500, 600 W | 1 each |
+| NG-SINGLE-B | Loaded/idle | 250, 400, 500, 600 W | 3 valid replicates each |
+| NG-SINGLE-T | Idle/loaded | 250, 400, 500, 600 W | 3 valid replicates each |
 
-These eight loaded cells identify self-heating and the passive obstruction effect of the adjacent idle card.
+These eight loaded conditions identify self-heating and the passive obstruction effect of the adjacent idle card. Qualified pilots do not reduce the three-valid-replicate requirement.
 
 #### B. Symmetric response curve
 
@@ -295,18 +305,18 @@ Top-card 550 and 600 W cells require bump tests.
 | 800 W | 550/250, 450/350, 400/400, 350/450, 250/550 |
 | 1000 W | 600/400, 550/450, 500/500, 450/550, 400/600 |
 
-Several endpoints overlap other phases. Do not rerun duplicates unless they are designated replicates.
+Every standard-response, coupling, and allocation condition requires at least three valid replicates before it supports a validated conclusion. Several endpoints overlap other phases; a valid run may satisfy multiple matrix families when its metadata declares those mappings.
 
 #### E. Replication and card identity
 
-- Repeat 250/250, 400/400, and 500/500 twice more across separate sessions.
+- Complete at least three valid 250/250, 400/400, and 500/500 replicates across separate sessions.
 - Physically swap the two cards.
 - After the swap, repeat 250/250, 400/400, and 500/500.
 - Preserve UUID/serial mapping rather than relying on GPU index.
 
 ### 9.3 Tier 2 — airflow/configuration anchors
 
-For each configuration below, measure 250/250, 400/400, and 500/500:
+For each configuration below, measure three valid replicates of 250/250, 400/400, and 500/500:
 
 - side panel open;
 - directed intake fan or duct;
@@ -319,7 +329,7 @@ If time is constrained before spacing changes, prioritize no-gap card swap, side
 
 ### 9.4 Tier 3 — workload generalization
 
-At 250/250, 400/400, and 500/500, run:
+At 250/250, 400/400, and 500/500, run at least three valid replicates of:
 
 - current dense Qwen request mix;
 - long-context prefill-heavy workload;
@@ -351,9 +361,10 @@ Do not automatically execute the complete 8×8 dual-power grid. After Tier 1:
 
 ### 10.2 Replication
 
-- Three total repeats for primary anchors.
-- At least two repeats near an inferred knee or safety boundary.
+- At least three valid repeats for every test cell or study used for validation.
+- Safety bumps and exploratory boundary probes may remain pilots at lower n, but cannot support a validated operating limit until three admissible confirmations exist.
 - Repeat any cell whose key metric differs from the fitted surface by more than three times the anchor repeat standard deviation.
+- Excluded, aborted, contaminated, and non-steady runs are published with reasons but do not count toward n.
 
 ### 10.3 Primary response variables
 
@@ -708,4 +719,3 @@ Budget 20–30 minutes per standard cell. The essential pre-spacing program is a
 - [NVIDIA DCGM profiling documentation](https://docs.nvidia.com/datacenter/dcgm/latest/learn/modules/profiling.html) — low-overhead GPU activity metrics and sampling.
 - [NVIDIA DCGM exporter metrics](https://docs.nvidia.com/datacenter/dcgm/latest/reference/dcgm-exporter-metrics.html) — clocks, PCIe, health, and clock-event metric families.
 - [Open Compute Project North Dome server design specification](https://www.opencompute.org/documents/north-dome-1s-server-design-specification-1v01-pdf) — example server thermal validation across 15–35°C inlet conditions.
-

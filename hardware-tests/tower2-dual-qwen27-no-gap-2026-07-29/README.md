@@ -8,6 +8,7 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-single-t-250-r2`](ng-single-t-250-r2/) | Isolated idle: 28.90°C / 29°C / 30.0% mean | 55.86°C / 58°C / 32.9% mean | Internally admissible n=1/3; thermal counters zero |
 | [`bottom-idle-top250-10m`](bottom-idle-top250-10m/) | Idle: 29.28°C / 32°C / 30.0% mean | 56.92°C / 60°C / 33.8% mean | No thermal counters; qualified by late GPU0 background-power activity |
 | [`bottom250-top-idle-10m`](bottom250-top-idle-10m/) | 52.41°C / 55°C / 31.0% mean | Idle: 43.14°C / 45°C / 30.0% mean | No thermal or power-brake counter growth |
 | [`both250-10m`](both250-10m/) | 51.85°C / 54°C / 30.7% mean | 66.97°C / 70°C / 40.1% mean | Power-limit derating only; thermal counters zero |
@@ -33,6 +34,10 @@ The first single-card isolation cell loaded only GPU0/bottom at 250 W while leav
 [`COMPREHENSIVE_RESEARCH_AND_TEST_PLAN.md`](COMPREHENSIVE_RESEARCH_AND_TEST_PLAN.md) is the canonical execution plan with hypotheses, exact test tiers, acceptance and safety gates, statistical methods, data architecture, model validation, resource estimates, and the publication package.
 
 [`INSTRUMENTATION_AUDIT.md`](INSTRUMENTATION_AUDIT.md) records the telemetry available on Tower2, the current environmental-sensor gap, the harness improvements made for the expanded matrix, and the boundary between internally useful measurements and transferable stack forecasts.
+
+[`VALIDATION_STATUS.md`](VALIDATION_STATUS.md) and [`VALIDATION_REGISTRY.csv`](VALIDATION_REGISTRY.csv) enforce the campaign-wide `n >= 3` rule. Qualified pilots and excluded runs remain visible but never count toward the three admissible replicates required for validation.
+
+`aggregate-validation.py` regenerates the machine-readable [`validation-aggregates.json`](analysis/validation-aggregates.json) and [`validation-aggregates.csv`](analysis/validation-aggregates.csv) tables used to track replicate dispersion and determine when a cell actually reaches `n=3`.
 
 [`analysis/250W_PRELIMINARY_COUPLING.md`](analysis/250W_PRELIMINARY_COUPLING.md) compares the equal-load and bottom-only 250 W cells. It finds a strong bottom-to-top heating signal and no resolvable top-to-bottom penalty yet; the reverse isolation cell and randomized repeats are still required before fitting directional coefficients.
 
