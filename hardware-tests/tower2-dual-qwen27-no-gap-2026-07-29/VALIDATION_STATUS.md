@@ -16,7 +16,7 @@ Two validation levels are tracked:
 | NG-ASYM-600-400 | 1 | 3 | 0 | Two internal replicates plus environmental instrumentation required |
 | NG-SINGLE-B-250 | 1 | 3 | 0 | R2 admissible; R3 excluded as non-steady after prior heat soak; two more internal replicates required |
 | NG-SINGLE-T-250 | 3 | 3 | 0 | Within-campaign internally validated; cross-session and environmental validation pending |
-| NG-FAN-EQ30-SYM250 | 0 | 3 | 0 | Two-minute bump passed control/safety checks but was non-steady; standard cell not yet attempted |
+| NG-FAN-EQ30-SYM250 | 0 | 3 | 0 | Two- and five-minute bumps passed control/safety checks but remained non-steady; guarded 10m extension next |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 
 `NG-SINGLE-T-250` is the first cell to reach three internally admissible replicates. Replicates 2, 4, and 5 were independently initialized execution blocks with cleanup/cooldown between them, but all occurred during one campaign session. The cell is therefore validated for the internal Tower2/no-gap model with an explicit within-session limitation. No cell is transferable yet.

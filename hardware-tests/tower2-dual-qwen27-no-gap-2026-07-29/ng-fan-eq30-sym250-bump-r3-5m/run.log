@@ -1,0 +1,78 @@
+[2026-07-30T03:22:46Z] Output: /home/michael/thermal-tests/runs/2026-07-30T03-22-46Z-ng-fan-eq30-sym250-bump-r3-5m
+[2026-07-30T03:22:47Z] Stopping GPU containers that conflict with an isolated GPU0 replica
+ods-llama-server
+ods-whisper
+ods-comfyui
+ods-embeddings
+[2026-07-30T03:23:24Z] Setting GPU0/bottom to 250 W and GPU1/top to 250 W
+Power limit for GPU 00000000:01:00.0 was set to 250.00 W from 600.00 W.
+All done.
+Power limit for GPU 00000000:E1:00.0 was set to 250.00 W from 600.00 W.
+All done.
+[2026-07-30T03:23:24Z] Launching identical Qwen3.6-27B AWQ-INT4 vLLM replica on GPU0
+1981fabbd6760479ae81812c1c52936695747ca9b66c4a3204f3e12412198e7f
+[2026-07-30T03:23:24Z] Waiting for GPU0 vLLM readiness
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+[2026-07-30T03:26:36Z] Fixed GPU0 fans 0/1 at 30%: 30%/1201 RPM, 30%/1199 RPM
+[2026-07-30T03:26:36Z] Fixed GPU1 fans 2/3 at 30%: 30%/1199 RPM, 30%/1202 RPM
+[2026-07-30T03:26:36Z] Starting 250 ms GPU telemetry; workers GPU0=32 GPU1=32
+[2026-07-30T03:26:36Z] Warm-up started (60s)
+[2026-07-30T03:27:36Z] Trailing 15s warm-up mean board power: GPU0=249.99W GPU1=250.00W
+[2026-07-30T03:27:36Z] Measured GPU0=250 W / GPU1=250 W run started (300s)
+[2026-07-30T03:28:39Z] Progress 63/300s
+0, 250.03 W, 48, 45, 30 %, 817 MHz, 100 %, Active, Not Active, Not Active
+1, 250.00 W, 57, 36, 30 %, 802 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-30T03:29:37Z] Progress 121/300s
+0, 249.99 W, 50, 43, 30 %, 810 MHz, 100 %, Active, Not Active, Not Active
+1, 250.00 W, 62, 31, 30 %, 795 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-30T03:30:40Z] Progress 184/300s
+0, 250.00 W, 51, 42, 30 %, 802 MHz, 100 %, Active, Not Active, Not Active
+1, 250.00 W, 65, 27, 30 %, 780 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-30T03:31:38Z] Progress 242/300s
+0, 249.98 W, 51, 41, 30 %, 802 MHz, 100 %, Active, Not Active, Not Active
+1, 249.99 W, 67, 26, 30 %, 780 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-30T03:32:41Z] Progress 305/300s
+0, 249.97 W, 52, 41, 30 %, 802 MHz, 100 %, Active, Not Active, Not Active
+1, 249.99 W, 69, 24, 30 %, 772 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-30T03:32:41Z] Measured run complete; draining admitted requests
+[2026-07-30T03:33:11Z] Requests drained; logging 60s cooldown
+Post-run validation gate failed; see /home/michael/thermal-tests/runs/2026-07-30T03-22-46Z-ng-fan-eq30-sym250-bump-r3-5m/summary.json
+[2026-07-30T03:34:19Z] Interrupted/failed workload; restarting Sanctuary to clear admitted requests
+[2026-07-30T03:35:24Z] Cleanup complete; original GPU services and power limits restored

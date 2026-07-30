@@ -8,6 +8,7 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-eq30-sym250-bump-r3-5m`](ng-fan-eq30-sym250-bump-r3-5m/) | 49.68°C / 54°C / 30.0%, 1,201 RPM | 62.28°C / 70°C / 30.0%, 1,201 RPM | Successful 5m extension; excluded as non-steady |
 | [`ng-fan-eq30-sym250-bump-r2`](ng-fan-eq30-sym250-bump-r2/) | 48.12°C / 51°C / 30.0%, 1,201 RPM | 57.32°C / 64°C / 30.0%, 1,201 RPM | Successful 2m fixed-fan bump; excluded as intentionally non-steady |
 | [`ng-fan-eq30-sym250-bump-r1-instrumentation-failure`](ng-fan-eq30-sym250-bump-r1-instrumentation-failure/) | Warmup only | Warmup only | Excluded: privilege-context bug prevented manual state; caught before measurement |
 | [`ng-single-b-250-r3-excluded`](ng-single-b-250-r3-excluded/) | 53.66°C / 56°C / 31.8% mean | Isolated idle: 44.91°C / 47°C / 30.0% mean | Excluded: GPU0 fan and GPU1 temperature remained non-steady |
@@ -54,6 +55,14 @@ heating rapidly (+2.8106 and +6.1990°C/min), so this is control/safety
 validation rather than equilibrium evidence. Manual states were verified
 during load, all four RPM streams were complete, and automatic control was
 verified after cleanup.
+
+The five-minute R3 extension held the same 250/250 W and 30/30% policy with
+mean physical fan speeds of 1,200.594 and 1,200.674 RPM. Bottom/top mean
+temperatures were 49.675/62.276°C and maxima were 54/70°C. The observed
+end-of-window gap reached 17°C, while the top closing slope slowed from R2's
++6.1990 to +2.1283°C/min. The cell remained non-steady but retained 23°C of
+margin to the reported limit and recorded no thermal events, supporting a
+guarded ten-minute extension.
 
 [`STACKED_GPU_RESEARCH_PLAN.md`](STACKED_GPU_RESEARCH_PLAN.md) defines the controlled matrix, instrumentation, reduced-order thermal model, and publication formats intended to turn the two-card measurements into bounded three- and four-card stack forecasts.
 

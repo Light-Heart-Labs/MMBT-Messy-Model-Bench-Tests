@@ -41,6 +41,16 @@ RPM measurement, directional divergence, safety cutoff operation, and
 automatic restoration. A longer guarded exposure is required to find the
 30/30% equilibrium or its safe boundary.
 
+The five-minute R3 extension reproduced the trajectory and remained safe. At
+effectively identical 1,201 RPM mean fan speed, bottom/top mean temperatures
+were 49.675/62.276°C, maxima were 54/70°C, and the observed closing gap reached
+17°C. The closing slopes fell to +0.7606/+2.1283°C/min, proving the initial
+rise was bending but not yet equilibrated. The transient closing gap already
+exceeded the roughly 15°C mean gap in the automatic-controller 250/250 runs,
+consistent with the top card's extra automatic fan effort masking some of its
+burden. Because one figure is a transient endpoint and the other a 10-minute
+mean, this is not yet a like-for-like equilibrium comparison.
+
 ## What is established now
 
 ### The 250/250 W result is repeatable as a complete operating point
