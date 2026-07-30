@@ -61,13 +61,30 @@ summary = (
     if summary_path.exists()
     else {"gpus": {}}
 )
+qualification_only = bool(config.get("qualification_only"))
+qualification_result_path = run_dir / "qualification-result.json"
+qualification_result = (
+    json.loads(qualification_result_path.read_text(encoding="utf-8"))
+    if qualification_result_path.exists()
+    else None
+)
+qualification_pass = (
+    qualification_only
+    and qualification_result is not None
+    and qualification_result.get("passed") is True
+)
 excluded = (
     not partial
+    and not qualification_pass
     and summary.get("quality_gates", {}).get("internal_admissible_candidate") is False
 )
 status_label = (
     "ABORTED / PARTIAL"
     if partial
+    else "QUALIFICATION PASS / NON-INFERENTIAL"
+    if qualification_pass
+    else "QUALIFICATION UNRESOLVED / NON-INFERENTIAL"
+    if qualification_only
     else "EXCLUDED / NON-ADMISSIBLE"
     if excluded
     else "PASS"
@@ -277,12 +294,12 @@ footer = (
 draw.rounded_rectangle(
     (50, footer_y - 12, 1760, footer_y + 45),
     radius=14,
-    fill="#5b2730" if partial or excluded else "#0b4638",
+    fill="#5b2730" if partial or excluded or (qualification_only and not qualification_pass) else "#0b4638",
 )
 draw.text(
     (75, footer_y),
     footer,
-    fill="#ffd0d5" if partial or excluded else "#a8f5d4",
+    fill="#ffd0d5" if partial or excluded or (qualification_only and not qualification_pass) else "#a8f5d4",
     font=font(19),
 )
 draw.text(

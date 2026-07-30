@@ -73,6 +73,7 @@ software-power-cap active fraction.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-faniso-own-loadbottom-f30-p300-v3host-bump-r1`](ng-faniso-own-loadbottom-f30-p300-v3host-bump-r1/) | 53.58 C / 57 C / 30.0%, 1,201 RPM | 40.34 C / 42 C / 50.0%, 1,679 RPM | 300 W bottom-loaded 30% fan qualification pass; safety-only/non-inferential; all thermal/brake events and counters zero |
 | [`ng-fan-b40-t60-sym300-v3host-15m-r5`](ng-fan-b40-t60-sym300-v3host-15m-r5/) | 53.82 C / 57 C / 40.0%, 1,439 RPM | 67.16 C / 70 C / 60.0%, 1,917 RPM | V3HOST 40/60 internally validated at n=3; matched block 3; counters zero |
 | [`ng-fan-b60-t40-sym300-v3host-15m-r5`](ng-fan-b60-t40-sym300-v3host-15m-r5/) | 53.81 C / 57 C / 60.0%, 1,917 RPM | 67.38 C / 71 C / 40.0%, 1,439 RPM | V3HOST 60/40 internally validated at n=3; sub-second GPU0 boundary transient retained; counters zero |
 | [`ng-fan-b60-t40-sym300-v3host-15m-r4`](ng-fan-b60-t40-sym300-v3host-15m-r4/) | 53.71 C / 57 C / 60.0%, 1,917 RPM | 67.28 C / 71 C / 40.0%, 1,439 RPM | V3HOST 60/40 population n=2/3; matched block 2 shows clock redistribution with unchanged total; counters zero |

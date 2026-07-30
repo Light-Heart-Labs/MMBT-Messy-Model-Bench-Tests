@@ -655,6 +655,7 @@ ABORT_FILE="$OUT/.abort"
 STOPPED_FILE="$OUT/stopped-containers.txt"
 STOPPED_USER_SERVICES_FILE="$OUT/stopped-user-services.txt"
 SUMMARY_JSON="$OUT/summary.json"
+QUALIFICATION_RESULT_JSON="$OUT/qualification-result.json"
 CHECKSUMS="$OUT/SHA256SUMS"
 GPU0_PAYLOAD="$OUT/gpu0-payload.json"
 GPU1_PAYLOAD="$OUT/gpu1-payload.json"
@@ -1455,7 +1456,7 @@ python3 "$(dirname "$0")/summarize-dual-vllm.py" \
   "$OUT/gpu1-vllm-metrics-before.txt" "$OUT/gpu1-vllm-metrics-after.txt"
 
 if ((QUALIFICATION_ONLY == 1)); then
-  jq -e '
+  if jq -e '
     .workload_isolation.success_delta_matches_controlled_log == true and
     .workload_isolation.controlled_errors_all_gpus_all_phases == 0 and
     .quality_gates.fan_telemetry_pass == true and
@@ -1477,10 +1478,31 @@ if ((QUALIFICATION_ONLY == 1)); then
       .sampled_counter_deltas_us.hw_thermal_slowdown_counter_us == 0 and
       .sampled_counter_deltas_us.hw_power_brake_counter_us == 0
     )
-  ' "$SUMMARY_JSON" >/dev/null || {
+  ' "$SUMMARY_JSON" >/dev/null; then
+    jq -n \
+      --arg evaluated_at "$(date -u +%FT%T.%3NZ)" \
+      '{
+        schema_version:"1.0",
+        qualification_only:true,
+        passed:true,
+        inferential_replicate:false,
+        evaluated_at:$evaluated_at,
+        gate:"isolation + loaded/idle power + fan telemetry/tracking + independent NVML + zero thermal/brake events and counters"
+      }' > "$QUALIFICATION_RESULT_JSON"
+  else
+    jq -n \
+      --arg evaluated_at "$(date -u +%FT%T.%3NZ)" \
+      '{
+        schema_version:"1.0",
+        qualification_only:true,
+        passed:false,
+        inferential_replicate:false,
+        evaluated_at:$evaluated_at,
+        gate:"isolation + loaded/idle power + fan telemetry/tracking + independent NVML + zero thermal/brake events and counters"
+      }' > "$QUALIFICATION_RESULT_JSON"
     echo "Qualification validation gate failed; see ${SUMMARY_JSON}" >&2
     exit 1
-  }
+  fi
 else
   jq -e '
     .workload_isolation.success_delta_matches_controlled_log == true and
