@@ -1,0 +1,9 @@
+prior_model,validation_policy,metric,replicates,predicted_mean,observed_mean,observed_minus_predicted
+tower2-no-gap-sym250-matched-rpm-fan-allocation-v2,40/60,bottom_temp_c,3,46.538167,46.694,0.155833
+tower2-no-gap-sym250-matched-rpm-fan-allocation-v2,40/60,top_temp_c,3,57.271667,57.855667,0.584
+tower2-no-gap-sym250-matched-rpm-fan-allocation-v2,40/60,bottom_clock_mhz,3,813.808166,814.472333,0.664167
+tower2-no-gap-sym250-matched-rpm-fan-allocation-v2,40/60,top_clock_mhz,3,794.213167,795.645333,1.432166
+tower2-no-gap-sym250-matched-rpm-fan-allocation-v2,40/60,bottom_rps,3,0.9778,0.9952,0.0174
+tower2-no-gap-sym250-matched-rpm-fan-allocation-v2,40/60,top_rps,3,0.90665,0.900733,-0.005917
+tower2-no-gap-sym250-matched-rpm-fan-allocation-v2,40/60,total_rps,3,1.88445,1.895933,0.011483
+tower2-no-gap-sym250-matched-rpm-fan-allocation-v2,40/60,clock_gap_mhz,3,-19.595,-18.827,0.768

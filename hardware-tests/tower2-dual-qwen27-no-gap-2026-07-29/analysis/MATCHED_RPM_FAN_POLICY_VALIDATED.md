@@ -5,7 +5,7 @@
 This result applies to Tower2's current adjacent no-gap pair of RTX PRO 6000
 Blackwell Workstation Edition cards running identical Qwen3.6-27B AWQ-INT4
 workloads at 250/250 W. Each policy has three independently initialized
-15-minute steady-state runs. All nine runs passed the prospective v2 plateau,
+15-minute steady-state runs. All 15 runs across five policies passed the prospective v2 plateau,
 power, utilization, isolation, physical-fan tracking, and event-counter gates.
 
 The inference unit is the run (`n=3` per policy), not the thousands of
@@ -18,12 +18,14 @@ Values are mean +/- sample standard deviation across the three runs.
 
 | Bottom/top fan policy | Total physical RPM | Bottom / top temperature | Bottom / top clock | Bottom / top requests/s |
 |---|---:|---:|---:|---:|
-| 50/50 | 3,356.263 +/- 0.024 | 46.435 +/- 0.129 / 57.722 +/- 0.162 C | 810.574 +/- 1.120 / 796.723 +/- 0.634 MHz | 0.9956 / 0.9244 |
-| 70/30 | 3,357.186 +/- 0.017 | 45.470 +/- 0.175 / 56.294 +/- 0.051 C | 804.394 +/- 2.087 / 803.031 +/- 1.103 MHz | 0.9600 / 0.9244 |
 | 30/70 | 3,357.224 +/- 0.037 | 46.641 +/- 0.029 / 56.821 +/- 0.210 C | 817.042 +/- 1.052 / 791.704 +/- 1.904 MHz | 0.9600 / 0.8889 |
+| 40/60 | 3,356.243 +/- 0.034 | 46.694 +/- 0.014 / 57.856 +/- 0.050 C | 814.472 +/- 0.099 / 795.645 +/- 0.726 MHz | 0.9952 / 0.9007 |
+| 50/50 | 3,356.263 +/- 0.024 | 46.435 +/- 0.129 / 57.722 +/- 0.162 C | 810.574 +/- 1.120 / 796.723 +/- 0.634 MHz | 0.9956 / 0.9244 |
+| 60/40 | 3,356.226 +/- 0.020 | 45.973 +/- 0.120 / 57.285 +/- 0.033 C | 808.742 +/- 0.950 / 800.729 +/- 0.490 MHz | 0.9956 / 0.9244 |
+| 70/30 | 3,357.186 +/- 0.017 | 45.470 +/- 0.175 / 56.294 +/- 0.051 C | 804.394 +/- 2.087 / 803.031 +/- 1.103 MHz | 0.9600 / 0.9244 |
 
-The largest difference among policy mean total fan speeds is 0.961 RPM, or
-0.029%. This is a fan-allocation experiment, not a hidden total-airflow
+The largest difference among policy mean total fan speeds is 0.998 RPM, or
+0.030%. This is a fan-allocation experiment, not a hidden total-airflow
 experiment.
 
 ## Paired run-block effects
@@ -42,6 +44,19 @@ two degrees of freedom.
 | Sum of card clocks | +0.128 MHz (-4.702, +4.958) | -1.321 MHz (-4.606, +1.965) |
 | Top completed request rate | 0.0000 requests/s | +0.0355 requests/s |
 
+The newly validated midpoint reversal gives an especially direct test because
+60/40 and 40/60 use equal and opposite allocations around 50/50:
+
+| Response | 60/40 minus 40/60, mean difference (95% CI) |
+|---|---:|
+| Total card-level fan RPM | -0.017 RPM (-0.122, +0.088) |
+| Bottom temperature | -0.721 C (-0.997, -0.445) |
+| Top temperature | -0.570 C (-0.749, -0.392) |
+| Bottom clock | -5.730 MHz (-8.258, -3.202) |
+| Top clock | +5.084 MHz (+2.063, +8.104) |
+| Top-minus-bottom clock gap | +10.814 MHz (+5.298, +16.330) |
+| Sum of card clocks | -0.646 MHz (-1.419, +0.126) |
+
 The temperature and clock contrasts are repeatable at this operating point.
 The identical request rates across replicates are also operationally
 meaningful, but their apparent zero variance must not be treated as
@@ -50,7 +65,7 @@ completed-request counts.
 
 ## Interpretation
 
-The validated result rejects a purely local fan model. Moving approximately
+The five-policy response rejects a purely local fan model. Moving approximately
 957 RPM of fan speed from the top card to the bottom card, while holding the
 total constant, cools the bottom card by 1.17 C **and the top card by 0.53 C**.
 The bottom card's fans therefore make a measurable positive contribution to
@@ -110,6 +125,12 @@ fan-allocation cells at higher power.
   five-percentage-point interpolation grid for planning validation cells.
 - [`build-fan-allocation-model.py`](build-fan-allocation-model.py):
   reproducible model builder.
+- [`fan-allocation-response-v3.json`](fan-allocation-response-v3.json):
+  bounded model containing all five directly observed `n=3` knots.
+- [`fan-allocation-v2-validation-at-40-n3.csv`](fan-allocation-v2-validation-at-40-n3.csv):
+  immutable-v2 prediction compared with the subsequent 40/60 observations.
+- [`build-fan-allocation-model-v3.py`](build-fan-allocation-model-v3.py):
+  reproducible promotion of the validated 40/60 knot without altering v1/v2.
 
 ## Prospective interpolation check
 
@@ -129,3 +150,11 @@ The immutable v1 prediction and comparison are preserved in
 [`fan-allocation-v1-validation-at-60-n3.csv`](fan-allocation-v1-validation-at-60-n3.csv).
 The updated [`v2 model`](fan-allocation-response-v2.json) promotes 60/40 to a
 directly observed `n=3` knot.
+
+The next held-out policy was 40/60. Across three runs it averaged
+46.694/57.856 C versus 46.538/57.272 C predicted by immutable v2, errors of
+only +0.156/+0.584 C. Clock errors were +0.664/+1.432 MHz. This is a second
+successful local temperature interpolation check at the same 250/250 W
+condition; it still provides no evidence for extrapolation across power or
+stack size. The updated [`v3 model`](fan-allocation-response-v3.json) promotes
+40/60 to the fifth directly observed knot.

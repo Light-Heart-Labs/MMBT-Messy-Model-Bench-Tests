@@ -17,10 +17,14 @@ it permits interpolation only within 30/70–70/30 at 250/250 W and explicitly
 prohibits power or stack-size extrapolation. A prospective `n=3` check at
 60/40 missed temperature by only +0.020/+0.277 C; the
 [`v2 model`](analysis/fan-allocation-response-v2.json) now includes that
-validated knot while retaining v1 for auditability.
+validated knot while retaining v1 for auditability. A second prospective
+check at 40/60 missed by +0.156/+0.584 C; the
+[`v3 model`](analysis/fan-allocation-response-v3.json) now contains all five
+validated allocation knots while preserving both prior models.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b40-t60-sym250-v2-15m-r3`](ng-fan-b40-t60-sym250-v2-15m-r3/) | 46.71 C / 49 C / 40.0%, 1,439 RPM | 57.91 C / 61 C / 60.0%, 1,917 RPM | V2 interpolation check internally validated at n=3; counters zero |
 | [`ng-fan-b40-t60-sym250-v2-15m-r2`](ng-fan-b40-t60-sym250-v2-15m-r2/) | 46.70 C / 49 C / 40.0%, 1,439 RPM | 57.85 C / 61 C / 60.0%, 1,917 RPM | V2 interpolation check n=2/3; tightly reproduced R1 and counters zero |
 | [`ng-fan-b40-t60-sym250-v2-15m-r1`](ng-fan-b40-t60-sym250-v2-15m-r1/) | 46.68 C / 49 C / 40.0%, 1,439 RPM | 57.81 C / 61 C / 60.0%, 1,917 RPM | V2 interpolation check n=1/3; all gates passed and counters zero |
 | [`ng-fan-b60-t40-sym250-v2-15m-r3`](ng-fan-b60-t40-sym250-v2-15m-r3/) | 46.11 C / 48 C / 60.0%, 1,917 RPM | 57.25 C / 60 C / 40.0%, 1,439 RPM | V2 interpolation check internally validated at n=3; counters zero |

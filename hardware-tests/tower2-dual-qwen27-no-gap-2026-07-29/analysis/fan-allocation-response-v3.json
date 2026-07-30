@@ -1,0 +1,319 @@
+{
+  "model_id": "tower2-no-gap-sym250-matched-rpm-fan-allocation-v3",
+  "model_class": "bounded_piecewise_linear_descriptive_interpolator",
+  "status": "five_internally_validated_knots_descriptive_interpolation",
+  "supersedes": "tower2-no-gap-sym250-matched-rpm-fan-allocation-v2",
+  "prospective_validation": {
+    "policy": "40/60",
+    "artifact": "fan-allocation-v2-validation-at-40-n3.csv",
+    "temperature_error_c_bottom_top": [
+      0.155833,
+      0.584
+    ],
+    "note": "v2 was committed before any 40/60 run; v1 gives the identical 40/60 prediction and both remain immutable"
+  },
+  "inputs": {
+    "bottom_power_w": 250,
+    "top_power_w": 250,
+    "bottom_fan_pct": {
+      "min": 30,
+      "max": 70
+    },
+    "top_fan_pct_constraint": "100 - bottom_fan_pct",
+    "mean_total_card_level_rpm_range": [
+      3356.263,
+      3357.224
+    ],
+    "layout": "Tower2 adjacent no-gap, GPU0 bottom / GPU1 top",
+    "workload": "independent Qwen3.6-27B AWQ-INT4, 32 requests per GPU",
+    "validated_bottom_fan_pct_knots": [
+      30,
+      40,
+      50,
+      60,
+      70
+    ]
+  },
+  "knots": {
+    "bottom_temp_c": {
+      "30": {
+        "mean": 46.641,
+        "sample_sd": 0.028792,
+        "ci95_low": 46.569476,
+        "ci95_high": 46.712524
+      },
+      "40": {
+        "mean": 46.694,
+        "sample_sd": 0.013748,
+        "ci95_low": 46.659849,
+        "ci95_high": 46.728151
+      },
+      "50": {
+        "mean": 46.435333,
+        "sample_sd": 0.128555,
+        "ci95_low": 46.115986,
+        "ci95_high": 46.754681
+      },
+      "60": {
+        "mean": 45.973,
+        "sample_sd": 0.120017,
+        "ci95_low": 45.674862,
+        "ci95_high": 46.271138
+      },
+      "70": {
+        "mean": 45.470333,
+        "sample_sd": 0.175227,
+        "ci95_low": 45.035047,
+        "ci95_high": 45.90562
+      }
+    },
+    "top_temp_c": {
+      "30": {
+        "mean": 56.821333,
+        "sample_sd": 0.210155,
+        "ci95_low": 56.299278,
+        "ci95_high": 57.343389
+      },
+      "40": {
+        "mean": 57.855667,
+        "sample_sd": 0.050053,
+        "ci95_low": 57.731327,
+        "ci95_high": 57.980006
+      },
+      "50": {
+        "mean": 57.722,
+        "sample_sd": 0.162151,
+        "ci95_low": 57.319194,
+        "ci95_high": 58.124806
+      },
+      "60": {
+        "mean": 57.285333,
+        "sample_sd": 0.032563,
+        "ci95_low": 57.204443,
+        "ci95_high": 57.366224
+      },
+      "70": {
+        "mean": 56.294333,
+        "sample_sd": 0.05116,
+        "ci95_low": 56.167245,
+        "ci95_high": 56.421422
+      }
+    },
+    "bottom_clock_mhz": {
+      "30": {
+        "mean": 817.042,
+        "sample_sd": 1.051545,
+        "ci95_low": 814.429817,
+        "ci95_high": 819.654183
+      },
+      "40": {
+        "mean": 814.472333,
+        "sample_sd": 0.099309,
+        "ci95_low": 814.225635,
+        "ci95_high": 814.719031
+      },
+      "50": {
+        "mean": 810.574333,
+        "sample_sd": 1.120108,
+        "ci95_low": 807.791831,
+        "ci95_high": 813.356835
+      },
+      "60": {
+        "mean": 808.742333,
+        "sample_sd": 0.949903,
+        "ci95_low": 806.382643,
+        "ci95_high": 811.102024
+      },
+      "70": {
+        "mean": 804.394333,
+        "sample_sd": 2.086946,
+        "ci95_low": 799.210073,
+        "ci95_high": 809.578594
+      }
+    },
+    "top_clock_mhz": {
+      "30": {
+        "mean": 791.703667,
+        "sample_sd": 1.904077,
+        "ci95_low": 786.973676,
+        "ci95_high": 796.433657
+      },
+      "40": {
+        "mean": 795.645333,
+        "sample_sd": 0.726258,
+        "ci95_low": 793.841209,
+        "ci95_high": 797.449458
+      },
+      "50": {
+        "mean": 796.722667,
+        "sample_sd": 0.634455,
+        "ci95_low": 795.146593,
+        "ci95_high": 798.298741
+      },
+      "60": {
+        "mean": 800.729,
+        "sample_sd": 0.48969,
+        "ci95_low": 799.512543,
+        "ci95_high": 801.945457
+      },
+      "70": {
+        "mean": 803.030667,
+        "sample_sd": 1.103457,
+        "ci95_low": 800.289528,
+        "ci95_high": 805.771806
+      }
+    },
+    "clock_gap_mhz": {
+      "30": {
+        "mean": -25.338333,
+        "sample_sd": 2.58341,
+        "ci95_low": -31.75588,
+        "ci95_high": -18.920787
+      },
+      "40": {
+        "mean": -18.827,
+        "sample_sd": 0.811523,
+        "ci95_low": -20.842934,
+        "ci95_high": -16.811066
+      },
+      "50": {
+        "mean": -13.851667,
+        "sample_sd": 0.952051,
+        "ci95_low": -16.216693,
+        "ci95_high": -11.486641
+      },
+      "60": {
+        "mean": -8.013333,
+        "sample_sd": 1.425732,
+        "ci95_low": -11.555047,
+        "ci95_high": -4.47162
+      },
+      "70": {
+        "mean": -1.363667,
+        "sample_sd": 2.680821,
+        "ci95_low": -8.023195,
+        "ci95_high": 5.295861
+      }
+    },
+    "bottom_rps": {
+      "30": {
+        "mean": 0.96,
+        "sample_sd": 0.0,
+        "ci95_low": 0.96,
+        "ci95_high": 0.96
+      },
+      "40": {
+        "mean": 0.9952,
+        "sample_sd": 0.000693,
+        "ci95_low": 0.993479,
+        "ci95_high": 0.996921
+      },
+      "50": {
+        "mean": 0.9956,
+        "sample_sd": 0.0,
+        "ci95_low": 0.9956,
+        "ci95_high": 0.9956
+      },
+      "60": {
+        "mean": 0.9956,
+        "sample_sd": 0.0,
+        "ci95_low": 0.9956,
+        "ci95_high": 0.9956
+      },
+      "70": {
+        "mean": 0.96,
+        "sample_sd": 0.0,
+        "ci95_low": 0.96,
+        "ci95_high": 0.96
+      }
+    },
+    "top_rps": {
+      "30": {
+        "mean": 0.8889,
+        "sample_sd": 0.0,
+        "ci95_low": 0.8889,
+        "ci95_high": 0.8889
+      },
+      "40": {
+        "mean": 0.900733,
+        "sample_sd": 0.020496,
+        "ci95_low": 0.849819,
+        "ci95_high": 0.951648
+      },
+      "50": {
+        "mean": 0.9244,
+        "sample_sd": 0.0,
+        "ci95_low": 0.9244,
+        "ci95_high": 0.9244
+      },
+      "60": {
+        "mean": 0.9244,
+        "sample_sd": 0.0,
+        "ci95_low": 0.9244,
+        "ci95_high": 0.9244
+      },
+      "70": {
+        "mean": 0.9244,
+        "sample_sd": 0.0,
+        "ci95_low": 0.9244,
+        "ci95_high": 0.9244
+      }
+    },
+    "total_rps": {
+      "30": {
+        "mean": 1.8489,
+        "sample_sd": 0.0,
+        "ci95_low": 1.8489,
+        "ci95_high": 1.8489
+      },
+      "40": {
+        "mean": 1.895933,
+        "sample_sd": 0.020851,
+        "ci95_low": 1.844137,
+        "ci95_high": 1.94773
+      },
+      "50": {
+        "mean": 1.92,
+        "sample_sd": 0.0,
+        "ci95_low": 1.92,
+        "ci95_high": 1.92
+      },
+      "60": {
+        "mean": 1.92,
+        "sample_sd": 0.0,
+        "ci95_low": 1.92,
+        "ci95_high": 1.92
+      },
+      "70": {
+        "mean": 1.8844,
+        "sample_sd": 0.0,
+        "ci95_low": 1.8844,
+        "ci95_high": 1.8844
+      }
+    }
+  },
+  "method": {
+    "interpolation": "linear between adjacent validated 30/70, 40/60, 50/50, 60/40, and 70/30 policy means",
+    "uncertainty": "reported interval bounds are linearly interpolated descriptors; only knot intervals are directly estimated",
+    "inference_unit": "independent 15-minute run",
+    "replicates_per_knot": 3,
+    "telemetry_samples_are_not_treated_as_independent_replicates": true
+  },
+  "validated_findings": {
+    "lowest_tested_bottom_temperature_policy": "70/30",
+    "lowest_tested_top_temperature_policy": "70/30",
+    "most_clock_balanced_tested_policy": "70/30",
+    "highest_tested_total_completed_request_rate_policies": [
+      "50/50",
+      "60/40"
+    ]
+  },
+  "prohibitions": [
+    "Do not extrapolate below 30% or above 70% bottom fan duty.",
+    "Do not extrapolate to other power caps.",
+    "Do not use as a calibrated ambient-to-junction model.",
+    "Do not infer three-card or four-card temperatures from this artifact alone.",
+    "Do not interpret interpolated confidence bounds as directly validated intervals.",
+    "Do not interpret linearly interpolated request rates as continuous; the fixed-window completed-request response is quantized."
+  ]
+}

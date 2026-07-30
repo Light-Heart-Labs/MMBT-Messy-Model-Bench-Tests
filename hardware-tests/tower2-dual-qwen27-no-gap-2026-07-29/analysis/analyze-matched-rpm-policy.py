@@ -13,9 +13,11 @@ ROOT = Path(__file__).resolve().parent
 CAMPAIGN = ROOT.parent
 T_CRIT_DF2 = 4.3026527299
 POLICIES = {
-    "50/50": "ng-fan-eq50-sym250-v2-15m-r",
-    "70/30": "ng-fan-b70-t30-sym250-v2-15m-r",
     "30/70": "ng-fan-b30-t70-sym250-v2-15m-r",
+    "40/60": "ng-fan-b40-t60-sym250-v2-15m-r",
+    "50/50": "ng-fan-eq50-sym250-v2-15m-r",
+    "60/40": "ng-fan-b60-t40-sym250-v2-15m-r",
+    "70/30": "ng-fan-b70-t30-sym250-v2-15m-r",
 }
 
 
@@ -108,7 +110,11 @@ with (ROOT / "matched-rpm-policy-summary-n3.csv").open(
     writer.writerows(summary_rows)
 
 effects = []
-comparisons = [("70/30", "50/50"), ("70/30", "30/70")]
+comparisons = [
+    ("70/30", "50/50"),
+    ("70/30", "30/70"),
+    ("60/40", "40/60"),
+]
 for treatment, reference in comparisons:
     for metric in fields:
         treatment_rows = sorted(
@@ -171,7 +177,7 @@ draw = ImageDraw.Draw(image)
 draw.text((70, 42), "Tower2 no-gap matched-RPM fan allocation", font=font(40, True), fill=TEXT)
 draw.text(
     (70, 98),
-    "250/250 W | Qwen3.6-27B | 15-minute steady-state runs | n=3 independent blocks per policy",
+    "250/250 W | Qwen3.6-27B | 15-minute steady-state runs | five policies, n=3 each",
     font=font(21),
     fill=MUTED,
 )
@@ -238,7 +244,7 @@ panel((920, 665, 1750, 1110), "Completed request rate (requests/s)",
 
 draw.text((70, 1150), "Blue: GPU0 bottom | Orange: GPU1 top | Total RPM differs by less than 0.03% among policy means",
           font=font(18), fill=MUTED)
-draw.text((70, 1182), "Validated result: bottom-biased 70/30 cools both cards vs 50/50 and preserves top throughput vs 30/70.",
+draw.text((70, 1182), "Validated result: shifting matched fan RPM toward the bottom card cools both cards and progressively balances clocks.",
           font=font(19, True), fill=TEXT)
 image.save(ROOT / "matched-rpm-policy-n3.png")
 
