@@ -919,6 +919,59 @@ Use `measured`, `interpolated`, or `extrapolated` in every row.
 
 Repeat 250/250, 400/400, and 500/500 at one-gap and intended-final spacing. These anchors convert the no-gap campaign into directly usable spacing guidance.
 
+### Spacing-response follow-up campaign
+
+The first post-no-gap configuration should be the prior approximately
+three-inch separation, measured as the actual minimum shroud-to-shroud distance
+in millimeters. It is the widely spaced reference endpoint, not by itself a
+basis for linear interpolation. Restriction, recirculation, and fan-series
+effects are expected to be most nonlinear near contact.
+
+After the widely spaced bridge matrix, sample every mechanically available
+intermediate PCIe spacing. If risers or mounting permit continuous placement,
+prefer a near-contact-dense design such as 0, approximately 10, 20, 40, and
+75 mm. Preserve photographs, slot identities, card coordinates, obstructions,
+and exact distance for every configuration. Changing the lower card's slot may
+also change its distance to the case, PSU, or intake path, so treat each
+mechanical layout as a configuration factor in addition to numeric gap.
+
+Do not blindly repeat the complete no-gap matrix at every spacing. Build a
+bridge set from the no-gap model's highest-information cells, including:
+
+- bottom-only and top-only isolation at low and medium power;
+- symmetric 250/250, 400/400, and 500/500 W anchors;
+- direction-reversed 600/400 and 400/600 W pairs;
+- a guarded 600/600 W bump, extended only if safety gates pass;
+- automatic fan control, an equal fixed-fan reference, and selected
+  bottom-/top-biased matched-total-RPM policies.
+
+Each retained spacing cell requires at least three admissible randomized
+replicates under the same whole-system reset and instrumentation rules. Use the
+approximately three-inch layout first, then progress through intermediate
+gaps. Reserve at least one intermediate spacing as a held-out validation point
+rather than fitting every measured gap.
+
+Fit gap as a nonlinear predictor rather than drawing a straight line between
+no-gap and widely spaced endpoints. Candidate engineering forms include a
+monotone saturating curve or spline for self resistance and separate
+bottom-to-top and top-to-bottom coupling kernels:
+
+`T_i = T_inlet + R_self(gap, fan_i) * P_i
+       + K_up(gap, fan_vector) * P_below
+       + K_down(gap, fan_vector) * P_above`.
+
+Select the form by blocked cross-validation and the held-out-gap error.
+Publish temperature, clock, throughput, required fan RPM, and maximum safe
+power versus gap, including uncertainty and the marginal value of additional
+millimeters. Physically swap the cards at one reference gap to separate card
+identity from position.
+
+The fitted directional gap kernels become the adjacency terms in bounded
+three- and four-card network forecasts. Those forecasts remain model-based
+until validated with at least one physical three-card stack or an instrumented
+surrogate heat layer, because multi-layer recirculation and pressure effects
+may violate pairwise superposition.
+
 ## 17. Resource estimate
 
 A cold-start standard cell currently requires roughly:

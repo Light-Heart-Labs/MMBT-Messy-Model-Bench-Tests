@@ -36,6 +36,7 @@ replication before a causal fan-policy coefficient can be claimed.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b40-t60-sym300-v3host-15m-r4`](ng-fan-b40-t60-sym300-v3host-15m-r4/) | 54.48 C / 57 C / 40.0%, 1,439 RPM | 67.78 C / 71 C / 60.0%, 1,917 RPM | V3HOST population n=2/3; reproduced R3 within 0.052 C and 0.493 MHz; counters zero |
 | [`ng-fan-b40-t60-sym300-v3host-15m-r3`](ng-fan-b40-t60-sym300-v3host-15m-r3/) | 54.43 C / 57 C / 40.0%, 1,439 RPM | 67.73 C / 71 C / 60.0%, 1,917 RPM | First paired V3HOST 40/60 population replicate; host/start covariates retained; counters zero |
 | [`ng-fan-b60-t40-sym300-v3host-15m-r3`](ng-fan-b60-t40-sym300-v3host-15m-r3/) | 56.08 C / 59 C / 60.0%, 1,917 RPM | 69.66 C / 74 C / 40.0%, 1,439 RPM | First V3HOST population replicate (raw campaign label R3); whole-system reset passed; counters zero |
 | [`ng-fan-b60-t40-sym300-v2-15m-r2`](ng-fan-b60-t40-sym300-v2-15m-r2/) | 54.84 C / 59 C / 60.0%, 1,917 RPM | 68.40 C / 73 C / 40.0%, 1,439 RPM | 300 W 60/40 n=2/3; reversed-order block exposes later-run heat bias; counters zero |
