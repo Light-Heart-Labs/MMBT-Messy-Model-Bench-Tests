@@ -8,6 +8,7 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-eq30-sym250-r1`](ng-fan-eq30-sym250-r1/) | 51.28 C / 54 C / 30.0%, 1,200 RPM | 67.76 C / 73 C / 30.0%, 1,200 RPM | Internally admissible fixed-fan equilibrium n=1/3; counters zero |
 | [`ng-fan-eq30-sym250-bump-r3-5m`](ng-fan-eq30-sym250-bump-r3-5m/) | 49.68°C / 54°C / 30.0%, 1,201 RPM | 62.28°C / 70°C / 30.0%, 1,201 RPM | Successful 5m extension; excluded as non-steady |
 | [`ng-fan-eq30-sym250-bump-r2`](ng-fan-eq30-sym250-bump-r2/) | 48.12°C / 51°C / 30.0%, 1,201 RPM | 57.32°C / 64°C / 30.0%, 1,201 RPM | Successful 2m fixed-fan bump; excluded as intentionally non-steady |
 | [`ng-fan-eq30-sym250-bump-r1-instrumentation-failure`](ng-fan-eq30-sym250-bump-r1-instrumentation-failure/) | Warmup only | Warmup only | Excluded: privilege-context bug prevented manual state; caught before measurement |
@@ -64,6 +65,16 @@ end-of-window gap reached 17°C, while the top closing slope slowed from R2's
 margin to the reported limit and recorded no thermal events, supporting a
 guarded ten-minute extension.
 
+The guarded ten-minute `NG-FAN-EQ30-SYM250` R1 run reached steady state and is
+the first internally admissible fixed-fan equilibrium replicate. At equal
+249.99 W power and equal 30% / approximately 1,200 RPM fan speed, the bottom
+averaged 51.281 C while the top averaged 67.760 C: a 16.479 C positional
+penalty with controller response removed. The top also averaged 31.677 MHz
+lower and completed 0.8533 requests/s versus 0.9600 requests/s on the bottom.
+All thermal/brake counters remained zero. This is `n=1/3` and lacks calibrated
+ambient/local-inlet probes, so it supports the internal Tower2 model but is not
+yet a transferable server-design coefficient.
+
 [`STACKED_GPU_RESEARCH_PLAN.md`](STACKED_GPU_RESEARCH_PLAN.md) defines the controlled matrix, instrumentation, reduced-order thermal model, and publication formats intended to turn the two-card measurements into bounded three- and four-card stack forecasts.
 
 [`COMPREHENSIVE_RESEARCH_AND_TEST_PLAN.md`](COMPREHENSIVE_RESEARCH_AND_TEST_PLAN.md) is the canonical execution plan with hypotheses, exact test tiers, acceptance and safety gates, statistical methods, data architecture, model validation, resource estimates, and the publication package.
@@ -76,8 +87,9 @@ GPU1/top. Each sample includes current and target duty plus actual RPM, and new
 runs cannot qualify if that channel is missing or incomplete. Fixed-fan
 targets became available after replacing an obsolete 510 `nvidia-settings`
 client with the 595.58.03 build matching the active driver. All published runs
-to date still use the stock automatic controller; loaded fixed-fan cells begin
-only after bump-test validation.
+before this sequence used the stock automatic controller. Loaded fixed-fan
+cells now begin only after bump-test validation and require complete target,
+duty, and RPM tracking.
 
 [`VALIDATION_STATUS.md`](VALIDATION_STATUS.md) and [`VALIDATION_REGISTRY.csv`](VALIDATION_REGISTRY.csv) enforce the campaign-wide `n >= 3` rule. Qualified pilots and excluded runs remain visible but never count toward the three admissible replicates required for validation.
 

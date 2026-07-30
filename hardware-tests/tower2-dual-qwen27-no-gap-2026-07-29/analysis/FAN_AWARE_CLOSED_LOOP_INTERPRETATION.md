@@ -14,8 +14,8 @@ They do not identify a position-only thermal resistance at equal airflow. The
 raw source table is
 [`auto-fan-operating-points.csv`](auto-fan-operating-points.csv).
 
-The campaign has now also completed its first successful fixed-fan safety
-bump. Fixed-fan results are tracked separately in
+The campaign has now completed fixed-fan safety bumps and its first steady
+fixed-fan equilibrium replicate. Fixed-fan results are tracked separately in
 [`fan-controlled-operating-points.csv`](fan-controlled-operating-points.csv)
 so transient control checks cannot be mistaken for steady automatic-controller
 cells.
@@ -50,6 +50,18 @@ exceeded the roughly 15°C mean gap in the automatic-controller 250/250 runs,
 consistent with the top card's extra automatic fan effort masking some of its
 burden. Because one figure is a transient endpoint and the other a 10-minute
 mean, this is not yet a like-for-like equilibrium comparison.
+
+The guarded ten-minute `NG-FAN-EQ30-SYM250` R1 extension resolved that
+comparison. Bottom and top closing temperature slopes were +0.0604 and
++0.0582 C/min, satisfying the steady-state gate. At the same 250 W board
+power and the same 30% / approximately 1,200 RPM fan speed, the bottom averaged
+51.281 C and the top 67.760 C, a 16.479 C mean positional delta. The top
+averaged 31.677 MHz lower and delivered 0.8533 requests/s versus 0.9600
+requests/s on the bottom, with all explicit thermal and brake counters at
+zero. This demonstrates heat-associated boost/performance loss below the
+driver's formal thermal-throttling thresholds. It is the first admissible
+replicate, not yet a validated coefficient; two repeats and calibrated
+ambient/local-inlet measurements are still needed.
 
 ## What is established now
 
