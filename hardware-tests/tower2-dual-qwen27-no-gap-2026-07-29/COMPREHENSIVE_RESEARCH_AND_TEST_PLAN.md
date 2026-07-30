@@ -314,7 +314,60 @@ Every standard-response, coupling, and allocation condition requires at least th
 - After the swap, repeat 250/250, 400/400, and 500/500.
 - Preserve UUID/serial mapping rather than relying on GPU index.
 
-### 9.3 Tier 2 — airflow/configuration anchors
+### 9.3 Tier 2 — fan-controlled airflow identification
+
+Automatic-fan runs are closed-loop operating points: temperature changes fan
+speed, and fan speed changes temperature. They describe the stock system, but
+cannot by themselves identify a position penalty or thermal resistance at
+equal cooling effort. Fan duty and actual RPM must therefore be treated as
+controlled inputs as well as measured outputs.
+
+Tower2 exposes four physical GPU fans through `nvidia-settings`, including
+commanded duty, current duty, and per-fan RPM. The verified mapping is fans
+0–1 for GPU0/bottom and fans 2–3 for GPU1/top. Manual target assignments fail
+under the current X-server configuration, so fixed-fan execution remains
+gated on a controlled Coolbits configuration/restart and a fail-safe idle
+validation; advertised attributes alone are not proof that control works.
+
+Run two complementary families:
+
+1. **Automatic-fan operational envelope:** retain the stock controller and
+   measure the temperatures, fan response, clocks, throughput, and throttle
+   state a real deployment would produce.
+2. **Fixed-fan physics surface:** hold fan duty/RPM constant while varying
+   power, so positional self-heating and directional cross-heating can be
+   identified without controller feedback hiding or amplifying them.
+
+At minimum, run three valid replicates of:
+
+| Power condition, bottom/top | Equal fixed fan duties | Crossed fan duties |
+|---|---|---|
+| 250/250 | 30/30, 50/50, 70/70, 85/85 | 30/70, 70/30, 50/80, 80/50 |
+| 400/400 | 50/50, 70/70, 85/85 | selected high-information pairs |
+| 500/500 | 70/70, 85/85, 100/100 bump first | selected safe pairs |
+| 250/idle and idle/250 | 30/30, 50/50, 70/70, 85/85 | sweep the idle neighbor's fan |
+
+The single-loaded crossed-fan cells directly test the “fans in series” idea:
+hold the loaded card's power and fan fixed, then change only the neighboring
+card's fan. A change in loaded-card temperature, local inlet temperature, or
+required fan RPM measures neighbor-assisted or neighbor-disrupted airflow.
+Repeat in both directions because bottom-to-top and top-to-bottom coupling need
+not be symmetric.
+
+Do not normalize temperature by dividing by fan percentage. Fan percentage is
+not airflow, RPM is not necessarily linear with duty, and heat transfer is
+nonlinear with flow. Fit fan duty and RPM as nonlinear predictors, including
+cross-card interaction terms. Continue recording per-GPU fan duty in every
+primary NVIDIA sample and record all four individual physical fan RPMs at
+least once per second.
+
+Every manual-fan run requires a tested automatic-control restoration path on
+normal exit and every trap, an independent emergency temperature cutoff, a
+short bump test before a new high-power/low-fan combination, confirmation that
+commanded duty and actual RPM agree, and exclusion if a fan stalls or control
+is lost.
+
+### 9.4 Tier 2 — configuration anchors
 
 For each configuration below, measure three valid replicates of 250/250, 400/400, and 500/500:
 
@@ -327,7 +380,7 @@ For each configuration below, measure three valid replicates of 250/250, 400/400
 
 If time is constrained before spacing changes, prioritize no-gap card swap, side-panel open, and directed-intake anchors.
 
-### 9.4 Tier 3 — workload generalization
+### 9.5 Tier 3 — workload generalization
 
 At 250/250, 400/400, and 500/500, run at least three valid replicates of:
 
@@ -338,7 +391,7 @@ At 250/250, 400/400, and 500/500, run at least three valid replicates of:
 - memory-bandwidth-heavy workload;
 - burst/idle service trace.
 
-### 9.5 Adaptive matrix expansion
+### 9.6 Adaptive matrix expansion
 
 Do not automatically execute the complete 8×8 dual-power grid. After Tier 1:
 
@@ -441,13 +494,26 @@ T_local_inlet_i =
   + stack_airflow_penalty(position_i, stack_size, configuration)
 ```
 
-Fit self-heating from single-card controls. Fit directional coupling from asymmetric dual-card controls. Fit transient capacitance/time constants from warmup and cooldown. Fit fan and performance response separately:
+Fit self-heating from single-card controls. Fit directional coupling from asymmetric dual-card controls. Fit transient capacitance/time constants from warmup and cooldown. Fit automatic fan response and fixed-fan thermal response separately:
 
 ```text
 fan_i = f(T_i, P_i, configuration, card_identity)
-clock_i = g(P_i, T_i, workload, card_identity)
+theta_bottom =
+    R_bb(F_bottom, F_top) * P_bottom
+  + R_bt(F_bottom, F_top) * P_top
+
+theta_top =
+    R_tt(F_top, F_bottom) * P_top
+  + R_tb(F_top, F_bottom) * P_bottom
+
+clock_i = g(P_i, T_i, F_i, workload, card_identity)
 performance_i = h(clock_i, SM_activity_i, DRAM_activity_i, workload)
 ```
+
+Here `theta_i` is temperature rise above the card's measured local inlet, not
+raw GPU temperature. The cross-fan arguments are intentional: a neighboring
+fan may assist, starve, or turbulently disturb the loaded card. These fitted
+resistances are nonlinear surfaces, not constants.
 
 ### 12.2 Empirical cross-check
 
@@ -455,6 +521,8 @@ Fit a hierarchical nonlinear response surface or generalized additive model:
 
 ```text
 response ~ f(P_self) + f(P_neighbor) + P_self:P_neighbor
+         + f(fan_self_RPM) + f(fan_neighbor_RPM)
+         + fan_self_RPM:fan_neighbor_RPM
          + position + card_identity + ambient + airflow
          + workload + configuration + random_session_effect
 ```
@@ -674,13 +742,21 @@ Use `measured`, `interpolated`, or `extrapolated` in every row.
 2. Top variable with bottom fixed at 250 W.
 3. Add non-duplicate 800 W and 1000 W allocation cells.
 
-### Session 4 — identity and airflow
+### Session 4 — fan-controlled identification
+
+1. Verify fan-to-GPU mapping and automatic-control fail-safe restoration.
+2. Run fixed equal-fan 250/250 points at 30%, 50%, 70%, and 85%.
+3. Run crossed-fan 250/250 points.
+4. Run bottom-only and top-only neighbor-fan sweeps.
+5. Expand fixed-fan tests to 400/400 and safe 500/500 points.
+
+### Session 5 — identity and configuration airflow
 
 1. Side-panel and directed-intake anchors.
 2. Physically swap cards.
 3. Repeat 250/250, 400/400, and 500/500.
 
-### Session 5 — validation
+### Session 6 — validation
 
 1. Fit preliminary models.
 2. Select adaptive high-information cells.
@@ -705,10 +781,12 @@ Budget 20–30 minutes per standard cell. The essential pre-spacing program is a
 
 ## 18. Immediate next actions
 
-1. Acquire/install local inlet, inter-card, exhaust, and room temperature sensors.
-2. Extend the harness to log those sensors and higher-frequency NVIDIA/DCGM fields.
-3. Add single-GPU loading modes and per-GPU concurrency controls.
-4. Add immutable run IDs, checksums, and a normalized manifest.
+1. Extend the harness to log all four GPU fan duties and actual RPM values.
+2. Verify fan-to-GPU mapping and add fail-safe fixed-fan controls.
+3. Acquire/install local inlet, inter-card, exhaust, and room temperature sensors.
+4. Extend the harness to log those sensors and higher-frequency NVIDIA/DCGM fields.
+5. Complete the fixed-fan 250 W identification matrix before interpreting a
+   raw temperature delta as a position-only penalty.
 5. Run the 250 W bottom-only and top-only controls.
 6. Run 300/300 and 400/400 symmetric cells.
 7. Fit the first self-heating and coupling curves before choosing the rest of the matrix.

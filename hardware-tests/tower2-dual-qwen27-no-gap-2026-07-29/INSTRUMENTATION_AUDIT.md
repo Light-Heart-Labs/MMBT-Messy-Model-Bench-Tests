@@ -18,6 +18,18 @@ The installed NVIDIA 595.58.03 driver exposes the following per-GPU fields throu
 
 Host telemetry available through `lm-sensors` and `/proc` includes CPU package/CCD temperatures, CPU frequency, and NVMe temperatures. GPU memory temperature is reported as unavailable by this driver/card combination.
 
+The active X/NV-CONTROL server exposes four physical GPU fan targets through
+`nvidia-settings`. Fans 0–1 map to GPU0/bottom and fans 2–3 map to GPU1/top;
+the mapping was confirmed while the two GPUs occupied unequal live fan states
+and each fan pair matched its GPU's independent `nvidia-smi` duty. Available
+fields are current duty, target duty, and actual per-fan RPM. At the 30% idle
+floor, the four fans report approximately 1,200 RPM.
+
+`nvidia-smi fan.speed` is the intended percentage of the product's maximum
+noise-tolerance fan speed; it is not direct airflow and must not be treated as
+linear CFM. Actual RPM is a better mechanical control measurement, but RPM
+also is not equivalent to airflow through an obstructed stack.
+
 ## Missing measurements
 
 No external environmental probes are currently attached. Tower2 therefore cannot directly record:
@@ -51,12 +63,37 @@ The canonical `dual-vllm-qwen27-30m.sh` harness now:
 - records stable matrix-cell and replicate identifiers for the `n >= 3` validation ledger;
 - stops the OpenClaw gateway to clear its GPU embedding workers, aborts if a worker respawns, and restores the service after cleanup;
 - isolates external request sources before evaluating the start-temperature gates, waits for both GPUs to reach 0% utilization and the configured temperature limits, and restores any service stopped during preflight even if the run is rejected;
+- requires a configurable continuous quiescent soak after both GPUs first satisfy the utilization/temperature gates, resetting the soak if either condition is violated, and records the five-second preflight trace in `preflight-telemetry.csv`;
 - applies a configurable maximum-power cutoff to every nominally idle GPU;
 - verifies that Sanctuary's cumulative successful-request delta exactly matches the controlled request log before a run can pass;
 - emits machine-readable internal and transferable admissibility candidates;
-- records a second graphics/SM/memory-clock stream through direct NVML calls at a randomized 173â€“274 ms cadence, independent of the fixed-period primary telemetry logger.
+- records a second graphics/SM/memory-clock stream through direct NVML calls at a randomized 173–274 ms cadence, independent of the fixed-period primary telemetry logger.
+- records all four physical GPU fans continuously at 1 Hz in
+  `gpu-fan-telemetry.csv`, including current duty, target duty, actual RPM,
+  GPU/card-position mapping, completeness, and target-tracking error;
+- requires complete nonzero four-fan telemetry for new runs to qualify as
+  internally admissible, and places per-fan/per-GPU RPM distributions in
+  `summary.json` and standardized PNG reports.
 
 The independent NVML stream was added after `NG-SYM-250` replicate 2 reported a physically inconsistent fixed 180 MHz graphics/SM and 405 MHz memory clock while GPU1 simultaneously held 250 W, 100% utilization, and substantial request throughput. The thermal and workload channels passed, but the affected primary-clock metrics are excluded from validation aggregation. The jittered stream is preserved and summarized separately so clock-source disagreements remain visible rather than being silently reconciled.
+
+`NG-SINGLE-B-250` replicate 3 then validated the new stream against the primary logger: 799.476 versus 799.680 MHz mean graphics clock. That run was excluded thermally because a preceding 600 W production heat load left the idle top card warming at +0.4834°C/min through the closing window. This prompted the continuous quiescent-soak requirement; core-temperature admission alone does not control unmeasured chassis and inter-card thermal history.
+
+## Fixed-fan control status
+
+NV-CONTROL advertises `GPUFanControlState` and `GPUTargetFanSpeed`, but a
+fail-safe idle mapping test on 2026-07-29 found that target assignments return
+`Unknown Error` under the current X-server configuration. Both GPU control
+states were explicitly restored to automatic mode after the test. No
+fixed-fan result has been collected, and the presence of queryable attributes
+must not be described as working manual fan control.
+
+The likely missing prerequisite is an X-server Coolbits fan-control option.
+Enabling it would require an X configuration change and display-server restart
+or host reboot, which was not attempted while Tower2 was serving a live 600 W
+GPU1 production workload. Until a controlled maintenance window is approved,
+the campaign can collect actual RPM under the stock controller but cannot yet
+execute the fixed-fan identification matrix.
 
 The summarizer now reports target-relative power saturation, telemetry completeness, temperature-limit margin, steady-state slopes, sampled counter deltas, request rate, ambient statistics when supplied, top-minus-bottom deltas, and independent NVML clock distributions. The validation registry supports per-run `metric_exclusions`, allowing a bad sensor channel to be removed from a model without discarding otherwise admissible thermal evidence.
 

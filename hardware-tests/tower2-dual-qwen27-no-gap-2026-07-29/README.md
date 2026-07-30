@@ -8,6 +8,7 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-single-b-250-r3-excluded`](ng-single-b-250-r3-excluded/) | 53.66°C / 56°C / 31.8% mean | Isolated idle: 44.91°C / 47°C / 30.0% mean | Excluded: GPU0 fan and GPU1 temperature remained non-steady |
 | [`ng-sym-250-r2`](ng-sym-250-r2/) | 52.73°C / 55°C / 31.2% mean | 67.61°C / 71°C / 40.5% mean | Thermally admissible n=1/3; counters zero; GPU1 clock channel flagged |
 | [`ng-single-b-250-r2`](ng-single-b-250-r2/) | 53.47°C / 56°C / 31.5% mean | Isolated idle: 44.27°C / 46°C / 30.0% mean | Internally admissible n=1/3; thermal counters zero |
 | [`ng-single-t-250-r5`](ng-single-t-250-r5/) | Isolated idle: 29.00°C / 29°C / 30.0% mean | 56.39°C / 59°C / 33.3% mean | Third admissible replicate; within-campaign n=3 validated |
@@ -40,11 +41,21 @@ The first clean bottom-loaded replicate, `NG-SINGLE-B-250` R2, reproduced the di
 
 The first clean symmetric replicate, `NG-SYM-250` R2, reproduced the pilot’s thermal result: 52.730°C bottom, 67.613°C top, and a 14.883°C positional delta at equal 250 W caps. Both temperature slopes reached steady state and all thermal/brake counters stayed at zero. GPU1’s clock channel reported a physically inconsistent fixed 180/405 MHz while power, utilization, and throughput remained high; that channel is explicitly excluded from frequency-model fitting until an independent sampler is added. The thermal, fan, power, request-performance, and event-counter channels remain admissible.
 
+`NG-SINGLE-B-250` R3 completed cleanly but is excluded because the idle top temperature was still rising at +0.4834°C/min and the loaded bottom fan at +0.4158 pp/min over the closing three minutes. It followed an unrelated 600 W production heat load on the top card, showing that a cool GPU core does not prove the surrounding chassis/inter-card thermal mass has equilibrated. The run also validated the randomized NVML clock sampler: its 799.476 MHz GPU0 mean agreed with the primary logger’s 799.680 MHz mean to within 0.026%.
+
 [`STACKED_GPU_RESEARCH_PLAN.md`](STACKED_GPU_RESEARCH_PLAN.md) defines the controlled matrix, instrumentation, reduced-order thermal model, and publication formats intended to turn the two-card measurements into bounded three- and four-card stack forecasts.
 
 [`COMPREHENSIVE_RESEARCH_AND_TEST_PLAN.md`](COMPREHENSIVE_RESEARCH_AND_TEST_PLAN.md) is the canonical execution plan with hypotheses, exact test tiers, acceptance and safety gates, statistical methods, data architecture, model validation, resource estimates, and the publication package.
 
 [`INSTRUMENTATION_AUDIT.md`](INSTRUMENTATION_AUDIT.md) records the telemetry available on Tower2, the current environmental-sensor gap, the harness improvements made for the expanded matrix, and the boundary between internally useful measurements and transferable stack forecasts.
+
+Beginning with the next run, the harness also records all four physical GPU
+fans in `gpu-fan-telemetry.csv`: fans 0–1 are GPU0/bottom and fans 2–3 are
+GPU1/top. Each sample includes current and target duty plus actual RPM, and new
+runs cannot qualify if that channel is missing or incomplete. Fixed-fan
+targets are not yet available under Tower2's current X-server configuration;
+the advertised NV-CONTROL assignments fail, so all published runs to date use
+the stock automatic controller.
 
 [`VALIDATION_STATUS.md`](VALIDATION_STATUS.md) and [`VALIDATION_REGISTRY.csv`](VALIDATION_REGISTRY.csv) enforce the campaign-wide `n >= 3` rule. Qualified pilots and excluded runs remain visible but never count toward the three admissible replicates required for validation.
 
@@ -58,7 +69,8 @@ The first clean symmetric replicate, `NG-SYM-250` R2, reproduced the pilot’s t
 
 1. Each run directory's `REPORT.md` gives the human-readable result.
 2. `summary.json` contains machine-readable aggregate statistics.
-3. `gpu-telemetry.csv`, `host-telemetry.csv`, and `requests.csv` contain the raw samples.
+3. `gpu-telemetry.csv`, `gpu-fan-telemetry.csv` on new runs,
+   `host-telemetry.csv`, and `requests.csv` contain the raw samples.
 4. `nvidia-before.txt`, `nvidia-after.txt`, events, payloads, and logs preserve the audit trail.
 5. `dual-vllm-qwen27-30m.sh` and `summarize-dual-vllm.py` are the tested harness and summarizer.
 

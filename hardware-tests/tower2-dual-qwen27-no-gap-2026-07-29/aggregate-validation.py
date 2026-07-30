@@ -34,6 +34,7 @@ def metrics(summary):
                     summary, "gpus", gpu, "last_5m", "temp_gpu_c", "mean"
                 ),
                 f"{prefix}.fan_mean_pct": nested(summary, "gpus", gpu, "fan_pct", "mean"),
+                f"{prefix}.fan_mean_rpm": nested(summary, "gpus", gpu, "fan_rpm", "mean"),
                 f"{prefix}.clock_mean_mhz": nested(
                     summary, "gpus", gpu, "graphics_clock_mhz", "mean"
                 ),

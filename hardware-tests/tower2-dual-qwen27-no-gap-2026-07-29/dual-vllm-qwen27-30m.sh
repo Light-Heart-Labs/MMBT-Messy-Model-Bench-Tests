@@ -33,9 +33,13 @@ MAX_START_TEMP_GPU1_C=45
 MAX_IDLE_POWER_GPU0_W=50
 MAX_IDLE_POWER_GPU1_W=50
 TELEMETRY_INTERVAL_MS=1000
+FAN_TELEMETRY_INTERVAL_MS=1000
 NVML_CLOCK_BASE_MS=173
 NVML_CLOCK_JITTER_MS=101
+PREFLIGHT_SOAK_S=300
 AMBIENT_C=""
+NVIDIA_SETTINGS_DISPLAY=":0"
+NVIDIA_SETTINGS_XAUTHORITY="/run/user/120/gdm/Xauthority"
 GPU0_PORT=8001
 GPU1_PORT=8002
 GPU0_CONTAINER="tower2-qwen27-gpu0-thermal"
@@ -86,6 +90,7 @@ Options:
   --telemetry-ms MS        GPU telemetry interval in milliseconds (default: 1000)
   --nvml-clock-base-ms MS  Independent NVML clock sampler base delay (default: 173)
   --nvml-clock-jitter-ms MS Random delay added to the NVML sampler (default: 101)
+  --preflight-soak SECONDS Continuous cool/idle soak after start gates (default: 300)
   --ambient-c C            Manually measured room/chassis inlet temperature
 
 Before --run:
@@ -123,6 +128,7 @@ while (($#)); do
     --telemetry-ms) TELEMETRY_INTERVAL_MS="${2:?missing value for --telemetry-ms}"; shift 2 ;;
     --nvml-clock-base-ms) NVML_CLOCK_BASE_MS="${2:?missing value for --nvml-clock-base-ms}"; shift 2 ;;
     --nvml-clock-jitter-ms) NVML_CLOCK_JITTER_MS="${2:?missing value for --nvml-clock-jitter-ms}"; shift 2 ;;
+    --preflight-soak) PREFLIGHT_SOAK_S="${2:?missing value for --preflight-soak}"; shift 2 ;;
     --ambient-c) AMBIENT_C="${2:?missing value for --ambient-c}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
@@ -153,6 +159,10 @@ done
 }
 [[ "$NVML_CLOCK_JITTER_MS" =~ ^[0-9]+$ ]] || {
   echo "NVML_CLOCK_JITTER_MS must be a non-negative integer" >&2
+  exit 2
+}
+[[ "$PREFLIGHT_SOAK_S" =~ ^[0-9]+$ ]] || {
+  echo "PREFLIGHT_SOAK_S must be a non-negative integer" >&2
   exit 2
 }
 ((NVML_CLOCK_BASE_MS >= 20)) || {
@@ -240,6 +250,22 @@ telemetry_probe() {
     --format=csv,noheader,nounits
 }
 
+fan_telemetry_probe() {
+  local -a query_args=()
+  local fan
+  for fan in 0 1 2 3; do
+    query_args+=(
+      -q "[fan:${fan}]/GPUCurrentFanSpeed"
+      -q "[fan:${fan}]/GPUTargetFanSpeed"
+      -q "[fan:${fan}]/GPUCurrentFanSpeedRPM"
+    )
+  done
+  sudo -n -u gdm env \
+    DISPLAY="$NVIDIA_SETTINGS_DISPLAY" \
+    XAUTHORITY="$NVIDIA_SETTINGS_XAUTHORITY" \
+    nvidia-settings -t "${query_args[@]}"
+}
+
 run_checks() {
   local failed=0
   log "Tower2 dual-Qwen27 readiness check"
@@ -249,7 +275,7 @@ run_checks() {
     failed=1
   }
 
-  for cmd in docker nvidia-smi curl jq awk flock lsof sensors python3; do
+  for cmd in docker nvidia-smi nvidia-settings curl jq awk flock lsof sensors python3; do
     require_command "$cmd" || failed=1
   done
 
@@ -274,6 +300,14 @@ run_checks() {
 
   telemetry_probe >/dev/null || {
     echo "Required NVIDIA telemetry fields are unavailable" >&2
+    failed=1
+  }
+  sudo -n -u gdm test -r "$NVIDIA_SETTINGS_XAUTHORITY" || {
+    echo "NVIDIA X authority is unavailable: $NVIDIA_SETTINGS_XAUTHORITY" >&2
+    failed=1
+  }
+  [[ "$(fan_telemetry_probe 2>/dev/null | wc -l)" -eq 12 ]] || {
+    echo "Four-fan duty/target/RPM telemetry is unavailable" >&2
     failed=1
   }
 
@@ -340,6 +374,9 @@ if [[ "$ACTION" == "check" ]]; then
 fi
 
 PREFLIGHT_SERVICE_GUARD_PID=""
+PREFLIGHT_CSV_TMP="$(mktemp /tmp/tower2-preflight-telemetry.XXXXXX.csv)"
+printf 'ts_wall_iso,ts_mono_s,gpu0_temp_c,gpu0_util_pct,gpu1_temp_c,gpu1_util_pct,gate_state\n' \
+  > "$PREFLIGHT_CSV_TMP"
 declare -a PREFLIGHT_STOPPED_USER_SERVICES=()
 
 preflight_restore() {
@@ -352,6 +389,7 @@ preflight_restore() {
   for service in "${PREFLIGHT_STOPPED_USER_SERVICES[@]:-}"; do
     [[ -n "$service" ]] && systemctl --user start "$service" >/dev/null 2>&1
   done
+  [[ -n "${PREFLIGHT_CSV_TMP:-}" ]] && rm -f "$PREFLIGHT_CSV_TMP"
 }
 
 preflight_service_guard() {
@@ -366,7 +404,8 @@ preflight_service_guard() {
 }
 
 preflight_quiesce() {
-  local service deadline sample temp0 util0 temp1 util1
+  local service deadline sample temp0 util0 temp1 util1 stable_since=-1
+  local stable_elapsed=0 next_log=0 gate_state wall mono
   log "Preflight isolation: quiescing external GPU request sources"
   for service in "${CONFLICTING_USER_SERVICES[@]}"; do
     if systemctl --user is-active --quiet "$service"; then
@@ -388,24 +427,51 @@ preflight_quiesce() {
     read -r temp1 util1 < <(
       awk -F, '$1+0 == 1 {gsub(/ /,""); print $2,$3}' <<<"$sample"
     )
+    wall="$(date -u +%FT%T.%3NZ)"
+    mono="$(awk 'BEGIN{getline x < "/proc/uptime"; split(x,a," "); print a[1]}')"
     if awk \
       -v t0="$temp0" -v u0="$util0" -v lim0="$MAX_START_TEMP_GPU0_C" \
       -v t1="$temp1" -v u1="$util1" -v lim1="$MAX_START_TEMP_GPU1_C" \
-      'BEGIN {exit !(
-        t0 <= lim0 && u0 == 0 &&
-        t1 <= lim1 && u1 == 0
-      )}'; then
-      log "Preflight isolation ready: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}%"
-      return 0
+      'BEGIN {exit !((t0 <= lim0 && u0 == 0) && (t1 <= lim1 && u1 == 0))}'; then
+      if ((stable_since < 0)); then
+        stable_since=$SECONDS
+        next_log=0
+        log "Preflight soak started: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}%"
+      fi
+      stable_elapsed=$((SECONDS - stable_since))
+      gate_state="soak-${stable_elapsed}-of-${PREFLIGHT_SOAK_S}s"
+      if ((stable_elapsed >= PREFLIGHT_SOAK_S)); then
+        printf '%s,%s,%s,%s,%s,%s,ready\n' \
+          "$wall" "$mono" "$temp0" "$util0" "$temp1" "$util1" \
+          >> "$PREFLIGHT_CSV_TMP"
+        log "Preflight isolation ready after ${stable_elapsed}s continuous soak: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}%"
+        return 0
+      fi
+      if ((SECONDS >= next_log)); then
+        log "Preflight soak ${stable_elapsed}/${PREFLIGHT_SOAK_S}s: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}%"
+        next_log=$((SECONDS + 30))
+      fi
+    else
+      stable_since=-1
+      stable_elapsed=0
+      gate_state="cooldown"
+      if ((SECONDS >= next_log)); then
+        log "Preflight cooldown: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}%"
+        next_log=$((SECONDS + 30))
+      fi
     fi
-    log "Preflight cooldown: GPU0=${temp0}C/${util0}% GPU1=${temp1}C/${util1}%"
+    printf '%s,%s,%s,%s,%s,%s,%s\n' \
+      "$wall" "$mono" "$temp0" "$util0" "$temp1" "$util1" "$gate_state" \
+      >> "$PREFLIGHT_CSV_TMP"
     sleep 5
   done
   echo "Preflight isolation/cooldown exceeded 900 seconds" >&2
   return 1
 }
 
-trap preflight_restore EXIT INT TERM
+trap preflight_restore EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 preflight_quiesce
 run_checks
 sudo -n true 2>/dev/null || {
@@ -417,9 +483,12 @@ mkdir -p "$OUT_ROOT"
 STAMP="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
 OUT="${OUT_ROOT}/${STAMP}-${TAG}"
 mkdir -p "$OUT"
+mv "$PREFLIGHT_CSV_TMP" "$OUT/preflight-telemetry.csv"
+PREFLIGHT_CSV_TMP=""
 
 RUN_LOG="$OUT/run.log"
 GPU_CSV="$OUT/gpu-telemetry.csv"
+FAN_CSV="$OUT/gpu-fan-telemetry.csv"
 NVML_CLOCK_CSV="$OUT/gpu-nvml-clock.csv"
 HOST_CSV="$OUT/host-telemetry.csv"
 REQUESTS_CSV="$OUT/requests.csv"
@@ -454,6 +523,7 @@ exec > >(tee -a "$RUN_LOG") 2>&1
 
 declare -a WORKER_PIDS=()
 LOGGER_PID=""
+FAN_LOGGER_PID=""
 HOST_LOGGER_PID=""
 NVML_LOGGER_PID=""
 SERVICE_GUARD_PID="$PREFLIGHT_SERVICE_GUARD_PID"
@@ -520,11 +590,13 @@ cleanup() {
   touch "$STOP_FILE"
   stop_workers_now
   [[ -n "$LOGGER_PID" ]] && kill "$LOGGER_PID" 2>/dev/null
+  [[ -n "$FAN_LOGGER_PID" ]] && kill "$FAN_LOGGER_PID" 2>/dev/null
   [[ -n "$HOST_LOGGER_PID" ]] && kill "$HOST_LOGGER_PID" 2>/dev/null
   [[ -n "$NVML_LOGGER_PID" ]] && kill "$NVML_LOGGER_PID" 2>/dev/null
   [[ -n "$SERVICE_GUARD_PID" ]] && kill "$SERVICE_GUARD_PID" 2>/dev/null
 
   [[ -n "$LOGGER_PID" ]] && wait "$LOGGER_PID" 2>/dev/null
+  [[ -n "$FAN_LOGGER_PID" ]] && wait "$FAN_LOGGER_PID" 2>/dev/null
   [[ -n "$HOST_LOGGER_PID" ]] && wait "$HOST_LOGGER_PID" 2>/dev/null
   [[ -n "$NVML_LOGGER_PID" ]] && wait "$NVML_LOGGER_PID" 2>/dev/null
   [[ -n "$SERVICE_GUARD_PID" ]] && wait "$SERVICE_GUARD_PID" 2>/dev/null
@@ -572,7 +644,9 @@ cleanup() {
 for service in "${PREFLIGHT_STOPPED_USER_SERVICES[@]:-}"; do
   [[ -n "$service" ]] && echo "$service" >> "$STOPPED_USER_SERVICES_FILE"
 done
-trap cleanup EXIT INT TERM
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 exec 9>"$LOCK_FILE"
 if ! flock -n 9; then
@@ -610,8 +684,10 @@ jq -n \
   --argjson max_idle_power_gpu0_w "$MAX_IDLE_POWER_GPU0_W" \
   --argjson max_idle_power_gpu1_w "$MAX_IDLE_POWER_GPU1_W" \
   --argjson telemetry_interval_ms "$TELEMETRY_INTERVAL_MS" \
+  --argjson fan_telemetry_interval_ms "$FAN_TELEMETRY_INTERVAL_MS" \
   --argjson nvml_clock_base_ms "$NVML_CLOCK_BASE_MS" \
   --argjson nvml_clock_jitter_ms "$NVML_CLOCK_JITTER_MS" \
+  --argjson preflight_soak_s "$PREFLIGHT_SOAK_S" \
   --arg ambient_c "$AMBIENT_C" \
   '{
     tag:$tag,
@@ -640,6 +716,17 @@ jq -n \
     telemetry_interval_ms:$telemetry_interval_ms,
     nvml_clock_base_ms:$nvml_clock_base_ms,
     nvml_clock_jitter_ms:$nvml_clock_jitter_ms,
+    preflight_soak_s:$preflight_soak_s,
+    fan_telemetry:{
+      source:"nvidia-settings NV-CONTROL",
+      interval_ms:$fan_telemetry_interval_ms,
+      mapping:{
+        gpu0_bottom:[0,1],
+        gpu1_top:[2,3]
+      },
+      fields:["current_pct","target_pct","rpm"],
+      mapping_validation:"matched per-GPU nvidia-smi fan duty during unequal live fan states"
+    },
     ambient_c:(if $ambient_c == "" then null else ($ambient_c | tonumber) end)
   }' > "$OUT/run-config.json"
 
@@ -806,6 +893,47 @@ gpu_logger() {
   done
 }
 
+fan_logger() {
+  local interval_ns next_sample_ns now_ns sleep_s wall mono phase sample
+  local -a values=()
+  local fan offset gpu position
+  interval_ns=$((FAN_TELEMETRY_INTERVAL_MS * 1000000))
+  next_sample_ns="$(date +%s%N)"
+  echo "ts_wall_iso,ts_mono_s,phase,fan_index,gpu_index,card_position,current_pct,target_pct,rpm" > "$FAN_CSV"
+  while [[ ! -f "$STOP_FILE" ]]; do
+    wall="$(date -u +%FT%T.%3NZ)"
+    mono="$(awk 'BEGIN{getline x < "/proc/uptime"; split(x,a," "); print a[1]}')"
+    phase="$(cat "$PHASE_FILE" 2>/dev/null || echo unknown)"
+    if ! sample="$(fan_telemetry_probe 2>/dev/null)"; then
+      printf '%s phase=%s fan-telemetry-query-failed\n' "$wall" "$phase" > "$ABORT_FILE"
+      break
+    fi
+    mapfile -t values <<<"$sample"
+    if [[ "${#values[@]}" -ne 12 ]]; then
+      printf '%s phase=%s expected-12-fan-values-got-%s\n' \
+        "$wall" "$phase" "${#values[@]}" > "$ABORT_FILE"
+      break
+    fi
+    for fan in 0 1 2 3; do
+      offset=$((fan * 3))
+      gpu=$((fan / 2))
+      ((gpu == 0)) && position="bottom" || position="top"
+      printf '%s,%s,%s,%s,%s,%s,%s,%s,%s\n' \
+        "$wall" "$mono" "$phase" "$fan" "$gpu" "$position" \
+        "${values[offset]}" "${values[offset + 1]}" "${values[offset + 2]}" \
+        >> "$FAN_CSV"
+    done
+    next_sample_ns=$((next_sample_ns + interval_ns))
+    now_ns="$(date +%s%N)"
+    if ((next_sample_ns > now_ns)); then
+      sleep_s="$(awk -v ns="$((next_sample_ns - now_ns))" 'BEGIN{printf "%.6f",ns/1000000000}')"
+      sleep "$sleep_s"
+    else
+      next_sample_ns="$now_ns"
+    fi
+  done
+}
+
 host_logger() {
   echo "ts_wall_iso,ts_mono_s,phase,ambient_c,cpu_tctl_c,cpu_ccd_max_c,cpu_avg_mhz,nvme_max_c" > "$HOST_CSV"
   while [[ ! -f "$STOP_FILE" ]]; do
@@ -843,6 +971,8 @@ request_worker() {
 log "Starting ${TELEMETRY_INTERVAL_MS} ms GPU telemetry; workers GPU0=${CONCURRENCY_GPU0} GPU1=${CONCURRENCY_GPU1}"
 gpu_logger &
 LOGGER_PID=$!
+fan_logger &
+FAN_LOGGER_PID=$!
 host_logger &
 HOST_LOGGER_PID=$!
 python3 "$(dirname "$0")/nvml-clock-logger.py" \
@@ -1024,8 +1154,9 @@ printf 'cooldown\n' > "$PHASE_FILE"
 log "Requests drained; logging ${COOLDOWN_S}s cooldown"
 sleep "$COOLDOWN_S"
 touch "$STOP_FILE"
-wait "$LOGGER_PID" "$HOST_LOGGER_PID" "$NVML_LOGGER_PID" 2>/dev/null || true
+wait "$LOGGER_PID" "$FAN_LOGGER_PID" "$HOST_LOGGER_PID" "$NVML_LOGGER_PID" 2>/dev/null || true
 LOGGER_PID=""
+FAN_LOGGER_PID=""
 HOST_LOGGER_PID=""
 NVML_LOGGER_PID=""
 

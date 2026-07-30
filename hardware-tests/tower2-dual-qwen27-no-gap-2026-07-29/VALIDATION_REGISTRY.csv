@@ -12,3 +12,4 @@ run_id,cell_id,replicate,configuration,bottom_power_w,top_power_w,load_pattern,d
 2026-07-30T00-50-49Z,NG-SINGLE-T-250,5,no-gap,250,250,idle-loaded,600,pass,true,false,no ambient or local-inlet probes; within-session validation only,,ng-single-t-250-r5
 2026-07-30T01-10-21Z,NG-SINGLE-B-250,2,no-gap,250,250,loaded-idle,600,pass,true,false,no ambient or local-inlet probes,,ng-single-b-250-r2
 2026-07-30T01-34-16Z,NG-SYM-250,2,no-gap,250,250,loaded-loaded,600,pass,true,false,no ambient or local-inlet probes; GPU1 clock telemetry quality-flagged as aliased or stale,gpu1.clock_mean_mhz|gpu1.clock_last5_mean_mhz|top_minus_bottom.graphics_clock_mhz,ng-sym-250-r2
+2026-07-30T02-01-51Z,NG-SINGLE-B-250,3,no-gap,250,250,loaded-idle,600,excluded,false,false,non-steady after prior 600 W production heat soak; GPU0 fan slope +0.4158 pp/min and idle GPU1 temperature slope +0.4834 C/min,,ng-single-b-250-r3-excluded

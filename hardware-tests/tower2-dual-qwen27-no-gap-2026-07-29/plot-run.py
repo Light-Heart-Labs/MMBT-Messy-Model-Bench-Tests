@@ -61,6 +61,17 @@ summary = (
     if summary_path.exists()
     else {"gpus": {}}
 )
+excluded = (
+    not partial
+    and summary.get("quality_gates", {}).get("internal_admissible_candidate") is False
+)
+status_label = (
+    "ABORTED / PARTIAL"
+    if partial
+    else "EXCLUDED / NON-ADMISSIBLE"
+    if excluded
+    else "PASS"
+)
 
 rows = {"0": [], "1": []}
 with (run_dir / "gpu-telemetry.csv").open(newline="", encoding="utf-8") as handle:
@@ -122,8 +133,8 @@ if bool(concurrency["0"]) != bool(concurrency["1"]):
 else:
     loaded_gpu = None
     title = f"Tower2 no-gap dual-card thermal run · {caps[0]:g}/{caps[1]:g} W"
-if partial:
-    title = "ABORTED / PARTIAL · " + title
+if partial or excluded:
+    title = status_label + " · " + title
 draw.text((70, 38), title, fill=text, font=font(38, True))
 subtitle = (
     f"Qwen3.6-27B AWQ-INT4 · "
@@ -197,27 +208,39 @@ for panel_index, (title, field, unit) in enumerate(metrics):
         f"mean: {fmt(stats0['mean'], unit)} / {fmt(stats1['mean'], unit)}   "
         f"max: {fmt(stats0['max'], unit)} / {fmt(stats1['max'], unit)}"
     )
+    if field == "fan_pct":
+        rpm0 = summary["gpus"]["0"].get("fan_rpm")
+        rpm1 = summary["gpus"]["1"].get("fan_rpm")
+        if rpm0 and rpm1:
+            annotation += (
+                f"   physical fan mean: {rpm0['mean']:.0f} / "
+                f"{rpm1['mean']:.0f} RPM"
+            )
     draw.text((right - 10, y0 + 7), annotation, fill=muted, font=font(18), anchor="ra")
 
 footer_y = 1182
 gpu0 = summary["gpus"]["0"]
 gpu1 = summary["gpus"]["1"]
+rpm0_footer = f", {gpu0['fan_rpm']['mean']:.0f} RPM" if gpu0.get("fan_rpm") else ""
+rpm1_footer = f", {gpu1['fan_rpm']['mean']:.0f} RPM" if gpu1.get("fan_rpm") else ""
 footer = (
-    f"{'ABORTED / EXCLUDED' if partial else 'PASS'} · "
+    f"{status_label} · "
     f"GPU0 {role['0']}: {gpu0['power_avg_w']['mean']:.2f} W, "
-    f"{gpu0['temp_gpu_c']['mean']:.2f}°C, {gpu0['fan_pct']['mean']:.1f}% fan · "
+    f"{gpu0['temp_gpu_c']['mean']:.2f}°C, {gpu0['fan_pct']['mean']:.1f}% fan"
+    f"{rpm0_footer} · "
     f"GPU1 {role['1']}: {gpu1['power_avg_w']['mean']:.2f} W, "
     f"{gpu1['temp_gpu_c']['mean']:.2f}°C, {gpu1['fan_pct']['mean']:.1f}% fan"
+    f"{rpm1_footer}"
 )
 draw.rounded_rectangle(
     (50, footer_y - 12, 1760, footer_y + 45),
     radius=14,
-    fill="#5b2730" if partial else "#0b4638",
+    fill="#5b2730" if partial or excluded else "#0b4638",
 )
 draw.text(
     (75, footer_y),
     footer,
-    fill="#ffd0d5" if partial else "#a8f5d4",
+    fill="#ffd0d5" if partial or excluded else "#a8f5d4",
     font=font(19),
 )
 draw.text(

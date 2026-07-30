@@ -195,6 +195,67 @@ for gpu, rows in sorted(measured_by_gpu.items()):
         },
     }
 
+fan_csv_path = gpu_csv.parent / "gpu-fan-telemetry.csv"
+summary["fan_telemetry"] = {"available": False, "fans": {}, "gpus": {}}
+if fan_csv_path.exists():
+    measured_by_fan = defaultdict(list)
+    measured_fans_by_gpu = defaultdict(list)
+    with fan_csv_path.open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            if row.get("phase", "").strip() != "measured":
+                continue
+            fan = row["fan_index"].strip()
+            gpu = row["gpu_index"].strip()
+            measured_by_fan[fan].append(row)
+            measured_fans_by_gpu[gpu].append(row)
+
+    summary["fan_telemetry"]["available"] = bool(measured_by_fan)
+    fan_interval_ms = number(
+        config.get("fan_telemetry", {}).get("interval_ms")
+    ) or interval_ms
+    expected_fan_samples = (
+        duration_s * 1000 / fan_interval_ms
+        if duration_s and fan_interval_ms
+        else None
+    )
+    for fan, rows in sorted(measured_by_fan.items()):
+        tracking_errors = [
+            abs(current - target)
+            for row in rows
+            if (current := number(row.get("current_pct"))) is not None
+            and (target := number(row.get("target_pct"))) is not None
+        ]
+        summary["fan_telemetry"]["fans"][fan] = {
+            "gpu": int(rows[0]["gpu_index"]),
+            "card_position": rows[0]["card_position"],
+            "samples": len(rows),
+            "expected_samples": (
+                round(expected_fan_samples, 1) if expected_fan_samples else None
+            ),
+            "sample_completeness": (
+                round(min(1.0, len(rows) / expected_fan_samples), 4)
+                if expected_fan_samples
+                else None
+            ),
+            "current_pct": stats([number(row.get("current_pct")) for row in rows]),
+            "target_pct": stats([number(row.get("target_pct")) for row in rows]),
+            "rpm": stats([number(row.get("rpm")) for row in rows]),
+            "absolute_target_tracking_error_pct": stats(tracking_errors),
+        }
+
+    for gpu, rows in sorted(measured_fans_by_gpu.items()):
+        fan_indices = sorted({int(row["fan_index"]) for row in rows})
+        gpu_fan_summary = {
+            "fan_indices": fan_indices,
+            "current_pct": stats([number(row.get("current_pct")) for row in rows]),
+            "target_pct": stats([number(row.get("target_pct")) for row in rows]),
+            "rpm": stats([number(row.get("rpm")) for row in rows]),
+        }
+        summary["fan_telemetry"]["gpus"][gpu] = gpu_fan_summary
+        if gpu in summary["gpus"]:
+            summary["gpus"][gpu]["fan_rpm"] = gpu_fan_summary["rpm"]
+            summary["gpus"][gpu]["physical_fan_indices"] = fan_indices
+
 host_rows = []
 with host_csv.open(newline="", encoding="utf-8") as handle:
     for row in csv.DictReader(handle):
@@ -360,9 +421,23 @@ if "0" in summary["gpus"] and "1" in summary["gpus"]:
     summary["top_minus_bottom"] = {
         "temp_gpu_c": mean_delta("temp_gpu_c"),
         "fan_pct": mean_delta("fan_pct"),
+        "fan_rpm": mean_delta("fan_rpm"),
         "graphics_clock_mhz": mean_delta("graphics_clock_mhz"),
         "power_avg_w": mean_delta("power_avg_w"),
     }
+
+fan_telemetry_required = bool(config.get("fan_telemetry"))
+fan_telemetry_pass = (
+    summary["fan_telemetry"]["available"]
+    and len(summary["fan_telemetry"]["fans"]) == 4
+    and all(
+        fan["sample_completeness"] is not None
+        and fan["sample_completeness"] >= 0.95
+        and fan["rpm"] is not None
+        and fan["rpm"]["min"] > 0
+        for fan in summary["fan_telemetry"]["fans"].values()
+    )
+)
 
 per_gpu_quality = {}
 for gpu, gpu_summary in summary["gpus"].items():
@@ -405,10 +480,12 @@ internal_candidate = workload_isolation_pass and all(
         else gates["idle_power_gate_pass"] is True
     )
     for gates in per_gpu_quality.values()
-)
+) and (fan_telemetry_pass or not fan_telemetry_required)
 summary["quality_gates"] = {
     "per_gpu": per_gpu_quality,
     "workload_isolation_pass": workload_isolation_pass,
+    "fan_telemetry_required": fan_telemetry_required,
+    "fan_telemetry_pass": fan_telemetry_pass,
     "internal_admissible_candidate": internal_candidate,
     "transferable_admissible_candidate": (
         internal_candidate and summary["host"]["ambient_c"] is not None
