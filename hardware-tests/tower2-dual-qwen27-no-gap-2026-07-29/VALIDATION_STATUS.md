@@ -15,7 +15,7 @@ Two validation levels are tracked:
 | NG-SYM-500 | 1 | 3 | 0 | Two internal replicates plus environmental instrumentation required |
 | NG-ASYM-600-400 | 1 | 3 | 0 | Two internal replicates plus environmental instrumentation required |
 | NG-SINGLE-B-250 | 0 | 3 | 0 | Clean n=3 campaign required |
-| NG-SINGLE-T-250 | 1 | 3 | 0 | Replicate 2 admissible; two more internal replicates required |
+| NG-SINGLE-T-250 | 2 | 3 | 0 | Replicates 2 and 4 admissible; one more internal replicate required |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 
 No cell is validated yet. Existing results are pilots, boundary evidence, or individual admissible internal replicates.

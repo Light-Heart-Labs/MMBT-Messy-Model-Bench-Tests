@@ -1,0 +1,20 @@
+● openclaw-gateway.service - OpenClaw Gateway (v2026.6.33)
+     Loaded: loaded (/home/michael/.config/systemd/user/openclaw-gateway.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-07-29 20:21:26 EDT; 12min ago
+   Main PID: 878139 (node)
+      Tasks: 11 (limit: 308344)
+     Memory: 314.4M (peak: 661.4M)
+        CPU: 11.977s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/openclaw-gateway.service
+             └─878139 /usr/bin/node /home/michael/.npm-global/lib/node_modules/openclaw/dist/index.js gateway --port 18789
+
+Jul 29 20:30:18 Tower2 node[878139]: 2026-07-29T20:30:18.646-04:00 [provider-transport-fetch] [model-fetch] start provider=tower api=openai-completions model=sanctuary method=POST url=http://127.0.0.1:8002/v1/chat/completions timeoutMs=300000 proxy=none policy=custom
+Jul 29 20:30:18 Tower2 node[878139]: 2026-07-29T20:30:18.649-04:00 [provider-transport-fetch] [model-fetch] error provider=tower api=openai-completions model=sanctuary elapsedMs=3 name=TypeError code=undefined causeName=SocketError causeCode=UND_ERR_SOCKET message=fetch failed
+Jul 29 20:30:19 Tower2 node[878139]: 2026-07-29T20:30:19.495-04:00 [provider-transport-fetch] [model-fetch] start provider=tower api=openai-completions model=sanctuary method=POST url=http://127.0.0.1:8002/v1/chat/completions timeoutMs=300000 proxy=none policy=custom
+Jul 29 20:30:19 Tower2 node[878139]: 2026-07-29T20:30:19.498-04:00 [provider-transport-fetch] [model-fetch] error provider=tower api=openai-completions model=sanctuary elapsedMs=3 name=TypeError code=undefined causeName=SocketError causeCode=UND_ERR_SOCKET message=fetch failed
+Jul 29 20:30:19 Tower2 node[878139]: 2026-07-29T20:30:19.509-04:00 [agent/embedded] embedded run agent end: runId=chatcmpl_e6a27c32-e235-4c88-9260-3cec454bd71d isError=true model=sanctuary provider=tower error=LLM request failed: network connection error. rawError=Connection error.
+Jul 29 20:30:19 Tower2 node[878139]: 2026-07-29T20:30:19.529-04:00 [agent/embedded] embedded run failover decision: runId=chatcmpl_e6a27c32-e235-4c88-9260-3cec454bd71d stage=assistant decision=surface_error reason=timeout from=tower/sanctuary profile=- rawError=Connection error.
+Jul 29 20:30:19 Tower2 node[878139]: 2026-07-29T20:30:19.531-04:00 [diagnostic] lane task error: lane=main durationMs=11089 error="FailoverError: LLM request failed: network connection error."
+Jul 29 20:30:19 Tower2 node[878139]: 2026-07-29T20:30:19.532-04:00 [diagnostic] lane task error: lane=session:agent:pixel:openai:8d231ba5-cd90-411a-8efe-1dce7d7c207f durationMs=11091 error="FailoverError: LLM request failed: network connection error."
+Jul 29 20:30:19 Tower2 node[878139]: 2026-07-29T20:30:19.535-04:00 [model-fallback/decision] model fallback decision: decision=candidate_failed requested=tower/sanctuary candidate=tower/sanctuary reason=timeout next=none detail=Connection error.
+Jul 29 20:30:19 Tower2 node[878139]: 2026-07-29T20:30:19.542-04:00 [openai-compat] streaming chat completion failed: FailoverError: LLM request failed: network connection error.
