@@ -39,6 +39,7 @@ FAN_TELEMETRY_INTERVAL_MS=1000
 NVML_CLOCK_BASE_MS=173
 NVML_CLOCK_JITTER_MS=101
 PREFLIGHT_SOAK_S=300
+STEADY_STATE_PROTOCOL="v1-slope"
 AMBIENT_C=""
 NVIDIA_SETTINGS_DISPLAY=":0"
 NVIDIA_SETTINGS_XAUTHORITY="/run/user/120/gdm/Xauthority"
@@ -95,6 +96,9 @@ Options:
   --nvml-clock-base-ms MS  Independent NVML clock sampler base delay (default: 173)
   --nvml-clock-jitter-ms MS Random delay added to the NVML sampler (default: 101)
   --preflight-soak SECONDS Continuous cool/idle soak after start gates (default: 300)
+  --steady-state-protocol NAME
+                           v1-slope or v2-fixed-quantized (v2 requires fixed
+                           fans and at least 900 measured seconds)
   --ambient-c C            Manually measured room/chassis inlet temperature
 
 Before --run:
@@ -135,6 +139,7 @@ while (($#)); do
     --nvml-clock-base-ms) NVML_CLOCK_BASE_MS="${2:?missing value for --nvml-clock-base-ms}"; shift 2 ;;
     --nvml-clock-jitter-ms) NVML_CLOCK_JITTER_MS="${2:?missing value for --nvml-clock-jitter-ms}"; shift 2 ;;
     --preflight-soak) PREFLIGHT_SOAK_S="${2:?missing value for --preflight-soak}"; shift 2 ;;
+    --steady-state-protocol) STEADY_STATE_PROTOCOL="${2:?missing value for --steady-state-protocol}"; shift 2 ;;
     --ambient-c) AMBIENT_C="${2:?missing value for --ambient-c}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; usage >&2; exit 2 ;;
@@ -202,6 +207,23 @@ for value in GPU0_FIXED_FAN_PCT GPU1_FIXED_FAN_PCT; do
     exit 2
   fi
 done
+case "$STEADY_STATE_PROTOCOL" in
+  v1-slope) ;;
+  v2-fixed-quantized)
+    ((DURATION_S >= 900)) || {
+      echo "v2-fixed-quantized requires at least 900 measured seconds" >&2
+      exit 2
+    }
+    [[ -n "$GPU0_FIXED_FAN_PCT" && -n "$GPU1_FIXED_FAN_PCT" ]] || {
+      echo "v2-fixed-quantized requires fixed fan targets on both GPUs" >&2
+      exit 2
+    }
+    ;;
+  *)
+    echo "STEADY_STATE_PROTOCOL must be v1-slope or v2-fixed-quantized" >&2
+    exit 2
+    ;;
+esac
 for value in GPU_ABORT_C MAX_START_TEMP_GPU0_C MAX_START_TEMP_GPU1_C; do
   [[ "${!value}" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
     echo "$value must be numeric" >&2
@@ -784,6 +806,7 @@ jq -n \
   --argjson nvml_clock_base_ms "$NVML_CLOCK_BASE_MS" \
   --argjson nvml_clock_jitter_ms "$NVML_CLOCK_JITTER_MS" \
   --argjson preflight_soak_s "$PREFLIGHT_SOAK_S" \
+  --arg steady_state_protocol "$STEADY_STATE_PROTOCOL" \
   --arg ambient_c "$AMBIENT_C" \
   '{
     tag:$tag,
@@ -825,6 +848,7 @@ jq -n \
     nvml_clock_base_ms:$nvml_clock_base_ms,
     nvml_clock_jitter_ms:$nvml_clock_jitter_ms,
     preflight_soak_s:$preflight_soak_s,
+    steady_state_protocol:$steady_state_protocol,
     fan_telemetry:{
       source:"nvidia-settings NV-CONTROL",
       interval_ms:$fan_telemetry_interval_ms,

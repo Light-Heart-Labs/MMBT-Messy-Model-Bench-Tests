@@ -78,6 +78,50 @@ def linear_slope_per_minute(rows, field, last_seconds=180):
     return round(slope_per_second * 60, 4)
 
 
+def quantized_plateau(rows, field="temp_gpu_c", last_seconds=300, bin_seconds=60):
+    points = [
+        (number(row.get("ts_mono_s")), number(row.get(field)))
+        for row in rows
+    ]
+    points = [(x, y) for x, y in points if x is not None and y is not None]
+    if len(points) < 2:
+        return None
+    end = max(x for x, _ in points)
+    start = end - last_seconds
+    selected = [(x, y) for x, y in points if x > start]
+    bins = defaultdict(list)
+    for x, y in selected:
+        index = min(int((x - start) // bin_seconds), int(last_seconds // bin_seconds) - 1)
+        bins[index].append(y)
+    medians = [
+        statistics.median(bins[index])
+        for index in sorted(bins)
+        if bins[index]
+    ]
+    required_bins = int(last_seconds // bin_seconds)
+    if len(medians) != required_bins:
+        return None
+    x_values = list(range(len(medians)))
+    x_mean = statistics.fmean(x_values)
+    y_mean = statistics.fmean(medians)
+    denominator = sum((x - x_mean) ** 2 for x in x_values)
+    slope = (
+        sum((x - x_mean) * (y - y_mean) for x, y in zip(x_values, medians))
+        / denominator
+        if denominator
+        else 0.0
+    )
+    median_range = max(medians) - min(medians)
+    return {
+        "window_s": last_seconds,
+        "bin_s": bin_seconds,
+        "minute_medians_c": medians,
+        "median_range_c": round(median_range, 4),
+        "median_slope_c_per_min": round(slope, 4),
+        "pass": median_range <= 1.0 and abs(slope) <= 0.35,
+    }
+
+
 gpu_csv, host_csv, requests_csv, output_json = map(Path, sys.argv[1:5])
 nvidia_before = Path(sys.argv[5]) if len(sys.argv) > 5 else None
 nvidia_after = Path(sys.argv[6]) if len(sys.argv) > 6 else None
@@ -87,6 +131,7 @@ config_path = gpu_csv.parent / "run-config.json"
 config = {}
 if config_path.exists():
     config = json.loads(config_path.read_text(encoding="utf-8"))
+steady_state_protocol = config.get("steady_state_protocol", "v1-slope")
 
 measured_by_gpu = defaultdict(list)
 with gpu_csv.open(newline="", encoding="utf-8") as handle:
@@ -115,12 +160,23 @@ for gpu, rows in sorted(measured_by_gpu.items()):
         "graphics_clock_mhz": linear_slope_per_minute(rows, "graphics_clock_mhz"),
         "fan_pct": linear_slope_per_minute(rows, "fan_pct"),
     }
-    steady_state = (
-        slopes["temp_gpu_c"] is not None
-        and slopes["fan_pct"] is not None
-        and abs(slopes["temp_gpu_c"]) < 0.1
-        and abs(slopes["fan_pct"]) < 0.2
-    )
+    plateau_v2 = quantized_plateau(rows)
+    if steady_state_protocol == "v2-fixed-quantized":
+        steady_state = (
+            duration_s is not None
+            and duration_s >= 900
+            and plateau_v2 is not None
+            and plateau_v2["pass"]
+            and slopes["fan_pct"] is not None
+            and abs(slopes["fan_pct"]) < 0.2
+        )
+    else:
+        steady_state = (
+            slopes["temp_gpu_c"] is not None
+            and slopes["fan_pct"] is not None
+            and abs(slopes["temp_gpu_c"]) < 0.1
+            and abs(slopes["fan_pct"]) < 0.2
+        )
     summary["gpus"][gpu] = {
         "samples": len(rows),
         "expected_samples": round(expected_samples, 1) if expected_samples else None,
@@ -152,7 +208,9 @@ for gpu, rows in sorted(measured_by_gpu.items()):
             else None
         ),
         "steady_state": steady_state,
+        "steady_state_protocol": steady_state_protocol,
         "steady_state_slopes_per_min": slopes,
+        "quantized_temperature_plateau": plateau_v2,
         "first_5m": {
             "power_avg_w": slice_stats(rows, "power_avg_w", first=True),
             "temp_gpu_c": slice_stats(rows, "temp_gpu_c", first=True),

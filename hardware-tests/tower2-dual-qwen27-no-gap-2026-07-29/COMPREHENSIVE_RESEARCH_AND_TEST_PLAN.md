@@ -1,5 +1,10 @@
 # Tower2 stacked-GPU comprehensive research and test plan
 
+> Fixed-fan qualification update: new fixed-fan cells use the prospective
+> 15-minute `v2-fixed-quantized` rule in
+> [`STEADY_STATE_PROTOCOL_V2.md`](STEADY_STATE_PROTOCOL_V2.md). Earlier v1
+> runs retain their original classifications.
+
 **Program:** Adjacent RTX PRO 6000 Blackwell workstation GPU thermal, power, airflow, and inference-performance characterization  
 **Test platform:** Tower2  
 **Primary measured configuration:** Two directly adjacent cards with no open-slot gap  

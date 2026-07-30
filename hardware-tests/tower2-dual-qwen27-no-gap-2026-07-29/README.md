@@ -79,6 +79,12 @@ yet a transferable server-design coefficient.
 
 [`STACKED_GPU_RESEARCH_PLAN.md`](STACKED_GPU_RESEARCH_PLAN.md) defines the controlled matrix, instrumentation, reduced-order thermal model, and publication formats intended to turn the two-card measurements into bounded three- and four-card stack forecasts.
 
+[`STEADY_STATE_PROTOCOL_V2.md`](STEADY_STATE_PROTOCOL_V2.md) defines the
+prospective 15-minute, minute-binned plateau rule for fixed-fan cells. It was
+introduced after three physically repeatable 30/30% runs exposed the
+quantization sensitivity of the original three-minute raw-temperature slope.
+It creates new `-V2-15M` cell IDs and does not reclassify the earlier runs.
+
 [`COMPREHENSIVE_RESEARCH_AND_TEST_PLAN.md`](COMPREHENSIVE_RESEARCH_AND_TEST_PLAN.md) is the canonical execution plan with hypotheses, exact test tiers, acceptance and safety gates, statistical methods, data architecture, model validation, resource estimates, and the publication package.
 
 [`INSTRUMENTATION_AUDIT.md`](INSTRUMENTATION_AUDIT.md) records the telemetry available on Tower2, the current environmental-sensor gap, the harness improvements made for the expanded matrix, and the boundary between internally useful measurements and transferable stack forecasts.
