@@ -9,3 +9,4 @@ run_id,cell_id,replicate,configuration,bottom_power_w,top_power_w,load_pattern,d
 2026-07-30T00-01-02Z,NG-SINGLE-T-250,2,no-gap,250,250,idle-loaded,600,pass,true,false,no ambient or local-inlet probes,ng-single-t-250-r2
 2026-07-30T00-20-11Z,NG-SINGLE-T-250,3,no-gap,250,250,idle-loaded,600,aborted,false,false,external OpenClaw Sanctuary request triggered workload-isolation cutoff at 7.404 measured minutes,ng-single-t-250-r3-aborted
 2026-07-30T00-34-00Z,NG-SINGLE-T-250,4,no-gap,250,250,idle-loaded,600,pass,true,false,no ambient or local-inlet probes,ng-single-t-250-r4
+2026-07-30T00-50-49Z,NG-SINGLE-T-250,5,no-gap,250,250,idle-loaded,600,pass,true,false,no ambient or local-inlet probes; within-session validation only,ng-single-t-250-r5
