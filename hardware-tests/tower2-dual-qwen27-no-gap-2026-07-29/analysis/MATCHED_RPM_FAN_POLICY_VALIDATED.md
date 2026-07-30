@@ -110,3 +110,22 @@ fan-allocation cells at higher power.
   five-percentage-point interpolation grid for planning validation cells.
 - [`build-fan-allocation-model.py`](build-fan-allocation-model.py):
   reproducible model builder.
+
+## Prospective interpolation check
+
+After v1 was committed, the previously unobserved 60/40 policy was run three
+times under the same protocol. It averaged 45.973/57.285 C versus
+45.953/57.008 C predicted, an observed-minus-predicted error of only
++0.020/+0.277 C. This validates useful local interpolation accuracy at one
+held-out policy; it does not validate other powers or stack sizes.
+
+Clock errors were +1.258/+0.852 MHz. Completed-request interpolation did not
+behave continuously: v1 predicted 1.9022 total requests/s, while every 60/40
+replicate delivered 1.9200. Fixed-window completed counts form discrete steps,
+so v2 retains request data but explicitly prohibits treating its interpolated
+request rates as a smooth performance law.
+
+The immutable v1 prediction and comparison are preserved in
+[`fan-allocation-v1-validation-at-60-n3.csv`](fan-allocation-v1-validation-at-60-n3.csv).
+The updated [`v2 model`](fan-allocation-response-v2.json) promotes 60/40 to a
+directly observed `n=3` knot.

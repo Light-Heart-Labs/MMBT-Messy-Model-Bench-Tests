@@ -14,10 +14,14 @@ The fixed-fan 250/250 W matched-RPM experiment is now internally validated at
 The first bounded fan-allocation artifact is
 [`fan-allocation-response-v1.json`](analysis/fan-allocation-response-v1.json);
 it permits interpolation only within 30/70–70/30 at 250/250 W and explicitly
-prohibits power or stack-size extrapolation.
+prohibits power or stack-size extrapolation. A prospective `n=3` check at
+60/40 missed temperature by only +0.020/+0.277 C; the
+[`v2 model`](analysis/fan-allocation-response-v2.json) now includes that
+validated knot while retaining v1 for auditability.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b60-t40-sym250-v2-15m-r3`](ng-fan-b60-t40-sym250-v2-15m-r3/) | 46.11 C / 48 C / 60.0%, 1,917 RPM | 57.25 C / 60 C / 40.0%, 1,439 RPM | V2 interpolation check internally validated at n=3; counters zero |
 | [`ng-fan-b60-t40-sym250-v2-15m-r2`](ng-fan-b60-t40-sym250-v2-15m-r2/) | 45.89 C / 48 C / 60.0%, 1,917 RPM | 57.32 C / 60 C / 40.0%, 1,439 RPM | V2 interpolation check n=2/3; tightly reproduced R1; counters zero |
 | [`ng-fan-b60-t40-sym250-v2-15m-r1`](ng-fan-b60-t40-sym250-v2-15m-r1/) | 45.92 C / 48 C / 60.0%, 1,917 RPM | 57.28 C / 60 C / 40.0%, 1,439 RPM | V2 interpolation check n=1/3; small thermal prediction error; counters zero |
 | [`ng-fan-b70-t30-sym250-v2-15m-r3`](ng-fan-b70-t30-sym250-v2-15m-r3/) | 45.66 C / 48 C / 70.0%, 2,157 RPM | 56.35 C / 59 C / 30.0%, 1,200 RPM | V2 bottom-biased policy internally validated at n=3; clocks balanced and counters zero |
