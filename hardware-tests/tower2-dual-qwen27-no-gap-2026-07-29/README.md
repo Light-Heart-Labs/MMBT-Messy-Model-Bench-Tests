@@ -8,6 +8,7 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-eq50-sym250-v2-15m-r1`](ng-fan-eq50-sym250-v2-15m-r1/) | 46.29 C / 49 C / 50.0%, 1,678 RPM | 57.54 C / 60 C / 50.0%, 1,678 RPM | V2 fixed-fan baseline n=1/3; all plateau and event gates passed |
 | [`ng-fan-eq30-sym250-r3-excluded`](ng-fan-eq30-sym250-r3-excluded/) | 51.26 C / 54 C / 30.0%, 1,200 RPM | 67.68 C / 73 C / 30.0%, 1,200 RPM | Excluded: top closing slope +0.2186 C/min; operating point reproduced R1/R2 |
 | [`ng-fan-eq30-sym250-r2-excluded`](ng-fan-eq30-sym250-r2-excluded/) | 51.06 C / 54 C / 30.0%, 1,200 RPM | 67.47 C / 73 C / 30.0%, 1,200 RPM | Excluded: top closing slope +0.4288 C/min; operating point closely reproduced R1 |
 | [`ng-fan-eq30-sym250-r1`](ng-fan-eq30-sym250-r1/) | 51.28 C / 54 C / 30.0%, 1,200 RPM | 67.76 C / 73 C / 30.0%, 1,200 RPM | Internally admissible fixed-fan equilibrium n=1/3; counters zero |

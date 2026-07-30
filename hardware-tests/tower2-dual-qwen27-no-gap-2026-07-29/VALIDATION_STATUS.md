@@ -17,6 +17,9 @@ Two validation levels are tracked:
 | NG-SINGLE-B-250 | 1 | 3 | 0 | R2 admissible; R3 excluded as non-steady after prior heat soak; two more internal replicates required |
 | NG-SINGLE-T-250 | 3 | 3 | 0 | Within-campaign internally validated; cross-session and environmental validation pending |
 | NG-FAN-EQ30-SYM250 | 1 | 3 | 0 | R1 admissible; R2/R3 closely reproduced it but failed the quantization-sensitive strict slope gate; define a prospective v2 plateau rule before further repeats |
+| NG-FAN-EQ50-SYM250-V2-15M | 1 | 3 | 0 | First v2 fixed-50/50% baseline passed; two more admissible replicates required |
+| NG-FAN-B70-T30-SYM250-V2-15M | 0 | 3 | 0 | Crossed fixed-fan cell pending |
+| NG-FAN-B30-T70-SYM250-V2-15M | 0 | 3 | 0 | Crossed fixed-fan cell pending |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 
 `NG-SINGLE-T-250` is the first cell to reach three internally admissible replicates. Replicates 2, 4, and 5 were independently initialized execution blocks with cleanup/cooldown between them, but all occurred during one campaign session. The cell is therefore validated for the internal Tower2/no-gap model with an explicit within-session limitation. No cell is transferable yet.
