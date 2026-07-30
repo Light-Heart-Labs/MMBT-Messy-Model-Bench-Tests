@@ -26,7 +26,7 @@ Two validation levels are tracked:
 | NG-FAN-B60-T40-SYM200-V2-15M | 3 | 3 | 0 | Internally validated at n=3; block 3 reverses order and confirms session/heat-soak drift must be modeled |
 | NG-FAN-B60-T40-SYM300-V2-15M | 2 | 3 | 0 | R1/R2 admissible; reversed block confirms later-run heat bias; one more replicate required |
 | NG-FAN-B40-T60-SYM300-V2-15M | 2 | 3 | 0 | R1/R2 admissible with exact throughput reproduction; one more replicate and paired 60/40 blocks required |
-| NG-FAN-B60-T40-SYM300-V3HOST-15M | 2 | 3 | 0 | R2 completed tightly matched crossover block 2; one replicate plus order-adjusted analysis required |
+| NG-FAN-B60-T40-SYM300-V3HOST-15M | 3 | 3 | 0 | Internally validated at n=3; R3 includes an admitted sub-second GPU0 request-boundary transient; paired policy effect still pending |
 | NG-FAN-B40-T60-SYM300-V3HOST-15M | 2 | 3 | 0 | R1/R2 differ by at most 0.052 C and 0.493 MHz with closely matched host state; one replicate required |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 
