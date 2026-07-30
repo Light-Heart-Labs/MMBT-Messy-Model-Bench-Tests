@@ -1473,7 +1473,9 @@ if ((QUALIFICATION_ONLY == 1)); then
       .event_samples.hw_power_brake_active == 0 and
       .counter_deltas_us.sw_thermal_slowdown == 0 and
       .counter_deltas_us.hw_thermal_slowdown == 0 and
-      .counter_deltas_us.hw_power_brake_slowdown == 0
+      .sampled_counter_deltas_us.sw_thermal_slowdown_counter_us == 0 and
+      .sampled_counter_deltas_us.hw_thermal_slowdown_counter_us == 0 and
+      .sampled_counter_deltas_us.hw_power_brake_counter_us == 0
     )
   ' "$SUMMARY_JSON" >/dev/null || {
     echo "Qualification validation gate failed; see ${SUMMARY_JSON}" >&2
