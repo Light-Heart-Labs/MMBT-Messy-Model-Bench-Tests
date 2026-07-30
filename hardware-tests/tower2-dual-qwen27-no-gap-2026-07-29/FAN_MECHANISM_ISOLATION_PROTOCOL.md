@@ -84,6 +84,9 @@ inferential data and remain published as pilots.
 Before the first 30% step for each loaded position and power condition:
 
 - perform an isolated two-minute bump;
+- mark it `--qualification-only`, so it must pass isolation, loaded/idle power,
+  fan tracking, independent telemetry, and zero thermal/brake events without
+  being misclassified as a steady-state inferential replicate;
 - require the V3HOST preflight and exact process isolation;
 - confirm every physical fan maps to its commanded GPU;
 - confirm emergency automatic-fan restoration on normal exit, signal, error,

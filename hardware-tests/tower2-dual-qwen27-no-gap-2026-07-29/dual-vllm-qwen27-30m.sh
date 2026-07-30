@@ -12,6 +12,7 @@
 set -Eeuo pipefail
 
 ACTION="check"
+QUALIFICATION_ONLY=0
 TAG="qwen27-dual-600w-30m"
 CELL_ID=""
 REPLICATE=1
@@ -78,6 +79,9 @@ Usage:
 Options:
   --check                  Readiness checks only (default; no changes)
   --run                    Run the guarded saturation test
+  --qualification-only     Safety bump: require isolation, power, fan,
+                           telemetry, and zero thermal/brake events, but do
+                           not require the steady-state research gate
   --tag NAME               Output tag
   --cell-id NAME           Stable matrix-cell identifier (default: --tag)
   --replicate N            Positive replicate number (default: 1)
@@ -134,6 +138,7 @@ while (($#)); do
   case "$1" in
     --check) ACTION="check"; shift ;;
     --run) ACTION="run"; shift ;;
+    --qualification-only) QUALIFICATION_ONLY=1; shift ;;
     --tag) TAG="${2:?missing value for --tag}"; shift 2 ;;
     --cell-id) CELL_ID="${2:?missing value for --cell-id}"; shift 2 ;;
     --replicate) REPLICATE="${2:?missing value for --replicate}"; shift 2 ;;
@@ -866,6 +871,7 @@ jq -n \
   --arg tag "$TAG" \
   --arg cell_id "$CELL_ID" \
   --argjson replicate "$REPLICATE" \
+  --argjson qualification_only "$QUALIFICATION_ONLY" \
   --arg started_at "$(date -u +%FT%T.%3NZ)" \
   --arg image_id "$IMAGE_ID" \
   --arg model_path "$MODEL_PATH" \
@@ -907,6 +913,7 @@ jq -n \
     tag:$tag,
     cell_id:$cell_id,
     replicate:$replicate,
+    qualification_only:($qualification_only == 1),
     started_at:$started_at,
     model_path:$model_path,
     image_id:$image_id,
@@ -1447,14 +1454,41 @@ python3 "$(dirname "$0")/summarize-dual-vllm.py" \
   "$OUT/nvidia-before.txt" "$OUT/nvidia-after.txt" \
   "$OUT/gpu1-vllm-metrics-before.txt" "$OUT/gpu1-vllm-metrics-after.txt"
 
-jq -e '
-  .workload_isolation.success_delta_matches_controlled_log == true and
-  .workload_isolation.controlled_errors_all_gpus_all_phases == 0 and
-  .quality_gates.internal_admissible_candidate == true
-' "$SUMMARY_JSON" >/dev/null || {
-  echo "Post-run validation gate failed; see ${SUMMARY_JSON}" >&2
-  exit 1
-}
+if ((QUALIFICATION_ONLY == 1)); then
+  jq -e '
+    .workload_isolation.success_delta_matches_controlled_log == true and
+    .workload_isolation.controlled_errors_all_gpus_all_phases == 0 and
+    .quality_gates.fan_telemetry_pass == true and
+    .quality_gates.fan_policy_tracking_pass == true and
+    .independent_nvml_clock.available == true and
+    all(.quality_gates.per_gpu[];
+      if .workers > 0
+      then .loaded_power_gate_pass == true
+      else .idle_power_gate_pass == true
+      end
+    ) and
+    all(.gpus[];
+      .event_samples.sw_thermal_slowdown_active == 0 and
+      .event_samples.hw_thermal_slowdown_active == 0 and
+      .event_samples.hw_power_brake_active == 0 and
+      .counter_deltas_us.sw_thermal_slowdown == 0 and
+      .counter_deltas_us.hw_thermal_slowdown == 0 and
+      .counter_deltas_us.hw_power_brake_slowdown == 0
+    )
+  ' "$SUMMARY_JSON" >/dev/null || {
+    echo "Qualification validation gate failed; see ${SUMMARY_JSON}" >&2
+    exit 1
+  }
+else
+  jq -e '
+    .workload_isolation.success_delta_matches_controlled_log == true and
+    .workload_isolation.controlled_errors_all_gpus_all_phases == 0 and
+    .quality_gates.internal_admissible_candidate == true
+  ' "$SUMMARY_JSON" >/dev/null || {
+    echo "Post-run validation gate failed; see ${SUMMARY_JSON}" >&2
+    exit 1
+  }
+fi
 
 log "PASS — summary: $SUMMARY_JSON"
 cat "$SUMMARY_JSON"
