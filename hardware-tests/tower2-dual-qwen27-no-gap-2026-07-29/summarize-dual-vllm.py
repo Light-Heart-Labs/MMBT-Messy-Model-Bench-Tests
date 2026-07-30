@@ -533,12 +533,55 @@ per_gpu_quality = {}
 for gpu, gpu_summary in summary["gpus"].items():
     workers = int(config.get(f"concurrency_gpu{gpu}", config.get("concurrency_per_gpu", 0)))
     if workers > 0:
-        power_gate = (
-            gpu_summary["fraction_samples_at_or_above_95pct_target"] is not None
-            and gpu_summary["fraction_samples_at_or_above_95pct_target"] >= 0.95
+        loaded_power_mode = config.get(
+            f"gpu{gpu}_loaded_power_mode", "saturated"
         )
+        if loaded_power_mode == "headroom":
+            minimum = number(config.get(f"min_warmup_power_gpu{gpu}_w"))
+            maximum = number(config.get(f"max_warmup_power_gpu{gpu}_w"))
+            max_cap_fraction = number(
+                config.get("headroom_max_sw_power_cap_fraction", 0)
+            )
+            samples = gpu_summary["samples"]
+            active_samples = gpu_summary["event_samples"]["sw_power_cap_active"]
+            cap_fraction = (
+                active_samples / samples if samples and active_samples is not None else None
+            )
+            mean_power = (
+                gpu_summary["power_avg_w"]["mean"]
+                if gpu_summary["power_avg_w"] is not None
+                else None
+            )
+            power_gate = (
+                minimum is not None
+                and maximum is not None
+                and mean_power is not None
+                and minimum <= mean_power <= maximum
+                and cap_fraction is not None
+                and max_cap_fraction is not None
+                and cap_fraction <= max_cap_fraction
+            )
+        else:
+            minimum = None
+            maximum = None
+            max_cap_fraction = None
+            active_samples = gpu_summary["event_samples"]["sw_power_cap_active"]
+            cap_fraction = (
+                active_samples / gpu_summary["samples"]
+                if gpu_summary["samples"]
+                else None
+            )
+            power_gate = (
+                gpu_summary["fraction_samples_at_or_above_95pct_target"] is not None
+                and gpu_summary["fraction_samples_at_or_above_95pct_target"] >= 0.95
+            )
         idle_power_gate = None
     else:
+        loaded_power_mode = "idle"
+        minimum = None
+        maximum = None
+        max_cap_fraction = None
+        cap_fraction = None
         idle_limit = number(config.get(f"max_idle_power_gpu{gpu}_w"))
         power_gate = None
         idle_power_gate = (
@@ -553,6 +596,16 @@ for gpu, gpu_summary in summary["gpus"].items():
             and gpu_summary["sample_completeness"] >= 0.95
         ),
         "steady_state_pass": gpu_summary["steady_state"],
+        "loaded_power_mode": loaded_power_mode,
+        "loaded_power_range_w": (
+            {"min": minimum, "max": maximum}
+            if loaded_power_mode == "headroom"
+            else None
+        ),
+        "sw_power_cap_active_fraction": (
+            round(cap_fraction, 6) if cap_fraction is not None else None
+        ),
+        "headroom_max_sw_power_cap_fraction": max_cap_fraction,
         "loaded_power_gate_pass": power_gate,
         "idle_power_gate_pass": idle_power_gate,
     }

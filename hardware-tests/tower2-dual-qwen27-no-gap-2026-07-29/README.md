@@ -63,6 +63,13 @@ The next no-gap mechanism experiment is
 It separately varies the loaded card's fan and the idle neighbor's fan, adds a
 power-headroom control, balances step order with three Latin-square blocks,
 and forbids execution until Tower2 passes the frozen idle V3HOST preflight.
+[`run-fan-mechanism-block.sh`](run-fan-mechanism-block.sh) constructs three
+independently initialized 15-minute cells per block, defaults to read-only
+checking, supports non-invasive command dry runs, and requires explicit
+`--run`. The base harness and summarizer now distinguish saturated loaded
+cells from headroom cells: saturated mode retains the existing 95%-of-cap
+gate, while headroom mode requires a frozen mean-power range and maximum
+software-power-cap active fraction.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|

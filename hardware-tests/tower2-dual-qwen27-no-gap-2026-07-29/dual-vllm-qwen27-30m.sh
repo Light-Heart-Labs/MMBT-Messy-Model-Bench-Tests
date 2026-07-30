@@ -25,6 +25,11 @@ MAX_TOKENS=1024
 MIN_WARMUP_POWER_W=570
 MIN_WARMUP_POWER_GPU0_W=""
 MIN_WARMUP_POWER_GPU1_W=""
+MAX_WARMUP_POWER_GPU0_W=""
+MAX_WARMUP_POWER_GPU1_W=""
+GPU0_LOADED_POWER_MODE="saturated"
+GPU1_LOADED_POWER_MODE="saturated"
+HEADROOM_MAX_SW_POWER_CAP_FRACTION=0
 GPU0_POWER_LIMIT_W=600
 GPU1_POWER_LIMIT_W=600
 GPU0_FIXED_FAN_PCT=""
@@ -86,6 +91,15 @@ Options:
   --min-power W            Required warm-up mean per GPU (default: 570)
   --min-power-gpu0 W       Required GPU0 warm-up mean (overrides --min-power)
   --min-power-gpu1 W       Required GPU1 warm-up mean (overrides --min-power)
+  --max-power-gpu0 W       Maximum GPU0 mean power for headroom mode
+  --max-power-gpu1 W       Maximum GPU1 mean power for headroom mode
+  --loaded-power-mode-gpu0 MODE
+                           saturated or headroom (default: saturated)
+  --loaded-power-mode-gpu1 MODE
+                           saturated or headroom (default: saturated)
+  --headroom-max-cap-fraction F
+                           Maximum measured SW-power-cap active fraction in
+                           headroom mode, from 0 through 1 (default: 0)
   --gpu0-power-limit W     GPU0/bottom power limit (default: 600)
   --gpu1-power-limit W     GPU1/top power limit (default: 600)
   --gpu0-fan-pct PCT       Fix both GPU0 fans at 30-100%; omitted means automatic
@@ -133,6 +147,11 @@ while (($#)); do
     --min-power) MIN_WARMUP_POWER_W="${2:?missing value for --min-power}"; shift 2 ;;
     --min-power-gpu0) MIN_WARMUP_POWER_GPU0_W="${2:?missing value for --min-power-gpu0}"; shift 2 ;;
     --min-power-gpu1) MIN_WARMUP_POWER_GPU1_W="${2:?missing value for --min-power-gpu1}"; shift 2 ;;
+    --max-power-gpu0) MAX_WARMUP_POWER_GPU0_W="${2:?missing value for --max-power-gpu0}"; shift 2 ;;
+    --max-power-gpu1) MAX_WARMUP_POWER_GPU1_W="${2:?missing value for --max-power-gpu1}"; shift 2 ;;
+    --loaded-power-mode-gpu0) GPU0_LOADED_POWER_MODE="${2:?missing value for --loaded-power-mode-gpu0}"; shift 2 ;;
+    --loaded-power-mode-gpu1) GPU1_LOADED_POWER_MODE="${2:?missing value for --loaded-power-mode-gpu1}"; shift 2 ;;
+    --headroom-max-cap-fraction) HEADROOM_MAX_SW_POWER_CAP_FRACTION="${2:?missing value for --headroom-max-cap-fraction}"; shift 2 ;;
     --gpu0-power-limit) GPU0_POWER_LIMIT_W="${2:?missing value for --gpu0-power-limit}"; shift 2 ;;
     --gpu1-power-limit) GPU1_POWER_LIMIT_W="${2:?missing value for --gpu1-power-limit}"; shift 2 ;;
     --gpu0-fan-pct) GPU0_FIXED_FAN_PCT="${2:?missing value for --gpu0-fan-pct}"; shift 2 ;;
@@ -209,6 +228,47 @@ for value in MIN_WARMUP_POWER_GPU0_W MIN_WARMUP_POWER_GPU1_W GPU0_POWER_LIMIT_W 
     echo "$value must be numeric" >&2
     exit 2
   }
+done
+for value in MAX_WARMUP_POWER_GPU0_W MAX_WARMUP_POWER_GPU1_W; do
+  [[ -z "${!value}" || "${!value}" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
+    echo "$value must be empty or numeric" >&2
+    exit 2
+  }
+done
+for value in GPU0_LOADED_POWER_MODE GPU1_LOADED_POWER_MODE; do
+  case "${!value}" in
+    saturated|headroom) ;;
+    *)
+      echo "$value must be saturated or headroom" >&2
+      exit 2
+      ;;
+  esac
+done
+[[ "$HEADROOM_MAX_SW_POWER_CAP_FRACTION" =~ ^(0|1|0[.][0-9]+|1[.]0+)$ ]] || {
+  echo "HEADROOM_MAX_SW_POWER_CAP_FRACTION must be from 0 through 1" >&2
+  exit 2
+}
+for gpu in 0 1; do
+  concurrency_var="CONCURRENCY_GPU${gpu}"
+  mode_var="GPU${gpu}_LOADED_POWER_MODE"
+  min_var="MIN_WARMUP_POWER_GPU${gpu}_W"
+  max_var="MAX_WARMUP_POWER_GPU${gpu}_W"
+  limit_var="GPU${gpu}_POWER_LIMIT_W"
+  if [[ "${!mode_var}" == "headroom" ]]; then
+    ((${!concurrency_var} > 0)) || {
+      echo "GPU${gpu} headroom mode requires non-zero concurrency" >&2
+      exit 2
+    }
+    [[ -n "${!max_var}" ]] || {
+      echo "GPU${gpu} headroom mode requires --max-power-gpu${gpu}" >&2
+      exit 2
+    }
+    awk -v min="${!min_var}" -v max="${!max_var}" -v limit="${!limit_var}" \
+      'BEGIN{exit !(min < max && max < limit)}' || {
+        echo "GPU${gpu} headroom mode requires min power < max power < power limit" >&2
+        exit 2
+      }
+  fi
 done
 for value in MAX_START_TEMP_GPU0_C MAX_START_TEMP_GPU1_C MAX_START_CPU_TCTL_C MAX_START_NVME_C; do
   [[ "${!value}" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
@@ -819,6 +879,11 @@ jq -n \
   --argjson max_tokens "$MAX_TOKENS" \
   --argjson min_warmup_power_gpu0_w "$MIN_WARMUP_POWER_GPU0_W" \
   --argjson min_warmup_power_gpu1_w "$MIN_WARMUP_POWER_GPU1_W" \
+  --arg max_warmup_power_gpu0_w "$MAX_WARMUP_POWER_GPU0_W" \
+  --arg max_warmup_power_gpu1_w "$MAX_WARMUP_POWER_GPU1_W" \
+  --arg gpu0_loaded_power_mode "$GPU0_LOADED_POWER_MODE" \
+  --arg gpu1_loaded_power_mode "$GPU1_LOADED_POWER_MODE" \
+  --argjson headroom_max_sw_power_cap_fraction "$HEADROOM_MAX_SW_POWER_CAP_FRACTION" \
   --argjson gpu0_power_limit_w "$GPU0_POWER_LIMIT_W" \
   --argjson gpu1_power_limit_w "$GPU1_POWER_LIMIT_W" \
   --arg gpu0_fixed_fan_pct "$GPU0_FIXED_FAN_PCT" \
@@ -855,6 +920,21 @@ jq -n \
     max_tokens:$max_tokens,
     min_warmup_power_gpu0_w:$min_warmup_power_gpu0_w,
     min_warmup_power_gpu1_w:$min_warmup_power_gpu1_w,
+    max_warmup_power_gpu0_w:(
+      if $max_warmup_power_gpu0_w == ""
+      then null
+      else ($max_warmup_power_gpu0_w | tonumber)
+      end
+    ),
+    max_warmup_power_gpu1_w:(
+      if $max_warmup_power_gpu1_w == ""
+      then null
+      else ($max_warmup_power_gpu1_w | tonumber)
+      end
+    ),
+    gpu0_loaded_power_mode:$gpu0_loaded_power_mode,
+    gpu1_loaded_power_mode:$gpu1_loaded_power_mode,
+    headroom_max_sw_power_cap_fraction:$headroom_max_sw_power_cap_fraction,
     gpu0_power_limit_w:$gpu0_power_limit_w,
     gpu1_power_limit_w:$gpu1_power_limit_w,
     gpu0_fan_policy:(
@@ -1199,6 +1279,20 @@ awk -v a="$warm0" -v b="$warm1" -v min0="$MIN_WARMUP_POWER_GPU0_W" -v min1="$MIN
     echo "Saturation gate failed: GPU0 must average at least ${MIN_WARMUP_POWER_GPU0_W} W and GPU1 at least ${MIN_WARMUP_POWER_GPU1_W} W during warm-up" >&2
     exit 1
   }
+if [[ "$GPU0_LOADED_POWER_MODE" == "headroom" ]]; then
+  awk -v value="$warm0" -v limit="$MAX_WARMUP_POWER_GPU0_W" \
+    'BEGIN{exit !(value>limit)}' && {
+      echo "Headroom gate failed: GPU0 warm-up mean ${warm0} W exceeds ${MAX_WARMUP_POWER_GPU0_W} W" >&2
+      exit 1
+    }
+fi
+if [[ "$GPU1_LOADED_POWER_MODE" == "headroom" ]]; then
+  awk -v value="$warm1" -v limit="$MAX_WARMUP_POWER_GPU1_W" \
+    'BEGIN{exit !(value>limit)}' && {
+      echo "Headroom gate failed: GPU1 warm-up mean ${warm1} W exceeds ${MAX_WARMUP_POWER_GPU1_W} W" >&2
+      exit 1
+    }
+fi
 sanctuary_test_load_isolated || {
   echo "Workload-isolation gate failed: Sanctuary exceeds the controlled GPU1 worker count or has a wait queue" >&2
   exit 1

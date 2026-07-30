@@ -21,20 +21,27 @@ They do not identify whether this comes from:
 
 This protocol changes one fan source at a time.
 
-## 2. Three-step blocked experiments
+## 2. Three-cell randomized blocks
 
-Each experiment is a paired three-step block with fan steps `30, 50, 70%`.
-Use the three Latin-square orders below for the first three admissible blocks:
+Each experiment is a randomized block containing three independently
+initialized V3HOST cells at fan steps `30, 50, 70%`. Use the three
+Latin-square orders below for the first three admissible blocks:
 
 1. `30 -> 50 -> 70`
 2. `50 -> 70 -> 30`
 3. `70 -> 30 -> 50`
 
-Each step receives a two-minute settling interval and a five-minute measured
-interval. A block is therefore 21 measured/settling minutes after startup.
-Run three independently initialized blocks per loaded position. Preserve
-step-level telemetry and block identity; do not treat one-second samples as
-independent replicates.
+Each cell receives a two-minute loaded warmup, a 15-minute measured interval,
+and a one-minute cooldown, with the complete five-minute V3HOST idle reset
+before the next cell. Run three blocks per loaded position, so every fan-step
+cell reaches three independently initialized replicates. Preserve cell,
+replicate, order, and block identity; do not treat telemetry samples or
+five-minute slices as independent replicates.
+
+[`run-fan-mechanism-block.sh`](run-fan-mechanism-block.sh) freezes the command
+construction, Latin-square order, cell IDs, and safety gates. Its default
+action is read-only checking; `--dry-run` prints commands without touching GPU
+state, and only explicit `--run` executes a block.
 
 ### Family A — own-fan saturated sweep
 
