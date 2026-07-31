@@ -202,6 +202,33 @@ Use the same physical anchor cells with:
 
 This prevents a Qwen-specific thermal response from being misrepresented as a universal GPU-stack result.
 
+## Stack-aware fan-controller validation
+
+After the static fan/power matrix is sufficiently populated, build a reliable
+background service whose lower-card fans can respond to the temperature and
+thermal trend of cards above them. The controller must preserve per-card local
+safety overrides, restore NVIDIA automatic control on any failure, and log
+every sensor input, decision, command, and physical-RPM response.
+
+At selected symmetric and asymmetric anchor powers, compare stock automatic
+control, equal static control, lower-biased static control, and dynamic
+top/hottest-card-led control with at least three order-balanced replicates per
+policy. Quantify temperature and clock spread, slowest-card latency, aggregate
+throughput, fan RPM integral, remaining fan authority, controller stability,
+and safety events.
+
+Treat the four-card stack as the primary control-design target. Candidate
+virtual-stack policies should model each lower fan bank as assisting all cards
+above it, with distance-dependent weights and local safety taking precedence:
+
+`fan_i = max(local_curve(T_i),
+             assist_curve(weighted_max(T_i+1 ... T_top)))`.
+
+Two-card results may define bounded candidate policies for three- and
+four-card stacks, but controller benefit and stability must remain labeled
+`forecast` until physically validated on an N-card stack or instrumented
+surrogate.
+
 ## Derived quantities
 
 Calculate per run and per GPU:
@@ -265,3 +292,7 @@ Publish:
 6. Repeat 400/400 and 500/500 anchor cells for replication error.
 7. Physically swap the two cards and repeat 250/250, 400/400, and 500/500.
 8. Run 30-minute validations at the fitted thermal knee and recommended operating envelope.
+9. Build and test the reliable stack-aware background fan service against
+   stock auto and static policies before changing the no-gap layout.
+10. Carry the validated control law, failure modes, and uncertainty into the
+    three- and four-card forecast package.

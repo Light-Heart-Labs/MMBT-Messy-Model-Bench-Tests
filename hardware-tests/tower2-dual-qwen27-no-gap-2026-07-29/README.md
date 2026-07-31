@@ -6,6 +6,16 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 ## Results
 
+The saturated 300 W bottom-card own-fan isolation study is now internally
+validated at `n=3` per 30%, 50%, and 70% fan setting. The
+[`validated analysis`](analysis/FAN_ISOLATION_OWN_BOTTOM_VALIDATED.md),
+[`publication figure`](analysis/fan-isolation-own-bottom-n3.png), and
+[`machine-readable paired effects`](analysis/fan-isolation-own-bottom-effects-n3.csv)
+show that 30-to-70% removes 5.023 C locally and 4.922 C from the idle upper
+neighbor. The 50% setting produced the best observed clock/latency point;
+70% produced the best thermal margin but repeatedly added latency at the
+fixed board-power cap.
+
 The fixed-fan 250/250 W matched-RPM experiment is now internally validated at
 `n=3` per policy. See the
 [`validated analysis`](analysis/MATCHED_RPM_FAN_POLICY_VALIDATED.md), its
@@ -73,6 +83,9 @@ software-power-cap active fraction.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-faniso-own-saturated-loadbottom-f50-v3host-15m-r3`](ng-faniso-own-saturated-loadbottom-f50-v3host-15m-r3/) | 49.87 C / 53 C / 50.0%, 1,678 RPM | Idle: 38.43 C / 39 C / 50.0%, 1,678 RPM | Own-fan 50% internally validated at n=3; R3 sequence 3; all counters zero |
+| [`ng-faniso-own-saturated-loadbottom-f30-v3host-15m-r3`](ng-faniso-own-saturated-loadbottom-f30-v3host-15m-r3/) | 53.47 C / 56 C / 30.0%, 1,200 RPM | Idle: 41.89 C / 43 C / 50.0%, 1,678 RPM | Own-fan 30% internally validated at n=3; R3 sequence 2; all counters zero |
+| [`ng-faniso-own-saturated-loadbottom-f70-v3host-15m-r3`](ng-faniso-own-saturated-loadbottom-f70-v3host-15m-r3/) | 48.91 C / 51 C / 70.0%, 2,157 RPM | Idle: 37.52 C / 39 C / 50.0%, 1,678 RPM | Own-fan 70% internally validated at n=3; R3 sequence 1; all counters zero |
 | [`ng-faniso-own-loadbottom-f30-p300-v3host-bump-r1`](ng-faniso-own-loadbottom-f30-p300-v3host-bump-r1/) | 53.58 C / 57 C / 30.0%, 1,201 RPM | 40.34 C / 42 C / 50.0%, 1,679 RPM | 300 W bottom-loaded 30% fan qualification pass; safety-only/non-inferential; all thermal/brake events and counters zero |
 | [`ng-fan-b40-t60-sym300-v3host-15m-r5`](ng-fan-b40-t60-sym300-v3host-15m-r5/) | 53.82 C / 57 C / 40.0%, 1,439 RPM | 67.16 C / 70 C / 60.0%, 1,917 RPM | V3HOST 40/60 internally validated at n=3; matched block 3; counters zero |
 | [`ng-fan-b60-t40-sym300-v3host-15m-r5`](ng-fan-b60-t40-sym300-v3host-15m-r5/) | 53.81 C / 57 C / 60.0%, 1,917 RPM | 67.38 C / 71 C / 40.0%, 1,439 RPM | V3HOST 60/40 internally validated at n=3; sub-second GPU0 boundary transient retained; counters zero |
@@ -236,6 +249,14 @@ card and idle top neighbor. In both blocks, 70% removed another 2.2-2.5 C
 relative to 50% but ran approximately 3.55 MHz lower and added 0.081-0.105
 seconds of mean request duration. The 30-versus-50 clock direction changed
 between blocks, so R3 is still required before selecting an optimal fan point.
+
+[`analysis/FAN_ISOLATION_OWN_BOTTOM_VALIDATED.md`](analysis/FAN_ISOLATION_OWN_BOTTOM_VALIDATED.md)
+adds the final Latin-order block. Across the paired blocks, 30-to-70% reduced
+the loaded bottom card by 5.023 C and the idle top neighbor by 4.922 C. The
+50% setting improved latency by 0.060 seconds relative to 30%, while 70%
+added 0.105 seconds relative to 50% despite another 1.899 C of mean cooling.
+This establishes a real thermal-versus-performance control tradeoff for the
+planned stack-aware fan service.
 
 ## Read order
 

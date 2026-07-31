@@ -908,7 +908,65 @@ Use `measured`, `interpolated`, or `extrapolated` in every row.
 2. Physically swap cards.
 3. Repeat 250/250, 400/400, and 500/500.
 
-### Session 6 — validation
+### Session 6 — reliable stack-aware fan service
+
+Build and qualify a persistent fan-control service after the static power/fan
+surface has established the comparison baselines. This is a required research
+phase, not an optional deployment exercise. Its primary question is whether a
+cooler lower card can carry more of the airflow burden for hotter downstream
+cards, especially in a projected three- or four-card stack.
+
+The service must use the hottest/top/downstream-card temperature as a stack
+demand signal while retaining an independent local safety curve for every
+card. It must not rely on one shared fan command with no per-card override.
+For card `i`, the initial control form is:
+
+`fan_i = max(local_safety_curve(T_i),
+             assist_curve(max(T_above_i)))`.
+
+The production candidate requires:
+
+- explicit GPU-to-physical-fan mapping validation at startup;
+- 1 Hz or faster sampling of every GPU's temperature, power, clock,
+  utilization, fan target/duty, physical RPM, and slowdown counters;
+- hysteresis/deadband and a bounded fan-command slew rate;
+- minimum/maximum fan bounds and an all-fans-100% emergency state;
+- a process lock, stale-telemetry and command-failure watchdogs, and
+  fail-closed restoration of NVIDIA automatic fan control;
+- a durable append-only decision log containing sensor inputs, requested
+  targets, applied targets, RPM tracking error, controller state, and reason;
+- dry-run/replay mode so archived telemetry can exercise the policy without
+  touching hardware; and
+- clean service-manager integration with startup, shutdown, crash, and host
+  restart recovery tests.
+
+Test the controller at the same admitted anchor cells used by the static
+matrix. Each comparison requires at least three independently initialized,
+order-balanced runs:
+
+1. NVIDIA stock automatic control;
+2. equal static reference, initially 50/50;
+3. validated lower-biased static reference, initially 70/30 or the
+   power-specific optimum;
+4. top-temperature-led dynamic assistance; and
+5. hottest-card-led dynamic assistance for the generalized N-card policy.
+
+Compare maximum and per-position temperature, temperature spread, clock and
+latency fairness, aggregate throughput, remaining fan authority, RPM integral,
+fan-command activity, acoustics/noise proxy, and any board-power/clock cost.
+Run both symmetric and direction-reversed asymmetric power cells. The service
+is beneficial only if it improves a predeclared objective without hiding a
+loss in aggregate performance, fan power, noise, or safety margin.
+
+Use the validated two-card controller response to define candidate three- and
+four-card policies, including weighted downstream temperature, feed-forward
+from power and temperature slope, and staggered lower-to-upper assistance.
+Publish these as bounded forecasts until a physical stack or instrumented
+surrogate validates them. A four-card stack is the principal design target:
+independent auto control may otherwise let cool lower cards reject heat while
+contributing too little pressure/flow to the hotter cards above them.
+
+### Session 7 — validation
 
 1. Fit preliminary models.
 2. Select adaptive high-information cells.
@@ -1011,7 +1069,11 @@ work.
    the direction-reversed asymmetric power/fan anchors.
 6. Fit the self-heating, fan-allocation, and directional-coupling surfaces
    before adaptively selecting remaining no-gap cells.
-7. When the no-gap matrix is frozen, execute
+7. Build and qualify the reliable stack-aware fan service, then execute the
+   replicated stock-auto/static/dynamic comparison at selected matrix anchors.
+8. Promote the controller only if its safety/recovery tests pass and its
+   predeclared thermal/performance objective beats the relevant baselines.
+9. When the no-gap matrix is frozen, execute
    [`SPACING_RESPONSE_PROTOCOL.md`](SPACING_RESPONSE_PROTOCOL.md), beginning
    with the measured approximately 3-inch endpoint.
 

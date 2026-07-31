@@ -1,0 +1,4 @@
+block_replicate,sequence,family,loaded_gpu,loaded_position,fan_step_pct,cell_id,run_type
+3,1,own-saturated,0,bottom,70,NG-FANISO-OWN-LOADBOTTOM-F70-V3HOST-15M,model
+3,2,own-saturated,0,bottom,30,NG-FANISO-OWN-LOADBOTTOM-F30-V3HOST-15M,model
+3,3,own-saturated,0,bottom,50,NG-FANISO-OWN-LOADBOTTOM-F50-V3HOST-15M,model
