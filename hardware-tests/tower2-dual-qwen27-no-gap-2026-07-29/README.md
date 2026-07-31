@@ -6,16 +6,20 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 ## Results
 
-The first top-loaded lower-neighbor fan block is complete at `n=1/3`.
+The top-loaded lower-neighbor fan study is now at `n=2/3`, with the second
+block rotating order to 50% -> 70% -> 30%.
 With GPU1/top fixed at 300 W, 100% utilization, and 50% own fan, raising only
 the idle GPU0/bottom fan from 30% to 70% reduced top mean temperature by
 5.085 C, raised mean graphics clock by 12.330 MHz, and reduced mean request
 duration by 0.386 seconds at 3.917 W additional lower-card board power. The
-direction was monotonic across 30%, 50%, and 70%; see the
+direction was monotonic across 30%, 50%, and 70%; R2 independently measured
+-5.033 C, +16.829 MHz, and -0.466 seconds for the same 70%-minus-30%
+contrast. The 50% and 70% upper mean temperatures reproduced R1 within
+0.033 C and 0.058 C. See the
 [`preliminary analysis`](analysis/FAN_ISOLATION_NEIGHBOR_LOADTOP_R1.md) and
-[`figure`](analysis/fan-isolation-neighbor-loadtop-r1.png). Two
-order-rotated blocks remain before this can be promoted to a control
-coefficient.
+[`R2 analysis`](analysis/FAN_ISOLATION_NEIGHBOR_LOADTOP_R2.md). One
+order-rotated block remains before this can be promoted to a validated
+control coefficient.
 
 The saturated 300 W bottom-card own-fan isolation study is now internally
 validated at `n=3` per 30%, 50%, and 70% fan setting. The
@@ -94,6 +98,9 @@ software-power-cap active fraction.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r2`](ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r2/) | Idle: 26.17 C / 27 C / 30.0%, 1,200 RPM | 54.92 C / 58 C / 50.0%, 1,678 RPM | R2 sequence 3; internally admissible n=2/3; counters zero |
+| [`ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r2`](ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r2/) | Idle: 26.00 C / 26 C / 70.0%, 2,157 RPM | 49.88 C / 53 C / 50.0%, 1,678 RPM | R2 sequence 2; internally admissible n=2/3; counters zero |
+| [`ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r2`](ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r2/) | Idle: 26.00 C / 26 C / 50.0%, 1,678 RPM | 52.15 C / 55 C / 50.0%, 1,678 RPM | R2 sequence 1; internally admissible n=2/3; counters zero |
 | [`ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r1`](ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r1/) | Idle: 26.00 C / 26 C / 70.0%, 2,157 RPM | 49.82 C / 52 C / 50.0%, 1,678 RPM | Lower-neighbor 70%, top-loaded 300 W; preliminary n=1/3; counters zero |
 | [`ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r1`](ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r1/) | Idle: 25.99 C / 26 C / 50.0%, 1,678 RPM | 52.12 C / 54 C / 50.0%, 1,678 RPM | Lower-neighbor 50%, top-loaded 300 W; preliminary n=1/3; counters zero |
 | [`ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r1`](ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r1/) | Idle: 26.02 C / 27 C / 30.0%, 1,200 RPM | 54.91 C / 58 C / 50.0%, 1,678 RPM | Lower-neighbor 30%, top-loaded 300 W; preliminary n=1/3; counters zero |

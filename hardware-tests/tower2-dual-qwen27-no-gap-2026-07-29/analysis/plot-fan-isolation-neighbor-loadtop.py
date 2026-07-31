@@ -30,6 +30,10 @@ parser.add_argument(
     "--title",
     default="Tower2 lower-neighbor fan assistance - top-loaded R1",
 )
+parser.add_argument(
+    "--footer",
+    default="Preliminary n=1: increasing only the idle lower card's fan monotonically cools and accelerates the loaded upper card.",
+)
 args = parser.parse_args()
 
 with args.input.open(newline="", encoding="utf-8") as handle:
@@ -83,7 +87,7 @@ for index, (label, unit, key, color) in enumerate(plots):
 
 draw.text(
     (72, 938),
-    "Preliminary n=1: increasing only the idle lower card's fan monotonically cools and accelerates the loaded upper card.",
+    args.footer,
     font=font(21, True),
     fill=green,
 )
