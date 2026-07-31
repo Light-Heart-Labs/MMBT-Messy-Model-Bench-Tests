@@ -37,6 +37,9 @@ Two validation levels are tracked:
 | NG-FAN-EQ50-SYM350-V3HOST-15M | 3 | 3 | 0 | Internally validated; stable equal 50/50 reference across all three blocks |
 | NG-FAN-B40T60-SYM350-V3HOST-15M | 3 | 3 | 0 | Internally validated; direction-reversed comparison passed all three blocks |
 | NG-FAN-B60T40-SYM350-V3HOST-15M | 3 | 3 | 0 | Internally validated; lower-biased allocation improved top clock and latency in every paired block |
+| NG-FAN-EQ50-SYM400-V3HOST-15M | 1 | 3 | 0 | R1 admissible but marginal at 84 C maximum; original 100-point budget retired at 400 W |
+| NG-FAN-B60T40-SYM400-V3HOST-15M | 0 | 3 | 0 | R1 safety-aborted at 85 C after ~4 measured minutes; do not repeat unchanged |
+| NG-FAN-B40T60-SYM400-V3HOST-15M | 0 | 3 | 0 | Not run because the R1 block correctly fail-stopped after B60T40 |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 
 `NG-SINGLE-T-250` is the first cell to reach three internally admissible replicates. Replicates 2, 4, and 5 were independently initialized execution blocks with cleanup/cooldown between them, but all occurred during one campaign session. The cell is therefore validated for the internal Tower2/no-gap model with an explicit within-session limitation. No cell is transferable yet.

@@ -92,6 +92,33 @@ The static spine is the baseline for the later persistent controller study.
 Dynamic policies must be compared against these same admitted static cells,
 including EQ50 and the best validated lower-biased allocation.
 
+## 400 W boundary amendment (2026-07-31)
+
+This amendment was frozen after the original 100-point 400 W R1 block stopped
+and before any replacement policy was loaded. EQ50 completed 15 minutes but
+reached 84 C. B60T40 then reached the independent 85 C cutoff after 4.0 of 15
+measured minutes with the top fan fixed at 40%, and the block fail-stopped
+before B40T60. The cutoff run recorded zero sampled slowdown events and zero
+within-run software/hardware thermal-counter deltas; it is a safety boundary,
+not an NVIDIA thermal-throttling observation.
+
+The original 100-point budget is therefore marginal or unsafe at 400 W and
+will not be repeated unchanged. The prospective 400 W replacement uses a
+matched 120-point budget:
+
+| Policy | Bottom fan | Top fan | Total duty |
+|---|---:|---:|---:|
+| EQ60 | 60% | 60% | 120 percentage points |
+| B70T50 | 70% | 50% | 120 percentage points |
+| B50T70 | 50% | 70% | 120 percentage points |
+
+All three new combinations require fresh two-minute qualification in the
+conservative order EQ60, B50T70, B70T50. If they pass, three 15-minute blocks
+use the same Latin-order rotation. The 85 C cutoff and all existing isolation,
+RPM, power, completeness, plateau, and counter gates remain unchanged. If the
+120-point budget cannot maintain a safe plateau, the next pre-registered
+fallback is the matched 140-point EQ70/B80T60/B60T80 set; no cutoff is raised.
+
 ## Runner
 
 [`run-static-fan-power-block.sh`](run-static-fan-power-block.sh) implements

@@ -15,10 +15,12 @@ all software-thermal, hardware-thermal, and hardware-power-brake events and
 counter deltas were zero. Automatic fan control, 600 W power limits, and
 production containers were restored after each cell.
 
-The lowest-top-fan B60T40 case peaked at 77 C, leaving a 19 C safety margin to
-the test cutoff. Short-window mean values are still affected by warm-up and
-execution order and must not be treated as policy effects. The block clears
-all three policies for independently initialized 15-minute Latin-order runs.
+The lowest-top-fan B60T40 case peaked at 77 C, leaving 8 C to the static-spine
+85 C cutoff. Short-window mean values are still affected by warm-up and
+execution order and must not be treated as policy effects. The bumps cleared
+an initial measured attempt but did not prove long-window safety: the later
+B60T40 R1 cell reached 85 C after four measured minutes. See
+[`400W_STATIC_FAN_R1_BOUNDARY.md`](400W_STATIC_FAN_R1_BOUNDARY.md).
 
 Artifacts:
 

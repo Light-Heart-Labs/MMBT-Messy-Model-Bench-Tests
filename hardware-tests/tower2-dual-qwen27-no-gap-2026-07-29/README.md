@@ -339,9 +339,17 @@ receiving less local fan duty, validating shared-flow/lower-card assistance at
 records the next symmetric power anchor's safety block. All three matched
 100-point fan policies held 400/400 W at 100% utilization with exact fan/RPM
 tracking and zero thermal or hardware-brake events. The hottest observation
-was 77 C on the top card under B60T40, leaving 19 C to the cutoff; the policies
-are cleared for 15-minute Latin-order measurement but the bumps do not count
-toward `n`.
+was 77 C on the top card under B60T40, leaving 8 C to the static-spine 85 C
+cutoff. The bumps permitted an initial measured attempt but did not establish
+long-window safety and do not count toward `n`.
+
+[`analysis/400W_STATIC_FAN_R1_BOUNDARY.md`](analysis/400W_STATIC_FAN_R1_BOUNDARY.md)
+documents the resulting high-power boundary. EQ50 passed but reached 84 C;
+B60T40 reached the 85 C cutoff after approximately four measured minutes and
+the block correctly stopped before B40T60. Within-run slowdown counter deltas
+were zero, so this is a safety-envelope failure rather than observed NVIDIA
+thermal throttling. The prospectively amended replacement raises the matched
+fan budget to 120 points (EQ60, B70T50, B50T70) without raising the cutoff.
 
 ## Read order
 

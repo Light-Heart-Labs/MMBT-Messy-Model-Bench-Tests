@@ -12,11 +12,12 @@ MODE=""
 POWER_W=""
 REPLICATE=""
 ORDER=""
+FAN_BUDGET=100
 BASE_HARNESS="$(dirname "$0")/dual-vllm-qwen27-30m.sh"
 OUT_ROOT="${HOME}/thermal-tests/static-fan-power-blocks"
 BLOCK_LOCK="/tmp/tower2-static-fan-power-block.lock"
 
-POLICIES=(EQ50 B60T40 B40T60)
+POLICIES=()
 
 usage() {
   cat <<'EOF'
@@ -30,16 +31,17 @@ Options:
                        measure: three independent 15-minute cells
   --power W            Symmetric per-GPU power cap, 200 through 550 W
   --replicate N        Positive block replicate
-  --order CSV          Permutation of EQ50,B60T40,B40T60. Defaults to the
-                       frozen three-block Latin order
+  --fan-budget N       Matched total fan duty: 100, 120, or 140 (default: 100)
+  --order CSV          Permutation of the selected fan-budget policies.
+                       Defaults to the frozen three-block Latin order
   --base-harness PATH  Guarded dual-vLLM harness
   --out-root PATH      Block metadata/log root
   -h, --help
 
-Default measured orders:
-  replicate 1: EQ50,B60T40,B40T60
-  replicate 2: B60T40,B40T60,EQ50
-  replicate 3: B40T60,EQ50,B60T40
+Policy sets:
+  100: EQ50,B60T40,B40T60
+  120: EQ60,B70T50,B50T70
+  140: EQ70,B80T60,B60T80
 
 For first-time qualification, explicitly use the conservative order
 EQ50,B40T60,B60T40 so the lowest top-card airflow runs last.
@@ -54,6 +56,7 @@ while (($#)); do
     --mode) MODE="${2:?missing value for --mode}"; shift 2 ;;
     --power) POWER_W="${2:?missing value for --power}"; shift 2 ;;
     --replicate) REPLICATE="${2:?missing value for --replicate}"; shift 2 ;;
+    --fan-budget) FAN_BUDGET="${2:?missing value for --fan-budget}"; shift 2 ;;
     --order) ORDER="${2:?missing value for --order}"; shift 2 ;;
     --base-harness) BASE_HARNESS="${2:?missing value for --base-harness}"; shift 2 ;;
     --out-root) OUT_ROOT="${2:?missing value for --out-root}"; shift 2 ;;
@@ -82,12 +85,18 @@ fi
   echo "--replicate must be a positive integer" >&2
   exit 2
 }
+case "$FAN_BUDGET" in
+  100) POLICIES=(EQ50 B60T40 B40T60) ;;
+  120) POLICIES=(EQ60 B70T50 B50T70) ;;
+  140) POLICIES=(EQ70 B80T60 B60T80) ;;
+  *) echo "--fan-budget must be 100, 120, or 140" >&2; exit 2 ;;
+esac
 
 if [[ -z "$ORDER" ]]; then
   case $(((REPLICATE - 1) % 3)) in
-    0) ORDER="EQ50,B60T40,B40T60" ;;
-    1) ORDER="B60T40,B40T60,EQ50" ;;
-    2) ORDER="B40T60,EQ50,B60T40" ;;
+    0) ORDER="${POLICIES[0]},${POLICIES[1]},${POLICIES[2]}" ;;
+    1) ORDER="${POLICIES[1]},${POLICIES[2]},${POLICIES[0]}" ;;
+    2) ORDER="${POLICIES[2]},${POLICIES[0]},${POLICIES[1]}" ;;
   esac
 fi
 IFS=, read -r -a ORDERED_POLICIES <<<"$ORDER"
@@ -96,8 +105,9 @@ IFS=, read -r -a ORDERED_POLICIES <<<"$ORDER"
   exit 2
 }
 sorted_order="$(printf '%s\n' "${ORDERED_POLICIES[@]}" | sort | paste -sd, -)"
-[[ "$sorted_order" == "B40T60,B60T40,EQ50" ]] || {
-  echo "--order must be a permutation of EQ50,B60T40,B40T60" >&2
+expected_order="$(printf '%s\n' "${POLICIES[@]}" | sort | paste -sd, -)"
+[[ "$sorted_order" == "$expected_order" ]] || {
+  echo "--order must be a permutation of $(IFS=,; echo "${POLICIES[*]}")" >&2
   exit 2
 }
 
@@ -106,6 +116,12 @@ policy_fans() {
     EQ50) printf '50 50\n' ;;
     B60T40) printf '60 40\n' ;;
     B40T60) printf '40 60\n' ;;
+    EQ60) printf '60 60\n' ;;
+    B70T50) printf '70 50\n' ;;
+    B50T70) printf '50 70\n' ;;
+    EQ70) printf '70 70\n' ;;
+    B80T60) printf '80 60\n' ;;
+    B60T80) printf '60 80\n' ;;
     *) echo "Unknown policy: $1" >&2; return 2 ;;
   esac
 }
@@ -172,12 +188,12 @@ build_command() {
 print_manifest() {
   local sequence=0 policy bottom_fan top_fan run_type
   [[ "$MODE" == "qualify" ]] && run_type="qualification" || run_type="model"
-  printf 'block_replicate,sequence,mode,power_w,policy,bottom_fan_pct,top_fan_pct,cell_id,run_type\n'
+  printf 'block_replicate,sequence,mode,power_w,fan_budget_pct_points,policy,bottom_fan_pct,top_fan_pct,cell_id,run_type\n'
   for policy in "${ORDERED_POLICIES[@]}"; do
     sequence=$((sequence + 1))
     read -r bottom_fan top_fan < <(policy_fans "$policy")
-    printf '%s,%s,%s,%s,%s,%s,%s,NG-FAN-%s-SYM%s-V3HOST-%s,%s\n' \
-      "$REPLICATE" "$sequence" "$MODE" "$POWER_W" "$policy" \
+    printf '%s,%s,%s,%s,%s,%s,%s,%s,NG-FAN-%s-SYM%s-V3HOST-%s,%s\n' \
+      "$REPLICATE" "$sequence" "$MODE" "$POWER_W" "$FAN_BUDGET" "$policy" \
       "$bottom_fan" "$top_fan" "$policy" "$POWER_W" \
       "$([[ "$MODE" == "qualify" ]] && echo BUMP || echo 15M)" "$run_type"
   done
@@ -209,7 +225,9 @@ flock -n 8 || {
 }
 
 block_stamp="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
-block_dir="${OUT_ROOT}/${block_stamp}-sym${POWER_W}-${MODE}-r${REPLICATE}"
+fan_suffix=""
+[[ "$FAN_BUDGET" == 100 ]] || fan_suffix="-fan${FAN_BUDGET}"
+block_dir="${OUT_ROOT}/${block_stamp}-sym${POWER_W}${fan_suffix}-${MODE}-r${REPLICATE}"
 mkdir -p "$block_dir"
 print_manifest >"$block_dir/block-manifest.csv"
 printf 'ts_iso,sequence,policy,status,run_dir\n' >"$block_dir/block-results.csv"

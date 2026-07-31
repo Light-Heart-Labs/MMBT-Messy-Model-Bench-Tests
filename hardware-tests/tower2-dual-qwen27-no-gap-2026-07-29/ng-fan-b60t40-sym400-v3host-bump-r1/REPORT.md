@@ -16,5 +16,6 @@
 
 This lowest-top-fan case passed power, utilization, telemetry, RPM,
 workload-isolation, independent-clock, and slowdown-counter gates. Peak top
-temperature was 77 C, 19 C below the 96 C test cutoff. The transient cell
-does not count toward `n`.
+temperature was 77 C, 8 C below the static-spine 85 C cutoff. The transient
+cell does not count toward `n` and did not predict the later 15-minute cell's
+85 C safety abort.
