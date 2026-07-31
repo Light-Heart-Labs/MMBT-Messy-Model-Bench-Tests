@@ -6,6 +6,17 @@ Each card runs an independent Qwen3.6-27B AWQ-INT4 vLLM engine with 32 concurren
 
 ## Results
 
+The first top-loaded lower-neighbor fan block is complete at `n=1/3`.
+With GPU1/top fixed at 300 W, 100% utilization, and 50% own fan, raising only
+the idle GPU0/bottom fan from 30% to 70% reduced top mean temperature by
+5.085 C, raised mean graphics clock by 12.330 MHz, and reduced mean request
+duration by 0.386 seconds at 3.917 W additional lower-card board power. The
+direction was monotonic across 30%, 50%, and 70%; see the
+[`preliminary analysis`](analysis/FAN_ISOLATION_NEIGHBOR_LOADTOP_R1.md) and
+[`figure`](analysis/fan-isolation-neighbor-loadtop-r1.png). Two
+order-rotated blocks remain before this can be promoted to a control
+coefficient.
+
 The saturated 300 W bottom-card own-fan isolation study is now internally
 validated at `n=3` per 30%, 50%, and 70% fan setting. The
 [`validated analysis`](analysis/FAN_ISOLATION_OWN_BOTTOM_VALIDATED.md),
@@ -83,6 +94,9 @@ software-power-cap active fraction.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r1`](ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r1/) | Idle: 26.00 C / 26 C / 70.0%, 2,157 RPM | 49.82 C / 52 C / 50.0%, 1,678 RPM | Lower-neighbor 70%, top-loaded 300 W; preliminary n=1/3; counters zero |
+| [`ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r1`](ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r1/) | Idle: 25.99 C / 26 C / 50.0%, 1,678 RPM | 52.12 C / 54 C / 50.0%, 1,678 RPM | Lower-neighbor 50%, top-loaded 300 W; preliminary n=1/3; counters zero |
+| [`ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r1`](ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r1/) | Idle: 26.02 C / 27 C / 30.0%, 1,200 RPM | 54.91 C / 58 C / 50.0%, 1,678 RPM | Lower-neighbor 30%, top-loaded 300 W; preliminary n=1/3; counters zero |
 | [`ng-faniso-neighbor-loadtop-f30-p300-v3host-bump-r1`](ng-faniso-neighbor-loadtop-f30-p300-v3host-bump-r1/) | Idle: 26.00 C / 26 C / 30.0%, 1,200 RPM | 52.78 C / 55 C / 50.0%, 1,679 RPM | Lower-neighbor 30% / top-loaded 300 W qualification pass; safety-only/non-inferential; counters zero |
 | [`ng-faniso-own-saturated-loadbottom-f50-v3host-15m-r3`](ng-faniso-own-saturated-loadbottom-f50-v3host-15m-r3/) | 49.87 C / 53 C / 50.0%, 1,678 RPM | Idle: 38.43 C / 39 C / 50.0%, 1,678 RPM | Own-fan 50% internally validated at n=3; R3 sequence 3; all counters zero |
 | [`ng-faniso-own-saturated-loadbottom-f30-v3host-15m-r3`](ng-faniso-own-saturated-loadbottom-f30-v3host-15m-r3/) | 53.47 C / 56 C / 30.0%, 1,200 RPM | Idle: 41.89 C / 43 C / 50.0%, 1,678 RPM | Own-fan 30% internally validated at n=3; R3 sequence 2; all counters zero |

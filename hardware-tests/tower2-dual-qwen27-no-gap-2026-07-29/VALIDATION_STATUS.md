@@ -31,6 +31,9 @@ Two validation levels are tracked:
 | NG-FANISO-OWN-LOADBOTTOM-F30-V3HOST-15M | 3 | 3 | 0 | Internally validated; all three Latin-order blocks passed; 30-to-50% thermal and latency improvements are paired-block consistent |
 | NG-FANISO-OWN-LOADBOTTOM-F50-V3HOST-15M | 3 | 3 | 0 | Internally validated; best observed mean latency/clock point in the completed own-fan sweep |
 | NG-FANISO-OWN-LOADBOTTOM-F70-V3HOST-15M | 3 | 3 | 0 | Internally validated; maximum tested local/neighbor cooling with a repeated latency penalty versus 50% |
+| NG-FANISO-NEIGHBOR-LOADTOP-F30-V3HOST-15M | 1 | 3 | 0 | First Latin-order block passed; low-assistance lower-neighbor baseline; two rotated replicates required |
+| NG-FANISO-NEIGHBOR-LOADTOP-F50-V3HOST-15M | 1 | 3 | 0 | First Latin-order block passed; preliminary top-card cooling and performance improvement versus 30%; two rotated replicates required |
+| NG-FANISO-NEIGHBOR-LOADTOP-F70-V3HOST-15M | 1 | 3 | 0 | First Latin-order block passed; preliminary 5.085 C top-card reduction versus 30%; two rotated replicates required |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 
 `NG-SINGLE-T-250` is the first cell to reach three internally admissible replicates. Replicates 2, 4, and 5 were independently initialized execution blocks with cleanup/cooldown between them, but all occurred during one campaign session. The cell is therefore validated for the internal Tower2/no-gap model with an explicit within-session limitation. No cell is transferable yet.

@@ -1,0 +1,4 @@
+bottom_neighbor_fan_pct,sequence,start_gpu0_c,start_gpu1_c,start_cpu_tctl_c,start_nvme_max_c,gpu0_idle_power_mean_w,gpu0_fan_rpm_mean,gpu0_temp_mean_c,gpu1_power_mean_w,gpu1_temp_mean_c,gpu1_temp_last5_c,gpu1_temp_max_c,gpu1_fan_rpm_mean,gpu1_clock_mean_mhz,gpu1_clock_last5_mhz,gpu1_requests_per_second,gpu1_request_duration_mean_s,gpu1_request_duration_p95_s,host_cpu_tctl_mean_c,host_nvme_max_mean_c,internal_admissible
+30,1,26,29,55.4,36.9,19.240,1200.036,26.016,299.993,54.909,55.237,58,1678.123,1030.668,1027.280,1.1733,27.268,27.348,72.439,36.615,true
+50,2,26,29,57.2,36.9,20.484,1678.022,25.994,299.993,52.120,52.203,54,1678.118,1040.423,1038.839,1.1733,26.973,27.018,72.595,35.900,true
+70,3,26,29,53.4,35.9,23.157,2157.073,26.000,299.993,49.824,50.038,52,1678.078,1042.998,1042.656,1.2089,26.882,26.939,72.272,34.984,true
