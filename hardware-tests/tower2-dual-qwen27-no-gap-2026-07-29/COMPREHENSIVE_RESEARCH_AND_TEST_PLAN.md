@@ -916,6 +916,14 @@ phase, not an optional deployment exercise. Its primary question is whether a
 cooler lower card can carry more of the airflow burden for hotter downstream
 cards, especially in a projected three- or four-card stack.
 
+**Scheduling note:** do not dismantle the no-gap configuration before this
+service has been built and exercised as part of the final test gamut. The
+static matrix establishes the inputs, but the dynamic-service crossover is a
+required campaign deliverable. Treat four-card stack deployment—not merely
+two-card temperature reduction—as the controller's design target and preserve
+enough no-gap time for reliability, crash/restart, and benefit/no-benefit
+testing.
+
 The service must use the hottest/top/downstream-card temperature as a stack
 demand signal while retaining an independent local safety curve for every
 card. It must not rely on one shared fan command with no per-card override.

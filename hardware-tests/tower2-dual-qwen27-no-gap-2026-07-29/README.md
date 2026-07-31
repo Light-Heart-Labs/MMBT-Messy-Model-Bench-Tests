@@ -98,6 +98,9 @@ software-power-cap active fraction.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r3`](ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r3/) | Idle: 26.00 C / 26 C / 70.0%, 2,157 RPM | 49.85 C / 52 C / 50.0%, 1,678 RPM | R3 sequence 1; internally validated at n=3; counters zero |
+| [`ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r3`](ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r3/) | Idle: 26.00 C / 27 C / 30.0%, 1,200 RPM | 54.68 C / 58 C / 50.0%, 1,678 RPM | R3 sequence 2; internally validated at n=3; counters zero |
+| [`ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r3`](ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r3/) | Idle: 26.00 C / 26 C / 50.0%, 1,678 RPM | 51.95 C / 55 C / 50.0%, 1,678 RPM | R3 sequence 3; internally validated at n=3; counters zero |
 | [`ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r2`](ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r2/) | Idle: 26.17 C / 27 C / 30.0%, 1,200 RPM | 54.92 C / 58 C / 50.0%, 1,678 RPM | R2 sequence 3; internally admissible n=2/3; counters zero |
 | [`ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r2`](ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r2/) | Idle: 26.00 C / 26 C / 70.0%, 2,157 RPM | 49.88 C / 53 C / 50.0%, 1,678 RPM | R2 sequence 2; internally admissible n=2/3; counters zero |
 | [`ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r2`](ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r2/) | Idle: 26.00 C / 26 C / 50.0%, 1,678 RPM | 52.15 C / 55 C / 50.0%, 1,678 RPM | R2 sequence 1; internally admissible n=2/3; counters zero |
@@ -279,6 +282,16 @@ the loaded bottom card by 5.023 C and the idle top neighbor by 4.922 C. The
 added 0.105 seconds relative to 50% despite another 1.899 C of mean cooling.
 This establishes a real thermal-versus-performance control tradeoff for the
 planned stack-aware fan service.
+
+[`analysis/FAN_ISOLATION_NEIGHBOR_LOADTOP_VALIDATED.md`](analysis/FAN_ISOLATION_NEIGHBOR_LOADTOP_VALIDATED.md)
+completes the complementary top-loaded experiment at `n=3`. With top power,
+utilization, fan duty, and physical RPM held fixed, raising only the idle
+lower fan from 30% to 70% reduced loaded-top mean temperature by 4.984 C
+(paired-block 95% CI -5.313 to -4.655 C), raised its clock by 15.090 MHz
+(95% CI +9.086 to +21.095 MHz), and reduced mean request duration by 0.423
+seconds. The lower card used 3.911 W more board power. This validates the
+mechanism behind lower-card assistance and makes the background stack-aware
+fan service a required final campaign experiment.
 
 ## Read order
 

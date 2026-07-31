@@ -1,0 +1,10 @@
+fan_pct,replicate,sequence,run_dir,gpu0_idle_power_mean_w,gpu0_idle_temp_mean_c,gpu0_fan_pct,gpu0_fan_rpm_mean,gpu1_power_mean_w,gpu1_temp_mean_c,gpu1_temp_last5_c,gpu1_temp_max_c,gpu1_fan_pct,gpu1_fan_rpm_mean,gpu1_clock_mean_mhz,gpu1_clock_last5_mhz,gpu1_requests_per_second,gpu1_request_duration_mean_s,gpu1_request_duration_p95_s,host_cpu_tctl_mean_c,host_nvme_max_mean_c,internal_admissible
+30,1,1,ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r1,19.24,26.016,30.0,1200.036,299.993,54.909,55.237,58.0,50.0,1678.123,1030.668,1027.28,1.1733,27.268,27.348,72.439,36.615,True
+50,1,2,ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r1,20.484,25.994,50.0,1678.022,299.993,52.12,52.203,54.0,50.0,1678.118,1040.423,1038.839,1.1733,26.973,27.018,72.595,35.9,True
+70,1,3,ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r1,23.157,26.0,70.0,2157.073,299.993,49.824,50.038,52.0,50.0,1678.078,1042.998,1042.656,1.2089,26.882,26.939,72.272,34.984,True
+30,2,3,ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r2,19.106,26.172,30.0,1200.029,299.993,54.915,55.675,58.0,50.0,1678.132,1029.362,1025.96,1.1733,27.296,27.386,72.57,36.542,True
+50,2,1,ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r2,20.218,26.0,50.0,1677.978,299.993,52.153,52.894,55.0,50.0,1678.093,1040.874,1038.73,1.1733,27.009,27.073,72.383,35.9,True
+70,2,2,ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r2,22.741,26.0,70.0,2157.009,299.993,49.882,50.042,53.0,50.0,1678.08,1046.191,1043.4,1.2089,26.83,26.906,72.641,35.026,True
+30,3,2,ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r3,19.096,26.003,30.0,1200.022,299.993,54.682,55.048,58.0,50.0,1678.117,1024.556,1023.482,1.1733,27.343,27.404,72.546,36.597,True
+50,3,3,ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r3,20.613,26.0,50.0,1678.003,299.993,51.948,52.052,55.0,50.0,1678.077,1034.538,1033.908,1.1733,27.129,27.209,72.755,35.9,True
+70,3,1,ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r3,23.277,25.999,70.0,2157.043,299.993,49.848,50.037,52.0,50.0,1678.097,1040.668,1039.534,1.1733,26.926,26.975,72.655,35.073,True
