@@ -320,6 +320,13 @@ last five minutes, while also cooling the bottom card. This is consistent with
 the validated lower-neighbor assistance mechanism, but remains preliminary at
 `n=1/3`; R2 and R3 rotate policy order before the result is promoted.
 
+[`analysis/350W_STATIC_FAN_N2.md`](analysis/350W_STATIC_FAN_N2.md) adds the
+order-rotated R2 block. Relative to direction-reversed B40T60, B60T40 reduced
+top mean temperature by 0.678 C in R1 and 0.658 C in R2 while raising top
+clock by 16.074 and 11.823 MHz. The paired `n=2` mean also improves top
+latency by 0.128 seconds and bottom temperature by 0.917 C. R3 remains
+required before validating the 350 W fan-allocation coefficient.
+
 ## Read order
 
 1. Each run directory's `REPORT.md` gives the human-readable result.

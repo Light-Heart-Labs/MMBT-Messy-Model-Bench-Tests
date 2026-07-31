@@ -34,9 +34,9 @@ Two validation levels are tracked:
 | NG-FANISO-NEIGHBOR-LOADTOP-F30-V3HOST-15M | 3 | 3 | 0 | Internally validated; all three Latin-order blocks passed |
 | NG-FANISO-NEIGHBOR-LOADTOP-F50-V3HOST-15M | 3 | 3 | 0 | Internally validated; monotonic intermediate thermal/performance response |
 | NG-FANISO-NEIGHBOR-LOADTOP-F70-V3HOST-15M | 3 | 3 | 0 | Internally validated; 30-to-70% lower-fan assistance removed 4.984 C from loaded top mean temperature |
-| NG-FAN-EQ50-SYM350-V3HOST-15M | 1 | 3 | 0 | R1 passed; equal 50/50 reference, R2/R3 pending |
-| NG-FAN-B40T60-SYM350-V3HOST-15M | 1 | 3 | 0 | R1 passed; top-biased 40/60 policy, R2/R3 pending |
-| NG-FAN-B60T40-SYM350-V3HOST-15M | 1 | 3 | 0 | R1 passed; lower-biased policy improved R1 top last-5m temperature/clock, R2/R3 pending |
+| NG-FAN-EQ50-SYM350-V3HOST-15M | 2 | 3 | 0 | R1/R2 passed; equal 50/50 reference, R3 pending |
+| NG-FAN-B40T60-SYM350-V3HOST-15M | 2 | 3 | 0 | R1/R2 passed; top-biased 40/60 policy, R3 pending |
+| NG-FAN-B60T40-SYM350-V3HOST-15M | 2 | 3 | 0 | R1/R2 passed; paired lower-biased advantage reproduced, R3 pending |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 
 `NG-SINGLE-T-250` is the first cell to reach three internally admissible replicates. Replicates 2, 4, and 5 were independently initialized execution blocks with cleanup/cooldown between them, but all occurred during one campaign session. The cell is therefore validated for the internal Tower2/no-gap model with an explicit within-session limitation. No cell is transferable yet.
