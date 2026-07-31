@@ -128,8 +128,13 @@ safety.
 Measured block R1 completed in the pre-registered EQ60, B70T50, B50T70 order
 with all three cells internally admissible. R2 then completed in the rotated
 B70T50, B50T70, EQ60 order with all three cells internally admissible and the
-principal R1 effect directions reproduced. R3 remains required; no coefficient
-is validated before the full Latin-order rotation completes.
+principal R1 effect directions reproduced. The clean restarted R3 completed in
+the final B50T70, EQ60, B70T50 order after a user-interrupted partial block was
+retained and excluded. All nine inferential cells passed. For B70T50 minus
+B50T70, top last-five-minute temperature changed by -0.876 C (95% CI -1.282
+to -0.470 C) and top last-five-minute clock by +22.874 MHz (95% CI +17.861 to
++27.886 MHz). These steady-state controller coefficients are internally
+validated for the Tower2 no-gap 400/400 W configuration.
 
 ## Runner
 

@@ -1,0 +1,7 @@
+ts_iso,sequence,policy,status,run_dir
+2026-07-31T19:58:40.748Z,1,B50T70,started,
+2026-07-31T20:26:25.118Z,1,B50T70,pass,/home/michael/thermal-tests/runs/2026-07-31T20-03-44Z-ng-fan-b50t70-sym400-v3host-15m-r3
+2026-07-31T20:26:25.119Z,2,EQ60,started,
+2026-07-31T21:02:11.531Z,2,EQ60,pass,/home/michael/thermal-tests/runs/2026-07-31T20-39-31Z-ng-fan-eq60-sym400-v3host-15m-r3
+2026-07-31T21:02:11.532Z,3,B70T50,started,
+2026-07-31T21:39:58.373Z,3,B70T50,pass,/home/michael/thermal-tests/runs/2026-07-31T21-17-21Z-ng-fan-b70t50-sym400-v3host-15m-r3

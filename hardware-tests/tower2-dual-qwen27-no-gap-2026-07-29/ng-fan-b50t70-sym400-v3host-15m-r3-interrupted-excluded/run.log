@@ -1,0 +1,67 @@
+[2026-07-31T18:46:37Z] Output: /home/michael/thermal-tests/runs/2026-07-31T18-46-37Z-ng-fan-b50t70-sym400-v3host-15m-r3
+[2026-07-31T18:46:38Z] Stopping GPU containers that conflict with an isolated GPU0 replica
+ods-llama-server
+ods-whisper
+ods-comfyui
+ods-embeddings
+[2026-07-31T18:47:15Z] Setting GPU0/bottom to 400 W and GPU1/top to 400 W
+Power limit for GPU 00000000:01:00.0 was set to 400.00 W from 600.00 W.
+All done.
+Power limit for GPU 00000000:E1:00.0 was set to 400.00 W from 600.00 W.
+All done.
+[2026-07-31T18:47:15Z] Launching identical Qwen3.6-27B AWQ-INT4 vLLM replica on GPU0
+24b0e9f4993bdeeab35150084510b6ff3c109962dd1f692570beef84c56c5bd9
+[2026-07-31T18:47:16Z] Waiting for GPU0 vLLM readiness
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+[2026-07-31T18:50:35Z] Fixed GPU0 fans 0/1 at 50%: 48%/1645 RPM, 49%/1662 RPM
+[2026-07-31T18:50:45Z] Fixed GPU1 fans 2/3 at 70%: 69%/2150 RPM, 69%/2149 RPM
+[2026-07-31T18:50:45Z] Starting 250 ms GPU telemetry; workers GPU0=32 GPU1=32
+[2026-07-31T18:50:45Z] Warm-up started (120s)
+[2026-07-31T18:52:45Z] Trailing 30s warm-up mean board power: GPU0=399.99W GPU1=399.99W
+[2026-07-31T18:52:45Z] Measured GPU0=400 W / GPU1=400 W run started (900s)
+[2026-07-31T18:53:48Z] Progress 63/900s
+0, 400.01 W, 61, 32, 50 %, 1770 MHz, 100 %, Active, Not Active, Not Active
+1, 400.00 W, 73, 20, 70 %, 1582 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:54:46Z] Progress 121/900s
+0, 400.00 W, 62, 31, 50 %, 1770 MHz, 100 %, Active, Not Active, Not Active
+1, 400.00 W, 75, 18, 70 %, 1552 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:55:50Z] Progress 185/900s
+0, 399.99 W, 63, 30, 50 %, 1762 MHz, 100 %, Active, Not Active, Not Active
+1, 400.03 W, 77, 16, 70 %, 1530 MHz, 100 %, Active, Not Active, Not Active

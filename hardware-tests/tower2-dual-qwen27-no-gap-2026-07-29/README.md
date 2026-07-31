@@ -371,8 +371,19 @@ adds the rotated R2 block. B70T50 beat direction-reversed B50T70 in both
 replicates: the paired `n=2` mean is -0.710 C top temperature, +22.243 MHz top
 clock, and -0.121 seconds top request duration. Bottom temperature also fell
 0.959 C. All six cells held 400 W/100%, tracked exact fan/RPM targets, reached
-steady plateaus, and recorded zero thermal/brake events. R3 remains required
-for validated confidence intervals.
+steady plateaus, and recorded zero thermal/brake events.
+
+[`analysis/400W_STATIC_FAN_120POINT_VALIDATED.md`](analysis/400W_STATIC_FAN_120POINT_VALIDATED.md)
+completes the rotated R3 block and promotes all three 400 W replacement cells
+to internal `n=3` validation. With the same 120-point total fan budget, B70T50
+versus direction-reversed B50T70 reduced top last-five-minute temperature by
+0.876 C (95% CI 0.470 to 1.282 C) and raised top last-five-minute graphics
+clock by 22.874 MHz (95% CI 17.861 to 27.886 MHz). All three paired blocks
+agree on both steady-state directions even though the top card receives less
+local fan under B70T50. This is the strongest direct evidence in the campaign
+that lower-card airflow assistance improves upper-card operation in a no-gap
+stack. A user-interrupted partial R3 attempt is separately retained and
+excluded; the published R3 population comes only from the clean restart.
 
 ## Read order
 

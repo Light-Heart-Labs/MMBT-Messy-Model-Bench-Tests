@@ -40,9 +40,9 @@ Two validation levels are tracked:
 | NG-FAN-EQ50-SYM400-V3HOST-15M | 1 | 3 | 0 | R1 admissible but marginal at 84 C maximum; original 100-point budget retired at 400 W |
 | NG-FAN-B60T40-SYM400-V3HOST-15M | 0 | 3 | 0 | R1 safety-aborted at 85 C after ~4 measured minutes; do not repeat unchanged |
 | NG-FAN-B40T60-SYM400-V3HOST-15M | 0 | 3 | 0 | Not run because the R1 block correctly fail-stopped after B60T40 |
-| NG-FAN-EQ60-SYM400-V3HOST-15M | 2 | 3 | 0 | R1/R2 internally admissible; R2 equal reference ran last; R3 pending |
-| NG-FAN-B50T70-SYM400-V3HOST-15M | 2 | 3 | 0 | R1/R2 internally admissible; direction-reversed comparison reproduced; R3 pending |
-| NG-FAN-B70T50-SYM400-V3HOST-15M | 2 | 3 | 0 | R1/R2 internally admissible; lower-biased allocation improved top thermal/performance responses in both blocks; R3 pending |
+| NG-FAN-EQ60-SYM400-V3HOST-15M | 3 | 3 | 0 | Internally validated; all three rotated blocks held 400 W/100% with exact fan/RPM tracking and zero thermal/brake events |
+| NG-FAN-B50T70-SYM400-V3HOST-15M | 3 | 3 | 0 | Internally validated; clean R3 restarted after a separately retained user-interrupted attempt |
+| NG-FAN-B70T50-SYM400-V3HOST-15M | 3 | 3 | 0 | Internally validated; versus B50T70, top last-5m temperature -0.876 C and clock +22.874 MHz with 95% CIs excluding zero |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 
 `NG-SINGLE-T-250` is the first cell to reach three internally admissible replicates. Replicates 2, 4, and 5 were independently initialized execution blocks with cleanup/cooldown between them, but all occurred during one campaign session. The cell is therefore validated for the internal Tower2/no-gap model with an explicit within-session limitation. No cell is transferable yet.
@@ -53,8 +53,8 @@ Two validation levels are tracked:
 
 ## Immediate replication sequence
 
-1. Complete three clean `NG-SINGLE-B-250` replicates.
-2. Complete three clean `NG-SYM-250` anchor replicates, randomized across execution blocks with the isolation cells.
-3. Repeat `NG-SINGLE-T-250` in a later session to quantify day/session effects.
-4. Add calibrated environmental probes before promoting any cell to transferable status.
-5. Expand to 400 W and 500 W only after the 250 W replicate variance and quality-control process are verified.
+1. Build the cross-power evidence-grade table from validated 250, 350, and 400 W fixed-fan populations; keep 200/300 W order-confounded estimates explicitly provisional.
+2. Complete missing clean anchor replicates (`NG-SINGLE-B-250`, `NG-SYM-250`, and `NG-SYM-500`) only when their information gain exceeds another matched crossover.
+3. Validate the stack-aware background fan controller against matched static policies, including fail-safe restoration and service-restart behavior.
+4. Repeat key cells after restoring a physical gap to identify the spacing-response coefficient.
+5. Add calibrated ambient and per-card inlet probes before promoting any cell or 3x/4x forecast to transferable server-design status.

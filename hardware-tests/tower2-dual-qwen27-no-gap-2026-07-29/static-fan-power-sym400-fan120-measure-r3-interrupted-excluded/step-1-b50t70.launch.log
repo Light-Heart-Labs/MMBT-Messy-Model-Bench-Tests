@@ -1,0 +1,104 @@
+[2026-07-31T18:33:15Z] Preflight isolation: quiescing external GPU request sources
+[2026-07-31T18:33:15Z] Preflight cooldown: GPU0=40C/0% GPU1=51C/0% CPU=81.2C NVMe=46.9C
+[2026-07-31T18:33:46Z] Preflight cooldown: GPU0=37C/0% GPU1=48C/0% CPU=63.2C NVMe=46.9C
+[2026-07-31T18:34:17Z] Preflight cooldown: GPU0=35C/0% GPU1=45C/0% CPU=61.9C NVMe=46.9C
+[2026-07-31T18:34:48Z] Preflight cooldown: GPU0=34C/0% GPU1=43C/0% CPU=60.2C NVMe=45.9C
+[2026-07-31T18:35:19Z] Preflight cooldown: GPU0=33C/0% GPU1=41C/0% CPU=63.2C NVMe=45.9C
+[2026-07-31T18:35:49Z] Preflight cooldown: GPU0=33C/0% GPU1=39C/0% CPU=60.4C NVMe=45.9C
+[2026-07-31T18:36:20Z] Preflight cooldown: GPU0=32C/0% GPU1=38C/0% CPU=55.8C NVMe=44.9C
+[2026-07-31T18:36:51Z] Preflight cooldown: GPU0=32C/0% GPU1=37C/0% CPU=60.6C NVMe=44.9C
+[2026-07-31T18:37:22Z] Preflight cooldown: GPU0=31C/0% GPU1=36C/0% CPU=56.9C NVMe=44.9C
+[2026-07-31T18:37:53Z] Preflight cooldown: GPU0=31C/0% GPU1=35C/0% CPU=61.6C NVMe=43.9C
+[2026-07-31T18:38:23Z] Preflight cooldown: GPU0=31C/0% GPU1=35C/0% CPU=57.9C NVMe=43.9C
+[2026-07-31T18:38:54Z] Preflight cooldown: GPU0=31C/0% GPU1=34C/0% CPU=55.8C NVMe=43.9C
+[2026-07-31T18:39:25Z] Preflight cooldown: GPU0=30C/0% GPU1=34C/0% CPU=62.2C NVMe=43.9C
+[2026-07-31T18:39:56Z] Preflight cooldown: GPU0=30C/0% GPU1=34C/0% CPU=55.6C NVMe=42.9C
+[2026-07-31T18:40:26Z] Preflight cooldown: GPU0=30C/0% GPU1=33C/0% CPU=57.5C NVMe=42.9C
+[2026-07-31T18:40:57Z] Preflight cooldown: GPU0=30C/0% GPU1=33C/0% CPU=57.1C NVMe=42.9C
+[2026-07-31T18:41:28Z] Preflight cooldown: GPU0=30C/0% GPU1=33C/0% CPU=55.6C NVMe=42.9C
+[2026-07-31T18:41:33Z] Preflight soak started: GPU0=30C/0% GPU1=33C/0% CPU=54.9C NVMe=41.9C
+[2026-07-31T18:41:33Z] Preflight soak 0/300s: GPU0=30C/0% GPU1=33C/0% CPU=54.9C NVMe=41.9C
+[2026-07-31T18:42:04Z] Preflight soak 31/300s: GPU0=30C/0% GPU1=33C/0% CPU=58.8C NVMe=41.9C
+[2026-07-31T18:42:35Z] Preflight soak 62/300s: GPU0=30C/0% GPU1=33C/0% CPU=54.9C NVMe=41.9C
+[2026-07-31T18:43:06Z] Preflight soak 93/300s: GPU0=30C/0% GPU1=33C/0% CPU=52.4C NVMe=41.9C
+[2026-07-31T18:43:36Z] Preflight soak 123/300s: GPU0=30C/0% GPU1=33C/0% CPU=56.0C NVMe=41.9C
+[2026-07-31T18:44:07Z] Preflight soak 154/300s: GPU0=30C/0% GPU1=32C/0% CPU=54.8C NVMe=41.9C
+[2026-07-31T18:44:38Z] Preflight soak 185/300s: GPU0=30C/0% GPU1=32C/0% CPU=59.4C NVMe=40.9C
+[2026-07-31T18:45:09Z] Preflight soak 216/300s: GPU0=30C/0% GPU1=32C/0% CPU=56.6C NVMe=40.9C
+[2026-07-31T18:45:40Z] Preflight soak 247/300s: GPU0=30C/0% GPU1=32C/0% CPU=55.0C NVMe=40.9C
+[2026-07-31T18:46:10Z] Preflight soak 277/300s: GPU0=30C/0% GPU1=32C/0% CPU=57.5C NVMe=40.9C
+[2026-07-31T18:46:36Z] Preflight isolation ready after 303s continuous soak: GPU0=30C/0% GPU1=32C/0% CPU=53.5C NVMe=40.9C
+[2026-07-31T18:46:36Z] Tower2 dual-Qwen27 readiness check
+
+0, NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 14.96 W, 600.00 W, 30, 63, 30 %, 180 MHz, 0 %, 50889 MiB
+1, NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 16.51 W, 600.00 W, 32, 61, 30 %, 180 MHz, 0 %, 89697 MiB
+
+GPU1 image=sha256:a230095847e93bd4df9888b33dab956fa9504537b828a23657d2b26fed57b5c9 command=["--model","/models/cyankiwi-Qwen3.6-27B-AWQ-INT4","--served-model-name","sanctuary","--host","0.0.0.0","--port","8000","--tensor-parallel-size","1","--gpu-memory-utilization","0.92","--max-model-len","262144","--trust-remote-code","--enable-auto-tool-choice","--tool-call-parser","qwen3_coder"]
+[2026-07-31T18:46:37Z] CHECK PASS
+[2026-07-31T18:46:37Z] Output: /home/michael/thermal-tests/runs/2026-07-31T18-46-37Z-ng-fan-b50t70-sym400-v3host-15m-r3
+[2026-07-31T18:46:38Z] Stopping GPU containers that conflict with an isolated GPU0 replica
+ods-llama-server
+ods-whisper
+ods-comfyui
+ods-embeddings
+[2026-07-31T18:47:15Z] Setting GPU0/bottom to 400 W and GPU1/top to 400 W
+Power limit for GPU 00000000:01:00.0 was set to 400.00 W from 600.00 W.
+All done.
+Power limit for GPU 00000000:E1:00.0 was set to 400.00 W from 600.00 W.
+All done.
+[2026-07-31T18:47:15Z] Launching identical Qwen3.6-27B AWQ-INT4 vLLM replica on GPU0
+24b0e9f4993bdeeab35150084510b6ff3c109962dd1f692570beef84c56c5bd9
+[2026-07-31T18:47:16Z] Waiting for GPU0 vLLM readiness
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+[2026-07-31T18:50:35Z] Fixed GPU0 fans 0/1 at 50%: 48%/1645 RPM, 49%/1662 RPM
+[2026-07-31T18:50:45Z] Fixed GPU1 fans 2/3 at 70%: 69%/2150 RPM, 69%/2149 RPM
+[2026-07-31T18:50:45Z] Starting 250 ms GPU telemetry; workers GPU0=32 GPU1=32
+[2026-07-31T18:50:45Z] Warm-up started (120s)
+[2026-07-31T18:52:45Z] Trailing 30s warm-up mean board power: GPU0=399.99W GPU1=399.99W
+[2026-07-31T18:52:45Z] Measured GPU0=400 W / GPU1=400 W run started (900s)
+[2026-07-31T18:53:48Z] Progress 63/900s
+0, 400.01 W, 61, 32, 50 %, 1770 MHz, 100 %, Active, Not Active, Not Active
+1, 400.00 W, 73, 20, 70 %, 1582 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:54:46Z] Progress 121/900s
+0, 400.00 W, 62, 31, 50 %, 1770 MHz, 100 %, Active, Not Active, Not Active
+1, 400.00 W, 75, 18, 70 %, 1552 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:55:50Z] Progress 185/900s
+0, 399.99 W, 63, 30, 50 %, 1762 MHz, 100 %, Active, Not Active, Not Active
+1, 400.03 W, 77, 16, 70 %, 1530 MHz, 100 %, Active, Not Active, Not Active
