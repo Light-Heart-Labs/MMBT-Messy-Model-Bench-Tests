@@ -1,0 +1,5 @@
+gpu_uuid, pid, process_name, used_gpu_memory [MiB]
+GPU-ff71102f-22f8-52bb-da93-2076a6531329, 2583316, /app/llama-server, 50310 MiB
+GPU-ff71102f-22f8-52bb-da93-2076a6531329, 2583842, python3, 550 MiB
+GPU-fe3fb4d0-5ddc-9c05-587b-1bc84c75c1a0, 3411003, VLLM::EngineCore, 89116 MiB
+GPU-fe3fb4d0-5ddc-9c05-587b-1bc84c75c1a0, 2583316, /app/llama-server, 550 MiB

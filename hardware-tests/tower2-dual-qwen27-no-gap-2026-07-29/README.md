@@ -312,6 +312,14 @@ hardware-brake events. The lower-biased 60/40 bump had the lowest observed
 top temperature and highest top clock, but the short ordered bumps are
 safety-only; three 15-minute Latin-order blocks are required for inference.
 
+[`analysis/350W_STATIC_FAN_R1.md`](analysis/350W_STATIC_FAN_R1.md) records the
+first full 15-minute Latin-order block. Every policy reached steady state and
+passed all gates. At equal total fan duty, lower-biased B60T40 beat
+direction-reversed B40T60 on the top card by 0.988 C and 18.086 MHz over the
+last five minutes, while also cooling the bottom card. This is consistent with
+the validated lower-neighbor assistance mechanism, but remains preliminary at
+`n=1/3`; R2 and R3 rotate policy order before the result is promoted.
+
 ## Read order
 
 1. Each run directory's `REPORT.md` gives the human-readable result.

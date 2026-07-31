@@ -1275,6 +1275,228 @@
         }
       }
     },
+    "NG-FAN-B40T60-SYM350-V3HOST-15M": {
+      "n": 1,
+      "internally_validated": false,
+      "runs": [
+        {
+          "run_id": "2026-07-31T08-36-19Z",
+          "replicate": 1,
+          "artifact_path": "ng-fan-b40t60-sym350-v3host-15m-r1",
+          "metric_exclusions": []
+        }
+      ],
+      "aggregates": {
+        "gpu0.clock_last5_mean_mhz": {
+          "n": 1,
+          "mean": 1355.544,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1355.544,
+          "max": 1355.544
+        },
+        "gpu0.clock_mean_mhz": {
+          "n": 1,
+          "mean": 1363.635,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1363.635,
+          "max": 1363.635
+        },
+        "gpu0.fan_mean_pct": {
+          "n": 1,
+          "mean": 40.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 40.0,
+          "max": 40.0
+        },
+        "gpu0.fan_mean_rpm": {
+          "n": 1,
+          "mean": 1439.124,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1439.124,
+          "max": 1439.124
+        },
+        "gpu0.fan_slope_pp_per_min": {
+          "n": 1,
+          "mean": 0.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "gpu0.independent_nvml_clock_mean_mhz": {
+          "n": 1,
+          "mean": 1363.56,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1363.56,
+          "max": 1363.56
+        },
+        "gpu0.power_mean_w": {
+          "n": 1,
+          "mean": 349.994,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 349.994,
+          "max": 349.994
+        },
+        "gpu0.requests_per_second": {
+          "n": 1,
+          "mean": 1.3867,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1.3867,
+          "max": 1.3867
+        },
+        "gpu0.temp_last5_mean_c": {
+          "n": 1,
+          "mean": 56.05,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 56.05,
+          "max": 56.05
+        },
+        "gpu0.temp_mean_c": {
+          "n": 1,
+          "mean": 55.455,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 55.455,
+          "max": 55.455
+        },
+        "gpu0.temp_slope_c_per_min": {
+          "n": 1,
+          "mean": -0.0004,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": -0.0004,
+          "max": -0.0004
+        },
+        "gpu1.clock_last5_mean_mhz": {
+          "n": 1,
+          "mean": 1209.894,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1209.894,
+          "max": 1209.894
+        },
+        "gpu1.clock_mean_mhz": {
+          "n": 1,
+          "mean": 1226.184,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1226.184,
+          "max": 1226.184
+        },
+        "gpu1.fan_mean_pct": {
+          "n": 1,
+          "mean": 60.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 60.0,
+          "max": 60.0
+        },
+        "gpu1.fan_mean_rpm": {
+          "n": 1,
+          "mean": 1917.14,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1917.14,
+          "max": 1917.14
+        },
+        "gpu1.fan_slope_pp_per_min": {
+          "n": 1,
+          "mean": 0.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "gpu1.independent_nvml_clock_mean_mhz": {
+          "n": 1,
+          "mean": 1226.169,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1226.169,
+          "max": 1226.169
+        },
+        "gpu1.power_mean_w": {
+          "n": 1,
+          "mean": 349.992,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 349.992,
+          "max": 349.992
+        },
+        "gpu1.requests_per_second": {
+          "n": 1,
+          "mean": 1.28,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1.28,
+          "max": 1.28
+        },
+        "gpu1.temp_last5_mean_c": {
+          "n": 1,
+          "mean": 72.048,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 72.048,
+          "max": 72.048
+        },
+        "gpu1.temp_mean_c": {
+          "n": 1,
+          "mean": 70.573,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 70.573,
+          "max": 70.573
+        },
+        "gpu1.temp_slope_c_per_min": {
+          "n": 1,
+          "mean": 0.0023,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0023,
+          "max": 0.0023
+        },
+        "top_minus_bottom.fan_pct": {
+          "n": 1,
+          "mean": 20.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 20.0,
+          "max": 20.0
+        },
+        "top_minus_bottom.graphics_clock_mhz": {
+          "n": 1,
+          "mean": -137.451,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": -137.451,
+          "max": -137.451
+        },
+        "top_minus_bottom.power_avg_w": {
+          "n": 1,
+          "mean": -0.002,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": -0.002,
+          "max": -0.002
+        },
+        "top_minus_bottom.temp_gpu_c": {
+          "n": 1,
+          "mean": 15.118,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 15.118,
+          "max": 15.118
+        }
+      }
+    },
     "NG-FAN-B60-T40-SYM200-V2-15M": {
       "n": 3,
       "internally_validated": true,
@@ -2205,6 +2427,228 @@
         }
       }
     },
+    "NG-FAN-B60T40-SYM350-V3HOST-15M": {
+      "n": 1,
+      "internally_validated": false,
+      "runs": [
+        {
+          "run_id": "2026-07-31T08-08-35Z",
+          "replicate": 1,
+          "artifact_path": "ng-fan-b60t40-sym350-v3host-15m-r1",
+          "metric_exclusions": []
+        }
+      ],
+      "aggregates": {
+        "gpu0.clock_last5_mean_mhz": {
+          "n": 1,
+          "mean": 1350.2,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1350.2,
+          "max": 1350.2
+        },
+        "gpu0.clock_mean_mhz": {
+          "n": 1,
+          "mean": 1355.779,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1355.779,
+          "max": 1355.779
+        },
+        "gpu0.fan_mean_pct": {
+          "n": 1,
+          "mean": 60.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 60.0,
+          "max": 60.0
+        },
+        "gpu0.fan_mean_rpm": {
+          "n": 1,
+          "mean": 1917.125,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1917.125,
+          "max": 1917.125
+        },
+        "gpu0.fan_slope_pp_per_min": {
+          "n": 1,
+          "mean": 0.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "gpu0.independent_nvml_clock_mean_mhz": {
+          "n": 1,
+          "mean": 1355.82,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1355.82,
+          "max": 1355.82
+        },
+        "gpu0.power_mean_w": {
+          "n": 1,
+          "mean": 349.992,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 349.992,
+          "max": 349.992
+        },
+        "gpu0.requests_per_second": {
+          "n": 1,
+          "mean": 1.3511,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1.3511,
+          "max": 1.3511
+        },
+        "gpu0.temp_last5_mean_c": {
+          "n": 1,
+          "mean": 55.042,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 55.042,
+          "max": 55.042
+        },
+        "gpu0.temp_mean_c": {
+          "n": 1,
+          "mean": 54.597,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 54.597,
+          "max": 54.597
+        },
+        "gpu0.temp_slope_c_per_min": {
+          "n": 1,
+          "mean": -0.0033,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": -0.0033,
+          "max": -0.0033
+        },
+        "gpu1.clock_last5_mean_mhz": {
+          "n": 1,
+          "mean": 1227.98,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1227.98,
+          "max": 1227.98
+        },
+        "gpu1.clock_mean_mhz": {
+          "n": 1,
+          "mean": 1242.258,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1242.258,
+          "max": 1242.258
+        },
+        "gpu1.fan_mean_pct": {
+          "n": 1,
+          "mean": 40.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 40.0,
+          "max": 40.0
+        },
+        "gpu1.fan_mean_rpm": {
+          "n": 1,
+          "mean": 1439.108,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1439.108,
+          "max": 1439.108
+        },
+        "gpu1.fan_slope_pp_per_min": {
+          "n": 1,
+          "mean": 0.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "gpu1.independent_nvml_clock_mean_mhz": {
+          "n": 1,
+          "mean": 1242.23,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1242.23,
+          "max": 1242.23
+        },
+        "gpu1.power_mean_w": {
+          "n": 1,
+          "mean": 349.992,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 349.992,
+          "max": 349.992
+        },
+        "gpu1.requests_per_second": {
+          "n": 1,
+          "mean": 1.28,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1.28,
+          "max": 1.28
+        },
+        "gpu1.temp_last5_mean_c": {
+          "n": 1,
+          "mean": 71.06,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 71.06,
+          "max": 71.06
+        },
+        "gpu1.temp_mean_c": {
+          "n": 1,
+          "mean": 69.895,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 69.895,
+          "max": 69.895
+        },
+        "gpu1.temp_slope_c_per_min": {
+          "n": 1,
+          "mean": -0.0022,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": -0.0022,
+          "max": -0.0022
+        },
+        "top_minus_bottom.fan_pct": {
+          "n": 1,
+          "mean": -20.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": -20.0,
+          "max": -20.0
+        },
+        "top_minus_bottom.graphics_clock_mhz": {
+          "n": 1,
+          "mean": -113.521,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": -113.521,
+          "max": -113.521
+        },
+        "top_minus_bottom.power_avg_w": {
+          "n": 1,
+          "mean": 0.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "top_minus_bottom.temp_gpu_c": {
+          "n": 1,
+          "mean": 15.298,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 15.298,
+          "max": 15.298
+        }
+      }
+    },
     "NG-FAN-B70-T30-SYM250-V2-15M": {
       "n": 3,
       "internally_validated": true,
@@ -2892,6 +3336,228 @@
           "coefficient_of_variation": 0.003,
           "min": 11.248,
           "max": 11.311
+        }
+      }
+    },
+    "NG-FAN-EQ50-SYM350-V3HOST-15M": {
+      "n": 1,
+      "internally_validated": false,
+      "runs": [
+        {
+          "run_id": "2026-07-31T07-40-21Z",
+          "replicate": 1,
+          "artifact_path": "ng-fan-eq50-sym350-v3host-15m-r1",
+          "metric_exclusions": []
+        }
+      ],
+      "aggregates": {
+        "gpu0.clock_last5_mean_mhz": {
+          "n": 1,
+          "mean": 1356.179,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1356.179,
+          "max": 1356.179
+        },
+        "gpu0.clock_mean_mhz": {
+          "n": 1,
+          "mean": 1362.526,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1362.526,
+          "max": 1362.526
+        },
+        "gpu0.fan_mean_pct": {
+          "n": 1,
+          "mean": 50.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 50.0,
+          "max": 50.0
+        },
+        "gpu0.fan_mean_rpm": {
+          "n": 1,
+          "mean": 1678.135,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1678.135,
+          "max": 1678.135
+        },
+        "gpu0.fan_slope_pp_per_min": {
+          "n": 1,
+          "mean": 0.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "gpu0.independent_nvml_clock_mean_mhz": {
+          "n": 1,
+          "mean": 1362.503,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1362.503,
+          "max": 1362.503
+        },
+        "gpu0.power_mean_w": {
+          "n": 1,
+          "mean": 349.993,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 349.993,
+          "max": 349.993
+        },
+        "gpu0.requests_per_second": {
+          "n": 1,
+          "mean": 1.3511,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1.3511,
+          "max": 1.3511
+        },
+        "gpu0.temp_last5_mean_c": {
+          "n": 1,
+          "mean": 56.047,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 56.047,
+          "max": 56.047
+        },
+        "gpu0.temp_mean_c": {
+          "n": 1,
+          "mean": 55.471,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 55.471,
+          "max": 55.471
+        },
+        "gpu0.temp_slope_c_per_min": {
+          "n": 1,
+          "mean": 0.0018,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0018,
+          "max": 0.0018
+        },
+        "gpu1.clock_last5_mean_mhz": {
+          "n": 1,
+          "mean": 1214.222,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1214.222,
+          "max": 1214.222
+        },
+        "gpu1.clock_mean_mhz": {
+          "n": 1,
+          "mean": 1230.757,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1230.757,
+          "max": 1230.757
+        },
+        "gpu1.fan_mean_pct": {
+          "n": 1,
+          "mean": 50.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 50.0,
+          "max": 50.0
+        },
+        "gpu1.fan_mean_rpm": {
+          "n": 1,
+          "mean": 1678.148,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1678.148,
+          "max": 1678.148
+        },
+        "gpu1.fan_slope_pp_per_min": {
+          "n": 1,
+          "mean": 0.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "gpu1.independent_nvml_clock_mean_mhz": {
+          "n": 1,
+          "mean": 1230.778,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1230.778,
+          "max": 1230.778
+        },
+        "gpu1.power_mean_w": {
+          "n": 1,
+          "mean": 349.992,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 349.992,
+          "max": 349.992
+        },
+        "gpu1.requests_per_second": {
+          "n": 1,
+          "mean": 1.28,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 1.28,
+          "max": 1.28
+        },
+        "gpu1.temp_last5_mean_c": {
+          "n": 1,
+          "mean": 72.922,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 72.922,
+          "max": 72.922
+        },
+        "gpu1.temp_mean_c": {
+          "n": 1,
+          "mean": 71.193,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 71.193,
+          "max": 71.193
+        },
+        "gpu1.temp_slope_c_per_min": {
+          "n": 1,
+          "mean": -0.1651,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": -0.1651,
+          "max": -0.1651
+        },
+        "top_minus_bottom.fan_pct": {
+          "n": 1,
+          "mean": 0.0,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "top_minus_bottom.graphics_clock_mhz": {
+          "n": 1,
+          "mean": -131.769,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": -131.769,
+          "max": -131.769
+        },
+        "top_minus_bottom.power_avg_w": {
+          "n": 1,
+          "mean": -0.001,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": -0.001,
+          "max": -0.001
+        },
+        "top_minus_bottom.temp_gpu_c": {
+          "n": 1,
+          "mean": 15.722,
+          "sample_sd": null,
+          "coefficient_of_variation": null,
+          "min": 15.722,
+          "max": 15.722
         }
       }
     },
