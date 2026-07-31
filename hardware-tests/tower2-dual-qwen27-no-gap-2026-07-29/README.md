@@ -327,6 +327,14 @@ clock by 16.074 and 11.823 MHz. The paired `n=2` mean also improves top
 latency by 0.128 seconds and bottom temperature by 0.917 C. R3 remains
 required before validating the 350 W fan-allocation coefficient.
 
+[`analysis/350W_STATIC_FAN_VALIDATED.md`](analysis/350W_STATIC_FAN_VALIDATED.md)
+completes the third Latin-order block. Relative to direction-reversed B40T60,
+B60T40 reduced top mean temperature by 0.652 C (95% CI -0.725 to -0.579 C),
+raised top mean clock by 14.005 MHz (95% CI +8.719 to +19.290 MHz), and reduced
+top mean request duration by 0.133 seconds. The top card benefits despite
+receiving less local fan duty, validating shared-flow/lower-card assistance at
+350 W under a matched total fan command.
+
 ## Read order
 
 1. Each run directory's `REPORT.md` gives the human-readable result.
