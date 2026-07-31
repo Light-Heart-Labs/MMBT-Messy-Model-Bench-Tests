@@ -1,5 +1,12 @@
 # Fan-aware interpretation of the no-gap results
 
+> **Current synthesis:** the campaign now has internally validated paired
+> fixed-fan results at 250, 350, and 400 W. See
+> [`CROSS_POWER_FAN_ALLOCATION_EVIDENCE.md`](CROSS_POWER_FAN_ALLOCATION_EVIDENCE.md)
+> for the evidence-graded cross-power map. Historical preliminary statements
+> below are retained to show how the model evolved and must not override the
+> newer validation artifacts.
+
 > New fixed-fan result: the first matched-total-RPM crossed-policy triplet is
 > documented in
 > [`CROSSED_FAN_POLICY_PRELIMINARY.md`](CROSSED_FAN_POLICY_PRELIMINARY.md).

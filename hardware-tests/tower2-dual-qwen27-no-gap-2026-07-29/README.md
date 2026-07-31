@@ -385,6 +385,23 @@ that lower-card airflow assistance improves upper-card operation in a no-gap
 stack. A user-interrupted partial R3 attempt is separately retained and
 excluded; the published R3 population comes only from the clean restart.
 
+[`analysis/CROSS_POWER_FAN_ALLOCATION_EVIDENCE.md`](analysis/CROSS_POWER_FAN_ALLOCATION_EVIDENCE.md)
+maps the direction-reversed fan-allocation evidence across 200--400 W without
+overstating comparability. The validated upper-card clock benefit grows from
++5.084 MHz at 250 W to +14.005 MHz at 350 W and +22.874 MHz in the 400 W
+closing steady state. The artifact grades 200 W as order-confounded, 300 W as
+only partially causal, and 400 W as a different 120-point safety budget, so it
+supports a qualitative power interaction rather than a naive continuous or
+stack-height-multiplied coefficient.
+
+[`analysis/STACK_HEIGHT_PLANNING_ENVELOPE_V1.md`](analysis/STACK_HEIGHT_PLANNING_ENVELOPE_V1.md)
+turns the validated 250/350/400 W two-card equal-fan anchors into transparent
+3x/4x planning ranges. Its optimistic edge assumes no additional-card penalty;
+its additive edge repeats the measured two-card positional gap for each added
+interface. The additive 350/400 W four-card scenarios exceed 100 C, while the
+400 W three-card scenario reaches 92.45 C. These are deliberately labeled
+scenario bounds, not measured predictions or safety guarantees.
+
 ## Read order
 
 1. Each run directory's `REPORT.md` gives the human-readable result.
