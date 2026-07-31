@@ -1,0 +1,11 @@
+● openclaw-gateway.service - OpenClaw Gateway (v2026.6.33)
+     Loaded: loaded (/home/michael/.config/systemd/user/openclaw-gateway.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2026-07-31 10:44:25 EDT; 892ms ago
+   Main PID: 456679 (node)
+      Tasks: 7 (limit: 308344)
+     Memory: 137.8M (peak: 139.5M)
+        CPU: 1.062s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/openclaw-gateway.service
+             └─456679 /usr/bin/node /home/michael/.npm-global/lib/node_modules/openclaw/dist/index.js gateway --port 18789
+
+Jul 31 10:44:25 Tower2 systemd[2253]: Started openclaw-gateway.service - OpenClaw Gateway (v2026.6.33).

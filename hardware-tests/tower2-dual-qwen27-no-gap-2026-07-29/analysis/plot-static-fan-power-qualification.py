@@ -12,11 +12,27 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parent
 CAMPAIGN = ROOT.parent
 POWER = int(sys.argv[1]) if len(sys.argv) > 1 else 350
-POLICIES = (
-    ("EQ50", "eq50", 50, 50),
-    ("B40T60", "b40t60", 40, 60),
-    ("B60T40", "b60t40", 60, 40),
-)
+FAN_BUDGET = int(sys.argv[2]) if len(sys.argv) > 2 else 100
+POLICY_SETS = {
+    100: (
+        ("EQ50", "eq50", 50, 50),
+        ("B40T60", "b40t60", 40, 60),
+        ("B60T40", "b60t40", 60, 40),
+    ),
+    120: (
+        ("EQ60", "eq60", 60, 60),
+        ("B50T70", "b50t70", 50, 70),
+        ("B70T50", "b70t50", 70, 50),
+    ),
+    140: (
+        ("EQ70", "eq70", 70, 70),
+        ("B60T80", "b60t80", 60, 80),
+        ("B80T60", "b80t60", 80, 60),
+    ),
+}
+if FAN_BUDGET not in POLICY_SETS:
+    raise SystemExit(f"unsupported fan budget: {FAN_BUDGET}")
+POLICIES = POLICY_SETS[FAN_BUDGET]
 
 
 rows = []
@@ -63,7 +79,8 @@ for policy, tag, bottom_fan, top_fan in POLICIES:
         }
     )
 
-csv_path = ROOT / f"{POWER}w-static-fan-qualification.csv"
+suffix = "" if FAN_BUDGET == 100 else f"-{FAN_BUDGET}point"
+csv_path = ROOT / f"{POWER}w-static-fan{suffix}-qualification.csv"
 with csv_path.open("w", newline="", encoding="utf-8") as handle:
     writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
     writer.writeheader()
@@ -100,7 +117,7 @@ draw.text(
 )
 draw.text(
     (70, 98),
-    "Qwen3.6-27B AWQ-INT4 | 100% utilization | matched 100-point fan budget | three 120-second safety bumps",
+    f"Qwen3.6-27B AWQ-INT4 | 100% utilization | matched {FAN_BUDGET}-point fan budget | three 120-second safety bumps",
     font=font(20),
     fill=MUTED,
 )
@@ -186,7 +203,7 @@ grouped_panel(
     "bottom_fan_rpm_mean",
     "top_fan_rpm_mean",
     1100,
-    2050,
+    2300 if FAN_BUDGET >= 120 else 2050,
     0,
 )
 
@@ -207,7 +224,7 @@ draw.text(
     fill=MUTED,
 )
 
-png_path = ROOT / f"{POWER}w-static-fan-qualification.png"
+png_path = ROOT / f"{POWER}w-static-fan{suffix}-qualification.png"
 image.save(png_path)
 print(csv_path)
 print(png_path)

@@ -119,6 +119,12 @@ RPM, power, completeness, plateau, and counter gates remain unchanged. If the
 120-point budget cannot maintain a safe plateau, the next pre-registered
 fallback is the matched 140-point EQ70/B80T60/B60T80 set; no cutoff is raised.
 
+The 120-point qualification completed on 2026-07-31. All three policies
+passed, with a hottest observed top temperature of 76 C and zero within-run
+thermal/brake counter deltas. This authorizes the pre-registered 15-minute
+Latin-order blocks; it does not count toward `n` or establish steady-state
+safety.
+
 ## Runner
 
 [`run-static-fan-power-block.sh`](run-static-fan-power-block.sh) implements

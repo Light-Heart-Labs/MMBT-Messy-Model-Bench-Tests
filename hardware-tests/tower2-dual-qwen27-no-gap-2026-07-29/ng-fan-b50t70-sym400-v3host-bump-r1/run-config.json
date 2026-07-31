@@ -1,0 +1,68 @@
+{
+  "tag": "ng-fan-b50t70-sym400-v3host-bump-r1",
+  "cell_id": "NG-FAN-B50T70-SYM400-V3HOST-BUMP",
+  "replicate": 1,
+  "qualification_only": true,
+  "started_at": "2026-07-31T14:26:43.143Z",
+  "model_path": "/models/cyankiwi-Qwen3.6-27B-AWQ-INT4",
+  "image_id": "sha256:a230095847e93bd4df9888b33dab956fa9504537b828a23657d2b26fed57b5c9",
+  "gpu1_model_id": "sanctuary",
+  "duration_s": 120,
+  "warmup_s": 120,
+  "cooldown_s": 60,
+  "concurrency_per_gpu": 32,
+  "concurrency_gpu0": 32,
+  "concurrency_gpu1": 32,
+  "max_tokens": 1024,
+  "min_warmup_power_gpu0_w": 380,
+  "min_warmup_power_gpu1_w": 380,
+  "max_warmup_power_gpu0_w": null,
+  "max_warmup_power_gpu1_w": null,
+  "gpu0_loaded_power_mode": "saturated",
+  "gpu1_loaded_power_mode": "saturated",
+  "headroom_max_sw_power_cap_fraction": 0,
+  "gpu0_power_limit_w": 400,
+  "gpu1_power_limit_w": 400,
+  "gpu0_fan_policy": {
+    "mode": "fixed",
+    "target_pct": 50
+  },
+  "gpu1_fan_policy": {
+    "mode": "fixed",
+    "target_pct": 70
+  },
+  "gpu_abort_c": 85,
+  "max_start_temp_gpu0_c": 45,
+  "max_start_temp_gpu1_c": 45,
+  "max_start_cpu_tctl_c": 70,
+  "max_start_nvme_c": 41.9,
+  "max_idle_power_gpu0_w": 50,
+  "max_idle_power_gpu1_w": 50,
+  "telemetry_interval_ms": 250,
+  "nvml_clock_base_ms": 173,
+  "nvml_clock_jitter_ms": 101,
+  "preflight_soak_s": 300,
+  "preflight_timeout_s": 3600,
+  "steady_state_protocol": "v1-slope",
+  "fan_telemetry": {
+    "source": "nvidia-settings NV-CONTROL",
+    "interval_ms": 1000,
+    "mapping": {
+      "gpu0_bottom": [
+        0,
+        1
+      ],
+      "gpu1_top": [
+        2,
+        3
+      ]
+    },
+    "fields": [
+      "current_pct",
+      "target_pct",
+      "rpm"
+    ],
+    "mapping_validation": "matched per-GPU nvidia-smi fan duty during unequal live fan states"
+  },
+  "ambient_c": null
+}

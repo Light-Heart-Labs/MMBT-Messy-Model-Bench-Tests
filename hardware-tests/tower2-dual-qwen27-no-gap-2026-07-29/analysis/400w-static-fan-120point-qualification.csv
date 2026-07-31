@@ -1,0 +1,4 @@
+policy,run_dir,bottom_fan_pct,top_fan_pct,bottom_fan_rpm_mean,top_fan_rpm_mean,bottom_power_mean_w,top_power_mean_w,bottom_temp_mean_c,top_temp_mean_c,bottom_temp_max_c,top_temp_max_c,bottom_clock_mean_mhz,top_clock_mean_mhz,bottom_requests_per_second,top_requests_per_second,bottom_request_duration_mean_s,top_request_duration_mean_s,thermal_or_brake_events,qualification_passed
+EQ60,ng-fan-eq60-sym400-v3host-bump-r1,60,60,1917.483,1917.384,399.992,399.991,60.633,72.874,64.0,76.0,1763.771,1583.936,1.6,1.3333,21.586,22.372,0,True
+B50T70,ng-fan-b50t70-sym400-v3host-bump-r1,50,70,1678.599,2157.574,399.99,399.992,58.327,70.218,62.0,75.0,1788.282,1611.296,1.6,1.3333,21.513,22.253,0,True
+B70T50,ng-fan-b70t50-sym400-v3host-bump-r1,70,50,2157.802,1678.492,399.992,399.992,58.006,70.351,62.0,74.0,1774.998,1619.146,1.6,1.6,21.553,22.217,0,True

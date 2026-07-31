@@ -351,6 +351,14 @@ were zero, so this is a safety-envelope failure rather than observed NVIDIA
 thermal throttling. The prospectively amended replacement raises the matched
 fan budget to 120 points (EQ60, B70T50, B50T70) without raising the cutoff.
 
+[`analysis/400W_STATIC_FAN_120POINT_QUALIFICATION.md`](analysis/400W_STATIC_FAN_120POINT_QUALIFICATION.md)
+records the replacement safety block. EQ60, B50T70, and B70T50 all passed at
+400/400 W with exact fan tracking and zero thermal/brake counter deltas. The
+hottest top observation was 76 C, leaving 9 C to the unchanged cutoff. The
+directional policies were only 0.133 C apart in top mean temperature, so the
+bumps establish safety—not an optimal allocation; three 15-minute Latin-order
+blocks remain required.
+
 ## Read order
 
 1. Each run directory's `REPORT.md` gives the human-readable result.
