@@ -107,6 +107,9 @@ block execution.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-fan-b60t40-sym350-v3host-bump-r1`](ng-fan-b60t40-sym350-v3host-bump-r1/) | 52.87 C / 56 C / 60.0%, 1,918 RPM | 65.29 C / 70 C / 40.0%, 1,440 RPM | 350 W static-spine qualification pass; safety-only/non-inferential; counters zero |
+| [`ng-fan-b40t60-sym350-v3host-bump-r1`](ng-fan-b40t60-sym350-v3host-bump-r1/) | 53.50 C / 57 C / 40.0%, 1,440 RPM | 65.62 C / 70 C / 60.0%, 1,918 RPM | 350 W static-spine qualification pass; safety-only/non-inferential; counters zero |
+| [`ng-fan-eq50-sym350-v3host-bump-r1`](ng-fan-eq50-sym350-v3host-bump-r1/) | 53.68 C / 57 C / 50.0%, 1,679 RPM | 66.09 C / 71 C / 50.0%, 1,679 RPM | 350 W static-spine qualification pass; safety-only/non-inferential; counters zero |
 | [`ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r3`](ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r3/) | Idle: 26.00 C / 26 C / 70.0%, 2,157 RPM | 49.85 C / 52 C / 50.0%, 1,678 RPM | R3 sequence 1; internally validated at n=3; counters zero |
 | [`ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r3`](ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r3/) | Idle: 26.00 C / 27 C / 30.0%, 1,200 RPM | 54.68 C / 58 C / 50.0%, 1,678 RPM | R3 sequence 2; internally validated at n=3; counters zero |
 | [`ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r3`](ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r3/) | Idle: 26.00 C / 26 C / 50.0%, 1,678 RPM | 51.95 C / 55 C / 50.0%, 1,678 RPM | R3 sequence 3; internally validated at n=3; counters zero |
@@ -301,6 +304,13 @@ lower fan from 30% to 70% reduced loaded-top mean temperature by 4.984 C
 seconds. The lower card used 3.911 W more board power. This validates the
 mechanism behind lower-card assistance and makes the background stack-aware
 fan service a required final campaign experiment.
+
+[`analysis/350W_STATIC_FAN_QUALIFICATION.md`](analysis/350W_STATIC_FAN_QUALIFICATION.md)
+records the three successful 350/350 W safety bumps. All policies held both
+GPUs at approximately 350 W and 100% utilization with zero thermal or
+hardware-brake events. The lower-biased 60/40 bump had the lowest observed
+top temperature and highest top clock, but the short ordered bumps are
+safety-only; three 15-minute Latin-order blocks are required for inference.
 
 ## Read order
 

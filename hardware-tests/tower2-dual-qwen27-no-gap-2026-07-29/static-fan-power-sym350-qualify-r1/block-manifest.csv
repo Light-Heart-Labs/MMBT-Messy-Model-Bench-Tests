@@ -1,0 +1,4 @@
+block_replicate,sequence,mode,power_w,policy,bottom_fan_pct,top_fan_pct,cell_id,run_type
+1,1,qualify,350,EQ50,50,50,NG-FAN-EQ50-SYM350-V3HOST-BUMP,qualification
+1,2,qualify,350,B40T60,40,60,NG-FAN-B40T60-SYM350-V3HOST-BUMP,qualification
+1,3,qualify,350,B60T40,60,40,NG-FAN-B60T40-SYM350-V3HOST-BUMP,qualification
