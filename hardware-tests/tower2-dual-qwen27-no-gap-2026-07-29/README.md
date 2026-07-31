@@ -229,6 +229,14 @@ the best R1 observation at 50%. Each setting is `n=1/3`; R2 and R3 rotate the
 execution order before any fan-response or optimal-control coefficient is
 promoted.
 
+[`analysis/FAN_ISOLATION_OWN_BOTTOM_N2.md`](analysis/FAN_ISOLATION_OWN_BOTTOM_N2.md)
+adds the order-rotated R2 block and brings every setting to `n=2/3`. The
+30-to-70% change again removed approximately 5 C from both the loaded bottom
+card and idle top neighbor. In both blocks, 70% removed another 2.2-2.5 C
+relative to 50% but ran approximately 3.55 MHz lower and added 0.081-0.105
+seconds of mean request duration. The 30-versus-50 clock direction changed
+between blocks, so R3 is still required before selecting an optimal fan point.
+
 ## Read order
 
 1. Each run directory's `REPORT.md` gives the human-readable result.
