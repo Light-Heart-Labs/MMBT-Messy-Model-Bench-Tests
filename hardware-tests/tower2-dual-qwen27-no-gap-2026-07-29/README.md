@@ -335,6 +335,14 @@ top mean request duration by 0.133 seconds. The top card benefits despite
 receiving less local fan duty, validating shared-flow/lower-card assistance at
 350 W under a matched total fan command.
 
+[`analysis/400W_STATIC_FAN_QUALIFICATION.md`](analysis/400W_STATIC_FAN_QUALIFICATION.md)
+records the next symmetric power anchor's safety block. All three matched
+100-point fan policies held 400/400 W at 100% utilization with exact fan/RPM
+tracking and zero thermal or hardware-brake events. The hottest observation
+was 77 C on the top card under B60T40, leaving 19 C to the cutoff; the policies
+are cleared for 15-minute Latin-order measurement but the bumps do not count
+toward `n`.
+
 ## Read order
 
 1. Each run directory's `REPORT.md` gives the human-readable result.

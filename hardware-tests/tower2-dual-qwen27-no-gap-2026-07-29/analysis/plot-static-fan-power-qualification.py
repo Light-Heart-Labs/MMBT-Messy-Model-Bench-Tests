@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Build the 350 W fixed-fan qualification table and safety-only figure."""
+"""Build a fixed-fan power qualification table and safety-only figure."""
 
 import csv
 import json
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -10,6 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent
 CAMPAIGN = ROOT.parent
+POWER = int(sys.argv[1]) if len(sys.argv) > 1 else 350
 POLICIES = (
     ("EQ50", "eq50", 50, 50),
     ("B40T60", "b40t60", 40, 60),
@@ -19,7 +21,7 @@ POLICIES = (
 
 rows = []
 for policy, tag, bottom_fan, top_fan in POLICIES:
-    run_dir = f"ng-fan-{tag}-sym350-v3host-bump-r1"
+    run_dir = f"ng-fan-{tag}-sym{POWER}-v3host-bump-r1"
     summary = json.loads((CAMPAIGN / run_dir / "summary.json").read_text())
     bottom, top = summary["gpus"]["0"], summary["gpus"]["1"]
     bottom_requests, top_requests = (
@@ -61,7 +63,7 @@ for policy, tag, bottom_fan, top_fan in POLICIES:
         }
     )
 
-csv_path = ROOT / "350w-static-fan-qualification.csv"
+csv_path = ROOT / f"{POWER}w-static-fan-qualification.csv"
 with csv_path.open("w", newline="", encoding="utf-8") as handle:
     writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
     writer.writeheader()
@@ -92,7 +94,7 @@ image = Image.new("RGB", (W, H), BG)
 draw = ImageDraw.Draw(image)
 draw.text(
     (70, 42),
-    "Tower2 no-gap 350/350 W fixed-fan qualification",
+    f"Tower2 no-gap {POWER}/{POWER} W fixed-fan qualification",
     font=font(40, True),
     fill=TEXT,
 )
@@ -156,8 +158,8 @@ grouped_panel(
     "Mean GPU temperature (deg C)",
     "bottom_temp_mean_c",
     "top_temp_mean_c",
-    48,
-    72,
+    48 if POWER <= 350 else 54,
+    72 if POWER <= 350 else 78,
     2,
 )
 grouped_panel(
@@ -165,8 +167,8 @@ grouped_panel(
     "Mean graphics clock (MHz)",
     "bottom_clock_mean_mhz",
     "top_clock_mean_mhz",
-    1200,
-    1420,
+    1200 if POWER <= 350 else 1500,
+    1420 if POWER <= 350 else 1850,
     1,
 )
 grouped_panel(
@@ -174,8 +176,8 @@ grouped_panel(
     "Mean request duration (seconds)",
     "bottom_request_duration_mean_s",
     "top_request_duration_mean_s",
-    22.8,
-    24.7,
+    22.8 if POWER <= 350 else 20.8,
+    24.7 if POWER <= 350 else 22.8,
     3,
 )
 grouped_panel(
@@ -194,7 +196,7 @@ draw.rectangle((290, 1142, 315, 1167), fill=ORANGE)
 draw.text((327, 1139), "GPU1 / top", font=font(17), fill=TEXT)
 draw.text(
     (585, 1139),
-    "All policies passed: both GPUs held ~350 W / 100%; zero thermal or hardware-brake events.",
+    f"All policies passed: both GPUs held ~{POWER} W / 100%; zero thermal or hardware-brake events.",
     font=font(17, True),
     fill=GREEN,
 )
@@ -205,7 +207,7 @@ draw.text(
     fill=MUTED,
 )
 
-png_path = ROOT / "350w-static-fan-qualification.png"
+png_path = ROOT / f"{POWER}w-static-fan-qualification.png"
 image.save(png_path)
 print(csv_path)
 print(png_path)

@@ -1,0 +1,12 @@
+○ openclaw-gateway.service - OpenClaw Gateway (v2026.6.33)
+     Loaded: loaded (/home/michael/.config/systemd/user/openclaw-gateway.service; enabled; preset: enabled)
+     Active: inactive (dead) since Fri 2026-07-31 08:09:47 EDT; 12s ago
+   Duration: 993ms
+    Process: 3981050 ExecStart=/usr/bin/node /home/michael/.npm-global/lib/node_modules/openclaw/dist/index.js gateway --port 18789 (code=killed, signal=TERM)
+   Main PID: 3981050 (code=killed, signal=TERM)
+        CPU: 1.414s
+
+Jul 31 08:09:46 Tower2 systemd[2253]: Started openclaw-gateway.service - OpenClaw Gateway (v2026.6.33).
+Jul 31 08:09:47 Tower2 systemd[2253]: Stopping openclaw-gateway.service - OpenClaw Gateway (v2026.6.33)...
+Jul 31 08:09:47 Tower2 systemd[2253]: Stopped openclaw-gateway.service - OpenClaw Gateway (v2026.6.33).
+Jul 31 08:09:47 Tower2 systemd[2253]: openclaw-gateway.service: Consumed 1.414s CPU time.
