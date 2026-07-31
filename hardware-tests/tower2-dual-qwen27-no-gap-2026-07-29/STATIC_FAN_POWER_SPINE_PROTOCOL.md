@@ -125,9 +125,11 @@ thermal/brake counter deltas. This authorizes the pre-registered 15-minute
 Latin-order blocks; it does not count toward `n` or establish steady-state
 safety.
 
-Measured block R1 then completed in the pre-registered EQ60, B70T50, B50T70
-order with all three cells internally admissible. R2 and R3 remain required;
-no R1 policy ordering is treated as validated before order rotation.
+Measured block R1 completed in the pre-registered EQ60, B70T50, B50T70 order
+with all three cells internally admissible. R2 then completed in the rotated
+B70T50, B50T70, EQ60 order with all three cells internally admissible and the
+principal R1 effect directions reproduced. R3 remains required; no coefficient
+is validated before the full Latin-order rotation completes.
 
 ## Runner
 

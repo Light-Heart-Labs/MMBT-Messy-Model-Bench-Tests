@@ -366,6 +366,14 @@ top mean clock by 19.177 MHz, and top mean latency by 0.108 seconds despite
 using less local top fan. This is consistent with lower-card stack assistance,
 but remains preliminary `n=1/3` until the rotated blocks reproduce it.
 
+[`analysis/400W_STATIC_FAN_120POINT_N2.md`](analysis/400W_STATIC_FAN_120POINT_N2.md)
+adds the rotated R2 block. B70T50 beat direction-reversed B50T70 in both
+replicates: the paired `n=2` mean is -0.710 C top temperature, +22.243 MHz top
+clock, and -0.121 seconds top request duration. Bottom temperature also fell
+0.959 C. All six cells held 400 W/100%, tracked exact fan/RPM targets, reached
+steady plateaus, and recorded zero thermal/brake events. R3 remains required
+for validated confidence intervals.
+
 ## Read order
 
 1. Each run directory's `REPORT.md` gives the human-readable result.
