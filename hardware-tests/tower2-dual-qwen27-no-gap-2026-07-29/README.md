@@ -83,6 +83,7 @@ software-power-cap active fraction.
 
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
+| [`ng-faniso-neighbor-loadtop-f30-p300-v3host-bump-r1`](ng-faniso-neighbor-loadtop-f30-p300-v3host-bump-r1/) | Idle: 26.00 C / 26 C / 30.0%, 1,200 RPM | 52.78 C / 55 C / 50.0%, 1,679 RPM | Lower-neighbor 30% / top-loaded 300 W qualification pass; safety-only/non-inferential; counters zero |
 | [`ng-faniso-own-saturated-loadbottom-f50-v3host-15m-r3`](ng-faniso-own-saturated-loadbottom-f50-v3host-15m-r3/) | 49.87 C / 53 C / 50.0%, 1,678 RPM | Idle: 38.43 C / 39 C / 50.0%, 1,678 RPM | Own-fan 50% internally validated at n=3; R3 sequence 3; all counters zero |
 | [`ng-faniso-own-saturated-loadbottom-f30-v3host-15m-r3`](ng-faniso-own-saturated-loadbottom-f30-v3host-15m-r3/) | 53.47 C / 56 C / 30.0%, 1,200 RPM | Idle: 41.89 C / 43 C / 50.0%, 1,678 RPM | Own-fan 30% internally validated at n=3; R3 sequence 2; all counters zero |
 | [`ng-faniso-own-saturated-loadbottom-f70-v3host-15m-r3`](ng-faniso-own-saturated-loadbottom-f70-v3host-15m-r3/) | 48.91 C / 51 C / 70.0%, 2,157 RPM | Idle: 37.52 C / 39 C / 50.0%, 1,678 RPM | Own-fan 70% internally validated at n=3; R3 sequence 1; all counters zero |
