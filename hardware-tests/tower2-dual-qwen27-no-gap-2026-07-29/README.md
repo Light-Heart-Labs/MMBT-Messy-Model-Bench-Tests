@@ -359,6 +359,13 @@ directional policies were only 0.133 C apart in top mean temperature, so the
 bumps establish safety—not an optimal allocation; three 15-minute Latin-order
 blocks remain required.
 
+[`analysis/400W_STATIC_FAN_120POINT_R1.md`](analysis/400W_STATIC_FAN_120POINT_R1.md)
+records the first admissible 15-minute block. All three policies passed. In
+R1, B70T50 beat direction-reversed B50T70 on top mean temperature by 0.567 C,
+top mean clock by 19.177 MHz, and top mean latency by 0.108 seconds despite
+using less local top fan. This is consistent with lower-card stack assistance,
+but remains preliminary `n=1/3` until the rotated blocks reproduce it.
+
 ## Read order
 
 1. Each run directory's `REPORT.md` gives the human-readable result.

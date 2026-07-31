@@ -125,6 +125,10 @@ thermal/brake counter deltas. This authorizes the pre-registered 15-minute
 Latin-order blocks; it does not count toward `n` or establish steady-state
 safety.
 
+Measured block R1 then completed in the pre-registered EQ60, B70T50, B50T70
+order with all three cells internally admissible. R2 and R3 remain required;
+no R1 policy ordering is treated as validated before order rotation.
+
 ## Runner
 
 [`run-static-fan-power-block.sh`](run-static-fan-power-block.sh) implements
