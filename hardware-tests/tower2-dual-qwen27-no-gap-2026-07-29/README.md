@@ -96,6 +96,15 @@ cells from headroom cells: saturated mode retains the existing 95%-of-cap
 gate, while headroom mode requires a frozen mean-power range and maximum
 software-power-cap active fraction.
 
+[`STATIC_FAN_POWER_SPINE_PROTOCOL.md`](STATIC_FAN_POWER_SPINE_PROTOCOL.md)
+pre-registers the next symmetric power/fan phase. The initial 350/350 W block
+compares 50/50, 60/40, and 40/60 at equal total commanded duty, requires a
+separate two-minute qualification for every new combination, and uses three
+Latin-order 15-minute blocks for `n=3`.
+[`run-static-fan-power-block.sh`](run-static-fan-power-block.sh) implements the
+read-only dry run, qualification, frozen order, fail-stop gates, and measured
+block execution.
+
 | Run | Bottom mean / max / fan | Top mean / max / fan | Throttling |
 |---|---|---|---|
 | [`ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r3`](ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r3/) | Idle: 26.00 C / 26 C / 70.0%, 2,157 RPM | 49.85 C / 52 C / 50.0%, 1,678 RPM | R3 sequence 1; internally validated at n=3; counters zero |
