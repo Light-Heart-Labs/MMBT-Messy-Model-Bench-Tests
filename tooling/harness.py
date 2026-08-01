@@ -66,14 +66,15 @@ def docker_inspect(name, fmt=None):
 def record_environment(run_name, model, api_url, task_file, log_dir, *,
                        sandbox_runtime=None, temperature=0.0, stuck_threshold=30,
                        max_iters=10000, reasoning_effort=None, enable_thinking=None,
-                       max_model_len=262144, max_output_tokens_cap=180000):
+                       max_model_len=262144, max_output_tokens_cap=180000,
+                       top_p=None, top_k=None):
     """Capture everything needed to reproduce the run. Written before the loop starts.
 
     sandbox_runtime: dict of per-run sandbox flags (gh_token_set, docker_socket,
     gpus, input_mount). The token value itself is never recorded — only whether
     one was set.
 
-    temperature, stuck_threshold, max_iters: actual loop config — receipt fields
+    temperature, top_p, top_k, stuck_threshold, max_iters: actual loop config — receipt fields
     reflect these exact values (used to be hardcoded constants). Default values
     here match the historical hardcoded ones for back-compat with prior receipts."""
     receipt = {
@@ -208,6 +209,8 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
     # Inference request defaults (the constants used in the loop body)
     receipt["inference_request_defaults"] = {
         "temperature": temperature,
+        "top_p": top_p,
+        "top_k": top_k,
         "max_tokens_strategy": (
             f"min({max_output_tokens_cap}, max_model_len - "
             "last_prompt_tokens - 14000), floor 2048"
@@ -955,6 +958,8 @@ def main():
         enable_thinking=enable_thinking,
         max_model_len=args.max_model_len,
         max_output_tokens_cap=args.max_output_tokens_cap,
+        top_p=args.top_p,
+        top_k=args.top_k,
     )
     print(f"receipt -> {log_dir / 'receipt.json'}  (vllm containers logged: {len(receipt['vllm']['containers'])})")
 
