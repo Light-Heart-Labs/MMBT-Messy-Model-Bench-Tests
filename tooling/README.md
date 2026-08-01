@@ -6,6 +6,10 @@ It exists because the entry READMEs and findings docs only show *deliverables an
 
 > **🎯 Adding a new model?** Read [`ADDING-A-MODEL.md`](ADDING-A-MODEL.md) — it's the dedicated end-to-end walkthrough from "I have a HuggingFace model name" to "PR submitted with my model's results." Half-day to one-day total operator time. The four-command friendly path is documented there.
 
+> **DeepSeek V4 Flash 0731 on Tower2:** the exact accepted dual-GPU runtime,
+> workspace fix, decision trail, rejected configurations, and validation evidence
+> are pinned in [`deployments/deepseek-v4-flash-0731-tower2/`](deployments/deepseek-v4-flash-0731-tower2/README.md).
+
 ## What's here
 
 ```
