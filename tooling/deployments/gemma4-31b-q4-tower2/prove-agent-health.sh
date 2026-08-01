@@ -11,6 +11,7 @@ fi
 timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
 out_dir="$OUT_ROOT/$PHASE-$timestamp"
 install -d -m 700 "$out_dir"
+health_max_tokens="${HEALTH_MAX_TOKENS:-262144}"
 
 probe() {
   local agent="$1"
@@ -31,8 +32,8 @@ probe() {
     --write-out $'\n%{http_code}' \
     -H "Authorization: Bearer $api_key" \
     -H 'Content-Type: application/json' \
-    --data "$(jq -cn --arg model "$requested_model" --arg marker "$marker" \
-      '{model:$model,messages:[{role:"user",content:("Health check. Reply with exactly this marker and nothing else: " + $marker)}],temperature:0,max_tokens:128,stream:false}')" \
+    --data "$(jq -cn --arg model "$requested_model" --arg marker "$marker" --argjson max_tokens "$health_max_tokens" \
+      '{model:$model,messages:[{role:"user",content:("Health check. Reply with exactly this marker and nothing else: " + $marker)}],temperature:0,max_tokens:$max_tokens,stream:false}')" \
     http://127.0.0.1:18789/v1/chat/completions)"
   http_code="${response##*$'\n'}"
   printf '%s' "${response%$'\n'*}" >"$body_file"
@@ -43,6 +44,7 @@ probe() {
     --arg agent "$agent" \
     --arg portal "$portal_container" \
     --arg requested_model "$requested_model" \
+    --argjson max_tokens "$health_max_tokens" \
     --arg marker "$marker" \
     --arg http_code "$http_code" \
     --arg response_id "$(jq -r '.id // ""' "$body_file")" \
@@ -50,7 +52,7 @@ probe() {
     --arg content "$(jq -r '.choices[0].message.content // ""' "$body_file")" \
     --arg error "$(jq -r '.error.message // .detail // ""' "$body_file")" \
     --arg raw_sha256 "$(sha256sum "$body_file" | cut -d' ' -f1)" \
-    '{phase:$phase,timestamp:$timestamp,agent:$agent,portal:$portal,requested_model:$requested_model,http_code:($http_code|tonumber),response_id:$response_id,finish_reason:$finish_reason,content:$content,error:$error,raw_sha256:$raw_sha256,passed:(($http_code=="200") and ($content|contains($marker)) and ($error==""))}' \
+    '{phase:$phase,timestamp:$timestamp,agent:$agent,portal:$portal,requested_model:$requested_model,max_tokens:$max_tokens,http_code:($http_code|tonumber),response_id:$response_id,finish_reason:$finish_reason,content:$content,error:$error,raw_sha256:$raw_sha256,passed:(($http_code=="200") and ($content|contains($marker)) and ($error==""))}' \
     >"$summary_file"
 
   jq -c . "$summary_file"
