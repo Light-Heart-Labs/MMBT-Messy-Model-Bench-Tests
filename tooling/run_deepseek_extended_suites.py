@@ -124,9 +124,18 @@ def terminal_pathology(log_dir: Path) -> bool:
         return False
 
 
+def terminal_labeled_outcome(log_dir: Path) -> bool:
+    """Return whether a run has an explicit terminal benchmark label."""
+    try:
+        label = json.loads((log_dir / "label.json").read_text())
+    except Exception:
+        return False
+    return bool(label.get("primary"))
+
+
 def completed(log_dir: Path) -> bool:
     return ((log_dir / "summary.json").exists() and (log_dir / "workspace_final.tar.gz").exists()) \
-        or terminal_pathology(log_dir)
+        or terminal_labeled_outcome(log_dir)
 
 
 def infra_invalid(log_dir: Path) -> bool:
@@ -142,7 +151,10 @@ def infra_invalid(log_dir: Path) -> bool:
     try:
         reason = str(json.loads((log_dir / "summary.json").read_text()).get("finish_reason") or "")
     except Exception:
-        return not terminal_pathology(log_dir)
+        # A missing summary is not evidence of an endpoint outage. It can be
+        # a model/tool-schema failure or a harness crash and must not inflate
+        # shipped rate through an automatic retry.
+        return False
     return reason.startswith("endpoint_")
 
 
@@ -172,6 +184,40 @@ def label_scroll_loop(log_dir: Path, check_output: str) -> None:
     (log_dir / "label.json").write_text(json.dumps(label, indent=2) + "\n")
 
 
+def label_missing_artifacts(log_dir: Path, stdout_path: Path, rc: int) -> str:
+    """Record a non-endpoint terminal outcome instead of silently retrying it."""
+    log_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        output = stdout_path.read_text(errors="replace")
+    except Exception:
+        output = ""
+    if "KeyError: 'path'" in output or 'KeyError: "path"' in output:
+        primary = "malformed-tool-call"
+        sub_labels = ["missing-required-tool-argument", "model-terminal-failure"]
+    elif "Traceback (most recent call last)" in output:
+        primary = "harness-crash"
+        sub_labels = ["non-endpoint-terminal-failure"]
+    else:
+        primary = "missing-artifacts"
+        sub_labels = ["non-endpoint-terminal-failure"]
+    label = {
+        "schema_version": 1,
+        "primary": primary,
+        "sub_labels": sub_labels,
+        "notes": (
+            "Harness exited without the required summary/archive and no sustained "
+            "endpoint outage was observed. Counted as a terminal benchmark outcome; "
+            "automatic retry is forbidden because it would inflate shipped rate."
+        ),
+        "labeler": "extended-suite-supervisor",
+        "labeled_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "return_code": rc,
+        "harness_output_tail": output[-8000:],
+    }
+    (log_dir / "label.json").write_text(json.dumps(label, indent=2) + "\n")
+    return primary
+
+
 def harness_command(suite: dict, rep: int, max_model_len: int, top_p: float) -> list[str]:
     name = run_name(suite["id"], rep)
     cmd = [
@@ -195,6 +241,29 @@ def harness_command(suite: dict, rep: int, max_model_len: int, top_p: float) -> 
 def supervise_one(suite: dict, rep: int, max_model_len: int, top_p: float) -> None:
     name = run_name(suite["id"], rep)
     log_dir = LOGS / name
+    if suite.get("input_from"):
+        source_name = run_name(suite["input_from"], rep)
+        source_log = LOGS / source_name
+        if terminal_labeled_outcome(source_log):
+            log_dir.mkdir(parents=True, exist_ok=True)
+            source_label = json.loads((source_log / "label.json").read_text())
+            label = {
+                "schema_version": 1,
+                "primary": "dependency-failure",
+                "sub_labels": ["input-run-did-not-ship"],
+                "notes": (
+                    f"Not launched because required input run {source_name} ended "
+                    f"with terminal label {source_label.get('primary')}."
+                ),
+                "labeler": "extended-suite-supervisor",
+                "labeled_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "source_run": source_name,
+                "source_primary": source_label.get("primary"),
+            }
+            (log_dir / "label.json").write_text(json.dumps(label, indent=2) + "\n")
+            event("run_dependency_failure", run=name, source_run=source_name,
+                  source_primary=source_label.get("primary"))
+            return
     if completed(log_dir) and not infra_invalid(log_dir):
         event("run_skip_complete", run=name)
         return
@@ -269,8 +338,10 @@ def supervise_one(suite: dict, rep: int, max_model_len: int, top_p: float) -> No
             )
             event("run_complete", run=name, attempt=attempt, rc=rc)
             return
-        event("run_missing_artifacts", run=name, attempt=attempt, rc=rc)
-        archive_invalid(name, attempt)
+        primary = label_missing_artifacts(log_dir, stdout_path, rc)
+        event("run_terminal_failure", run=name, attempt=attempt, rc=rc,
+              primary=primary)
+        return
     raise RuntimeError(f"{name} exhausted three infrastructure retries")
 
 
