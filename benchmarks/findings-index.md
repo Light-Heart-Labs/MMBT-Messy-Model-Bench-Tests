@@ -4,6 +4,7 @@ Cross-cutting analyses that synthesize across multiple model entries or benchmar
 
 | Doc | Date | One-line summary |
 |---|---|---|
+| [`deepseek-v4-flash-0731/DEEPSEEK_V4_FLASH_0731_VERIFIED_RESULTS.md`](deepseek-v4-flash-0731/DEEPSEEK_V4_FLASH_0731_VERIFIED_RESULTS.md) | 2026-08-01 | Fully optimized DeepSeek V4 Flash campaign: canonical 35/36 corrected, complete N=3 single-PR runs, strict finance and deck audits, and 0/3 full-context frozen 75-PR outcomes including an 815,279-token terminal runaway. |
 | [`microbench-phase-b-2026-05-02/findings.md`](microbench-phase-b-2026-05-02/findings.md) | 2026-05-02 | N=10 expansion + 27B-no-think third arm. Three identical-call-loop subclasses (`scroll-loop`, `word-trim-loop`, `rewrite-loop`). Per-cell ship rates with Wilson CIs, cost-per-shipped-run, "when to use which" updates. |
 | [`microbench-phase-b-2026-05-02/findings-pairwise-quality-three-model.md`](microbench-phase-b-2026-05-02/findings-pairwise-quality-three-model.md) | 2026-05-03 | Hand-graded deliverable quality study on the both-ship cells (p2_ci, p2_extract, p2_triage). Headline: 27B-thinking and 27B-no-think substantively equivalent on output decisions; Coder-Next has a distinct reasoning style. **Includes a load-bearing correction to the 2026-04-28 study's `p2_ci` regression attribution.** |
 | [`microbench-2026-04-28/findings.md`](microbench-2026-04-28/findings.md) | 2026-04-28 | Original 12-task-family × 2-model × N=3 microbench writeup. Daily-driver guide framework, 27B word-limit-trim failure mode, market-research inversion (27B drives internet research that Coder-Next doesn't). Still load-bearing for the 8 cells phase-b didn't expand. |
@@ -13,6 +14,8 @@ Cross-cutting analyses that synthesize across multiple model entries or benchmar
 ## Reading order recommendations
 
 **For the 5-minute model-selection question**: Start with [`../COMPARISON.md`](../COMPARISON.md), not the findings docs. The findings docs are the evidence base; COMPARISON is the synthesis.
+
+**For the newest high-capability local-model campaign**: `deepseek-v4-flash-0731/DEEPSEEK_V4_FLASH_0731_VERIFIED_RESULTS.md`.
 
 **For the most current N=10 picture**: `microbench-phase-b-2026-05-02/findings.md`.
 

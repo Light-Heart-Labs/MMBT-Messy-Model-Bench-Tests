@@ -10,6 +10,7 @@ deliverable. Hardware throughput and buyer-value questions live in
 
 | If you want | Read first |
 |---|---|
+| DeepSeek V4 Flash 0731 complete campaign | [`deepseek-v4-flash-0731/README.md`](deepseek-v4-flash-0731/README.md) |
 | Current model-selection synthesis | [`../COMPARISON.md`](../COMPARISON.md) |
 | Single-table benchmark summary | [`../SCORECARD.md`](../SCORECARD.md) |
 | Cross-cutting findings by date | [`findings-index.md`](findings-index.md) |
@@ -19,6 +20,7 @@ deliverable. Hardware throughput and buyer-value questions live in
 
 | Folder | Primary question | Best first file |
 |---|---|---|
+| [`deepseek-v4-flash-0731`](deepseek-v4-flash-0731/) | How does the fully optimized DeepSeek deployment perform across the canonical, extended, artifact-quality, and full-context marathon suites? | [`deepseek-v4-flash-0731/README.md`](deepseek-v4-flash-0731/README.md) |
 | [`dreamserver-75-pr-audit`](dreamserver-75-pr-audit/) | Can the model complete a long-horizon 75-PR maintainer audit at all? | [`dreamserver-75-pr-audit/README.md`](dreamserver-75-pr-audit/README.md) |
 | [`dreamserver-1-pr-audit`](dreamserver-1-pr-audit/) | What is the floor task for local PR-audit competence? | [`dreamserver-1-pr-audit/README.md`](dreamserver-1-pr-audit/README.md) |
 | [`wallstreet-intern-test`](wallstreet-intern-test/) | Can the model build a traceable investment memo and supporting artifacts? | [`wallstreet-intern-test/README.md`](wallstreet-intern-test/README.md) |
@@ -50,3 +52,9 @@ transcripts, and deliverables so claims stay auditable. Other entries are lean
 on purpose and publish only receipts, grades, labels, and summaries. For the
 repo-wide storage policy and current size hotspots, see
 [`../REPO-SPACE.md`](../REPO-SPACE.md).
+
+The DeepSeek entry follows the lean-audit pattern: compact immutable audits,
+hashes, run classifications, and reproduction tooling live in git. Multi-megabyte
+workspace archives and the 137 MB terminal-run archive remain outside git under
+the large-artifact policy; their byte counts and SHA-256 identities are recorded
+in the published audits.

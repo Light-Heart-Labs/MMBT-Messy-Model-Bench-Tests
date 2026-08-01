@@ -5,6 +5,29 @@ MMBT gates, corrected grader overlays, and stricter artifact-quality audits.
 It does not treat an HTTP response, a large context setting, or a polished
 artifact as proof of correctness.
 
+## Read order and published evidence
+
+1. [`DEEPSEEK_V4_FLASH_0731_VERIFIED_RESULTS.md`](DEEPSEEK_V4_FLASH_0731_VERIFIED_RESULTS.md)
+   is the full cross-suite result and operational handoff.
+2. [`DEEPSEEK_V4_FLASH_0731_COMPLETION_AUDIT.md`](DEEPSEEK_V4_FLASH_0731_COMPLETION_AUDIT.md)
+   maps every campaign requirement to authoritative evidence.
+3. `canonical-regrade-audit.json` and
+   `qwen397-corrected-score-overlay.json` preserve raw/corrected grading and
+   the directional historical comparison.
+4. `investment-v2-audit.json`, `investment-v3-audit.json`, and
+   `board-v3-audit.json` contain the stricter artifact-quality findings.
+5. `75pr-v1-audit.json`, `75pr-v4-audit.json`,
+   `75pr-v5-terminal-audit.json`, and `75pr-valid-replicates.json` preserve
+   every valid marathon outcome and the exclusion/replacement policy.
+6. The pinned deployment and telemetry tooling live under
+   [`../../tooling/deployments/deepseek-v4-flash-0731-tower2/`](../../tooling/deployments/deepseek-v4-flash-0731-tower2/).
+
+All verified result categories and compact audits are published in git. Full
+workspace archives and long transcripts are externalized under the repository's
+[`REPO-SPACE.md`](../../REPO-SPACE.md) policy because the terminal-run archive
+alone is 137 MB. Published audits record their byte counts, SHA-256 identities,
+and classifications; no omitted raw archive is silently treated as a pass.
+
 ## Accepted Tower2 deployment
 
 - Hardware: 2x NVIDIA RTX PRO 6000 Blackwell Workstation Edition (97,887 MiB

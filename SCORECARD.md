@@ -12,8 +12,12 @@
 > **397B, Step-3.7-Flash, MiniMax-M2.7, and the clean 27B-FP8 redo** — nor do they disambiguate the four
 > different "27B"s (AWQ / Q8 / FP8 / 35B-A3B sibling). For the full microbench picture across both trees
 > and the quant disambiguation, see **[`MICROBENCH-INDEX.md`](MICROBENCH-INDEX.md)**.
+> **DeepSeek V4 Flash 0731 is a newer cross-suite entry** with its own model-card sampling, 1,048,576-token
+> context, strict artifact audits, and corrected grader overlay. Its raw and corrected results are reported
+> separately; do not silently mix its corrected N=3 result with older raw-score or ship-rate columns.
 >
 > **Newer microbench results (summary; full detail in the linked entries):**
+> - **DeepSeek V4 Flash 0731**, N=3: raw 23/36; corrected 35/36 (97.2%) after reproducible grader defects were repaired without rerunning the model. ([entry](benchmarks/deepseek-v4-flash-0731/))
 > - **397B-A17B** (Q3 GGUF), N=10: no-think 82/120, think 72/120 — *thinking net-negative*.
 > - **27B-FP8**, N=5: no-think 35/60, think 29/60 — *thinking net-negative*; FP8 serving stable where Q8 failed. ([entry](hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/))
 > - **Step-3.7-Flash** (NVFP4): 7/8/8 low/med/high; **MiniMax-M2.7** (NVFP4), N=5: 35/60 — "exhaustive completer" + a temp=0.3 serving-trap. ([entry](hardware-tests/qwen3.5-397b-vs-step3.7-flash-2026-05-29/))
@@ -59,6 +63,7 @@ The microbench tables below alternate between p-codes (used in receipt names and
 |---|---|---|---|---|---|---|---|---|
 | **Opus-4.7** (cloud) | 1/1 | ✓ full | not graded (would need per-PR ground truth across all 75) | not graded | not visible from artifacts | ~5 hr | n/a | success-shipped |
 | **GPT-5.5** (cloud) | 1/1 | ✓ full + `verify_coverage.py` self-check passes | not graded | not graded | not visible from artifacts | not recorded | n/a | success-shipped |
+| **DeepSeek-V4-Flash-0731** (local) | 3 valid / 5 preserved | ✗ **0/3 strict**; v4 created 75 packages but all reviews were shallow | not graded per PR | not graded | extensive investigation, but incomplete final test/skip and tool records | 12.1-53.9 min | see receipts | 2× scaffold-and-stop; 1× full-context runaway-generation |
 | **Qwen3.6-27B-AWQ** (local) | 1/3 published | △ 75/75 verdict.md *files* but only 3 are real reviews; 72 are template stubs | partial (3 reviewed PRs match ground truth; 72 stubs unverified) | 0 in the 3 deep reviews | **0** | 24 min | $0.031 | scaffold-and-stop |
 | **Qwen3-Coder-Next-AWQ** (local) | 0/5 | ✗ no deliverable across 5 attempts | n/a | n/a | n/a | 1-42 min | $0.001-$0.054 | identical-call-loop, cyclic-name-slop, stuck-in-research |
 
@@ -68,6 +73,7 @@ The microbench tables below alternate between p-codes (used in receipt names and
 
 | Model | Runs | Spec | Factual accuracy | Fabricated | Tests | Wall | Cost | Failure mode |
 |---|---|---|---|---|---|---|---|---|
+| **DeepSeek-V4-Flash-0731** | 3/3 complete | ✓ full repos, tags, done() | **2/3 expected MERGE**; 1/3 defensible but over-strict REVISE | no material fabrication found | baseline/PR/current-main tests and reproductions recorded | 5.1-25.5 min | see receipts | 2× success; 1× over-investigation |
 | **Qwen3-Coder-Next-AWQ** | 1/3 published (cherry-picked correct) | ✓ 13/13 files, tag, done() | **2/3 wrong** across the three runs (this entry's run is the 1 correct; v1 and v3 said REJECT incorrectly) | 1 in v1, **4 in v3** including a fabricated `test_stderr_truncation.py` | repro script, no execution | 3 min | $0.004 | success-shipped (cherry-picked) |
 | **Qwen3.6-27B-AWQ** | 1/3 published | ✗ 7/13 files; **no verdict.md, no tag, no done()** in any of 3 runs | 3/3 implicit-MERGE-correct (in `review.md`'s Summary of Findings table; never in a `verdict.md`) | 0 | **pytest invoked, 38 tests on both branches** | 7 min | $0.009 | partial-no-spec-output |
 | **Qwen3.6-35B-A3B-AWQ** | 1/1 | ✗ 0/13 — zero artifacts | n/a (nothing produced) | n/a | pytest run but no artifacts written | 1.7 min | $0.002 | floor-failure |
@@ -80,9 +86,29 @@ The microbench tables below alternate between p-codes (used in receipt names and
 |---|---|---|---|---|---|---|---|---|---|
 | **Opus-4.7** (cloud) | Vita Coco (`COCO`) | HOLD ($46 vs $52 spot) | 1/1 | ✓ full memo + machine-readable verification | not graded (opinion) | not graded | not recorded | n/a | success-shipped |
 | **GPT-5.5** (cloud) | YETI Holdings (`YETI`) | HOLD ($41) | 1/1 | ✓ full memo + verification + board-deck follow-on | not graded (opinion) | not graded | not recorded | n/a | success-shipped |
+| **DeepSeek-V4-Flash-0731** (local) | Knife River / Ollie's | HOLD / BUY | 2 audited shipped runs | ✓ historical artifact gate; **0/2 substantive finance pass** | unit/convention errors and incomplete statements | zero workbook formulas in both | 9.5-11.6 min | see receipts | polished-but-financially-invalid |
 | **Qwen3.6-27B-AWQ** (local) | GitLab (`GTLB`) | BUY | 1/3 published | ✓ full memo + 17 KB XLSX | not graded (opinion) | not graded | 27 min | $0.032 | success-shipped (cherry-picked) |
 | **Qwen3-Coder-Next-AWQ** (local) | DocuSign (`DOCU`) | BUY | 1/3 published | ✓ full memo + 10.6 KB XLSX | not graded (opinion). **Caveat: this model's PR-audit verdicts were 2/3 wrong with fabricated evidence; same risk likely extends to BUY calls** | not graded | 11 min | $0.013 | success-shipped (cherry-picked) |
 | **Qwen3.6-35B-A3B-AWQ** (local) | — | — | 0/3 | ✗ no usable deliverable | n/a | n/a | 0.2-7 min | $0.0002-$0.0085 | floor-failure / api-error / stuck-in-research |
+
+---
+
+## DeepSeek V4 Flash 0731 cross-suite result
+
+The complete entry is at [`benchmarks/deepseek-v4-flash-0731/`](benchmarks/deepseek-v4-flash-0731/).
+On the canonical 12-family matrix it scored **23/36 raw** and **35/36 corrected**
+after generated-cache false negatives, host-runtime grader crashes, and two
+contradictory writing rules were repaired against unchanged model archives.
+The one remaining failure exceeded a 700-word cap.
+
+That bounded-task result does not generalize to every artifact regime. Both
+shipped investment workbooks failed substantive finance review; the valid
+board deck had material visual defects; and the full-context frozen 75-PR
+campaign finished **0/3 strict** despite a stable server. The three valid
+outcomes were two scaffold-and-stop runs and one response that consumed the
+remaining safe context with **815,279 completion tokens** and never recovered
+tool use. This is evidence of exceptional bounded capability and serving speed,
+not reliable unattended marathon delivery.
 
 ---
 
@@ -191,6 +217,8 @@ The microbench tables below alternate between p-codes (used in receipt names and
 ## What the data supports
 
 **Strong claims:**
+- DeepSeek V4 Flash is the highest-scoring published local arm on the corrected 12-family matrix (35/36, N=3), but its small N, newer grader, different sampling point, and 1M context prevent treating the margin as a statistically matched leaderboard result.
+- No published local model passes the strict 75-PR audit. DeepSeek performs more substantive partial work than the older local entries, but its verified result remains 0/3 and includes a full-context model-terminal runaway.
 - Cloud entries (Opus-4.7, GPT-5.5) reliably ship complete deliverables on all three benchmarks. Local 30B-class quantized entries do not.
 - **Spec-compliance and verdict-accuracy are different axes.** On `dreamserver-1-pr-audit`, Coder-Next has 100% spec compliance and 33% factual accuracy. 27B has 0% spec compliance (no `verdict.md`) and 100% factual accuracy in the implicit verdicts present in `review.md`. From the artifact alone you can't tell which mode you're in for any given Coder-Next run; the wrong runs include fabricated evidence (line citations to non-existent issues, fake test scripts).
 - **Cost-per-attempt at N=1**: Coder-Next is ~4× cheaper than 27B. For an ensemble-with-verification deployment shape, the economics favor running Coder-Next 3+ times and verifying than running 27B once.
@@ -207,6 +235,13 @@ The microbench tables below alternate between p-codes (used in receipt names and
 ## Model selection guide
 
 > The recommendations below are conditional on the task class this benchmark covers — long-horizon agentic work, structured deliverables, real-world-shaped tasks. They don't speak to interactive chat, single-question Q&A, or coding completion. For those, this benchmark has no signal.
+
+### When to use **DeepSeek V4 Flash 0731**
+
+- **Default high-capability local model on this exact Tower2 profile.** It has the strongest corrected bounded-task score, complete single-PR artifacts in all three runs, 1M validated context, and much higher decode throughput than Qwen3.5-397B-Q3.
+- **Use verification around financial models and presentation output.** Historical shipping gates did not catch zero-formula workbooks, unit/convention errors, or material slide-layout defects.
+- **Do not assign one monolithic unattended marathon.** The strict 75-PR campaign is 0/3. Partition the work, cap each subtask, require artifact gates between batches, and detect responses that stop calling tools.
+- **Keep Qwen3.5-397B as a conservative comparison arm.** Its N=10 evidence is broader and its failure temperament is less explosive, although its corrected bounded score is lower and its serving rate/context are much smaller.
 
 ### When to use **Qwen3.6-27B-AWQ**
 
