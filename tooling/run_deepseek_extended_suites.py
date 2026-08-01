@@ -130,11 +130,20 @@ def completed(log_dir: Path) -> bool:
 
 
 def infra_invalid(log_dir: Path) -> bool:
+    """Return whether a completed run is invalid infrastructure evidence.
+
+    MMBT's published failure taxonomy treats both ``api_error: timed out``
+    and other ``api_error: ...`` finish reasons as benchmark outcomes.  Do not
+    discard or retry those here: they can reflect model context, parser, OOM,
+    or single-call latency failures.  The live supervisor separately detects
+    an endpoint outage lasting more than 90 seconds and sets
+    ``killed_for_infra`` for the genuinely retryable case.
+    """
     try:
         reason = str(json.loads((log_dir / "summary.json").read_text()).get("finish_reason") or "")
     except Exception:
         return not terminal_pathology(log_dir)
-    return reason.startswith("api_error") or reason.startswith("endpoint_")
+    return reason.startswith("endpoint_")
 
 
 def archive_invalid(name: str, attempt: int) -> None:
