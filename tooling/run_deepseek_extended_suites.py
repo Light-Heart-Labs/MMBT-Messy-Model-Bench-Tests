@@ -90,7 +90,7 @@ def main_microbench_complete() -> bool:
         j = json.loads(MAIN_STATUS.read_text())
     except Exception:
         return False
-    return j.get("phase") == "COMPLETE" and j.get("grand_done") == j.get("grand_total") == 120
+    return j.get("phase") == "COMPLETE" and j.get("grand_done") == j.get("grand_total") == 36
 
 
 def wait_for_microbench() -> None:
@@ -172,15 +172,14 @@ def label_scroll_loop(log_dir: Path, check_output: str) -> None:
     (log_dir / "label.json").write_text(json.dumps(label, indent=2) + "\n")
 
 
-def harness_command(suite: dict, rep: int, max_model_len: int, top_p: float) -> list[str]:
+def harness_command(suite: dict, rep: int) -> list[str]:
     name = run_name(suite["id"], rep)
     cmd = [
         "python3", str(TOOLING / "harness.py"), name, str(ROOT / suite["task"]),
         "--model", MODEL, "--port", str(PORT),
         "--temperature", str(suite["temperature"]),
-        "--top-p", str(top_p),
         "--stuck-threshold", str(suite["stuck_threshold"]),
-        "--max-model-len", str(max_model_len),
+        "--max-model-len", "131072",
         "--max-output-tokens-cap", str(suite["max_output_tokens_cap"]),
         "--docker-socket", "--gpus", "all",
     ]
@@ -192,7 +191,7 @@ def harness_command(suite: dict, rep: int, max_model_len: int, top_p: float) -> 
     return cmd
 
 
-def supervise_one(suite: dict, rep: int, max_model_len: int, top_p: float) -> None:
+def supervise_one(suite: dict, rep: int) -> None:
     name = run_name(suite["id"], rep)
     log_dir = LOGS / name
     if completed(log_dir) and not infra_invalid(log_dir):
@@ -204,7 +203,7 @@ def supervise_one(suite: dict, rep: int, max_model_len: int, top_p: float) -> No
             continue
         if not git_clean():
             raise RuntimeError("extended suite worktree became dirty")
-        cmd = harness_command(suite, rep, max_model_len, top_p)
+        cmd = harness_command(suite, rep)
         stdout_path = STATE / f"{name}-attempt{attempt}.log"
         event("run_start", run=name, suite=suite["id"], rep=rep, attempt=attempt, command=cmd)
         # Publish the run identity before spawning the harness so the external
@@ -285,12 +284,6 @@ def validate_matrix(matrix: dict) -> None:
 def main() -> None:
     matrix = json.loads(MATRIX_PATH.read_text())
     validate_matrix(matrix)
-    max_model_len = int(matrix["served_context_tokens"])
-    if max_model_len <= 0:
-        raise RuntimeError("served_context_tokens must be positive")
-    top_p = float(matrix["top_p"])
-    if not 0.0 < top_p <= 1.0:
-        raise RuntimeError("top_p must be in (0, 1]")
     if "--validate-only" in sys.argv[1:]:
         print(f"VALID: {len(matrix['suites'])} suites x N={matrix['replicates']}")
         return
@@ -301,7 +294,7 @@ def main() -> None:
     done = 0
     for suite in matrix["suites"]:
         for rep in range(1, matrix["replicates"] + 1):
-            supervise_one(suite, rep, max_model_len, top_p)
+            supervise_one(suite, rep)
             done += 1
             write_status(phase="RUNNING", done=done, total=total,
                          suite=suite["id"], rep=rep)
