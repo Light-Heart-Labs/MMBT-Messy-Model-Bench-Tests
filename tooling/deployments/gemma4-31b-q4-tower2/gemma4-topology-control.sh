@@ -3,7 +3,12 @@ set -euo pipefail
 
 UNIT_SOURCE=/home/michael/bench-gemma4-31b-q4/tooling/deployments/gemma4-31b-q4-tower2/mmbt-gemma4@.service
 UNIT_NAME=mmbt-gemma4@.service
-KNOWN_INSTANCES=(single-gpu0 single-gpu1 dual-layer-1to1 dual-row-1to1 replica-gpu0 replica-gpu1)
+KNOWN_INSTANCES=(
+  single-gpu0 single-gpu1 dual-layer-1to1 dual-row-1to1
+  replica-gpu0 replica-gpu1
+  replica-gpu0-f16-s2 replica-gpu1-f16-s2
+  replica-gpu0-q8-s4 replica-gpu1-q8-s4
+)
 
 usage() {
   printf 'Usage: %s install|start <single-gpu0|single-gpu1|dual-layer-1to1|dual-row-1to1|dual-independent-replicas>|stop|status\n' "$0" >&2
