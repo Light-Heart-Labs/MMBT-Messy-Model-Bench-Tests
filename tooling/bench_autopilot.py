@@ -199,8 +199,29 @@ def container_running(name: str) -> bool:
 
 
 def ensure_endpoint(cfg: dict) -> bool:
-    # addition A: engines other than llama.cpp are not wired up; refuse loudly.
     engine = cfg.get("engine", "llamacpp")
+    if engine == "external":
+        port, name = cfg["port"], cfg["container"]
+        if endpoint_up(port):
+            return True
+        launcher = cfg.get("launcher")
+        if not launcher:
+            raise ValueError("external engine config requires a launcher")
+        log(f"endpoint down — invoking external launcher {launcher}")
+        notify("bench: endpoint restart", f"{name} down — invoking {launcher}", 0)
+        sh(["bash", launcher])
+        for _ in range(cfg["endpoint_grace_secs"] // 5):
+            if endpoint_up(port):
+                log("endpoint back up")
+                return True
+            if not container_running(name):
+                log("ERROR: external endpoint container died during load")
+                notify("bench: endpoint FAILED", f"{name} died during model load", 1)
+                return False
+            time.sleep(5)
+        log("ERROR: external endpoint did not come up within grace period")
+        notify("bench: endpoint FAILED", f"{name} did not load within grace period", 1)
+        return False
     if engine != "llamacpp":
         note = cfg.get("_notimplemented", f"engine '{engine}' has no launcher")
         log(f"ERROR: ensure_endpoint not implemented for engine '{engine}': {note}")

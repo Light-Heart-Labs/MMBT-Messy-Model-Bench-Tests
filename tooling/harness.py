@@ -640,10 +640,11 @@ def main():
     global SANDBOX
     SANDBOX = f"bench-sandbox-{args.run_name}"
 
-    # Logs and workspaces live alongside this script — wherever harness.py is
-    # placed, `logs/` and `workspace/` are created as siblings.
+    # Published benchmark artifacts live at the repository root.  Keep mutable
+    # workspaces under tooling/, but write logs where the runner, graders,
+    # autopilot, and reproduction docs all expect them: <repo>/logs/.
     HARNESS_DIR = Path(__file__).resolve().parent
-    log_dir = HARNESS_DIR / "logs" / args.run_name
+    log_dir = HARNESS_DIR.parent / "logs" / args.run_name
     log_dir.mkdir(parents=True, exist_ok=True)
     workspace_host = HARNESS_DIR / "workspace" / args.run_name
     if workspace_host.exists():
