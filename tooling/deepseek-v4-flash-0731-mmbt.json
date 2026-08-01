@@ -3,7 +3,9 @@
   "engine": "external",
   "model": "DeepSeek-V4-Flash-0731",
   "port": 8000,
-  "max_model_len": 131072,
+  "max_model_len": 1048576,
+  "benchmark_temperature": 1.0,
+  "benchmark_top_p": 0.95,
   "container": "deepseek-v4-flash-0731",
   "launcher": "/home/michael/start-deepseek-v4-flash-0731.sh",
   "arms": [
