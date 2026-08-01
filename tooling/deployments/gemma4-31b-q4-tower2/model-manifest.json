@@ -48,16 +48,21 @@
         "cuda_flash_attention": true,
         "cuda_graphs": true,
         "nccl_requested": true,
-        "nccl_found": false
+        "nccl_found": true,
+        "nccl_version": "2.29.7",
+        "nccl_root": "/home/michael/llama.cpp-gemma4-runtime-deps/nccl",
+        "nccl_header_sha256": "fc9720fe6d8b45a62775a2f9d13c43ed6e88b0e01fd771081d6f665e6df94bfb",
+        "nccl_library_sha256": "aa957cdfb91b516eae0d54a28e9ee5db52730d02e0ab45580efc3c19a68327a4"
       },
       "binaries": {
-        "llama-server": "c75efa7c44b5d5f92d53752fbb9740885e8095d296aaa50fead57d762e4d1af4",
-        "llama-cli": "af623e92f14ab914d17e0a739328c0ae700c0c55814b11cfe886267e44931964",
-        "llama-bench": "92fc521f38990dfc7a28b39cb06cdf37c6a5b7845e08bb81b93e79e1e3750bf9"
+        "llama-server": "200b403b5735418ff1f6da0cea1938e413e11869ae362e8044a12b0df04622fc",
+        "llama-cli": "53186d087d962fd22d5c575351e8c95d40b8ab01aeb4a3c351f93897c8970e3d",
+        "llama-bench": "0cdacab3ebecec7e0d9811b66b81401a9b0ffd7c5027b6df8cc43179133e1a47"
       },
       "notes": [
         "Built natively for Blackwell sm_120a from the pinned source commit.",
-        "NCCL was not discovered at configure time; preserve this fact when interpreting split-GPU results. Independent single-GPU replicas do not depend on NCCL."
+        "NCCL 2.29.7 was copied from the pinned production DeepSeek image into an isolated runtime-dependency directory and linked through an embedded RUNPATH; no system package was changed.",
+        "Independent single-GPU replicas do not depend on NCCL, but the private NCCL runtime removes a known handicap from split-GPU candidates."
       ]
     },
     {

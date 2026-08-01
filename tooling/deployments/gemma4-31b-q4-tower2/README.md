@@ -24,3 +24,21 @@ This package deliberately tests one model per GPU as well as cross-GPU splitting
 The 17 GB text model fits on either 98 GB GPU; using both GPUs for every request
 would add communication without necessarily improving latency or aggregate
 throughput.
+
+The campaign runtime is temporary. `production-restore.json` fingerprints the
+proven DeepSeek launcher, image, OpenClaw routing, and a permission-restricted
+pre-campaign config backup. Campaign completion requires stopping Gemma,
+restoring that DeepSeek state byte-for-byte, and passing fresh Sanctuary and
+Pixel end-to-end checks.
+
+Serving files
+-------------
+
+- `run-gemma4-server.sh` is the foreground server launcher. It refuses any
+  context pool that would leave a parallel slot with less than 262,144 tokens.
+- `mmbt-gemma4@.service` and `topologies/*.env` define the preregistered serving
+  candidates.
+- `gemma4-topology-control.sh` enforces mutually exclusive topology candidates
+  and refuses to start while the DeepSeek container still owns the GPUs.
+- Split-GPU builds use the privately pinned NCCL runtime recorded in
+  `model-manifest.json`; no system CUDA or NCCL package is modified.

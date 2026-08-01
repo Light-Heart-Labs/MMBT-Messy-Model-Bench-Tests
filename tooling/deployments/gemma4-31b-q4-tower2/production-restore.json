@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-08-01",
+  "required_final_state": "Restore the proven DeepSeek production deployment after the Gemma campaign, then prove Sanctuary and Pixel health before campaign completion.",
+  "deepseek": {
+    "container_name": "deepseek-v4-flash-0731",
+    "served_model": "DeepSeek-V4-Flash-0731",
+    "endpoint": "http://127.0.0.1:8000/v1",
+    "launcher": "/home/michael/start-deepseek-v4-flash-0731.sh",
+    "launcher_sha256": "4fca6a4a478f0876a1e6d7241dd87a3c9574bd970f29943bb3696993d4bfe25d",
+    "image": "voipmonitor/vllm@sha256:48518e91cf87dd0c0483c76ff86e81dfc0f46de7e364b46f7a82c481ce08188f",
+    "restart_policy": "unless-stopped",
+    "gpu_power_limit_w_each": 500
+  },
+  "openclaw": {
+    "live_config": "/home/michael/.openclaw/openclaw.json",
+    "pre_campaign_backup": "/home/michael/gemma4-campaign-state/openclaw.pre-gemma.json",
+    "pre_campaign_sha256": "79f2872821d68f76a2c42cb8f3972ae494b380a4d0d058fba405dbcc5e489c7f",
+    "backup_mode": "0600",
+    "service": "openclaw-gateway.service",
+    "provider": "tower",
+    "provider_api": "openai-completions",
+    "provider_base_url": "http://127.0.0.1:8000/v1",
+    "default_primary": "tower/DeepSeek-V4-Flash-0731"
+  },
+  "portals": {
+    "sanctuary": {
+      "container": "sanctuary-portal",
+      "openai_base_url": "http://127.0.0.1:18789/v1",
+      "default_model": "openclaw"
+    },
+    "pixel": {
+      "container": "pixel-portal",
+      "openai_base_url": "http://127.0.0.1:18789/v1",
+      "default_model": "openclaw/pixel"
+    }
+  },
+  "completion_gates": [
+    "Stop and disable every Gemma campaign service.",
+    "Verify the live OpenClaw config has been restored byte-for-byte to the recorded pre-campaign SHA256.",
+    "Start DeepSeek only with the recorded launcher and verify the image digest, 500 W limits, model ID, and endpoint health.",
+    "Restart OpenClaw and prove real end-to-end Sanctuary and Pixel requests complete under DeepSeek.",
+    "Record post-restore hashes, timestamps, model responses, container/service health, and GPU telemetry in final-validation.json."
+  ]
+}
