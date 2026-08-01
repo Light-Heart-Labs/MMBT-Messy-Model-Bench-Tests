@@ -12,6 +12,7 @@ timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
 out_dir="$OUT_ROOT/$PHASE-$timestamp"
 install -d -m 700 "$out_dir"
 health_max_tokens="${HEALTH_MAX_TOKENS:-262144}"
+health_timeout_seconds="${HEALTH_TIMEOUT_SECONDS:-180}"
 
 probe() {
   local agent="$1"
@@ -28,10 +29,9 @@ probe() {
 
   body_file="$out_dir/${agent}.response.json"
   summary_file="$out_dir/${agent}.summary.json"
-  response="$(curl --silent --show-error --max-time 900 \
+  response="$(curl --silent --show-error --max-time "$health_timeout_seconds" \
     --write-out $'\n%{http_code}' \
-    -H "Authorization: Bearer $api_key" \
-    -H 'Content-Type: application/json' \
+    --config <(printf 'header = "Authorization: Bearer %s"\nheader = "Content-Type: application/json"\n' "$api_key") \
     --data "$(jq -cn --arg model "$requested_model" --arg marker "$marker" --argjson max_tokens "$health_max_tokens" \
       '{model:$model,messages:[{role:"user",content:("Health check. Reply with exactly this marker and nothing else: " + $marker)}],temperature:0,max_tokens:$max_tokens,stream:false}')" \
     http://127.0.0.1:18789/v1/chat/completions)"
