@@ -49,6 +49,12 @@
     "restart_recovery_and_postrestart_repeat",
     "sanctuary_and_pixel_pre_post_cutover"
   ],
+  "execution_policy": {
+    "topology_bakeoff": "Run one candidate at a time in an isolated measurement window so GPU, power, latency, and throughput results remain comparable.",
+    "post_selection_campaign": "When the selected topology exposes two independent replicas, partition run IDs deterministically across GPU0 and GPU1 and execute both lanes concurrently.",
+    "lane_artifacts": "Keep endpoint, GPU index, process identity, timings, telemetry, outputs, grades, and retry history attributable to each run and lane.",
+    "shared_state": "Use disjoint run directories and atomic result publication; do not allow simultaneous workers to claim the same run ID."
+  },
   "selection_rule": [
     "Reject any candidate that changes the pinned model/template/sampling, cannot expose a full 262144-token sequence, fails tool-call or recall gates, OOMs, or is unstable across restart.",
     "Among passing candidates, maximize aggregate concurrency-8 decode throughput.",

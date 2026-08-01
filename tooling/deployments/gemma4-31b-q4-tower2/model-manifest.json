@@ -36,7 +36,29 @@
     {
       "kind": "llama.cpp-current-source",
       "commit": "11924d4c17abc27383376a1ac6a24fa3e36c1c0c",
-      "status": "must_build_and_validate"
+      "version": 10223,
+      "status": "built_pending_model_validation",
+      "source_path": "/home/michael/llama.cpp-gemma4-11924d4",
+      "build_path": "/home/michael/llama.cpp-gemma4-11924d4/build-cuda-tower2",
+      "toolchain": {
+        "host_compiler": "GNU 13.3.0",
+        "cuda": "13.1.115",
+        "cuda_architectures": "120a-real",
+        "build_type": "Release",
+        "cuda_flash_attention": true,
+        "cuda_graphs": true,
+        "nccl_requested": true,
+        "nccl_found": false
+      },
+      "binaries": {
+        "llama-server": "c75efa7c44b5d5f92d53752fbb9740885e8095d296aaa50fead57d762e4d1af4",
+        "llama-cli": "af623e92f14ab914d17e0a739328c0ae700c0c55814b11cfe886267e44931964",
+        "llama-bench": "92fc521f38990dfc7a28b39cb06cdf37c6a5b7845e08bb81b93e79e1e3750bf9"
+      },
+      "notes": [
+        "Built natively for Blackwell sm_120a from the pinned source commit.",
+        "NCCL was not discovered at configure time; preserve this fact when interpreting split-GPU results. Independent single-GPU replicas do not depend on NCCL."
+      ]
     },
     {
       "kind": "llama.cpp-container-fallback",
