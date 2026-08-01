@@ -15,7 +15,9 @@ export GGML_CUDA_ENABLE_UNIFIED_MEMORY=0
 
 HOST="${GEMMA_HOST:-127.0.0.1}"
 PORT="${GEMMA_PORT:-8000}"
-ALIASES="${GEMMA_ALIASES:-Gemma-4-31B-it-QAT-Q4_0,DeepSeek-V4-Flash-0731}"
+# llama.cpp exposes the last comma-separated alias as the primary /v1/models
+# identity. Keep the temporary rollback-transition alias first and Gemma last.
+ALIASES="${GEMMA_ALIASES:-DeepSeek-V4-Flash-0731,Gemma-4-31B-it-QAT-Q4_0}"
 CTX_SIZE="${GEMMA_CTX_SIZE:-262144}"
 PARALLEL="${GEMMA_PARALLEL:-1}"
 SPLIT_MODE="${GEMMA_SPLIT_MODE:-none}"
