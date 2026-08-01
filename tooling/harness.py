@@ -494,7 +494,7 @@ def validate_done(require_files, require_git_tag):
         # audit repos like /workspace/dreamserver-audit/.
         cmd = (
             "for d in /workspace /workspace/*/ /workspace/*/*/; do "
-            "  [ -d \"${d}.git\" ] && (cd \"$d\" && git tag -l 2>/dev/null | grep -q . && echo TAG_FOUND && break); "
+            "  [ -d \"$d/.git\" ] && (cd \"$d\" && git tag -l 2>/dev/null | grep -q . && echo TAG_FOUND && break); "
             "done"
         )
         r = docker_exec(cmd, timeout=15)
