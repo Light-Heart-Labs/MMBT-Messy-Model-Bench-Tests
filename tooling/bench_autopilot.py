@@ -31,7 +31,9 @@ import argparse, json, os, signal, statistics, subprocess, sys, time
 from pathlib import Path
 
 HOME = Path(os.path.expanduser("~"))
-BENCH = HOME / "bench"
+# Derive the repository from this committed supervisor so a clean git worktree
+# remains self-contained and receipts cannot silently come from another checkout.
+BENCH = Path(__file__).resolve().parent.parent
 LOGS = BENCH / "logs"
 TOOLING = BENCH / "tooling"
 SCRIPTS = TOOLING / "scripts"
