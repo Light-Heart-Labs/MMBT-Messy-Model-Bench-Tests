@@ -16,6 +16,37 @@ def now_iso():
     return datetime.now(timezone.utc).isoformat()
 
 
+def prepare_log_dir(log_dir, run_name):
+    """Create a clean run directory without ever appending to prior evidence.
+
+    Complete cells fail closed. Incomplete/nonterminal attempts are atomically
+    moved under ``logs/_invalid`` before the same canonical run name is retried.
+    """
+    log_dir = Path(log_dir)
+    if not log_dir.exists():
+        log_dir.mkdir(parents=True)
+        return None
+
+    entries = list(log_dir.iterdir())
+    if not entries:
+        return None
+
+    if ((log_dir / "summary.json").exists()
+            and (log_dir / "workspace_final.tar.gz").exists()):
+        raise RuntimeError(
+            f"refusing to overwrite completed benchmark evidence: {log_dir}"
+        )
+
+    invalid_root = log_dir.parent / "_invalid"
+    invalid_root.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    archive = invalid_root / f"{run_name}_retry-{stamp}-{uuid.uuid4().hex[:8]}"
+    log_dir.rename(archive)
+    log_dir.mkdir(parents=True)
+    print(f"ARCHIVED_INCOMPLETE_LOG_DIR: {archive}")
+    return archive
+
+
 def file_sha256(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -841,7 +872,7 @@ def main():
     # autopilot, and reproduction docs all expect them: <repo>/logs/.
     HARNESS_DIR = Path(__file__).resolve().parent
     log_dir = HARNESS_DIR.parent / "logs" / args.run_name
-    log_dir.mkdir(parents=True, exist_ok=True)
+    prepare_log_dir(log_dir, args.run_name)
     workspace_host = HARNESS_DIR / "workspace" / args.run_name
     if workspace_host.exists():
         subprocess.run(["rm", "-rf", str(workspace_host)], check=True)
