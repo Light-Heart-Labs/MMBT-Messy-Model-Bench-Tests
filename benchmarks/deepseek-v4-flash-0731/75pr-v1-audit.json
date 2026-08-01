@@ -1,0 +1,837 @@
+{
+  "schema_version": 2,
+  "audited_at": "2026-08-01T18:28:02.383794+00:00",
+  "run_name": "DeepSeek-V4-Flash-0731 deepseek-v4-flash-0731_75pr_v1",
+  "classification": "SCAFFOLD_AND_STOP",
+  "legacy_shipped": true,
+  "verdict_counts": {
+    "merge": 51,
+    "reject": 1,
+    "revise": 23
+  },
+  "runtime": {
+    "wall_s": 1426.5,
+    "iterations": 289,
+    "completion_tokens": 136544,
+    "prompt_tokens": 37077158,
+    "completion_tps_model_call": 185.9
+  },
+  "artifact_integrity": {
+    "archive_sha256": "c50b1141c3f7ab673ac6b5225c315df5dcb37f30e64bfde17a6235bd9b7da7b2",
+    "archive_bytes": 12170937,
+    "archive_gzip_valid": true,
+    "head": "e62e39f22591515c9edbcc6a769734e08e16e868",
+    "tags": [
+      "audit-v1.0.0"
+    ],
+    "tag_targets": {
+      "audit-v1.0.0": "e62e39f22591515c9edbcc6a769734e08e16e868"
+    },
+    "tag_at_head": true,
+    "clean": true,
+    "commit_count": 26
+  },
+  "substance": {
+    "test_evidence_count": 12,
+    "test_evidence_prs": [
+      364,
+      750,
+      988,
+      1022,
+      1030,
+      1036,
+      1039,
+      1040,
+      1043,
+      1044,
+      1054,
+      1056
+    ],
+    "missing_test_or_skip_count": 63,
+    "missing_test_or_skip_prs": [
+      351,
+      716,
+      959,
+      961,
+      966,
+      973,
+      974,
+      983,
+      990,
+      991,
+      992,
+      993,
+      994,
+      996,
+      997,
+      998,
+      999,
+      1000,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010,
+      1011,
+      1012,
+      1013,
+      1014,
+      1015,
+      1016,
+      1017,
+      1018,
+      1019,
+      1020,
+      1021,
+      1023,
+      1024,
+      1025,
+      1026,
+      1027,
+      1028,
+      1029,
+      1032,
+      1033,
+      1034,
+      1035,
+      1037,
+      1038,
+      1042,
+      1045,
+      1046,
+      1047,
+      1048,
+      1049,
+      1050,
+      1051,
+      1052,
+      1053,
+      1055,
+      1057
+    ],
+    "reviews_under_800_bytes_count": 58,
+    "reviews_under_800_bytes_prs": [
+      351,
+      959,
+      966,
+      973,
+      974,
+      990,
+      991,
+      992,
+      993,
+      994,
+      996,
+      997,
+      998,
+      1000,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010,
+      1011,
+      1012,
+      1013,
+      1014,
+      1015,
+      1016,
+      1017,
+      1018,
+      1019,
+      1020,
+      1021,
+      1023,
+      1024,
+      1025,
+      1026,
+      1027,
+      1028,
+      1032,
+      1033,
+      1034,
+      1035,
+      1036,
+      1037,
+      1038,
+      1039,
+      1040,
+      1046,
+      1047,
+      1048,
+      1049,
+      1050,
+      1051,
+      1052,
+      1053,
+      1054,
+      1055,
+      1057
+    ],
+    "reviews_with_source_citation_count": 36,
+    "reviews_with_source_citation_prs": [
+      364,
+      716,
+      750,
+      961,
+      973,
+      974,
+      983,
+      988,
+      993,
+      994,
+      996,
+      997,
+      998,
+      999,
+      1000,
+      1002,
+      1003,
+      1004,
+      1006,
+      1007,
+      1008,
+      1010,
+      1011,
+      1016,
+      1018,
+      1022,
+      1029,
+      1030,
+      1037,
+      1042,
+      1043,
+      1044,
+      1045,
+      1046,
+      1054,
+      1056
+    ],
+    "reviews_with_hunk_marker_count": 0,
+    "traces_with_source_citation_count": 0,
+    "traces_with_hunk_marker_count": 0,
+    "diff_analyses_with_hunk_marker_count": 0,
+    "explicit_actual_bounty_tier_count": 6,
+    "explicit_actual_bounty_tier_prs": [
+      750,
+      999,
+      1009,
+      1025,
+      1032,
+      1056
+    ],
+    "transcript_tool_events": 300,
+    "numbered_tool_log_entries": 24
+  },
+  "strict_validation": {
+    "schema_version": 1,
+    "workspace": "/home/michael/bench-deepseek-v4-flash-extended/tooling/workspace/deepseek-v4-flash-0731_75pr_v1",
+    "fixture": "/mnt/bulk/benchmark-fixtures/dreamserver-75-pr-audit-2026-04-27",
+    "pass": false,
+    "metrics": {
+      "canonical_prs": 75,
+      "actual_pr_dirs": 75,
+      "missing_pr_dirs": [],
+      "extra_pr_dirs": [],
+      "verdict_counts": {
+        "merge": 51,
+        "reject": 1,
+        "revise": 23
+      },
+      "risk_matrix_missing_pr_refs": [],
+      "surface_area_missing_pr_refs": [
+        974,
+        992,
+        1011,
+        1016,
+        1024,
+        1035,
+        1057
+      ],
+      "raw_frozen_file_overlap_pairs": 676,
+      "trusted_file_list_prs": 63,
+      "trusted_file_overlap_pairs": 205,
+      "listed_pair_mentions": 139,
+      "missing_trusted_file_overlap_pairs": 136,
+      "missing_trusted_file_overlap_pair_sample": [
+        [
+          992,
+          1017
+        ],
+        [
+          993,
+          994
+        ],
+        [
+          993,
+          998
+        ],
+        [
+          993,
+          1000
+        ],
+        [
+          993,
+          1002
+        ],
+        [
+          993,
+          1011
+        ],
+        [
+          993,
+          1016
+        ],
+        [
+          993,
+          1018
+        ],
+        [
+          993,
+          1020
+        ],
+        [
+          994,
+          997
+        ],
+        [
+          994,
+          1000
+        ],
+        [
+          994,
+          1006
+        ],
+        [
+          994,
+          1007
+        ],
+        [
+          994,
+          1010
+        ],
+        [
+          994,
+          1011
+        ],
+        [
+          994,
+          1017
+        ],
+        [
+          994,
+          1020
+        ],
+        [
+          996,
+          1012
+        ],
+        [
+          996,
+          1017
+        ],
+        [
+          997,
+          998
+        ],
+        [
+          997,
+          1000
+        ],
+        [
+          997,
+          1002
+        ],
+        [
+          997,
+          1011
+        ],
+        [
+          997,
+          1016
+        ],
+        [
+          997,
+          1018
+        ],
+        [
+          997,
+          1020
+        ],
+        [
+          998,
+          1000
+        ],
+        [
+          998,
+          1006
+        ],
+        [
+          998,
+          1007
+        ],
+        [
+          998,
+          1011
+        ],
+        [
+          998,
+          1020
+        ],
+        [
+          999,
+          1000
+        ],
+        [
+          999,
+          1011
+        ],
+        [
+          1000,
+          1002
+        ],
+        [
+          1000,
+          1006
+        ],
+        [
+          1000,
+          1007
+        ],
+        [
+          1000,
+          1008
+        ],
+        [
+          1000,
+          1011
+        ],
+        [
+          1000,
+          1016
+        ],
+        [
+          1000,
+          1018
+        ],
+        [
+          1000,
+          1020
+        ],
+        [
+          1002,
+          1006
+        ],
+        [
+          1002,
+          1007
+        ],
+        [
+          1002,
+          1011
+        ],
+        [
+          1002,
+          1020
+        ],
+        [
+          1003,
+          1011
+        ],
+        [
+          1003,
+          1018
+        ],
+        [
+          1003,
+          1037
+        ],
+        [
+          1003,
+          1038
+        ],
+        [
+          1004,
+          1051
+        ]
+      ],
+      "missing_raw_frozen_overlap_pairs": 594,
+      "missing_raw_frozen_overlap_pair_sample": [
+        [
+          351,
+          364
+        ],
+        [
+          351,
+          716
+        ],
+        [
+          351,
+          750
+        ],
+        [
+          351,
+          959
+        ],
+        [
+          351,
+          961
+        ],
+        [
+          351,
+          966
+        ],
+        [
+          351,
+          973
+        ],
+        [
+          351,
+          974
+        ],
+        [
+          351,
+          983
+        ],
+        [
+          351,
+          988
+        ],
+        [
+          351,
+          990
+        ],
+        [
+          351,
+          991
+        ],
+        [
+          351,
+          992
+        ],
+        [
+          351,
+          993
+        ],
+        [
+          351,
+          994
+        ],
+        [
+          351,
+          996
+        ],
+        [
+          351,
+          997
+        ],
+        [
+          351,
+          998
+        ],
+        [
+          351,
+          999
+        ],
+        [
+          351,
+          1000
+        ],
+        [
+          351,
+          1002
+        ],
+        [
+          351,
+          1003
+        ],
+        [
+          351,
+          1004
+        ],
+        [
+          351,
+          1005
+        ],
+        [
+          351,
+          1006
+        ],
+        [
+          351,
+          1007
+        ],
+        [
+          351,
+          1008
+        ],
+        [
+          351,
+          1009
+        ],
+        [
+          351,
+          1010
+        ],
+        [
+          351,
+          1011
+        ],
+        [
+          351,
+          1012
+        ],
+        [
+          351,
+          1013
+        ],
+        [
+          351,
+          1015
+        ],
+        [
+          351,
+          1016
+        ],
+        [
+          351,
+          1017
+        ],
+        [
+          351,
+          1018
+        ],
+        [
+          351,
+          1019
+        ],
+        [
+          351,
+          1020
+        ],
+        [
+          351,
+          1021
+        ],
+        [
+          351,
+          1022
+        ],
+        [
+          351,
+          1023
+        ],
+        [
+          351,
+          1024
+        ],
+        [
+          351,
+          1025
+        ],
+        [
+          351,
+          1026
+        ],
+        [
+          351,
+          1027
+        ],
+        [
+          351,
+          1028
+        ],
+        [
+          351,
+          1029
+        ],
+        [
+          351,
+          1030
+        ],
+        [
+          351,
+          1032
+        ],
+        [
+          351,
+          1033
+        ]
+      ],
+      "raw_file_count_metadata_mismatch_prs": [
+        351,
+        364,
+        716,
+        750,
+        959,
+        961,
+        966,
+        973,
+        974,
+        983,
+        988,
+        1043
+      ],
+      "transcript_tool_events": 300,
+      "numbered_tool_log_entries": 24
+    },
+    "failures": [
+      "PR 351: no non-empty test-evidence file",
+      "PR 716: no non-empty test-evidence file",
+      "PR 959: no non-empty test-evidence file",
+      "PR 961: no non-empty test-evidence file",
+      "PR 966: no non-empty test-evidence file",
+      "PR 973: no non-empty test-evidence file",
+      "PR 974: no non-empty test-evidence file",
+      "PR 983: no non-empty test-evidence file",
+      "PR 990: no non-empty test-evidence file",
+      "PR 991: no non-empty test-evidence file",
+      "PR 992: no non-empty test-evidence file",
+      "PR 993: no non-empty test-evidence file",
+      "PR 994: no non-empty test-evidence file",
+      "PR 996: no non-empty test-evidence file",
+      "PR 997: no non-empty test-evidence file",
+      "PR 998: no non-empty test-evidence file",
+      "PR 999: no non-empty test-evidence file",
+      "PR 1000: no non-empty test-evidence file",
+      "PR 1002: no non-empty test-evidence file",
+      "PR 1003: no non-empty test-evidence file",
+      "PR 1004: no non-empty test-evidence file",
+      "PR 1005: no non-empty test-evidence file",
+      "PR 1006: no non-empty test-evidence file",
+      "PR 1007: no non-empty test-evidence file",
+      "PR 1008: no non-empty test-evidence file",
+      "PR 1009: no non-empty test-evidence file",
+      "PR 1010: no non-empty test-evidence file",
+      "PR 1011: no non-empty test-evidence file",
+      "PR 1012: no non-empty test-evidence file",
+      "PR 1013: no non-empty test-evidence file",
+      "PR 1014: no non-empty test-evidence file",
+      "PR 1015: no non-empty test-evidence file",
+      "PR 1016: no non-empty test-evidence file",
+      "PR 1017: no non-empty test-evidence file",
+      "PR 1018: no non-empty test-evidence file",
+      "PR 1019: no non-empty test-evidence file",
+      "PR 1020: no non-empty test-evidence file",
+      "PR 1021: no non-empty test-evidence file",
+      "PR 1023: no non-empty test-evidence file",
+      "PR 1024: no non-empty test-evidence file",
+      "PR 1025: no non-empty test-evidence file",
+      "PR 1026: no non-empty test-evidence file",
+      "PR 1027: no non-empty test-evidence file",
+      "PR 1028: no non-empty test-evidence file",
+      "PR 1029: no non-empty test-evidence file",
+      "PR 1032: no non-empty test-evidence file",
+      "PR 1033: no non-empty test-evidence file",
+      "PR 1034: no non-empty test-evidence file",
+      "PR 1035: no non-empty test-evidence file",
+      "PR 1037: no non-empty test-evidence file",
+      "PR 1038: no non-empty test-evidence file",
+      "PR 1042: no non-empty test-evidence file",
+      "PR 1045: no non-empty test-evidence file",
+      "PR 1046: no non-empty test-evidence file",
+      "PR 1047: no non-empty test-evidence file",
+      "PR 1048: no non-empty test-evidence file",
+      "PR 1049: no non-empty test-evidence file",
+      "PR 1050: no non-empty test-evidence file",
+      "PR 1051: no non-empty test-evidence file",
+      "PR 1052: no non-empty test-evidence file",
+      "PR 1053: no non-empty test-evidence file",
+      "PR 1055: no non-empty test-evidence file",
+      "PR 1057: no non-empty test-evidence file",
+      "PRs without a source-file or frozen-diff trace pointer: [351, 364, 716, 750, 959, 961, 966, 973, 974, 983, 988, 990, 991, 992, 993, 994, 996, 997, 998, 999, 1000, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026, 1027, 1028, 1029, 1030, 1032, 1033, 1034, 1035, 1036, 1037, 1038, 1039, 1040, 1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1054, 1055, 1056, 1057]",
+      "PRs whose review has no source-file/diff citation: [351, 959, 966, 990, 991, 992, 1005, 1009, 1012, 1013, 1014, 1015, 1017, 1019, 1020, 1021, 1023, 1024, 1025, 1026, 1027, 1028, 1032, 1033, 1034, 1035, 1036, 1038, 1039, 1040, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1055, 1057]",
+      "PRs without an explicit bounty-tier declaration: [351, 364, 716, 959, 961, 966, 973, 974, 983, 988, 990, 991, 992, 993, 994, 996, 997, 998, 1000, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1026, 1027, 1028, 1029, 1030, 1033, 1034, 1035, 1036, 1037, 1038, 1039, 1040, 1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1054, 1055, 1057]",
+      "surface_area omits PRs: [974, 992, 1011, 1016, 1024, 1035, 1057]",
+      "dependency analysis omits 136/205 high-confidence file-overlap pairs",
+      "tool log records 24/300 transcript tool events"
+    ],
+    "warnings": [
+      "PR 750: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1017: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1018: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1043: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "dependency analysis does not enumerate 594/676 raw frozen-file pairs; raw lists include known reverse-drift, so this is reported separately and is not itself a semantic failure"
+    ]
+  },
+  "telemetry": {
+    "schema_version": 2,
+    "run_name": "deepseek-v4-flash-0731_75pr_v1",
+    "source_csv": "/tmp/bench-autopilot/deepseek-v4-flash-0731-gpu_power.csv",
+    "generated_at": "2026-08-01T18:27:54.091565+00:00",
+    "analyzer": {
+      "path": "/home/michael/bench-deepseek-v4-flash-0731/tooling/deployments/deepseek-v4-flash-0731-tower2/campaign/analyze_dual_gpu_telemetry.py",
+      "file_sha256": "125bbf72856608e8608b05913cbb15282285ada68c77986e2fc05c4abffca056",
+      "git_sha": "5fc0c137880432847f4ac8d91bb20bb498ce89a8",
+      "git_dirty": false,
+      "interval_attribution": "A sample is held until the next paired observation, subject to max_gap_s and clipped to the authoritative summary start/end window."
+    },
+    "sampling": {
+      "paired_samples": 281,
+      "paired_samples_before_window_clip": 453,
+      "excluded_before_run": 170,
+      "excluded_after_run": 2,
+      "first_sample": "2026-08-01T17:53:38+00:00",
+      "last_sample": "2026-08-01T18:17:20+00:00",
+      "summary_started_at": "2026-08-01T17:53:35.713012+00:00",
+      "summary_ended_at": "2026-08-01T18:17:22.249189+00:00",
+      "window_clipped_to_summary": true,
+      "integrated_coverage_s": 1424.2,
+      "summary_wall_s": 1426.5,
+      "coverage_fraction_of_wall": 0.9984,
+      "max_accepted_gap_s": 15.0
+    },
+    "combined": {
+      "mean_sample_power_w": 420.52,
+      "time_weighted_power_w": 418.92,
+      "median_power_w": 503.79,
+      "p90_power_w": 775.92,
+      "max_power_w": 830.88,
+      "max_fraction_of_dual_cap": 0.8309,
+      "both_gpus_decode_fraction": 0.4306,
+      "both_gpus_90pct_util_fraction": 0.3559
+    },
+    "per_gpu": {
+      "0": {
+        "mean_power_w": 219.31,
+        "p90_power_w": 402.57,
+        "max_power_w": 426.22,
+        "mean_sm_util_pct": 44.46,
+        "max_temp_c": 68.0,
+        "max_memory_used_mib": 96899.0
+      },
+      "1": {
+        "mean_power_w": 201.21,
+        "p90_power_w": 376.16,
+        "max_power_w": 410.23,
+        "mean_sm_util_pct": 44.01,
+        "max_temp_c": 71.0,
+        "max_memory_used_mib": 96899.0
+      }
+    },
+    "energy_and_cost": {
+      "sampled_kwh": 0.165733,
+      "sampled_cost_usd": 0.021545,
+      "projected_full_kwh_at_sampled_mean": 0.165995,
+      "projected_full_cost_usd_at_sampled_mean": 0.021579,
+      "dual_gpu_cap_upper_bound_kwh": 0.39625,
+      "dual_gpu_cap_upper_bound_cost_usd": 0.051513,
+      "rate_usd_per_kwh": 0.13,
+      "note": "Sampled energy uses both GPUs. Projection fills uncovered wall time at the sampled mean and is suggestive; the dual-cap value is the true 2xGPU ceiling."
+    }
+  },
+  "evidence": {
+    "summary_sha256": "2b90b76d65e4565320a4a8ee60a13f38220e84dc44cd008ba0dde7c485d350e8",
+    "receipt_sha256": "4a45faa0c387f047c3a8c59de65c6a7191f43b96451793c35f16d083dc17c3ff",
+    "transcript_sha256": "8485fcb8e005afd12a60382e2f6b6535bb253021c3ec4a1c244fe836bc176773",
+    "validator_sha256": "11479b273a7c7c4b7597736ccc6eb8b763443192c8f6c1e6a9b7067ec0dded83",
+    "task_sha256": "0d426e15303b3f886a75db81165cdbe9d91534a474217f91f4e2baf41c0056a6",
+    "fixture_path": "/mnt/bulk/benchmark-fixtures/dreamserver-75-pr-audit-2026-04-27"
+  }
+}

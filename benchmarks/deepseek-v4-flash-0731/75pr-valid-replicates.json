@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-01T20:16:28.472343+00:00",
+  "campaign": "DeepSeek-V4-Flash-0731 frozen 75-PR N=3",
+  "policy": "Preserve every run; exclude only runs terminated by a configured per-request cap below the served context, then add full-context replacement replicates until three valid outcomes exist.",
+  "served_context": 1048576,
+  "full_context_output_cap": 1048576,
+  "dynamic_safety_reserve": 14000,
+  "target_valid_replicates": 3,
+  "valid_replicates": 3,
+  "valid_run_names": [
+    "deepseek-v4-flash-0731_75pr_v1",
+    "deepseek-v4-flash-0731_75pr_v4",
+    "deepseek-v4-flash-0731_75pr_v5"
+  ],
+  "status": "complete",
+  "runs": [
+    {
+      "rep": 1,
+      "run": "deepseek-v4-flash-0731_75pr_v1",
+      "disposition": "valid",
+      "finish_reason": "done_signal",
+      "terminal_label": null,
+      "configured_output_cap": 180000,
+      "served_context": 1048576,
+      "summary_present": true,
+      "archive_present": true,
+      "receipt_present": true
+    },
+    {
+      "rep": 2,
+      "run": "deepseek-v4-flash-0731_75pr_v2",
+      "disposition": "excluded_artificial_output_cap",
+      "finish_reason": "model_exceeded_max_tokens_180000",
+      "terminal_label": "runaway-generation",
+      "configured_output_cap": 180000,
+      "served_context": 1048576,
+      "summary_present": true,
+      "archive_present": true,
+      "receipt_present": true
+    },
+    {
+      "rep": 3,
+      "run": "deepseek-v4-flash-0731_75pr_v3",
+      "disposition": "excluded_artificial_output_cap",
+      "finish_reason": "model_exceeded_max_tokens_180000",
+      "terminal_label": "runaway-generation",
+      "configured_output_cap": 180000,
+      "served_context": 1048576,
+      "summary_present": true,
+      "archive_present": true,
+      "receipt_present": true
+    },
+    {
+      "rep": 4,
+      "run": "deepseek-v4-flash-0731_75pr_v4",
+      "disposition": "valid",
+      "finish_reason": "done_signal",
+      "terminal_label": null,
+      "configured_output_cap": 1048576,
+      "served_context": 1048576,
+      "summary_present": true,
+      "archive_present": true,
+      "receipt_present": true
+    },
+    {
+      "rep": 5,
+      "run": "deepseek-v4-flash-0731_75pr_v5",
+      "disposition": "valid",
+      "finish_reason": "model_exceeded_max_tokens_815279",
+      "terminal_label": null,
+      "configured_output_cap": 1048576,
+      "served_context": 1048576,
+      "summary_present": true,
+      "archive_present": true,
+      "receipt_present": true
+    }
+  ]
+}

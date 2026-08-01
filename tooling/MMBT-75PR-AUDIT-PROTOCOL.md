@@ -77,9 +77,13 @@ bounty or whether a maintainer later chooses a different disposition.
 - `SCAFFOLD_AND_STOP`: creates nominal coverage but most PRs lack individual
   review/test substance.
 - `MODEL_TERMINAL_FAILURE`: malformed tool call, unparsed tool syntax,
-  scroll loop, context/API termination, or other model-attributable stop.
+  scroll loop, exhaustion of the genuine dynamically available context, or
+  another model-attributable stop.
 - `INFRASTRUCTURE_INVALID`: moving upstream, missing fixture, endpoint outage,
-  sandbox/harness failure, or another non-model condition invalidates the run.
+  sandbox/harness failure, termination at a configured convenience output cap
+  below the served context while safe context remained, or another non-model
+  condition invalidates the run. Preserve such a run and replace it; do not
+  overwrite or score it.
 
 Historical Qwen3.6's published `scaffold-and-stop` label remains unchanged:
 75 verdict files existed, but only three were real reviews and no required

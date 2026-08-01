@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "audited_at": "2026-08-01T20:18:00Z",
+  "run_name": "deepseek-v4-flash-0731_75pr_v5",
+  "campaign_disposition": "valid",
+  "classification": "MODEL_TERMINAL_FAILURE",
+  "pathology": "runaway-generation",
+  "reason": "A single response consumed the complete dynamically safe output allowance without emitting a tool call or EOS. The allowance was derived from the served 1,048,576-token context rather than a smaller convenience cap.",
+  "terminal_request": {
+    "iteration": 231,
+    "prompt_tokens": 220237,
+    "max_tokens_safe": 815279,
+    "completion_tokens": 815279,
+    "content_characters": 3099116,
+    "tool_calls": 0,
+    "finish_reason": "length",
+    "wall_s": 2501.26,
+    "tok_ps": 325.9
+  },
+  "run": {
+    "wall_s": 3233.9,
+    "iterations": 231,
+    "completion_tokens": 898755,
+    "prompt_tokens": 31861109,
+    "finish_reason": "model_exceeded_max_tokens_815279"
+  },
+  "partial_workspace": {
+    "pr_directories": 36,
+    "test_artifacts": 51,
+    "reviews": 0,
+    "commits": 14,
+    "tags": 0,
+    "clean": true,
+    "strict_validator_pass": false,
+    "normal_completed-run_auditor_applicable": false,
+    "normal_auditor_note": "The completed-run auditor requires review.md in every PR directory and correctly cannot classify this terminally incomplete workspace. Its failure log is preserved as auditor.log."
+  },
+  "telemetry": {
+    "coverage_fraction_of_wall": 0.9996,
+    "combined_time_weighted_power_w": 844.22,
+    "combined_p90_power_w": 961.59,
+    "combined_max_power_w": 970.52,
+    "both_gpus_decode_fraction": 0.898,
+    "both_gpus_90pct_util_fraction": 0.8697,
+    "sampled_kwh": 0.758031,
+    "gpu0_max_temp_c": 76.0,
+    "gpu1_max_temp_c": 84.0,
+    "gpu0_max_memory_used_mib": 96899.0,
+    "gpu1_max_memory_used_mib": 96903.0,
+    "preemptions": 0
+  },
+  "evidence_sha256": {
+    "summary.json": "8483b4600b06d611696023cc83951e89a3ba41ab0bfefc7057fb3e47f6e70783",
+    "receipt.json": "01fff4d9a74c7f6b790b762e47df690bfcb03c0c8bd5188e7284c315e7aaacde",
+    "transcript.jsonl": "443a01b7d1ea8fe28feeb511eaef14e334ad22231e7e9ae87db52bf8e21c233d",
+    "workspace_final.tar.gz": "4c22326312319fea150047383b6218b0fdb4ae2d80db4bac4b66703b4a3d754f",
+    "validator.txt": "16004db8a2ef5851152f1e468332232f0537f2ed3583f8f78e56dea7b9f634ea",
+    "gpu_telemetry.json": "6721c9e71316391fc6a49f8596520960d4660d0e124cf75ab7d46b9547afbf13",
+    "label.json": "e6c67de9ef41d77c1016c62e8e794f00cde809be9c60474ac006dc1385bf54d6",
+    "cost.json": "6dd1a5ea246aff6298763cb10743d51ce9fd430c0d4421be00289fe7bf1ea1b0"
+  }
+}
