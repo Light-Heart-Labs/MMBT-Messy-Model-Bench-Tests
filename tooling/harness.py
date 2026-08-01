@@ -164,16 +164,43 @@ def docker_exec(cmd, workdir="/workspace", timeout=300):
     Pipes the command via stdin (`bash -s`) instead of `bash -c "..."` so we
     don't hit Linux's ~128KB argv limit on long heredocs. Hit this when a
     model emitted a 680-token python heredoc as a single bash call.
+
+    The timeout must live *inside* the container. A host-only
+    ``subprocess.run(..., timeout=N)`` kills the ``docker exec`` client but
+    leaves its in-container shell and descendants running. Those orphans can
+    contaminate later tool timings. GNU ``timeout`` creates a managed process
+    group and terminates the whole command tree; the slightly longer host
+    timeout remains only as a Docker-runtime failsafe.
     """
     t0 = time.time()
-    full = ["docker", "exec", "-i", "-w", workdir, SANDBOX, "bash", "-s"]
+    timeout = max(1, int(timeout))
+    full = [
+        "docker", "exec", "-i", "-w", workdir, SANDBOX,
+        "timeout", "--signal=TERM", "--kill-after=5s", f"{timeout}s",
+        "bash", "-s",
+    ]
     try:
         # Capture as bytes; decode with errors='replace' so binary outputs (e.g. curl-piping
         # gzipped content) don't raise UnicodeDecodeError. Hit this on a Coder-Next run where
         # a bash command piped \x1f\x8b… into stdout.
-        p = subprocess.run(full, input=cmd.encode("utf-8"), capture_output=True, timeout=timeout)
+        p = subprocess.run(
+            full,
+            input=cmd.encode("utf-8"),
+            capture_output=True,
+            timeout=timeout + 15,
+        )
         out = p.stdout.decode("utf-8", errors="replace")
         err = p.stderr.decode("utf-8", errors="replace")
+        if p.returncode == 124:
+            timeout_note = f"timeout after {timeout}s"
+            err = f"{err.rstrip()}\n{timeout_note}".strip()
+            return {
+                "rc": -1,
+                "stdout": out[-20000:],
+                "stderr": err[-5000:],
+                "duration_s": round(time.time() - t0, 2),
+                "truncated_stdout": len(out) > 20000,
+            }
         return {
             "rc": p.returncode,
             "stdout": out[-20000:],
@@ -182,7 +209,15 @@ def docker_exec(cmd, workdir="/workspace", timeout=300):
             "truncated_stdout": len(out) > 20000,
         }
     except subprocess.TimeoutExpired:
-        return {"rc": -1, "stdout": "", "stderr": f"timeout after {timeout}s", "duration_s": timeout}
+        return {
+            "rc": -1,
+            "stdout": "",
+            "stderr": (
+                f"outer docker-exec failsafe fired after {timeout + 15}s; "
+                "the in-container timeout did not return"
+            ),
+            "duration_s": round(time.time() - t0, 2),
+        }
 
 
 # ----- Tools available to the agent --------------------------------------
