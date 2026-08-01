@@ -44,6 +44,8 @@ SCORECARD = STATE_DIR / "scorecard.md"           # addition B
 NOTIFY_SH = HOME / "dream-fleet-test" / "lib" / "notify.sh"
 
 HEARTBEAT_FRESH_SECS = 120
+SUBSTANCE_CHECK_SECS = 300
+_last_substance_check = 0.0
 
 TASKS = ["p1_bugfix","p1_testwrite","p1_refactor","p2_extract","p2_ci",
          "p2_hallucination","p2_triage","p3_doc","p3_business","p3_market",
@@ -257,7 +259,19 @@ def ensure_endpoint(cfg: dict) -> bool:
 
 def cell_done(run_name: str) -> bool:
     d = LOGS / run_name
-    return (d / "summary.json").exists() and (d / "workspace_final.tar.gz").exists()
+    if (d / "summary.json").exists() and (d / "workspace_final.tar.gz").exists():
+        return True
+    # Operator-terminated pathology runs are terminal benchmark outcomes under
+    # the published substance-monitoring protocol.  Their receipt, transcript,
+    # and explicit label are the preserved evidence; they intentionally have no
+    # final workspace archive because SIGTERM bypasses harness teardown.
+    try:
+        label = json.loads((d / "label.json").read_text())
+        return (label.get("primary") == "identical-call-loop"
+                and (d / "receipt.json").exists()
+                and (d / "transcript.jsonl").exists())
+    except Exception:
+        return False
 
 
 def cell_verdict(run_name: str):
@@ -388,6 +402,51 @@ def kill_stuck(cell: str):
     for pid in r.stdout.split():
         sh(["kill", "-KILL", pid])
     sh(["docker", "rm", "-f", f"bench-sandbox-{cell}"])
+
+
+def check_current_substance(cfg):
+    """Run the published five-minute substance monitor on the active cell.
+
+    Scroll loops are terminated by exact harness PID and receive the canonical
+    explicit failure label.  Runaway-generation signals are logged for endpoint
+    triage but are not killed, matching SUBSTANCE-MONITORING-WORKFLOW.md.
+    """
+    global _last_substance_check
+    now = time.time()
+    if now - _last_substance_check < SUBSTANCE_CHECK_SECS:
+        return
+    _last_substance_check = now
+    tp, _ = newest_transcript(cfg)
+    if not tp or not tp.exists():
+        return
+    cell = tp.parent.name
+    result = sh(["python3", str(SCRIPTS / "check_substance.py"), str(tp)])
+    with open(STATE_DIR / f"substance-{cell}.log", "a") as f:
+        f.write(f"\n[{time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}] rc={result.returncode}\n")
+        f.write(result.stdout or "")
+        f.write(result.stderr or "")
+    if result.returncode == 1:
+        pids = sh(["pgrep", "-f", f"harness.py {cell} "]).stdout.split()
+        if not pids:
+            log(f"SUBSTANCE: scroll-loop detected for {cell}, but exact harness PID was absent")
+            return
+        log(f"SUBSTANCE: scroll-loop detected for {cell}; SIGTERM exact PID(s) {','.join(pids)}")
+        for pid in pids:
+            sh(["kill", "-TERM", pid])
+        label = {
+            "primary": "identical-call-loop",
+            "sub_labels": ["scroll-loop"],
+            "notes": (
+                "Operator-SIGTERM per the documented >=30 identical digit-stripped "
+                "tool-command substance rule; see the preserved transcript and monitor log."
+            ),
+            "labeler": "operator-monitoring-supervisor",
+            "labeled_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        }
+        (tp.parent / "label.json").write_text(json.dumps(label, indent=2) + "\n")
+        sh(["docker", "rm", "-f", f"bench-sandbox-{cell}"])
+    elif result.returncode == 2:
+        log(f"SUBSTANCE: runaway-generation suspected for {cell}; endpoint_up={endpoint_up(cfg['port'])}")
 
 
 # --- recent cells + fails ---------------------------------------------------
@@ -661,6 +720,7 @@ def run_arm_with_supervision(cfg, arm, target, started_at):
         write_heartbeat()
         write_status(cfg, target, f"run:{label}", [], started_at)
         check_harness_anomaly(cfg)                            # addition C
+        check_current_substance(cfg)
         if not endpoint_up(cfg["port"]):
             if time.time() - last_endpoint_ok > 90:
                 log("watchdog: endpoint down >90s — restarting")
