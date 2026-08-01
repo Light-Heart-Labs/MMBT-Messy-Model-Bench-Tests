@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "qualification_only": true,
+  "passed": true,
+  "inferential_replicate": false,
+  "evaluated_at": "2026-07-30T21:34:00.000Z",
+  "gate_commit": "5a10c2f",
+  "gate": "isolation + loaded/idle power + fan telemetry/tracking + independent NVML + zero thermal/brake events and counters",
+  "note": "Post-hoc re-evaluation of the preserved raw run after correcting a schema-key mismatch in the initial qualification command. No raw telemetry was changed."
+}

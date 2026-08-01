@@ -1,0 +1,7 @@
+label,run_dir,duration_s,internal_admissible,verdict,bottom_power_mean_w,top_power_mean_w,bottom_temp_mean_c,top_temp_mean_c,top_temp_max_c,bottom_fan_mean_pct,top_fan_mean_pct,bottom_fan_rpm_mean,top_fan_rpm_mean,bottom_clock_mean_mhz,top_clock_mean_mhz,bottom_temp_slope_c_per_min,top_temp_slope_c_per_min,bottom_fan_slope_pp_per_min,top_fan_slope_pp_per_min,bottom_hw_thermal_us,top_hw_thermal_us,top_sw_thermal_us
+Legacy R1,both500-10m,600,False,top fan +0.481 pp/min (retrospective),499.989,499.972,70.198,89.568,93.0,42.909,78.544,,,2508.981,2104.105,-0.0177,-0.067,0.0,0.481,0,0,1054393
+Old R2,no-gap-both500-10m-r2-nonsteady-excluded,600,False,top fan +0.3734 pp/min,499.959,499.981,70.89,89.623,93.0,42.998,78.228,1515.607,2354.127,2514.734,2107.787,-0.0081,-0.2851,0.1917,0.3734,0,0,780134
+R2 valid,no-gap-both500-v3host-15m-r2,900,True,passes v1,499.99,499.986,70.059,88.976,93.0,42.834,75.606,1505.016,2291.659,2513.899,2091.61,0.0046,0.0,0.0,0.0,0,0,339487
+R3 valid,no-gap-both500-v3host-15m-r3,900,True,passes v1,499.99,499.984,70.159,89.098,92.0,42.941,77.215,1511.519,2330.538,2510.574,2077.341,0.0606,-0.0015,0.0,0.0,0,0,680029
+R4,no-gap-both500-v3host-15m-r4-steady-excluded,900,False,bottom temp +0.1716 C/min,499.989,499.99,70.475,89.049,91.0,42.947,77.996,1514.048,2349.033,2513.856,2081.183,0.1716,0.0306,0.0,0.0,0,0,139937
+R5,no-gap-both500-v3host-20m-r5-fan-slope-excluded,1200,False,top fan -0.4931 pp/min,499.921,499.985,70.747,89.215,92.0,43.141,79.27,1517.363,2380.364,2507.31,2076.156,-0.0414,0.0098,-0.1756,-0.4931,0,0,577553

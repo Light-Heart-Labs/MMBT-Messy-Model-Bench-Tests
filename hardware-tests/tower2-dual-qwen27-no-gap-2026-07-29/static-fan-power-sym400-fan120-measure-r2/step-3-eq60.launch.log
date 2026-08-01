@@ -1,0 +1,897 @@
+[2026-07-31T17:57:06Z] Preflight isolation: quiescing external GPU request sources
+[2026-07-31T17:57:06Z] Preflight cooldown: GPU0=39C/0% GPU1=50C/0% CPU=72.8C NVMe=47.9C
+[2026-07-31T17:57:36Z] Preflight cooldown: GPU0=37C/0% GPU1=48C/0% CPU=66.8C NVMe=46.9C
+[2026-07-31T17:58:07Z] Preflight cooldown: GPU0=35C/0% GPU1=45C/0% CPU=63.0C NVMe=46.9C
+[2026-07-31T17:58:38Z] Preflight cooldown: GPU0=34C/0% GPU1=43C/0% CPU=60.2C NVMe=46.9C
+[2026-07-31T17:59:09Z] Preflight cooldown: GPU0=33C/0% GPU1=41C/0% CPU=64.0C NVMe=45.9C
+[2026-07-31T17:59:40Z] Preflight cooldown: GPU0=33C/0% GPU1=40C/0% CPU=60.6C NVMe=45.9C
+[2026-07-31T18:00:10Z] Preflight cooldown: GPU0=32C/0% GPU1=38C/0% CPU=65.0C NVMe=45.9C
+[2026-07-31T18:00:41Z] Preflight cooldown: GPU0=32C/0% GPU1=37C/0% CPU=61.8C NVMe=44.9C
+[2026-07-31T18:01:12Z] Preflight cooldown: GPU0=31C/0% GPU1=36C/0% CPU=57.1C NVMe=44.9C
+[2026-07-31T18:01:43Z] Preflight cooldown: GPU0=31C/0% GPU1=36C/0% CPU=62.8C NVMe=44.9C
+[2026-07-31T18:02:14Z] Preflight cooldown: GPU0=31C/0% GPU1=35C/0% CPU=57.9C NVMe=43.9C
+[2026-07-31T18:02:44Z] Preflight cooldown: GPU0=31C/0% GPU1=35C/0% CPU=63.4C NVMe=43.9C
+[2026-07-31T18:03:15Z] Preflight cooldown: GPU0=30C/0% GPU1=34C/0% CPU=60.5C NVMe=43.9C
+[2026-07-31T18:03:46Z] Preflight cooldown: GPU0=30C/0% GPU1=34C/0% CPU=55.8C NVMe=42.9C
+[2026-07-31T18:04:17Z] Preflight cooldown: GPU0=30C/0% GPU1=33C/0% CPU=61.9C NVMe=42.9C
+[2026-07-31T18:04:48Z] Preflight cooldown: GPU0=30C/0% GPU1=33C/0% CPU=58.8C NVMe=42.9C
+[2026-07-31T18:05:18Z] Preflight cooldown: GPU0=30C/0% GPU1=33C/0% CPU=62.2C NVMe=42.9C
+[2026-07-31T18:05:29Z] Preflight soak started: GPU0=30C/0% GPU1=33C/0% CPU=56.2C NVMe=41.9C
+[2026-07-31T18:05:29Z] Preflight soak 0/300s: GPU0=30C/0% GPU1=33C/0% CPU=56.2C NVMe=41.9C
+[2026-07-31T18:05:59Z] Preflight soak 30/300s: GPU0=30C/0% GPU1=33C/0% CPU=58.8C NVMe=41.9C
+[2026-07-31T18:06:30Z] Preflight soak 61/300s: GPU0=30C/0% GPU1=33C/0% CPU=57.8C NVMe=41.9C
+[2026-07-31T18:07:01Z] Preflight soak 92/300s: GPU0=30C/0% GPU1=32C/0% CPU=54.4C NVMe=41.9C
+[2026-07-31T18:07:32Z] Preflight soak 123/300s: GPU0=30C/0% GPU1=32C/0% CPU=61.2C NVMe=41.9C
+[2026-07-31T18:08:03Z] Preflight soak 154/300s: GPU0=30C/0% GPU1=32C/0% CPU=57.0C NVMe=40.9C
+[2026-07-31T18:08:33Z] Preflight soak 184/300s: GPU0=30C/0% GPU1=32C/0% CPU=59.9C NVMe=40.9C
+[2026-07-31T18:09:04Z] Preflight soak 215/300s: GPU0=30C/0% GPU1=32C/0% CPU=57.2C NVMe=40.9C
+[2026-07-31T18:09:35Z] Preflight soak 246/300s: GPU0=30C/0% GPU1=32C/0% CPU=54.8C NVMe=40.9C
+[2026-07-31T18:10:06Z] Preflight soak 277/300s: GPU0=30C/0% GPU1=32C/0% CPU=59.9C NVMe=40.9C
+[2026-07-31T18:10:32Z] Preflight isolation ready after 302s continuous soak: GPU0=29C/0% GPU1=32C/0% CPU=53.9C NVMe=40.9C
+[2026-07-31T18:10:32Z] Tower2 dual-Qwen27 readiness check
+
+0, NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 14.85 W, 600.00 W, 30, 63, 30 %, 180 MHz, 0 %, 50889 MiB
+1, NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 16.46 W, 600.00 W, 32, 61, 30 %, 180 MHz, 0 %, 89697 MiB
+
+GPU1 image=sha256:a230095847e93bd4df9888b33dab956fa9504537b828a23657d2b26fed57b5c9 command=["--model","/models/cyankiwi-Qwen3.6-27B-AWQ-INT4","--served-model-name","sanctuary","--host","0.0.0.0","--port","8000","--tensor-parallel-size","1","--gpu-memory-utilization","0.92","--max-model-len","262144","--trust-remote-code","--enable-auto-tool-choice","--tool-call-parser","qwen3_coder"]
+[2026-07-31T18:10:32Z] CHECK PASS
+[2026-07-31T18:10:33Z] Output: /home/michael/thermal-tests/runs/2026-07-31T18-10-32Z-ng-fan-eq60-sym400-v3host-15m-r2
+[2026-07-31T18:10:33Z] Stopping GPU containers that conflict with an isolated GPU0 replica
+ods-llama-server
+ods-whisper
+ods-comfyui
+ods-embeddings
+[2026-07-31T18:11:11Z] Setting GPU0/bottom to 400 W and GPU1/top to 400 W
+Power limit for GPU 00000000:01:00.0 was set to 400.00 W from 600.00 W.
+All done.
+Power limit for GPU 00000000:E1:00.0 was set to 400.00 W from 600.00 W.
+All done.
+[2026-07-31T18:11:11Z] Launching identical Qwen3.6-27B AWQ-INT4 vLLM replica on GPU0
+1f38d8c783fba70a69c930ee9d4f2d275a27a66646598e3199946ca447e57cde
+[2026-07-31T18:11:11Z] Waiting for GPU0 vLLM readiness
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+[2026-07-31T18:14:32Z] Fixed GPU0 fans 0/1 at 60%: 59%/1899 RPM, 60%/1914 RPM
+[2026-07-31T18:14:41Z] Fixed GPU1 fans 2/3 at 60%: 59%/1899 RPM, 59%/1904 RPM
+[2026-07-31T18:14:41Z] Starting 250 ms GPU telemetry; workers GPU0=32 GPU1=32
+[2026-07-31T18:14:41Z] Warm-up started (120s)
+[2026-07-31T18:16:41Z] Trailing 30s warm-up mean board power: GPU0=400.00W GPU1=399.99W
+[2026-07-31T18:16:41Z] Measured GPU0=400 W / GPU1=400 W run started (900s)
+[2026-07-31T18:17:44Z] Progress 63/900s
+0, 399.96 W, 60, 33, 60 %, 1770 MHz, 100 %, Active, Not Active, Not Active
+1, 400.01 W, 72, 21, 60 %, 1590 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:18:42Z] Progress 121/900s
+0, 400.00 W, 61, 32, 60 %, 1762 MHz, 100 %, Active, Not Active, Not Active
+1, 400.01 W, 75, 18, 60 %, 1567 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:19:45Z] Progress 184/900s
+0, 399.99 W, 61, 32, 60 %, 1762 MHz, 100 %, Active, Not Active, Not Active
+1, 399.99 W, 76, 17, 60 %, 1537 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:20:43Z] Progress 242/900s
+0, 400.01 W, 62, 31, 60 %, 1770 MHz, 100 %, Active, Not Active, Not Active
+1, 399.97 W, 77, 16, 60 %, 1522 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:21:41Z] Progress 300/900s
+0, 399.99 W, 62, 31, 60 %, 1762 MHz, 100 %, Active, Not Active, Not Active
+1, 399.99 W, 77, 16, 60 %, 1515 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:22:45Z] Progress 364/900s
+0, 400.01 W, 62, 31, 60 %, 1755 MHz, 100 %, Active, Not Active, Not Active
+1, 400.00 W, 78, 15, 60 %, 1507 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:23:43Z] Progress 422/900s
+0, 399.98 W, 62, 31, 60 %, 1732 MHz, 100 %, Active, Not Active, Not Active
+1, 399.99 W, 78, 15, 60 %, 1500 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:24:41Z] Progress 480/900s
+0, 399.99 W, 62, 31, 60 %, 1762 MHz, 100 %, Active, Not Active, Not Active
+1, 400.00 W, 78, 15, 60 %, 1507 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:25:44Z] Progress 543/900s
+0, 400.01 W, 62, 31, 60 %, 1762 MHz, 100 %, Active, Not Active, Not Active
+1, 399.97 W, 78, 15, 60 %, 1515 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:26:42Z] Progress 601/900s
+0, 399.97 W, 62, 31, 60 %, 1747 MHz, 100 %, Active, Not Active, Not Active
+1, 400.00 W, 78, 15, 60 %, 1500 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:27:45Z] Progress 664/900s
+0, 399.98 W, 62, 31, 60 %, 1747 MHz, 100 %, Active, Not Active, Not Active
+1, 400.00 W, 78, 15, 60 %, 1515 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:28:43Z] Progress 722/900s
+0, 400.00 W, 62, 31, 60 %, 1770 MHz, 100 %, Active, Not Active, Not Active
+1, 399.98 W, 78, 15, 60 %, 1500 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:29:41Z] Progress 780/900s
+0, 399.98 W, 62, 31, 60 %, 1762 MHz, 100 %, Active, Not Active, Not Active
+1, 400.00 W, 78, 15, 60 %, 1507 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:30:44Z] Progress 843/900s
+0, 400.00 W, 62, 31, 60 %, 1755 MHz, 100 %, Active, Not Active, Not Active
+1, 399.99 W, 78, 15, 60 %, 1507 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:31:42Z] Progress 901/900s
+0, 400.02 W, 62, 31, 60 %, 1747 MHz, 100 %, Active, Not Active, Not Active
+1, 399.98 W, 78, 15, 60 %, 1500 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T18:31:42Z] Measured run complete; draining admitted requests
+[2026-07-31T18:32:00Z] Requests drained; logging 60s cooldown
+[2026-07-31T18:33:05Z] PASS — summary: /home/michael/thermal-tests/runs/2026-07-31T18-10-32Z-ng-fan-eq60-sym400-v3host-15m-r2/summary.json
+{
+  "phase": "measured",
+  "gpus": {
+    "0": {
+      "samples": 3606,
+      "expected_samples": 3600.0,
+      "sample_completeness": 1.0,
+      "target_power_w": 400.0,
+      "power_avg_w": {
+        "min": 399.93,
+        "mean": 399.992,
+        "p50": 399.99,
+        "p95": 400.02,
+        "max": 400.09
+      },
+      "power_instant_w": {
+        "min": 399.48,
+        "mean": 399.993,
+        "p50": 399.99,
+        "p95": 400.27,
+        "max": 400.97
+      },
+      "temp_gpu_c": {
+        "min": 58.0,
+        "mean": 61.6,
+        "p50": 62.0,
+        "p95": 62.0,
+        "max": 65.0
+      },
+      "temp_memory_c": null,
+      "temp_tlimit_margin_c": {
+        "min": 28.0,
+        "mean": 31.39,
+        "p50": 31.0,
+        "p95": 34.0,
+        "max": 35.0
+      },
+      "graphics_clock_mhz": {
+        "min": 1582.0,
+        "mean": 1759.747,
+        "p50": 1762.0,
+        "p95": 1777.0,
+        "max": 1807.0
+      },
+      "sm_clock_mhz": {
+        "min": 1582.0,
+        "mean": 1759.747,
+        "p50": 1762.0,
+        "p95": 1777.0,
+        "max": 1807.0
+      },
+      "memory_clock_mhz": {
+        "min": 13365.0,
+        "mean": 13365.0,
+        "p50": 13365.0,
+        "p95": 13365.0,
+        "max": 13365.0
+      },
+      "gpu_util_pct": {
+        "min": 100.0,
+        "mean": 100.0,
+        "p50": 100.0,
+        "p95": 100.0,
+        "max": 100.0
+      },
+      "fan_pct": {
+        "min": 60.0,
+        "mean": 60.0,
+        "p50": 60.0,
+        "p95": 60.0,
+        "max": 60.0
+      },
+      "fraction_samples_at_or_above_95pct_target": 1.0,
+      "steady_state": true,
+      "steady_state_protocol": "v2-fixed-quantized",
+      "steady_state_slopes_per_min": {
+        "temp_gpu_c": 0.0027,
+        "graphics_clock_mhz": -0.5886,
+        "fan_pct": 0.0
+      },
+      "quantized_temperature_plateau": {
+        "window_s": 300,
+        "bin_s": 60,
+        "minute_medians_c": [
+          62.0,
+          62.0,
+          62.0,
+          62.0,
+          62.0
+        ],
+        "median_range_c": 0.0,
+        "median_slope_c_per_min": 0.0,
+        "pass": true
+      },
+      "first_5m": {
+        "power_avg_w": {
+          "min": 399.93,
+          "mean": 399.992,
+          "p50": 399.99,
+          "p95": 400.02,
+          "max": 400.09
+        },
+        "temp_gpu_c": {
+          "min": 58.0,
+          "mean": 60.741,
+          "p50": 61.0,
+          "p95": 62.0,
+          "max": 64.0
+        },
+        "graphics_clock_mhz": {
+          "min": 1582.0,
+          "mean": 1768.423,
+          "p50": 1770.0,
+          "p95": 1792.0,
+          "max": 1807.0
+        }
+      },
+      "last_5m": {
+        "power_avg_w": {
+          "min": 399.93,
+          "mean": 399.992,
+          "p50": 399.99,
+          "p95": 400.02,
+          "max": 400.04
+        },
+        "temp_gpu_c": {
+          "min": 61.0,
+          "mean": 62.037,
+          "p50": 62.0,
+          "p95": 62.0,
+          "max": 65.0
+        },
+        "graphics_clock_mhz": {
+          "min": 1582.0,
+          "mean": 1754.356,
+          "p50": 1755.0,
+          "p95": 1770.0,
+          "max": 1777.0
+        }
+      },
+      "event_samples": {
+        "sw_power_cap_active": 3606,
+        "hw_thermal_slowdown_active": 0,
+        "hw_power_brake_active": 0,
+        "sw_thermal_slowdown_active": 0
+      },
+      "sampled_counter_deltas_us": {
+        "sw_power_cap_counter_us": 901099992.0,
+        "sw_thermal_slowdown_counter_us": 0,
+        "hw_thermal_slowdown_counter_us": 0,
+        "hw_power_brake_counter_us": 0
+      },
+      "fan_rpm": {
+        "min": 1912.0,
+        "mean": 1917.094,
+        "p50": 1917.0,
+        "p95": 1919.0,
+        "max": 1922.0
+      },
+      "physical_fan_indices": [
+        0,
+        1
+      ],
+      "counter_deltas_us": {
+        "hw_thermal_slowdown": 0,
+        "sw_thermal_slowdown": 0
+      }
+    },
+    "1": {
+      "samples": 3606,
+      "expected_samples": 3600.0,
+      "sample_completeness": 1.0,
+      "target_power_w": 400.0,
+      "power_avg_w": {
+        "min": 399.93,
+        "mean": 399.991,
+        "p50": 399.99,
+        "p95": 400.01,
+        "max": 400.05
+      },
+      "power_instant_w": {
+        "min": 399.48,
+        "mean": 399.979,
+        "p50": 399.98,
+        "p95": 400.24,
+        "max": 400.66
+      },
+      "temp_gpu_c": {
+        "min": 68.0,
+        "mean": 76.881,
+        "p50": 78.0,
+        "p95": 78.0,
+        "max": 81.0
+      },
+      "temp_memory_c": null,
+      "temp_tlimit_margin_c": {
+        "min": 12.0,
+        "mean": 16.13,
+        "p50": 15.0,
+        "p95": 22.0,
+        "max": 25.0
+      },
+      "graphics_clock_mhz": {
+        "min": 1477.0,
+        "mean": 1523.197,
+        "p50": 1507.0,
+        "p95": 1605.0,
+        "max": 1665.0
+      },
+      "sm_clock_mhz": {
+        "min": 1477.0,
+        "mean": 1523.197,
+        "p50": 1507.0,
+        "p95": 1605.0,
+        "max": 1665.0
+      },
+      "memory_clock_mhz": {
+        "min": 13365.0,
+        "mean": 13365.0,
+        "p50": 13365.0,
+        "p95": 13365.0,
+        "max": 13365.0
+      },
+      "gpu_util_pct": {
+        "min": 100.0,
+        "mean": 100.0,
+        "p50": 100.0,
+        "p95": 100.0,
+        "max": 100.0
+      },
+      "fan_pct": {
+        "min": 60.0,
+        "mean": 60.0,
+        "p50": 60.0,
+        "p95": 60.0,
+        "max": 60.0
+      },
+      "fraction_samples_at_or_above_95pct_target": 1.0,
+      "steady_state": true,
+      "steady_state_protocol": "v2-fixed-quantized",
+      "steady_state_slopes_per_min": {
+        "temp_gpu_c": 0.0123,
+        "graphics_clock_mhz": -2.4233,
+        "fan_pct": 0.0
+      },
+      "quantized_temperature_plateau": {
+        "window_s": 300,
+        "bin_s": 60,
+        "minute_medians_c": [
+          78.0,
+          78.0,
+          78.0,
+          78.0,
+          78.0
+        ],
+        "median_range_c": 0.0,
+        "median_slope_c_per_min": 0.0,
+        "pass": true
+      },
+      "first_5m": {
+        "power_avg_w": {
+          "min": 399.94,
+          "mean": 399.992,
+          "p50": 399.99,
+          "p95": 400.02,
+          "max": 400.04
+        },
+        "temp_gpu_c": {
+          "min": 68.0,
+          "mean": 74.565,
+          "p50": 75.0,
+          "p95": 77.0,
+          "max": 80.0
+        },
+        "graphics_clock_mhz": {
+          "min": 1492.0,
+          "mean": 1557.743,
+          "p50": 1545.0,
+          "p95": 1627.0,
+          "max": 1665.0
+        }
+      },
+      "last_5m": {
+        "power_avg_w": {
+          "min": 399.93,
+          "mean": 399.99,
+          "p50": 399.99,
+          "p95": 400.02,
+          "max": 400.05
+        },
+        "temp_gpu_c": {
+          "min": 78.0,
+          "mean": 78.05,
+          "p50": 78.0,
+          "p95": 78.0,
+          "max": 81.0
+        },
+        "graphics_clock_mhz": {
+          "min": 1477.0,
+          "mean": 1504.671,
+          "p50": 1507.0,
+          "p95": 1515.0,
+          "max": 1522.0
+        }
+      },
+      "event_samples": {
+        "sw_power_cap_active": 3606,
+        "hw_thermal_slowdown_active": 0,
+        "hw_power_brake_active": 0,
+        "sw_thermal_slowdown_active": 0
+      },
+      "sampled_counter_deltas_us": {
+        "sw_power_cap_counter_us": 901600003.0,
+        "sw_thermal_slowdown_counter_us": 0.0,
+        "hw_thermal_slowdown_counter_us": 0.0,
+        "hw_power_brake_counter_us": 0
+      },
+      "fan_rpm": {
+        "min": 1915.0,
+        "mean": 1917.065,
+        "p50": 1917.0,
+        "p95": 1918.0,
+        "max": 1922.0
+      },
+      "physical_fan_indices": [
+        2,
+        3
+      ],
+      "counter_deltas_us": {
+        "hw_thermal_slowdown": 0,
+        "sw_thermal_slowdown": 0
+      }
+    }
+  },
+  "host": {
+    "samples": 841,
+    "ambient_c": null,
+    "cpu_tctl_c": {
+      "min": 81.6,
+      "mean": 89.402,
+      "p50": 90.1,
+      "p95": 91.1,
+      "max": 92.0
+    },
+    "cpu_ccd_max_c": {
+      "min": 71.1,
+      "mean": 84.175,
+      "p50": 85.2,
+      "p95": 87.2,
+      "max": 94.8
+    },
+    "cpu_avg_mhz": {
+      "min": 2813.0,
+      "mean": 3343.203,
+      "p50": 3258.0,
+      "p95": 4089.0,
+      "max": 4760.0
+    },
+    "nvme_max_c": {
+      "min": 39.9,
+      "mean": 44.98,
+      "p50": 45.9,
+      "p95": 46.9,
+      "max": 46.9
+    }
+  },
+  "requests": {
+    "gpu0": {
+      "completed": 1344,
+      "requests_per_second": 1.4933,
+      "status_counts": {
+        "200": 1344
+      },
+      "duration_s": {
+        "min": 21.499,
+        "mean": 21.614,
+        "p50": 21.618,
+        "p95": 21.662,
+        "max": 21.665
+      }
+    },
+    "gpu1": {
+      "completed": 1280,
+      "requests_per_second": 1.4222,
+      "status_counts": {
+        "200": 1280
+      },
+      "duration_s": {
+        "min": 22.188,
+        "mean": 22.673,
+        "p50": 22.743,
+        "p95": 22.784,
+        "max": 22.789
+      }
+    }
+  },
+  "fan_telemetry": {
+    "available": true,
+    "fans": {
+      "0": {
+        "gpu": 0,
+        "card_position": "bottom",
+        "samples": 901,
+        "expected_samples": 900.0,
+        "sample_completeness": 1.0,
+        "current_pct": {
+          "min": 60.0,
+          "mean": 60.0,
+          "p50": 60.0,
+          "p95": 60.0,
+          "max": 60.0
+        },
+        "target_pct": {
+          "min": 60.0,
+          "mean": 60.0,
+          "p50": 60.0,
+          "p95": 60.0,
+          "max": 60.0
+        },
+        "rpm": {
+          "min": 1912.0,
+          "mean": 1917.068,
+          "p50": 1917.0,
+          "p95": 1919.0,
+          "max": 1922.0
+        },
+        "absolute_target_tracking_error_pct": {
+          "min": 0.0,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "1": {
+        "gpu": 0,
+        "card_position": "bottom",
+        "samples": 901,
+        "expected_samples": 900.0,
+        "sample_completeness": 1.0,
+        "current_pct": {
+          "min": 60.0,
+          "mean": 60.0,
+          "p50": 60.0,
+          "p95": 60.0,
+          "max": 60.0
+        },
+        "target_pct": {
+          "min": 60.0,
+          "mean": 60.0,
+          "p50": 60.0,
+          "p95": 60.0,
+          "max": 60.0
+        },
+        "rpm": {
+          "min": 1913.0,
+          "mean": 1917.12,
+          "p50": 1917.0,
+          "p95": 1919.0,
+          "max": 1921.0
+        },
+        "absolute_target_tracking_error_pct": {
+          "min": 0.0,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "2": {
+        "gpu": 1,
+        "card_position": "top",
+        "samples": 901,
+        "expected_samples": 900.0,
+        "sample_completeness": 1.0,
+        "current_pct": {
+          "min": 60.0,
+          "mean": 60.0,
+          "p50": 60.0,
+          "p95": 60.0,
+          "max": 60.0
+        },
+        "target_pct": {
+          "min": 60.0,
+          "mean": 60.0,
+          "p50": 60.0,
+          "p95": 60.0,
+          "max": 60.0
+        },
+        "rpm": {
+          "min": 1915.0,
+          "mean": 1917.03,
+          "p50": 1917.0,
+          "p95": 1918.0,
+          "max": 1919.0
+        },
+        "absolute_target_tracking_error_pct": {
+          "min": 0.0,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      },
+      "3": {
+        "gpu": 1,
+        "card_position": "top",
+        "samples": 901,
+        "expected_samples": 900.0,
+        "sample_completeness": 1.0,
+        "current_pct": {
+          "min": 60.0,
+          "mean": 60.0,
+          "p50": 60.0,
+          "p95": 60.0,
+          "max": 60.0
+        },
+        "target_pct": {
+          "min": 60.0,
+          "mean": 60.0,
+          "p50": 60.0,
+          "p95": 60.0,
+          "max": 60.0
+        },
+        "rpm": {
+          "min": 1915.0,
+          "mean": 1917.101,
+          "p50": 1917.0,
+          "p95": 1919.0,
+          "max": 1922.0
+        },
+        "absolute_target_tracking_error_pct": {
+          "min": 0.0,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        }
+      }
+    },
+    "gpus": {
+      "0": {
+        "fan_indices": [
+          0,
+          1
+        ],
+        "current_pct": {
+          "min": 60.0,
+          "mean": 60.0,
+          "p50": 60.0,
+          "p95": 60.0,
+          "max": 60.0
+        },
+        "target_pct": {
+          "min": 60.0,
+          "mean": 60.0,
+          "p50": 60.0,
+          "p95": 60.0,
+          "max": 60.0
+        },
+        "rpm": {
+          "min": 1912.0,
+          "mean": 1917.094,
+          "p50": 1917.0,
+          "p95": 1919.0,
+          "max": 1922.0
+        }
+      },
+      "1": {
+        "fan_indices": [
+          2,
+          3
+        ],
+        "current_pct": {
+          "min": 60.0,
+          "mean": 60.0,
+          "p50": 60.0,
+          "p95": 60.0,
+          "max": 60.0
+        },
+        "target_pct": {
+          "min": 60.0,
+          "mean": 60.0,
+          "p50": 60.0,
+          "p95": 60.0,
+          "max": 60.0
+        },
+        "rpm": {
+          "min": 1915.0,
+          "mean": 1917.065,
+          "p50": 1917.0,
+          "p95": 1918.0,
+          "max": 1922.0
+        }
+      }
+    }
+  },
+  "independent_nvml_clock": {
+    "available": true,
+    "gpus": {
+      "0": {
+        "samples": 4019,
+        "graphics_clock_mhz": {
+          "min": 1582.0,
+          "mean": 1759.696,
+          "p50": 1762.0,
+          "p95": 1777.0,
+          "max": 1807.0
+        },
+        "sm_clock_mhz": {
+          "min": 1582.0,
+          "mean": 1759.696,
+          "p50": 1762.0,
+          "p95": 1777.0,
+          "max": 1807.0
+        },
+        "memory_clock_mhz": {
+          "min": 13365.0,
+          "mean": 13365.0,
+          "p50": 13365.0,
+          "p95": 13365.0,
+          "max": 13365.0
+        },
+        "power_w": {
+          "min": 399.931,
+          "mean": 399.992,
+          "p50": 399.992,
+          "p95": 400.019,
+          "max": 400.092
+        },
+        "temp_gpu_c": {
+          "min": 58.0,
+          "mean": 61.597,
+          "p50": 62.0,
+          "p95": 62.0,
+          "max": 65.0
+        },
+        "gpu_util_pct": {
+          "min": 100.0,
+          "mean": 100.0,
+          "p50": 100.0,
+          "p95": 100.0,
+          "max": 100.0
+        },
+        "primary_to_independent_graphics_mean_ratio": 1.000029
+      },
+      "1": {
+        "samples": 4019,
+        "graphics_clock_mhz": {
+          "min": 1477.0,
+          "mean": 1523.321,
+          "p50": 1507.0,
+          "p95": 1605.0,
+          "max": 1665.0
+        },
+        "sm_clock_mhz": {
+          "min": 1477.0,
+          "mean": 1523.321,
+          "p50": 1507.0,
+          "p95": 1605.0,
+          "max": 1665.0
+        },
+        "memory_clock_mhz": {
+          "min": 13365.0,
+          "mean": 13365.0,
+          "p50": 13365.0,
+          "p95": 13365.0,
+          "max": 13365.0
+        },
+        "power_w": {
+          "min": 399.926,
+          "mean": 399.991,
+          "p50": 399.991,
+          "p95": 400.014,
+          "max": 400.052
+        },
+        "temp_gpu_c": {
+          "min": 68.0,
+          "mean": 76.874,
+          "p50": 78.0,
+          "p95": 78.0,
+          "max": 81.0
+        },
+        "gpu_util_pct": {
+          "min": 100.0,
+          "mean": 100.0,
+          "p50": 100.0,
+          "p95": 100.0,
+          "max": 100.0
+        },
+        "primary_to_independent_graphics_mean_ratio": 0.999919
+      }
+    }
+  },
+  "workload_isolation": {
+    "vllm_success_delta": 1472.0,
+    "controlled_gpu1_http_200_all_phases": 1472,
+    "controlled_gpu1_errors_all_phases": 0,
+    "controlled_errors_all_gpus_all_phases": 0,
+    "success_delta_matches_controlled_log": true
+  },
+  "top_minus_bottom": {
+    "temp_gpu_c": 15.281,
+    "fan_pct": 0.0,
+    "fan_rpm": -0.029,
+    "graphics_clock_mhz": -236.55,
+    "power_avg_w": -0.001
+  },
+  "quality_gates": {
+    "per_gpu": {
+      "0": {
+        "workers": 32,
+        "sample_completeness_pass": true,
+        "steady_state_pass": true,
+        "loaded_power_mode": "saturated",
+        "loaded_power_range_w": null,
+        "sw_power_cap_active_fraction": 1.0,
+        "headroom_max_sw_power_cap_fraction": null,
+        "loaded_power_gate_pass": true,
+        "idle_power_gate_pass": null
+      },
+      "1": {
+        "workers": 32,
+        "sample_completeness_pass": true,
+        "steady_state_pass": true,
+        "loaded_power_mode": "saturated",
+        "loaded_power_range_w": null,
+        "sw_power_cap_active_fraction": 1.0,
+        "headroom_max_sw_power_cap_fraction": null,
+        "loaded_power_gate_pass": true,
+        "idle_power_gate_pass": null
+      }
+    },
+    "workload_isolation_pass": true,
+    "fan_telemetry_required": true,
+    "fan_telemetry_pass": true,
+    "fan_policy_tracking": {
+      "0": {
+        "mode": "fixed",
+        "target_pct": 60.0,
+        "pass": true
+      },
+      "1": {
+        "mode": "fixed",
+        "target_pct": 60.0,
+        "pass": true
+      }
+    },
+    "fan_policy_tracking_pass": true,
+    "internal_admissible_candidate": true,
+    "transferable_admissible_candidate": false
+  }
+}
+[2026-07-31T18:33:10Z] Cleanup complete; original GPU services and power limits restored

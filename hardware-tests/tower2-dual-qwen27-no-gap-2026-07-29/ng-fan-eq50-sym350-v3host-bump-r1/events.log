@@ -1,0 +1,12 @@
+ts_iso,event
+2026-07-31T06:41:45.719Z,run-created
+2026-07-31T06:42:24.790Z,service-guard-stopped-openclaw-gateway.service
+2026-07-31T06:44:26.433Z,service-guard-stopped-openclaw-gateway.service
+2026-07-31T06:45:50.619Z,fixed-fan-policy-applied,gpu0=50,gpu1=50
+2026-07-31T06:45:50.639Z,warmup-started
+2026-07-31T06:46:27.048Z,service-guard-stopped-openclaw-gateway.service
+2026-07-31T06:47:50.715Z,measured-started
+2026-07-31T06:48:27.631Z,service-guard-stopped-openclaw-gateway.service
+2026-07-31T06:49:51.693Z,measured-finished
+2026-07-31T06:50:28.205Z,service-guard-stopped-openclaw-gateway.service
+2026-07-31T06:51:15.042Z,automatic-fan-control-restored

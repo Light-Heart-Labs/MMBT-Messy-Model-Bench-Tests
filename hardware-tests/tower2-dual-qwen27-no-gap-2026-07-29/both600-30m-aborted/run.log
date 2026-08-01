@@ -1,0 +1,74 @@
+[2026-07-29T21:58:23Z] Output: /home/michael/thermal-tests/runs/2026-07-29T21-58-23Z-no-gap-both600-30m
+[2026-07-29T21:58:24Z] Stopping GPU containers that conflict with an isolated GPU0 replica
+ods-llama-server
+ods-whisper
+ods-comfyui
+ods-embeddings
+[2026-07-29T21:59:01Z] Setting GPU0/bottom to 600 W and GPU1/top to 600 W
+Power limit for GPU 00000000:01:00.0 was set to 600.00 W from 600.00 W.
+All done.
+Power limit for GPU 00000000:E1:00.0 was set to 600.00 W from 600.00 W.
+All done.
+[2026-07-29T21:59:01Z] Launching identical Qwen3.6-27B AWQ-INT4 vLLM replica on GPU0
+2cdf476cb5714752719683f64a902ec68c96112600d05c32d25b962f07e9c24b
+[2026-07-29T21:59:01Z] Waiting for GPU0 vLLM readiness
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+[2026-07-29T22:02:12Z] Starting 1 Hz telemetry and 32 request workers per GPU
+[2026-07-29T22:02:12Z] Warm-up started (120s)
+[2026-07-29T22:04:12Z] Trailing 30s warm-up mean board power: GPU0=600.01W GPU1=599.83W
+[2026-07-29T22:04:12Z] Measured GPU0=600 W / GPU1=600 W run started (1800s)
+[2026-07-29T22:05:13Z] Progress 61/1800s
+0, 600.08 W, 74, 2752 MHz, 100 %
+1, 585.36 W, 92, 2002 MHz, 100 %
+[2026-07-29T22:06:15Z] Progress 123/1800s
+0, 599.82 W, 75, 2752 MHz, 100 %
+1, 586.22 W, 93, 1957 MHz, 100 %
+[2026-07-29T22:07:16Z] Progress 184/1800s
+0, 600.11 W, 75, 2745 MHz, 100 %
+1, 591.92 W, 93, 2565 MHz, 100 %
+[2026-07-29T22:08:12Z] Progress 240/1800s
+0, 600.00 W, 75, 2752 MHz, 100 %
+1, 580.74 W, 93, 2550 MHz, 100 %
+[2026-07-29T22:09:14Z] Progress 302/1800s
+0, 600.53 W, 76, 2752 MHz, 100 %
+1, 579.74 W, 92, 2542 MHz, 100 %
+Emergency cutoff requested by 1 Hz telemetry: 2026-07-29T22:09:16.346Z phase=measured limit=96 sample=0, 2026/07/29 18:09:16.373, 76, N/A, 600.13, 600.41, 600.00, 600.00, 2745, 2745, 13365, 100, 91, 46, P1, 89071, Not Active, Not Active, Not Active, Not Active;1, 2026/07/29 18:09:16.383, 96, N/A, 554.33, 535.25, 600.00, 600.00, 2130, 2130, 13365, 100, 41, 100, P1, 89141, Not Active, Not Active, Not Active, Active;
+[2026-07-29T22:09:25Z] Interrupted/failed workload; restarting Sanctuary to clear admitted requests
+[2026-07-29T22:10:23Z] Cleanup complete; original GPU services and power limits restored

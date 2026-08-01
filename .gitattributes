@@ -33,4 +33,5 @@
 *.log        binary
 power.csv    binary
 thermals.csv binary
+gpu-nvml-clock.csv binary
 *.gz         binary

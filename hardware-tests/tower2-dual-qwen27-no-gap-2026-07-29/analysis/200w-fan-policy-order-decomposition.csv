@@ -1,0 +1,5 @@
+metric,naive_paired_mean,sample_sd,mean_when_b60_t40_ran_second,value_when_b60_t40_ran_first,provisional_policy_effect,provisional_later_run_effect,warning
+temp_bottom_c,-0.5426666666666667,0.5553893529167956,-0.3269999999999982,-0.9740000000000038,-0.650500000000001,0.3235000000000028,One reversed-order block; decomposition is provisional and has no defensible CI.
+temp_top_c,-0.16266666666666416,0.6734852138936172,0.1880000000000024,-0.8639999999999972,-0.3379999999999974,0.5259999999999998,One reversed-order block; decomposition is provisional and has no defensible CI.
+clock_bottom_mhz,-3.7876666666666474,1.027328736740788,-4.268500000000017,-2.825999999999908,-3.5472499999999627,-0.7212500000000546,One reversed-order block; decomposition is provisional and has no defensible CI.
+clock_top_mhz,3.256333333333411,0.36468662346368075,3.3840000000000714,3.00100000000009,3.1925000000000807,0.19149999999999068,One reversed-order block; decomposition is provisional and has no defensible CI.

@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "qualification_only": true,
+  "passed": true,
+  "inferential_replicate": false,
+  "evaluated_at": "2026-07-31T14:36:36.967Z",
+  "gate": "isolation + loaded/idle power + fan telemetry/tracking + independent NVML + zero thermal/brake events and counters"
+}

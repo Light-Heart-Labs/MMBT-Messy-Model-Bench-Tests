@@ -1,0 +1,70 @@
+[2026-07-30T21:22:22Z] Output: /home/michael/thermal-tests/runs/2026-07-30T21-22-21Z-ng-faniso-own-loadbottom-f30-p300-v3host-bump-r1
+[2026-07-30T21:22:22Z] Stopping GPU containers that conflict with an isolated GPU0 replica
+ods-llama-server
+ods-whisper
+ods-comfyui
+ods-embeddings
+[2026-07-30T21:22:59Z] Setting GPU0/bottom to 300 W and GPU1/top to 300 W
+Power limit for GPU 00000000:01:00.0 was set to 300.00 W from 600.00 W.
+All done.
+Power limit for GPU 00000000:E1:00.0 was set to 300.00 W from 600.00 W.
+All done.
+[2026-07-30T21:22:59Z] Launching identical Qwen3.6-27B AWQ-INT4 vLLM replica on GPU0
+d95fc0dd515bb35744bb9afa4b9788e709abceefdf7aa9504587bca1231bd35f
+[2026-07-30T21:23:00Z] Waiting for GPU0 vLLM readiness
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+[2026-07-30T21:26:16Z] Fixed GPU0 fans 0/1 at 30%: 30%/1200 RPM, 30%/1200 RPM
+[2026-07-30T21:26:24Z] Fixed GPU1 fans 2/3 at 50%: 48%/1635 RPM, 48%/1633 RPM
+[2026-07-30T21:26:24Z] Starting 250 ms GPU telemetry; workers GPU0=32 GPU1=0
+[2026-07-30T21:26:24Z] Warm-up started (120s)
+[2026-07-30T21:28:24Z] Trailing 30s warm-up mean board power: GPU0=300.00W GPU1=21.12W
+[2026-07-30T21:28:24Z] Measured GPU0=300 W / GPU1=300 W run started (120s)
+[2026-07-30T21:29:27Z] Progress 63/120s
+0, 300.00 W, 54, 39, 30 %, 1027 MHz, 100 %, Active, Not Active, Not Active
+1, 24.53 W, 41, 52, 50 %, 180 MHz, 0 %, Not Active, Not Active, Not Active
+[2026-07-30T21:30:26Z] Progress 122/120s
+0, 299.99 W, 55, 38, 30 %, 1027 MHz, 100 %, Active, Not Active, Not Active
+1, 21.90 W, 42, 51, 50 %, 180 MHz, 0 %, Not Active, Not Active, Not Active
+[2026-07-30T21:30:26Z] Measured run complete; draining admitted requests
+[2026-07-30T21:30:44Z] Requests drained; logging 60s cooldown
+Qualification validation gate failed; see /home/michael/thermal-tests/runs/2026-07-30T21-22-21Z-ng-faniso-own-loadbottom-f30-p300-v3host-bump-r1/summary.json
+[2026-07-30T21:31:52Z] Interrupted/failed workload; restarting Sanctuary to clear admitted requests
+[2026-07-30T21:32:54Z] Cleanup complete; original GPU services and power limits restored

@@ -1,0 +1,4 @@
+policy,n,bottom_temp_mean_c_mean,top_temp_mean_c_mean,bottom_temp_last5_c_mean,top_temp_last5_c_mean,bottom_clock_mean_mhz_mean,top_clock_mean_mhz_mean,bottom_clock_last5_mhz_mean,top_clock_last5_mhz_mean,bottom_latency_mean_s_mean,top_latency_mean_s_mean
+EQ50,3,55.380333,70.869333,55.999,72.34,1360.174333,1230.607667,1356.317333,1215.78,23.252,24.674333
+B60T40,3,54.608,69.987,55.055667,71.404667,1357.133333,1240.944333,1351.653333,1227.756333,23.275,24.565667
+B40T60,3,55.510667,70.639,56.041667,72.041667,1363.132333,1226.939667,1356.691,1213.348,23.226667,24.698667

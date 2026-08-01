@@ -1,0 +1,7 @@
+response,gpu0_bottom_60minus40,gpu1_top_40minus60,combined,unit,causal_blocks
+mean_temperature,-0.394,-0.146,-0.540,C,2
+last5_temperature,-0.509,-0.044,-0.553,C,2
+mean_graphics_clock,-7.859,5.556,-2.303,MHz,2
+last5_graphics_clock,-8.426,5.269,-3.157,MHz,2
+mean_request_duration,0.135,-0.172,-0.038,s,2
+request_rate,0.0000,0.0000,0.0000,req/s,2

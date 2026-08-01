@@ -1,0 +1,7 @@
+ts_iso,sequence,fan_step_pct,status,run_dir
+2026-07-30T23:08:06.134Z,1,50,started,
+2026-07-30T23:35:41.452Z,1,50,pass,/home/michael/thermal-tests/runs/2026-07-30T23-13-10Z-ng-faniso-own-saturated-loadbottom-f50-v3host-15m-r2
+2026-07-30T23:35:41.453Z,2,70,started,
+2026-07-31T00:03:37.256Z,2,70,pass,/home/michael/thermal-tests/runs/2026-07-30T23-40-55Z-ng-faniso-own-saturated-loadbottom-f70-v3host-15m-r2
+2026-07-31T00:03:37.257Z,3,30,started,
+2026-07-31T00:31:16.945Z,3,30,pass,/home/michael/thermal-tests/runs/2026-07-31T00-08-51Z-ng-faniso-own-saturated-loadbottom-f30-v3host-15m-r2

@@ -1,0 +1,7 @@
+replicate,policy,run_dir,bottom_fan_pct,top_fan_pct,bottom_fan_rpm_mean,top_fan_rpm_mean,bottom_temp_mean_c,top_temp_mean_c,bottom_temp_last5_c,top_temp_last5_c,bottom_clock_mean_mhz,top_clock_mean_mhz,bottom_clock_last5_mhz,top_clock_last5_mhz,bottom_latency_mean_s,top_latency_mean_s,bottom_power_mean_w,top_power_mean_w,thermal_or_brake_events,internal_admissible
+1,EQ60,ng-fan-eq60-sym400-v3host-15m-r1,60,60,1917.102,1917.093,60.661,75.957,61.31,77.428,1764.44,1537.0,1759.015,1514.442,21.588,22.578,399.992,399.993,0,True
+1,B70T50,ng-fan-b70t50-sym400-v3host-15m-r1,70,50,2157.112,1678.069,60.474,75.733,61.003,77.027,1755.908,1547.256,1751.8,1528.122,21.599,22.539,399.992,399.992,0,True
+1,B50T70,ng-fan-b50t70-sym400-v3host-15m-r1,50,70,1678.116,2157.061,61.373,76.3,62.047,77.988,1767.89,1528.079,1758.208,1504.512,21.562,22.647,399.972,399.991,0,True
+2,EQ60,ng-fan-eq60-sym400-v3host-15m-r2,60,60,1917.094,1917.065,61.6,76.881,62.037,78.05,1759.747,1523.197,1754.356,1504.671,21.614,22.673,399.992,399.991,0,True
+2,B70T50,ng-fan-b70t50-sym400-v3host-15m-r2,70,50,2157.105,1678.043,60.625,75.89,61.045,77.058,1756.801,1545.22,1752.854,1526.716,21.613,22.558,399.983,399.992,0,True
+2,B50T70,ng-fan-b50t70-sym400-v3host-15m-r2,50,70,1678.102,2157.055,61.643,76.743,62.048,78.038,1766.085,1519.911,1759.319,1502.296,21.57,22.691,399.992,399.992,0,True

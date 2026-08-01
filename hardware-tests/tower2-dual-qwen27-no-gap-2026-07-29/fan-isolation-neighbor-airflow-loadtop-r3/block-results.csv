@@ -1,0 +1,7 @@
+ts_iso,sequence,fan_step_pct,status,run_dir
+2026-07-31T04:57:41.127Z,1,70,started,
+2026-07-31T05:21:55.514Z,1,70,pass,/home/michael/thermal-tests/runs/2026-07-31T05-02-50Z-ng-faniso-neighbor-airflow-loadtop-f70-v3host-15m-r3
+2026-07-31T05:21:55.515Z,2,30,started,
+2026-07-31T05:46:08.106Z,2,30,pass,/home/michael/thermal-tests/runs/2026-07-31T05-26-59Z-ng-faniso-neighbor-airflow-loadtop-f30-v3host-15m-r3
+2026-07-31T05:46:08.106Z,3,50,started,
+2026-07-31T06:10:33.700Z,3,50,pass,/home/michael/thermal-tests/runs/2026-07-31T05-51-22Z-ng-faniso-neighbor-airflow-loadtop-f50-v3host-15m-r3
