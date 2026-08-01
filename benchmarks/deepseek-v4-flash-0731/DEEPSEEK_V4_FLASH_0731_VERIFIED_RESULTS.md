@@ -150,6 +150,15 @@ did not destabilize the serving stack:
   `status=ok` through provider `tower`, model `DeepSeek-V4-Flash-0731`, with a
   1,048,576-token context and `fallbackUsed=false`. Compact verification turns
   completed in 2.028 seconds and 1.841 seconds respectively.
+- Final post-cleanup tool-use turns provided stronger end-to-end evidence.
+  Sanctuary and Pixel each called the sandbox `exec` tool, successfully ran a
+  read-only `printf` command, consumed the returned tool result, and replied
+  with the exact requested marker. They completed in 1.812 seconds and 2.284
+  seconds respectively, again using the Tower2 model with no fallback.
+- All campaign services and 14 idle benchmark sandboxes were stopped after
+  artifact validation; the sandbox containers were retained rather than
+  removed. The separate persistent 500 W power-limit service remained enabled
+  and active, and the production model stayed healthy throughout cleanup.
 
 The system-wide `/usr/bin/openclaw` client is an older 2026.2.12 installation
 and cannot speak to the newer gateway protocol. This is a client-version skew,
