@@ -44,13 +44,14 @@
     },
     {
       "id": "dreamserver-75-pr-audit",
-      "task": "tooling/tasks/task_dreamserver_pr_audit.md",
+      "task": "tooling/tasks/task_dreamserver_pr_audit_frozen75.md",
       "historical_task_sha256": "5f3ee8854907bbd78d9a6a6aaaad91e632821b0c77e09ac3fbcf42e0c5b33fde",
-      "current_task_sha256": "d0eaf474dd33a4092da7d4656f761f91e50defd1ee0c1b47348026a679b7ebfa",
+      "current_task_sha256": "0d426e15303b3f886a75db81165cdbe9d91534a474217f91f4e2baf41c0056a6",
       "temperature": 1.0,
       "max_output_tokens_cap": 180000,
       "stuck_threshold": 500,
-      "require_git_tag": true
+      "require_git_tag": true,
+      "input_path": "/mnt/bulk/benchmark-fixtures/dreamserver-75-pr-audit-2026-04-27"
     }
   ],
   "comparability_notes": [
@@ -59,6 +60,7 @@
     "DeepSeek is evaluated at its published agentic sampling point, temperature=1.0 and top_p=0.95. This differs from the historical extended-suite temperatures (0 or 0.3) and is reported as a model-specific operating-point difference, not silently treated as identical sampling.",
     "Both RTX PRO 6000 GPUs are persistently capped at 500 W for the complete canonical and extended DeepSeek campaigns; historical comparison arms used their recorded per-run caps, so power-normalized comparisons must use the telemetry artifacts rather than assuming an identical cap.",
     "The current public 1-PR and 75-PR task files differ bytewise from the historical private-receipt hashes after extraction/sanitization; current public task hashes are pinned here.",
+    "The live DreamServer backlog had grown to 272 PRs by 2026-08-01. The 75-PR suite therefore mounts a source-only frozen fixture derived from the identical 75-number sets in the historical Qwen3.6-27B-AWQ, GPT-5.5, and Opus-4.7 artifacts (set SHA-256 569b95b3384af0c4ae4b54a2c8c8f7c908b396124777927a37b5c8fa0211ecd1), pins baseline d5154c3, and adds a fixture note to restore the original task semantics. The first live-backlog attempt is infrastructure-invalid and excluded.",
     "Investment memo task content is byte-identical to the historical receipt and retains the historical 64000 output-token cap; sampling uses DeepSeek's published agentic operating point noted above.",
     "Every canonical run must record a clean committed harness receipt, full transcript, summary, and final workspace archive or an explicit terminal-pathology label."
   ]

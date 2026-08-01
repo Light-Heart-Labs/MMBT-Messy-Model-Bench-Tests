@@ -235,6 +235,8 @@ def harness_command(suite: dict, rep: int, max_model_len: int, top_p: float) -> 
     if suite.get("input_from"):
         source = WORKSPACES / run_name(suite["input_from"], rep)
         cmd += ["--input-mount", str(source)]
+    if suite.get("input_path"):
+        cmd += ["--input-mount", str(Path(suite["input_path"]).resolve())]
     return cmd
 
 
@@ -351,6 +353,12 @@ def validate_matrix(matrix: dict) -> None:
         actual = sha256(task)
         if actual != suite["current_task_sha256"]:
             raise RuntimeError(f"task hash mismatch for {suite['id']}: {actual}")
+        if suite.get("input_from") and suite.get("input_path"):
+            raise RuntimeError(f"suite {suite['id']} cannot set both input_from and input_path")
+        if suite.get("input_path") and not Path(suite["input_path"]).is_dir():
+            raise RuntimeError(
+                f"input fixture missing for {suite['id']}: {suite['input_path']}"
+            )
 
 
 def main() -> None:
