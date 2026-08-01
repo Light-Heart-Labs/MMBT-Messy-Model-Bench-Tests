@@ -1,0 +1,120 @@
+[2026-08-01T01:44:31Z] Output: /home/michael/thermal-tests/runs/2026-08-01T01-44-30Z-no-gap-both500-v3host-20m-r5
+[2026-08-01T01:44:31Z] Stopping GPU containers that conflict with an isolated GPU0 replica
+ods-llama-server
+ods-whisper
+ods-comfyui
+ods-embeddings
+[2026-08-01T01:45:08Z] Setting GPU0/bottom to 500 W and GPU1/top to 500 W
+Power limit for GPU 00000000:01:00.0 was set to 500.00 W from 600.00 W.
+All done.
+Power limit for GPU 00000000:E1:00.0 was set to 500.00 W from 600.00 W.
+All done.
+[2026-08-01T01:45:08Z] Launching identical Qwen3.6-27B AWQ-INT4 vLLM replica on GPU0
+fd72bec8b0630b74ba17307ee71a0818f72ec973824668e917871d4c6d7d8bde
+[2026-08-01T01:45:08Z] Waiting for GPU0 vLLM readiness
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+[2026-08-01T01:48:14Z] Starting 1000 ms GPU telemetry; workers GPU0=32 GPU1=32
+[2026-08-01T01:48:14Z] Warm-up started (120s)
+[2026-08-01T01:50:14Z] Trailing 30s warm-up mean board power: GPU0=499.99W GPU1=499.99W
+[2026-08-01T01:50:14Z] Measured GPU0=500 W / GPU1=500 W run started (1200s)
+[2026-08-01T01:51:17Z] Progress 63/1200s
+0, 500.00 W, 71, 22, 43 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.01 W, 90, 3, 69 %, 2085 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T01:52:15Z] Progress 121/1200s
+0, 500.01 W, 71, 22, 43 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.93 W, 90, 3, 77 %, 2077 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T01:53:19Z] Progress 185/1200s
+0, 499.98 W, 70, 23, 43 %, 2527 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.98 W, 89, 4, 79 %, 2092 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T01:54:17Z] Progress 243/1200s
+0, 500.00 W, 70, 23, 43 %, 2527 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.03 W, 89, 4, 79 %, 2077 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T01:55:15Z] Progress 301/1200s
+0, 499.97 W, 70, 23, 43 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.02 W, 89, 4, 80 %, 2070 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T01:56:18Z] Progress 364/1200s
+0, 499.99 W, 70, 23, 43 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.99 W, 89, 4, 80 %, 2077 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T01:57:16Z] Progress 422/1200s
+0, 499.98 W, 70, 23, 43 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.97 W, 89, 4, 81 %, 2092 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T01:58:14Z] Progress 480/1200s
+0, 499.97 W, 71, 22, 43 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.04 W, 89, 4, 81 %, 2077 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T01:59:17Z] Progress 543/1200s
+0, 500.03 W, 71, 22, 43 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.03 W, 89, 4, 81 %, 2077 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T02:00:15Z] Progress 601/1200s
+0, 499.96 W, 71, 22, 43 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.98 W, 89, 4, 81 %, 2077 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T02:01:18Z] Progress 664/1200s
+0, 499.97 W, 71, 22, 43 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.02 W, 89, 4, 82 %, 2070 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T02:02:16Z] Progress 722/1200s
+0, 500.03 W, 71, 22, 43 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.00 W, 89, 4, 81 %, 2062 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T02:03:14Z] Progress 780/1200s
+0, 500.01 W, 71, 23, 43 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.98 W, 89, 4, 81 %, 2077 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T02:04:18Z] Progress 844/1200s
+0, 500.06 W, 71, 22, 43 %, 2512 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.95 W, 90, 3, 82 %, 2055 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T02:05:16Z] Progress 902/1200s
+0, 499.95 W, 71, 22, 43 %, 2505 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.96 W, 90, 3, 82 %, 2077 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T02:06:14Z] Progress 960/1200s
+0, 499.99 W, 71, 22, 44 %, 2505 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.00 W, 89, 4, 83 %, 2077 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T02:07:17Z] Progress 1023/1200s
+0, 500.01 W, 71, 22, 43 %, 2512 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.02 W, 89, 4, 82 %, 2077 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T02:08:15Z] Progress 1081/1200s
+0, 499.99 W, 71, 22, 44 %, 2505 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.98 W, 89, 4, 82 %, 2062 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T02:09:18Z] Progress 1144/1200s
+0, 500.04 W, 71, 22, 43 %, 2505 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.99 W, 89, 4, 81 %, 2070 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T02:10:16Z] Progress 1202/1200s
+0, 500.04 W, 71, 23, 44 %, 2505 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.00 W, 89, 4, 81 %, 2070 MHz, 100 %, Active, Not Active, Not Active
+[2026-08-01T02:10:16Z] Measured run complete; draining admitted requests
+[2026-08-01T02:10:36Z] Requests drained; logging 60s cooldown
+Post-run validation gate failed; see /home/michael/thermal-tests/runs/2026-08-01T01-44-30Z-no-gap-both500-v3host-20m-r5/summary.json
+[2026-08-01T02:11:41Z] Interrupted/failed workload; restarting Sanctuary to clear admitted requests
+[2026-08-01T02:12:40Z] Cleanup complete; original GPU services and power limits restored

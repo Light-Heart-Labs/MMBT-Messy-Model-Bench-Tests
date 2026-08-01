@@ -12,7 +12,7 @@ Two validation levels are tracked:
 | Cell | Internal admissible | Required | Transferable admissible | Status |
 |---|---:|---:|---:|---|
 | NG-SYM-250 | 1 | 3 | 0 | Replicate 2 thermally admissible; clock channel flagged; two more internal replicates required |
-| NG-SYM-500 | 1 | 3 | 0 | R2 10-minute repeat completed but is excluded because GPU1 automatic fan remained at +0.3734 pp/min; two 15-minute internal replicates plus environmental instrumentation required |
+| NG-SYM-500 | 2 | 3 | 0 | Two 15-minute replacements pass; legacy R1 fails retrospective fan-slope audit; R4 and 20-minute R5 are excluded by strict closing-slope gates; campaign closed at informative n=2 pending a prospective controller-aware plateau rule |
 | NG-ASYM-600-400 | 1 | 3 | 0 | Two internal replicates plus environmental instrumentation required |
 | NG-SINGLE-B-250 | 1 | 3 | 0 | R2 admissible; R3 excluded as non-steady after prior heat soak; two more internal replicates required |
 | NG-SINGLE-T-250 | 3 | 3 | 0 | Within-campaign internally validated; cross-session and environmental validation pending |
@@ -45,16 +45,12 @@ Two validation levels are tracked:
 | NG-FAN-B70T50-SYM400-V3HOST-15M | 3 | 3 | 0 | Internally validated; versus B50T70, top last-5m temperature -0.876 C and clock +22.874 MHz with 95% CIs excluding zero |
 | NG-SYM-600 | 0 | 3 | 0 | Known failed pilot; do not repeat unchanged |
 
-`NG-SINGLE-T-250` is the first cell to reach three internally admissible replicates. Replicates 2, 4, and 5 were independently initialized execution blocks with cleanup/cooldown between them, but all occurred during one campaign session. The cell is therefore validated for the internal Tower2/no-gap model with an explicit within-session limitation. No cell is transferable yet.
+Validated cells are suitable for the internal Tower2/no-gap model with explicit within-session limitations. No cell is transferable yet. The 500 W automatic-fan cell remains below the n=3 validation threshold after a retrospective audit removed the legacy 10-minute anchor and two later runs failed prospective closing-slope gates despite safe, thermally flat operation.
 
 [`VALIDATION_REGISTRY.csv`](VALIDATION_REGISTRY.csv) is the machine-readable run ledger. Every future run must declare a stable `cell_id` and `replicate`, and the registry must state whether it counts toward internal and transferable validation. The optional `metric_exclusions` field removes quality-flagged channels from aggregation without discarding otherwise admissible thermal or workload evidence.
 
 [`analysis/validation-aggregates.json`](analysis/validation-aggregates.json) and [`analysis/validation-aggregates.csv`](analysis/validation-aggregates.csv) are regenerated from the registry by `aggregate-validation.py`. They expose per-cell `n`, validation state, replicate membership, mean, sample standard deviation, coefficient of variation, and extrema for each modeled response.
 
-## Immediate replication sequence
+## Next phase
 
-1. Build the cross-power evidence-grade table from validated 250, 350, and 400 W fixed-fan populations; keep 200/300 W order-confounded estimates explicitly provisional.
-2. Complete missing clean anchor replicates (`NG-SINGLE-B-250`, `NG-SYM-250`, and `NG-SYM-500`) only when their information gain exceeds another matched crossover.
-3. Validate the stack-aware background fan controller against matched static policies, including fail-safe restoration and service-restart behavior.
-4. Repeat key cells after restoring a physical gap to identify the spacing-response coefficient.
-5. Add calibrated ambient and per-card inlet probes before promoting any cell or 3x/4x forecast to transferable server-design status.
+The no-gap phase is wrapped; see [`analysis/NO_GAP_CAMPAIGN_CLOSEOUT.md`](analysis/NO_GAP_CAMPAIGN_CLOSEOUT.md). The highest-value follow-up is a small matched gap-restored round with calibrated ambient/inlet probes, a card-position swap, and validation of the fail-safe stack-aware fan controller. Do not resume broad no-gap replication or 600 W symmetric testing unchanged.

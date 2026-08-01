@@ -1,0 +1,12 @@
+○ openclaw-gateway.service - OpenClaw Gateway - Pixel
+     Loaded: loaded (/home/michael/.config/systemd/user/openclaw-gateway.service; enabled; preset: enabled)
+     Active: inactive (dead) since Fri 2026-07-31 21:43:21 EDT; 1min 10s ago
+   Duration: 982ms
+    Process: 468404 ExecStart=/home/michael/.npm-global/bin/openclaw gateway --port 18789 (code=killed, signal=TERM)
+   Main PID: 468404 (code=killed, signal=TERM)
+        CPU: 1.426s
+
+Jul 31 21:43:20 Tower2 systemd[2642]: Started openclaw-gateway.service - OpenClaw Gateway - Pixel.
+Jul 31 21:43:21 Tower2 systemd[2642]: Stopping openclaw-gateway.service - OpenClaw Gateway - Pixel...
+Jul 31 21:43:21 Tower2 systemd[2642]: Stopped openclaw-gateway.service - OpenClaw Gateway - Pixel.
+Jul 31 21:43:21 Tower2 systemd[2642]: openclaw-gateway.service: Consumed 1.426s CPU time.
