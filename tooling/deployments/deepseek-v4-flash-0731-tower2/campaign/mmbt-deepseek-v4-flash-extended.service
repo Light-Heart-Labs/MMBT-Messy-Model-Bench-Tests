@@ -1,0 +1,14 @@
+[Unit]
+Description=DeepSeek V4 Flash extended MMBT suite superviso
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/michael/bench-deepseek-v4-flash-extended
+ExecStart=/usr/bin/python3 /home/michael/bench-deepseek-v4-flash-extended/tooling/run_deepseek_extended_suites.py
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=default.target
