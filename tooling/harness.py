@@ -101,8 +101,14 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
 
         args = info.get("Args") or []
         cmd = (info.get("Config") or {}).get("Cmd") or []
-        identity = json.dumps([cname, args, cmd], ensure_ascii=False).lower()
-        if not (cname.lower().startswith("vllm-") or model.lower() in identity):
+        runtime_identity = json.dumps([args, cmd], ensure_ascii=False).lower()
+        normalized_name = "".join(ch for ch in cname.lower() if ch.isalnum())
+        normalized_model = "".join(ch for ch in model.lower() if ch.isalnum())
+        if not (
+            cname.lower().startswith("vllm-")
+            or normalized_name == normalized_model
+            or model.lower() in runtime_identity
+        ):
             continue
 
         image_ref = info.get("Image")
