@@ -206,8 +206,15 @@ def supervise_one(suite: dict, rep: int) -> None:
         cmd = harness_command(suite, rep)
         stdout_path = STATE / f"{name}-attempt{attempt}.log"
         event("run_start", run=name, suite=suite["id"], rep=rep, attempt=attempt, command=cmd)
+        # Publish the run identity before spawning the harness so the external
+        # dual-GPU sampler attributes even the first 30-second supervision
+        # interval to the correct extended cell.
+        write_status(phase="RUNNING", suite=suite["id"], run=name,
+                     rep=rep, attempt=attempt, harness_pid=None)
         with stdout_path.open("a") as out:
             proc = subprocess.Popen(cmd, cwd=ROOT, stdout=out, stderr=subprocess.STDOUT)
+            write_status(phase="RUNNING", suite=suite["id"], run=name,
+                         rep=rep, attempt=attempt, harness_pid=proc.pid)
             last_substance = 0.0
             endpoint_down_since = None
             killed_for_infra = False
