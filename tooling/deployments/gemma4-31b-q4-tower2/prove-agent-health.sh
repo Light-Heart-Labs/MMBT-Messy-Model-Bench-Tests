@@ -33,7 +33,7 @@ probe() {
     --write-out $'\n%{http_code}' \
     --config <(printf 'header = "Authorization: Bearer %s"\nheader = "Content-Type: application/json"\n' "$api_key") \
     --data "$(jq -cn --arg model "$requested_model" --arg marker "$marker" --argjson max_tokens "$health_max_tokens" \
-      '{model:$model,messages:[{role:"user",content:("Health check. Reply with exactly this marker and nothing else: " + $marker)}],temperature:0,max_tokens:$max_tokens,stream:false}')" \
+      '{model:$model,user:$marker,messages:[{role:"user",content:("Health check. Reply with exactly this marker and nothing else: " + $marker)}],temperature:0,max_tokens:$max_tokens,stream:false}')" \
     http://127.0.0.1:18789/v1/chat/completions)"
   http_code="${response##*$'\n'}"
   printf '%s' "${response%$'\n'*}" >"$body_file"
