@@ -1,6 +1,6 @@
 # DeepSeek V4 Flash 0731 on Tower2
 
-Status: production and MMBT configuration accepted on 2026-08-01 afte
+Status: production and MMBT configuration accepted on 2026-08-01 after
 performance, full-context, concurrency, repeated-prefix, restart, Sanctuary,
 and Pixel validation.
 
@@ -19,7 +19,7 @@ findings must explicitly disclose those differences from historical Qwen runs.
 
 Quality claims must come from MMBT task artifacts and graders. Throughput
 claims must come from the validation artifacts listed below. A model is not
-credited merely for returning HTTP 200, using a large context limit, o
+credited merely for returning HTTP 200, using a large context limit, or
 producing a persuasive-looking answer.
 
 ## Reproducibility pins
@@ -165,7 +165,7 @@ Synthetic decode rows use exactly 1,024 completion tokens per stream.
 | Pixel before/after restart | expected end-to-end marker returned both times |
 
 The original Jasl 500 W serving path produced 848.141 prompt tok/s on the same
-128K probe. The accepted final result is about 8.55x that baseline. An earlie
+128K probe. The accepted final result is about 8.55x that baseline. An earlier
 accepted-r16 sample reached 7,528 prompt tok/s; the final overlay repeats at
 7,255-7,309, a normal 2.9-3.6% spread rather than a systematic regression.
 
@@ -204,7 +204,7 @@ Authoritative host artifacts:
 | ForceP2P kernel/driver modification | Not authorized or needed for acceptance; would require a host-level change and reboot |
 | Pre-context 131K benchmark attempts | Non-canonical and excluded; no final campaign entries were retained |
 
-Stopped failed/candidate containers were retained during the audit so thei
+Stopped failed/candidate containers were retained during the audit so their
 logs could not be confused with accepted evidence. They are not launch targets.
 The sole canonical serving name is `deepseek-v4-flash-0731`.
 

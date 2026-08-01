@@ -4,6 +4,51 @@ A short log of harness changes and the bugs that prompted them. Live mainly to e
 
 Each fix is in the git history if you want to inspect the diff.
 
+## 2026-08-01
+
+### Graders ignore their own caches and execute CI in the pinned sandbox
+
+The DeepSeek V4 Flash canonical campaign initially reported 23/36 passes. Nine
+cells were false negatives caused by grading infrastructure rather than model
+output:
+
+- The Phase-1 test-writing grader ran pytest/coverage/ruff and then used raw
+  recursive `diff` on `/logalyzer`. Its own `__pycache__` made all three
+  byte-identical production trees look modified.
+- The Phase-1 refactor grader similarly created `tests/__pycache__` before
+  asserting that tests were unchanged, failing all three refactors.
+- The Phase-2 CI grader ran on the host, where `ruff` was not installed, and
+  crashed all three cells before writing `grade.json`.
+
+Phase-1 source comparisons now ignore only well-known generated artifacts and
+report the remaining changed paths explicitly. The CI grader now runs inside
+`bench-sandbox:latest`, uses `python -m` for its tools, avoids a duplicate
+pytest `-q` that hid the test-count summary, treats dependency-install failure
+as a failure, and marks the extracted Git repository safe before counting
+commits. `test_grader_isolation.py` guards these behaviors.
+
+The original failing grade files are preserved as `grade.raw.json` before
+regrading. That infrastructure-only pass produced 32/36 passes. A subsequent
+semantic audit of the four remaining failures found an additional vocabulary
+problem in the writing grader, described below.
+
+### Writing grader accepts source-grounded and specification-equivalent wording
+
+The writing grader had two keyword-list false negatives across its three
+DeepSeek cells. First, it treated every occurrence of `trust` in a legal brief
+as marketing language. The source memo itself requires a recommendation for
+requests made on relationship grounds by customers who report "lost trust,"
+and the legal audience specification does not prohibit that factual phrase.
+Second, the customer acknowledgement check accepted only `outage`, `downtime`,
+or `incident`, rejecting the clear phrase `service disruption` even though the
+brief specifies a semantic acknowledgement rather than a mandatory token.
+
+The legal prohibition now targets actual commitment slogans while allowing the
+source-grounded relationship phrase, and the customer check recognizes service
+disruption/interruption. Regression tests cover both accepted equivalents and
+confirm that commitment marketing remains prohibited in the legal brief. Raw
+grades remain preserved before regrading the archived, unchanged workspaces.
+
 ## 2026-04-27
 
 ### `--require-files` and `--require-git-tag` (strict-done validation)
