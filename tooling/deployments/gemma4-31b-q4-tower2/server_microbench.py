@@ -209,6 +209,7 @@ def completion_payload(prompt: str, n_predict: int, seed: int) -> dict[str, Any]
 
 def run_concurrency(
     base_url: str,
+    output_dir: pathlib.Path,
     concurrency: int,
     prompt_tokens: int,
     n_predict: int,
@@ -216,18 +217,23 @@ def run_concurrency(
     timeout: float,
 ) -> dict[str, Any]:
     start_event = threading.Event()
-    work: list[tuple[dict[str, Any], int]] = []
+    work: list[tuple[dict[str, Any], int, int]] = []
     for index in range(concurrency):
         prompt, actual = build_prompt(base_url, prompt_tokens, f"c{concurrency}-r{index}")
-        work.append((completion_payload(prompt, n_predict, seed + index), actual))
+        work.append((completion_payload(prompt, n_predict, seed + index), actual, index))
 
-    def worker(item: tuple[dict[str, Any], int]) -> dict[str, Any]:
-        payload, actual = item
+    def worker(item: tuple[dict[str, Any], int, int]) -> dict[str, Any]:
+        payload, actual, index = item
         start_event.wait()
         result = nonstream_completion(base_url, payload, timeout)
         body = result.pop("body")
+        write_json(output_dir / f"concurrency-{concurrency}-request-{index}.response.json", body)
         result.update(
             {
+                "request_index": index,
+                "request_payload_sha256": sha256_bytes(
+                    json.dumps(payload, separators=(",", ":")).encode()
+                ),
                 "actual_prompt_tokens": actual,
                 "tokens_evaluated": body.get("tokens_evaluated"),
                 "tokens_predicted": body.get("tokens_predicted"),
@@ -307,6 +313,7 @@ def main() -> int:
         for concurrency in (int(value) for value in args.concurrency.split(",") if value):
             result = run_concurrency(
                 args.endpoint,
+                output_dir,
                 concurrency,
                 args.concurrency_prompt_tokens,
                 args.concurrency_predict,
