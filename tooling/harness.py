@@ -213,6 +213,87 @@ def workspace_state_hash():
     return p.stdout.strip()
 
 
+_EXEC_SESSION_CLEANUP = r"""
+import glob
+import os
+import signal
+import sys
+import time
+
+target_sid = int(sys.argv[1])
+
+
+def session_id(pid):
+    try:
+        stat = open(f"/proc/{pid}/stat", encoding="utf-8").read()
+        # Fields after the final ')' begin with state, ppid, pgrp, session.
+        return int(stat[stat.rfind(")") + 2:].split()[3])
+    except (FileNotFoundError, PermissionError, IndexError, ValueError):
+        return None
+
+
+def members():
+    own_pid = os.getpid()
+    found = []
+    for path in glob.glob("/proc/[0-9]*/stat"):
+        pid = int(path.split("/")[2])
+        if pid != own_pid and session_id(pid) == target_sid:
+            found.append(pid)
+    return found
+
+
+terminated = members()
+for pid in terminated:
+    try:
+        os.kill(pid, signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+time.sleep(0.5)
+survivors = members()
+for pid in survivors:
+    try:
+        os.kill(pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+print(f"session={target_sid} term={len(terminated)} kill={len(survivors)}")
+"""
+
+
+def cleanup_exec_session(session_id):
+    """Kill processes left in one timed-out ``docker exec`` session."""
+    if session_id is None:
+        return "session id unavailable; descendant cleanup could not run"
+    try:
+        p = subprocess.run(
+            ["docker", "exec", SANDBOX, "python3", "-c", _EXEC_SESSION_CLEANUP,
+             str(session_id)],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return f"session cleanup failed: {exc}"
+    detail = (p.stdout or p.stderr).strip()
+    if p.returncode != 0:
+        return f"session cleanup rc={p.returncode}: {detail}"
+    return f"session cleanup: {detail}"
+
+
+def extract_exec_session(stderr, marker):
+    """Remove the private SID marker from stderr and return ``(sid, text)``."""
+    sid = None
+    kept = []
+    for line in stderr.splitlines():
+        if line.startswith(marker):
+            try:
+                sid = int(line[len(marker):].strip())
+            except ValueError:
+                kept.append(line)
+        else:
+            kept.append(line)
+    return sid, "\n".join(kept)
+
+
 def docker_exec(cmd, workdir="/workspace", timeout=300):
     """Run a command in the sandbox. Returns dict with stdout/stderr/rc/duration.
 
@@ -223,16 +304,25 @@ def docker_exec(cmd, workdir="/workspace", timeout=300):
     The timeout must live *inside* the container. A host-only
     ``subprocess.run(..., timeout=N)`` kills the ``docker exec`` client but
     leaves its in-container shell and descendants running. Those orphans can
-    contaminate later tool timings. GNU ``timeout`` creates a managed process
-    group and terminates the whole command tree; the slightly longer host
-    timeout remains only as a Docker-runtime failsafe.
+    contaminate later tool timings. Nested GNU ``timeout`` calls create their
+    own process groups, so killing only the outer command is insufficient. We
+    therefore record the Docker exec session ID and, only when the outer guard
+    fires, terminate every remaining process in that session. The slightly
+    longer host timeout remains a Docker-runtime failsafe.
     """
     t0 = time.time()
     timeout = max(1, int(timeout))
+    marker = f"__MMBT_EXEC_SID_{uuid.uuid4().hex}__="
+    probe = (
+        f'import os,sys; print("{marker}" + str(os.getsid(0)), file=sys.stderr)'
+    )
+    wrapper = (
+        f"python3 -c {json.dumps(probe)}; "
+        f"exec timeout --signal=TERM --kill-after=5s {timeout}s bash -s"
+    )
     full = [
         "docker", "exec", "-i", "-w", workdir, SANDBOX,
-        "timeout", "--signal=TERM", "--kill-after=5s", f"{timeout}s",
-        "bash", "-s",
+        "bash", "-c", wrapper,
     ]
     try:
         # Capture as bytes; decode with errors='replace' so binary outputs (e.g. curl-piping
@@ -246,9 +336,11 @@ def docker_exec(cmd, workdir="/workspace", timeout=300):
         )
         out = p.stdout.decode("utf-8", errors="replace")
         err = p.stderr.decode("utf-8", errors="replace")
+        session_id, err = extract_exec_session(err, marker)
         if p.returncode == 124:
             timeout_note = f"timeout after {timeout}s"
-            err = f"{err.rstrip()}\n{timeout_note}".strip()
+            cleanup_note = cleanup_exec_session(session_id)
+            err = f"{err.rstrip()}\n{timeout_note}\n{cleanup_note}".strip()
             return {
                 "rc": -1,
                 "stdout": out[-20000:],
@@ -263,13 +355,19 @@ def docker_exec(cmd, workdir="/workspace", timeout=300):
             "duration_s": round(time.time() - t0, 2),
             "truncated_stdout": len(out) > 20000,
         }
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as exc:
+        raw_err = exc.stderr or b""
+        if isinstance(raw_err, bytes):
+            raw_err = raw_err.decode("utf-8", errors="replace")
+        session_id, raw_err = extract_exec_session(raw_err, marker)
+        cleanup_note = cleanup_exec_session(session_id)
         return {
             "rc": -1,
             "stdout": "",
             "stderr": (
                 f"outer docker-exec failsafe fired after {timeout + 15}s; "
-                "the in-container timeout did not return"
+                f"the in-container timeout did not return\n{raw_err.rstrip()}\n"
+                f"{cleanup_note}"
             ),
             "duration_s": round(time.time() - t0, 2),
         }
