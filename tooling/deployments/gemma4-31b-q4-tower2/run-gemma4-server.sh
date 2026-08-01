@@ -31,6 +31,7 @@ THREADS="${GEMMA_THREADS:-16}"
 THREADS_BATCH="${GEMMA_THREADS_BATCH:-24}"
 THREADS_HTTP="${GEMMA_THREADS_HTTP:-16}"
 CACHE_REUSE="${GEMMA_CACHE_REUSE:-256}"
+KV_UNIFIED="${GEMMA_KV_UNIFIED:-1}"
 
 NATIVE_CONTEXT=262144
 required_ctx=$((PARALLEL * NATIVE_CONTEXT))
@@ -74,6 +75,12 @@ cmd=(
   --jinja
   --no-webui
 )
+
+if [[ "$KV_UNIFIED" == 1 ]]; then
+  cmd+=(--kv-unified)
+else
+  cmd+=(--no-kv-unified)
+fi
 
 if [[ -n "$TENSOR_SPLIT" ]]; then
   cmd+=(--tensor-split "$TENSOR_SPLIT")
