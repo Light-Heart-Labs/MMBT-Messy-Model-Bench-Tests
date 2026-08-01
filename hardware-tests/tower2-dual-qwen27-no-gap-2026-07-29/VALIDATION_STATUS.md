@@ -12,7 +12,7 @@ Two validation levels are tracked:
 | Cell | Internal admissible | Required | Transferable admissible | Status |
 |---|---:|---:|---:|---|
 | NG-SYM-250 | 1 | 3 | 0 | Replicate 2 thermally admissible; clock channel flagged; two more internal replicates required |
-| NG-SYM-500 | 1 | 3 | 0 | Two internal replicates plus environmental instrumentation required |
+| NG-SYM-500 | 1 | 3 | 0 | R2 10-minute repeat completed but is excluded because GPU1 automatic fan remained at +0.3734 pp/min; two 15-minute internal replicates plus environmental instrumentation required |
 | NG-ASYM-600-400 | 1 | 3 | 0 | Two internal replicates plus environmental instrumentation required |
 | NG-SINGLE-B-250 | 1 | 3 | 0 | R2 admissible; R3 excluded as non-steady after prior heat soak; two more internal replicates required |
 | NG-SINGLE-T-250 | 3 | 3 | 0 | Within-campaign internally validated; cross-session and environmental validation pending |

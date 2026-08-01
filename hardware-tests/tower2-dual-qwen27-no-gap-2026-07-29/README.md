@@ -402,6 +402,18 @@ interface. The additive 350/400 W four-card scenarios exceed 100 C, while the
 400 W three-card scenario reaches 92.45 C. These are deliberately labeled
 scenario bounds, not measured predictions or safety guarantees.
 
+## 500 W automatic-fan repeat limitation
+
+The attempted 500/500 W automatic-fan R2 repeat is preserved in
+[`no-gap-both500-10m-r2-nonsteady-excluded`](no-gap-both500-10m-r2-nonsteady-excluded/).
+It reproduced the original operating point closely (89.623 C top mean, 93 C
+maximum, 78.228% mean fan, and 2,107.787 MHz mean top clock) and recorded only
+0.780134 seconds of software-thermal counter growth with zero hardware
+thermal/brake deltas. It does **not** count toward `n`: the top automatic fan
+was still increasing at +0.3734 pp/min in the closing window. This proves a
+10-minute automatic-fan exposure is insufficient for the modern steady-state
+gate; future replacements use at least 15 measured minutes.
+
 ## Read order
 
 1. Each run directory's `REPORT.md` gives the human-readable result.

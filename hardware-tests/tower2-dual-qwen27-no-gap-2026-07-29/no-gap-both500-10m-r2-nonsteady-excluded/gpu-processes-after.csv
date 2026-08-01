@@ -1,0 +1,3 @@
+gpu_uuid, pid, process_name, used_gpu_memory [MiB]
+GPU-ff71102f-22f8-52bb-da93-2076a6531329, 2480689, VLLM::EngineCore, 89048 MiB
+GPU-fe3fb4d0-5ddc-9c05-587b-1bc84c75c1a0, 1756563, VLLM::EngineCore, 89116 MiB

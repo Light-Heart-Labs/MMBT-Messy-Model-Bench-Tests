@@ -1,0 +1,96 @@
+[2026-07-31T21:56:47Z] Output: /home/michael/thermal-tests/runs/2026-07-31T21-56-47Z-no-gap-both500-10m-r2
+[2026-07-31T21:56:48Z] Stopping GPU containers that conflict with an isolated GPU0 replica
+ods-llama-server
+ods-whisper
+ods-comfyui
+ods-embeddings
+[2026-07-31T21:57:25Z] Setting GPU0/bottom to 500 W and GPU1/top to 500 W
+Power limit for GPU 00000000:01:00.0 was set to 500.00 W from 600.00 W.
+All done.
+Power limit for GPU 00000000:E1:00.0 was set to 500.00 W from 600.00 W.
+All done.
+[2026-07-31T21:57:25Z] Launching identical Qwen3.6-27B AWQ-INT4 vLLM replica on GPU0
+a976299f2f711ea7d3bdb897a175fb4fad5f9fd29ae3995e5d5fc348f13e680d
+[2026-07-31T21:57:25Z] Waiting for GPU0 vLLM readiness
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+[2026-07-31T22:00:36Z] Starting 1000 ms GPU telemetry; workers GPU0=32 GPU1=32
+[2026-07-31T22:00:36Z] Warm-up started (120s)
+[2026-07-31T22:02:36Z] Trailing 30s warm-up mean board power: GPU0=499.99W GPU1=499.99W
+[2026-07-31T22:02:36Z] Measured GPU0=500 W / GPU1=500 W run started (600s)
+[2026-07-31T22:03:39Z] Progress 63/600s
+0, 500.02 W, 71, 22, 43 %, 2527 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.01 W, 90, 3, 71 %, 2107 MHz, 100 %, Active, Not Active, Not Active
+Warning: The unit file, source configuration file or drop-ins of openclaw-gateway.service changed on disk. Run 'systemctl --user daemon-reload' to reload units.
+[2026-07-31T22:04:37Z] Progress 121/600s
+0, 499.99 W, 71, 22, 43 %, 2527 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.01 W, 90, 3, 77 %, 2115 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T22:05:41Z] Progress 185/600s
+0, 499.97 W, 71, 22, 43 %, 2535 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.99 W, 90, 3, 80 %, 2115 MHz, 100 %, Active, Not Active, Not Active
+Warning: The unit file, source configuration file or drop-ins of openclaw-gateway.service changed on disk. Run 'systemctl --user daemon-reload' to reload units.
+[2026-07-31T22:06:39Z] Progress 243/600s
+0, 499.94 W, 70, 23, 43 %, 2527 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.92 W, 89, 4, 80 %, 2115 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T22:07:37Z] Progress 301/600s
+0, 500.00 W, 71, 22, 43 %, 2527 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.97 W, 89, 4, 81 %, 2100 MHz, 100 %, Active, Not Active, Not Active
+Warning: The unit file, source configuration file or drop-ins of openclaw-gateway.service changed on disk. Run 'systemctl --user daemon-reload' to reload units.
+[2026-07-31T22:08:40Z] Progress 364/600s
+0, 499.96 W, 71, 22, 43 %, 2527 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.96 W, 89, 4, 81 %, 2092 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T22:09:38Z] Progress 422/600s
+0, 499.96 W, 71, 22, 43 %, 2527 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.99 W, 90, 3, 82 %, 2100 MHz, 100 %, Active, Not Active, Not Active
+Warning: The unit file, source configuration file or drop-ins of openclaw-gateway.service changed on disk. Run 'systemctl --user daemon-reload' to reload units.
+[2026-07-31T22:10:36Z] Progress 480/600s
+0, 499.99 W, 71, 22, 43 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 500.00 W, 89, 3, 83 %, 2107 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T22:11:40Z] Progress 544/600s
+0, 500.03 W, 71, 22, 43 %, 2527 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.99 W, 89, 4, 83 %, 2115 MHz, 100 %, Active, Not Active, Not Active
+Warning: The unit file, source configuration file or drop-ins of openclaw-gateway.service changed on disk. Run 'systemctl --user daemon-reload' to reload units.
+[2026-07-31T22:12:38Z] Progress 602/600s
+0, 499.96 W, 71, 22, 44 %, 2520 MHz, 100 %, Not Active, Not Active, Not Active
+1, 499.96 W, 89, 4, 83 %, 2115 MHz, 100 %, Active, Not Active, Not Active
+[2026-07-31T22:12:38Z] Measured run complete; draining admitted requests
+[2026-07-31T22:12:48Z] Requests drained; logging 60s cooldown
+Post-run validation gate failed; see /home/michael/thermal-tests/runs/2026-07-31T21-56-47Z-no-gap-both500-10m-r2/summary.json
+[2026-07-31T22:13:53Z] Interrupted/failed workload; restarting Sanctuary to clear admitted requests
+[2026-07-31T22:14:52Z] Cleanup complete; original GPU services and power limits restored
