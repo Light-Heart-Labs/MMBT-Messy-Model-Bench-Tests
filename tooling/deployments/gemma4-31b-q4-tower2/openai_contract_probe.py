@@ -40,8 +40,6 @@ def decode(status: int, body: bytes, label: str) -> dict[str, Any]:
         parsed = json.loads(body)
     except json.JSONDecodeError as exc:
         raise RuntimeError(f"{label}: non-JSON HTTP {status}: {body[:1000]!r}") from exc
-    if status != 200:
-        raise RuntimeError(f"{label}: HTTP {status}: {parsed!r}")
     return parsed
 
 
@@ -52,6 +50,7 @@ def main() -> int:
     parser.add_argument("--label", required=True)
     parser.add_argument("--output-root", required=True, type=pathlib.Path)
     parser.add_argument("--timeout", type=float, default=900)
+    parser.add_argument("--seed", type=int, default=424242)
     args = parser.parse_args()
 
     timestamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -59,7 +58,13 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=False)
     marker = f"MMBT_CONTRACT_{uuid.uuid4().hex}"
 
-    base = {"model": args.model, **SAMPLING, "max_tokens": 1024, "stream": False}
+    base = {
+        "model": args.model,
+        **SAMPLING,
+        "seed": args.seed,
+        "max_tokens": 1024,
+        "stream": False,
+    }
     chat_request = {
         **base,
         "messages": [
@@ -71,7 +76,7 @@ def main() -> int:
     (out_dir / "chat.response.json").write_bytes(chat_body)
     chat = decode(chat_status, chat_body, "chat")
     chat_content = chat.get("choices", [{}])[0].get("message", {}).get("content", "")
-    chat_passed = marker in (chat_content or "")
+    chat_passed = chat_status == 200 and marker in (chat_content or "")
 
     tool_name = "return_benchmark_marker"
     tool_request = {
@@ -116,13 +121,15 @@ def main() -> int:
             {"id": call.get("id"), "name": function.get("name"), "arguments": parsed_arguments}
         )
     tool_passed = (
-        len(parsed_calls) == 1
+        tool_status == 200
+        and len(parsed_calls) == 1
         and parsed_calls[0]["name"] == tool_name
         and parsed_calls[0]["arguments"].get("marker") == marker
     )
 
     followup_passed = False
     followup: dict[str, Any] | None = None
+    followup_status: int | None = None
     if tool_passed:
         call_id = parsed_calls[0]["id"]
         followup_request = {
@@ -147,7 +154,7 @@ def main() -> int:
         (out_dir / "tool-followup.response.json").write_bytes(followup_body)
         followup = decode(followup_status, followup_body, "tool-followup")
         followup_content = followup.get("choices", [{}])[0].get("message", {}).get("content", "")
-        followup_passed = marker in (followup_content or "")
+        followup_passed = followup_status == 200 and marker in (followup_content or "")
 
     summary = {
         "schema_version": 1,
@@ -156,23 +163,28 @@ def main() -> int:
         "endpoint": args.endpoint,
         "model": args.model,
         "sampling": SAMPLING,
+        "seed": args.seed,
         "marker": marker,
         "chat": {
             "http_status": chat_status,
             "finish_reason": chat.get("choices", [{}])[0].get("finish_reason"),
+            "error": chat.get("error"),
             "passed": chat_passed,
         },
         "tool_call": {
             "http_status": tool_status,
             "finish_reason": tool_response.get("choices", [{}])[0].get("finish_reason"),
+            "error": tool_response.get("error"),
             "parsed_calls": parsed_calls,
             "passed": tool_passed,
         },
         "tool_followup": {
             "attempted": followup is not None,
+            "http_status": followup_status,
             "finish_reason": None
             if followup is None
             else followup.get("choices", [{}])[0].get("finish_reason"),
+            "error": None if followup is None else followup.get("error"),
             "passed": followup_passed,
         },
         "passed": chat_passed and tool_passed and followup_passed,
