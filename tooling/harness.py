@@ -35,7 +35,7 @@ def docker_inspect(name, fmt=None):
 def record_environment(run_name, model, api_url, task_file, log_dir, *,
                        sandbox_runtime=None, temperature=0.0, stuck_threshold=30,
                        max_iters=10000, reasoning_effort=None, enable_thinking=None,
-                       max_model_len=262144):
+                       max_model_len=262144, max_output_tokens_cap=180000):
     """Capture everything needed to reproduce the run. Written before the loop starts.
 
     sandbox_runtime: dict of per-run sandbox flags (gh_token_set, docker_socket,
@@ -122,8 +122,12 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
     # Inference request defaults (the constants used in the loop body)
     receipt["inference_request_defaults"] = {
         "temperature": temperature,
-        "max_tokens_strategy": "min(180000, max_model_len - last_prompt_tokens - 14000), floor 2048",
+        "max_tokens_strategy": (
+            f"min({max_output_tokens_cap}, max_model_len - "
+            "last_prompt_tokens - 14000), floor 2048"
+        ),
         "max_model_len": max_model_len,
+        "max_output_tokens_cap": max_output_tokens_cap,
         "stream": False,
         "tool_choice": "auto",
         "tools": [t["function"]["name"] for t in TOOLS],
@@ -339,7 +343,7 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
                max_completion_total=10**12, max_model_len=262144,
                stuck_threshold=30, temperature=0.0, top_p=None, top_k=None,
                require_files=None, require_git_tag=False, reasoning_effort=None,
-               enable_thinking=None):
+               enable_thinking=None, max_output_tokens_cap=180000):
     """Run the agent until done() or limits hit. Returns final state dict."""
     log_path = Path(log_dir) / "transcript.jsonl"
     summary_path = Path(log_dir) / "summary.json"
@@ -366,7 +370,7 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
         estimated_prompt = max(last_prompt_tokens + 12000, 8000)
         safety = 2048
         max_tokens_safe = max(2048, max_model_len - estimated_prompt - safety)
-        max_tokens_safe = min(max_tokens_safe, 180000)
+        max_tokens_safe = min(max_tokens_safe, max_output_tokens_cap)
         payload = {
             "model": model,
             "messages": messages,
@@ -572,6 +576,10 @@ def main():
                          "matches the vLLM models benched so far. Set to the served --ctx-size for "
                          "models hosted with a smaller window (e.g. 131072 for the 397B GGUF on llama.cpp) "
                          "so requests don't exceed the context and 400.")
+    ap.add_argument("--max-output-tokens-cap", type=int, default=180000,
+                    help="Hard cap for each request's max_tokens. Default 180000 matches the "
+                         "current PR-audit and microbench harness. Use 64000 to reproduce the "
+                         "historical investment-memo/board harness operating point.")
     ap.add_argument("--temperature", type=float, default=0.0,
                     help="Sampling temperature sent on every request. Default 0.0 (deterministic). "
                          "At temp=0 with seed=42, models can fall into fixed-point loops on long-horizon "
@@ -723,6 +731,7 @@ def main():
         reasoning_effort=args.reasoning_effort,
         enable_thinking=enable_thinking,
         max_model_len=args.max_model_len,
+        max_output_tokens_cap=args.max_output_tokens_cap,
     )
     print(f"receipt -> {log_dir / 'receipt.json'}  (vllm containers logged: {len(receipt['vllm']['containers'])})")
 
@@ -734,7 +743,8 @@ def main():
                          require_git_tag=bool(args.require_git_tag),
                          reasoning_effort=args.reasoning_effort,
                          enable_thinking=enable_thinking,
-                         max_model_len=args.max_model_len)
+                         max_model_len=args.max_model_len,
+                         max_output_tokens_cap=args.max_output_tokens_cap)
     print("\n=== SUMMARY ===")
     print(json.dumps(summary, indent=2))
 

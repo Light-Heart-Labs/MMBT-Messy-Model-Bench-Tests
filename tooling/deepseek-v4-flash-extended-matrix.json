@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "model": "DeepSeek-V4-Flash-0731",
+  "endpoint": "http://127.0.0.1:8000/v1",
+  "served_context_tokens": 131072,
+  "replicates": 3,
+  "historical_comparison_arms": [
+    "Qwen3.5-397B-A17B",
+    "Qwen3.6-27B-AWQ/Q8",
+    "Qwen3-Coder-Next-AWQ"
+  ],
+  "suites": [
+    {
+      "id": "dreamserver-1-pr-audit",
+      "task": "tooling/tasks/task_pr_audit_n1.md",
+      "historical_task_sha256": "2e8770b3dbd210679e291f043f75b0d8aa5ec030c38b956926b8ba41c2cfb55c",
+      "current_task_sha256": "18c722e23dc9b38ce2be015bd2f3ab912c678bda7b44e5089d20af8a2f3e61c1",
+      "temperature": 0.3,
+      "max_output_tokens_cap": 180000,
+      "stuck_threshold": 500,
+      "require_git_tag": true
+    },
+    {
+      "id": "wallstreet-investment-memo",
+      "task": "tooling/tasks/task_investment_memo.md",
+      "historical_task_sha256": "02f48c90f5c951cff424ad0646dab2d00e7225194c9a64aefee1c6aa736c61a3",
+      "current_task_sha256": "02f48c90f5c951cff424ad0646dab2d00e7225194c9a64aefee1c6aa736c61a3",
+      "temperature": 0.0,
+      "max_output_tokens_cap": 64000,
+      "stuck_threshold": 500,
+      "require_git_tag": true
+    },
+    {
+      "id": "wallstreet-board-presentation",
+      "task": "tooling/tasks/task_board_presentation.md",
+      "historical_task_sha256": null,
+      "current_task_sha256": "b9f5e451d04bf7cad85eeb5fa98051b44b61028847b984048930437aadbbf4be",
+      "temperature": 0.0,
+      "max_output_tokens_cap": 64000,
+      "stuck_threshold": 500,
+      "require_git_tag": true,
+      "input_from": "wallstreet-investment-memo"
+    },
+    {
+      "id": "dreamserver-75-pr-audit",
+      "task": "tooling/tasks/task_dreamserver_pr_audit.md",
+      "historical_task_sha256": "5f3ee8854907bbd78d9a6a6aaaad91e632821b0c77e09ac3fbcf42e0c5b33fde",
+      "current_task_sha256": "d0eaf474dd33a4092da7d4656f761f91e50defd1ee0c1b47348026a679b7ebfa",
+      "temperature": 0.3,
+      "max_output_tokens_cap": 180000,
+      "stuck_threshold": 500,
+      "require_git_tag": true
+    }
+  ],
+  "comparability_notes": [
+    "DeepSeek is served at 131072 tokens; historical Qwen vLLM receipts advertised 262144.",
+    "The current public 1-PR and 75-PR task files differ bytewise from the historical private-receipt hashes after extraction/sanitization; current public task hashes are pinned here.",
+    "Investment memo task content is byte-identical to the historical receipt and retains the historical temperature=0 and 64000 output-token cap.",
+    "Every canonical run must record a clean committed harness receipt, full transcript, summary, and final workspace archive or an explicit terminal-pathology label."
+  ]
+}
