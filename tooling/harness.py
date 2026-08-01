@@ -80,29 +80,78 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
         },
     }
 
-    # Try to identify the vLLM container serving this model by hitting the URL's port
-    # Best-effort: list vllm-* containers and capture inspect for each
+    # Best-effort: identify running vLLM containers either by the historical
+    # ``vllm-*`` naming convention or by the exact served model name in the
+    # container name/arguments.  Production deployments often use host
+    # networking and a model-specific name, so filtering only on ``vllm-*``
+    # silently produced empty provenance receipts for those deployments.
     p = subprocess.run(
-        ["docker", "ps", "--filter", "name=vllm-", "--format", "{{.Names}}"],
+        ["docker", "ps", "--format", "{{.Names}}"],
         capture_output=True, text=True,
     )
     receipt["vllm"]["containers"] = []
     for cname in p.stdout.split():
-        info = docker_inspect(cname, fmt='{{.Image}}|{{.Id}}|{{.State.StartedAt}}|{{json .Args}}|{{json .Config.Cmd}}|{{json .HostConfig.PortBindings}}')
-        if not info: continue
-        parts = info.split("|", 5)
-        image_ref, cid, started_at, args_json, cmd_json, ports_json = (parts + [None]*6)[:6]
+        raw_info = docker_inspect(cname)
+        if not raw_info:
+            continue
+        try:
+            info = json.loads(raw_info)[0]
+        except (json.JSONDecodeError, IndexError, TypeError):
+            continue
+
+        args = info.get("Args") or []
+        cmd = (info.get("Config") or {}).get("Cmd") or []
+        identity = json.dumps([cname, args, cmd], ensure_ascii=False).lower()
+        if not (cname.lower().startswith("vllm-") or model.lower() in identity):
+            continue
+
+        image_ref = info.get("Image")
+        image_name = (info.get("Config") or {}).get("Image")
+        cid = info.get("Id")
+        started_at = (info.get("State") or {}).get("StartedAt")
+        host_config = info.get("HostConfig") or {}
+        mounts = [
+            {
+                "type": mount.get("Type"),
+                "source": mount.get("Source"),
+                "destination": mount.get("Destination"),
+                "mode": mount.get("Mode"),
+                "rw": mount.get("RW"),
+            }
+            for mount in (info.get("Mounts") or [])
+        ]
+        model_mount = next(
+            (mount for mount in mounts if mount.get("destination") == "/model"),
+            None,
+        )
+        model_revision = None
+        if model_mount and model_mount.get("source"):
+            revision_file = (
+                Path(model_mount["source"])
+                / ".cache/huggingface/download/config.json.metadata"
+            )
+            try:
+                model_revision = revision_file.read_text().splitlines()[0].strip()
+            except (OSError, IndexError):
+                pass
+
         # Resolve image digest
-        image_digest = docker_inspect(image_ref, fmt='{{index .RepoDigests 0}}') or "unknown"
+        image_digest = docker_inspect(
+            image_name or image_ref, fmt='{{index .RepoDigests 0}}'
+        ) or "unknown"
         receipt["vllm"]["containers"].append({
             "name": cname,
+            "image_name": image_name,
             "image_ref": image_ref,
             "image_digest": image_digest,
             "container_id": cid,
             "started_at": started_at,
-            "args": json.loads(args_json) if args_json else [],
-            "cmd": json.loads(cmd_json) if cmd_json else [],
-            "port_bindings": json.loads(ports_json) if ports_json else {},
+            "args": args,
+            "cmd": cmd,
+            "network_mode": host_config.get("NetworkMode"),
+            "port_bindings": host_config.get("PortBindings") or {},
+            "mounts": mounts,
+            "model_revision": model_revision,
         })
 
     # Sandbox image digest
