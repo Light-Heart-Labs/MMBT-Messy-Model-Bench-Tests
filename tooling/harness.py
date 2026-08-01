@@ -752,7 +752,10 @@ def main():
     # Stop any prior sandbox, start a fresh one with the workspace mounted
     subprocess.run(["docker", "rm", "-f", SANDBOX], capture_output=True)
     docker_run = [
-        "docker", "run", "-d", "--name", SANDBOX,
+        # Docker's tiny init must be PID 1 so descendants killed by an
+        # in-container tool timeout are reaped instead of accumulating as
+        # zombies under ``sleep infinity`` during long campaigns.
+        "docker", "run", "-d", "--init", "--name", SANDBOX,
         "-v", f"{workspace_host}:/workspace",
     ]
     if gh_token:
@@ -808,6 +811,7 @@ def main():
     receipt = record_environment(
         args.run_name, args.model, api_url, args.task_file, log_dir,
         sandbox_runtime={
+            "docker_init": True,
             "gh_token_set": bool(gh_token),
             "docker_socket": bool(args.docker_socket),
             "gpus": args.gpus,
