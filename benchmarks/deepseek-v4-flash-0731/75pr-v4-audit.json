@@ -1,0 +1,740 @@
+{
+  "schema_version": 2,
+  "audited_at": "2026-08-01T19:23:19.370206+00:00",
+  "run_name": "DeepSeek-V4-Flash-0731 deepseek-v4-flash-0731_75pr_v4",
+  "classification": "SCAFFOLD_AND_STOP",
+  "legacy_shipped": true,
+  "verdict_counts": {
+    "merge": 55,
+    "reject": 3,
+    "revise": 17
+  },
+  "runtime": {
+    "wall_s": 727.8,
+    "iterations": 220,
+    "completion_tokens": 116266,
+    "prompt_tokens": 29261703,
+    "completion_tps_model_call": 186.6
+  },
+  "artifact_integrity": {
+    "archive_sha256": "bb22e3159c7c58693a0e900361906369fe1e0bfec4a87303e3551ca7190abb5b",
+    "archive_bytes": 39117471,
+    "archive_gzip_valid": true,
+    "head": "5b131a9f67c2ec3c5a34438a51ece18900417f62",
+    "tags": [
+      "audit-v1.0"
+    ],
+    "tag_targets": {
+      "audit-v1.0": "5b131a9f67c2ec3c5a34438a51ece18900417f62"
+    },
+    "tag_at_head": true,
+    "clean": true,
+    "commit_count": 9
+  },
+  "substance": {
+    "test_evidence_count": 75,
+    "test_evidence_prs": [
+      351,
+      364,
+      716,
+      750,
+      959,
+      961,
+      966,
+      973,
+      974,
+      983,
+      988,
+      990,
+      991,
+      992,
+      993,
+      994,
+      996,
+      997,
+      998,
+      999,
+      1000,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010,
+      1011,
+      1012,
+      1013,
+      1014,
+      1015,
+      1016,
+      1017,
+      1018,
+      1019,
+      1020,
+      1021,
+      1022,
+      1023,
+      1024,
+      1025,
+      1026,
+      1027,
+      1028,
+      1029,
+      1030,
+      1032,
+      1033,
+      1034,
+      1035,
+      1036,
+      1037,
+      1038,
+      1039,
+      1040,
+      1042,
+      1043,
+      1044,
+      1045,
+      1046,
+      1047,
+      1048,
+      1049,
+      1050,
+      1051,
+      1052,
+      1053,
+      1054,
+      1055,
+      1056,
+      1057
+    ],
+    "missing_test_or_skip_count": 0,
+    "missing_test_or_skip_prs": [],
+    "reviews_under_800_bytes_count": 75,
+    "reviews_under_800_bytes_prs": [
+      351,
+      364,
+      716,
+      750,
+      959,
+      961,
+      966,
+      973,
+      974,
+      983,
+      988,
+      990,
+      991,
+      992,
+      993,
+      994,
+      996,
+      997,
+      998,
+      999,
+      1000,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010,
+      1011,
+      1012,
+      1013,
+      1014,
+      1015,
+      1016,
+      1017,
+      1018,
+      1019,
+      1020,
+      1021,
+      1022,
+      1023,
+      1024,
+      1025,
+      1026,
+      1027,
+      1028,
+      1029,
+      1030,
+      1032,
+      1033,
+      1034,
+      1035,
+      1036,
+      1037,
+      1038,
+      1039,
+      1040,
+      1042,
+      1043,
+      1044,
+      1045,
+      1046,
+      1047,
+      1048,
+      1049,
+      1050,
+      1051,
+      1052,
+      1053,
+      1054,
+      1055,
+      1056,
+      1057
+    ],
+    "reviews_with_source_citation_count": 75,
+    "reviews_with_source_citation_prs": [
+      351,
+      364,
+      716,
+      750,
+      959,
+      961,
+      966,
+      973,
+      974,
+      983,
+      988,
+      990,
+      991,
+      992,
+      993,
+      994,
+      996,
+      997,
+      998,
+      999,
+      1000,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010,
+      1011,
+      1012,
+      1013,
+      1014,
+      1015,
+      1016,
+      1017,
+      1018,
+      1019,
+      1020,
+      1021,
+      1022,
+      1023,
+      1024,
+      1025,
+      1026,
+      1027,
+      1028,
+      1029,
+      1030,
+      1032,
+      1033,
+      1034,
+      1035,
+      1036,
+      1037,
+      1038,
+      1039,
+      1040,
+      1042,
+      1043,
+      1044,
+      1045,
+      1046,
+      1047,
+      1048,
+      1049,
+      1050,
+      1051,
+      1052,
+      1053,
+      1054,
+      1055,
+      1056,
+      1057
+    ],
+    "reviews_with_hunk_marker_count": 0,
+    "traces_with_source_citation_count": 75,
+    "traces_with_hunk_marker_count": 0,
+    "diff_analyses_with_hunk_marker_count": 0,
+    "explicit_actual_bounty_tier_count": 0,
+    "explicit_actual_bounty_tier_prs": [],
+    "transcript_tool_events": 233,
+    "numbered_tool_log_entries": 16
+  },
+  "strict_validation": {
+    "schema_version": 1,
+    "workspace": "/home/michael/bench-deepseek-v4-flash-extended/tooling/workspace/deepseek-v4-flash-0731_75pr_v4",
+    "fixture": "/mnt/bulk/benchmark-fixtures/dreamserver-75-pr-audit-2026-04-27",
+    "pass": false,
+    "metrics": {
+      "canonical_prs": 75,
+      "actual_pr_dirs": 75,
+      "missing_pr_dirs": [],
+      "extra_pr_dirs": [],
+      "verdict_counts": {
+        "merge": 55,
+        "reject": 3,
+        "revise": 17
+      },
+      "risk_matrix_missing_pr_refs": [],
+      "surface_area_missing_pr_refs": [],
+      "raw_frozen_file_overlap_pairs": 676,
+      "trusted_file_list_prs": 63,
+      "trusted_file_overlap_pairs": 205,
+      "listed_pair_mentions": 241,
+      "missing_trusted_file_overlap_pairs": 14,
+      "missing_trusted_file_overlap_pair_sample": [
+        [
+          990,
+          991
+        ],
+        [
+          992,
+          1013
+        ],
+        [
+          992,
+          1017
+        ],
+        [
+          1003,
+          1011
+        ],
+        [
+          1011,
+          1015
+        ],
+        [
+          1011,
+          1019
+        ],
+        [
+          1011,
+          1023
+        ],
+        [
+          1013,
+          1017
+        ],
+        [
+          1013,
+          1023
+        ],
+        [
+          1013,
+          1048
+        ],
+        [
+          1017,
+          1023
+        ],
+        [
+          1023,
+          1024
+        ],
+        [
+          1023,
+          1048
+        ],
+        [
+          1027,
+          1036
+        ]
+      ],
+      "missing_raw_frozen_overlap_pairs": 447,
+      "missing_raw_frozen_overlap_pair_sample": [
+        [
+          351,
+          364
+        ],
+        [
+          351,
+          716
+        ],
+        [
+          351,
+          750
+        ],
+        [
+          351,
+          959
+        ],
+        [
+          351,
+          961
+        ],
+        [
+          351,
+          966
+        ],
+        [
+          351,
+          973
+        ],
+        [
+          351,
+          974
+        ],
+        [
+          351,
+          983
+        ],
+        [
+          351,
+          988
+        ],
+        [
+          351,
+          990
+        ],
+        [
+          351,
+          991
+        ],
+        [
+          351,
+          992
+        ],
+        [
+          351,
+          993
+        ],
+        [
+          351,
+          994
+        ],
+        [
+          351,
+          996
+        ],
+        [
+          351,
+          997
+        ],
+        [
+          351,
+          998
+        ],
+        [
+          351,
+          999
+        ],
+        [
+          351,
+          1000
+        ],
+        [
+          351,
+          1002
+        ],
+        [
+          351,
+          1003
+        ],
+        [
+          351,
+          1004
+        ],
+        [
+          351,
+          1005
+        ],
+        [
+          351,
+          1006
+        ],
+        [
+          351,
+          1007
+        ],
+        [
+          351,
+          1008
+        ],
+        [
+          351,
+          1009
+        ],
+        [
+          351,
+          1010
+        ],
+        [
+          351,
+          1011
+        ],
+        [
+          351,
+          1012
+        ],
+        [
+          351,
+          1013
+        ],
+        [
+          351,
+          1015
+        ],
+        [
+          351,
+          1016
+        ],
+        [
+          351,
+          1017
+        ],
+        [
+          351,
+          1018
+        ],
+        [
+          351,
+          1019
+        ],
+        [
+          351,
+          1020
+        ],
+        [
+          351,
+          1021
+        ],
+        [
+          351,
+          1022
+        ],
+        [
+          351,
+          1023
+        ],
+        [
+          351,
+          1024
+        ],
+        [
+          351,
+          1025
+        ],
+        [
+          351,
+          1026
+        ],
+        [
+          351,
+          1027
+        ],
+        [
+          351,
+          1028
+        ],
+        [
+          351,
+          1029
+        ],
+        [
+          351,
+          1030
+        ],
+        [
+          351,
+          1032
+        ],
+        [
+          351,
+          1033
+        ]
+      ],
+      "raw_file_count_metadata_mismatch_prs": [
+        351,
+        364,
+        716,
+        750,
+        959,
+        961,
+        966,
+        973,
+        974,
+        983,
+        988,
+        1043
+      ],
+      "transcript_tool_events": 233,
+      "numbered_tool_log_entries": 16
+    },
+    "failures": [
+      "PRs without an explicit bounty-tier declaration: [351, 364, 716, 750, 959, 961, 966, 973, 974, 983, 988, 990, 991, 992, 993, 994, 996, 997, 998, 999, 1000, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026, 1027, 1028, 1029, 1030, 1032, 1033, 1034, 1035, 1036, 1037, 1038, 1039, 1040, 1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1054, 1055, 1056, 1057]",
+      "PRs with neither execution nor explicit skip evidence: [983]",
+      "dependency analysis omits 14/205 high-confidence file-overlap pairs",
+      "frozen files.txt counts disagree with metadata for PRs, but the audit does not document the baseline/reverse-drift limitation",
+      "tool log records 16/233 transcript tool events"
+    ],
+    "warnings": [
+      "PR 351: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 364: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 716: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 750: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 959: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 961: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 966: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 973: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 974: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 983: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 988: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 990: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 991: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 992: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 993: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 994: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 996: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 997: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 998: multiple disposition words appear in verdict (['merge', 'reject'])",
+      "PR 999: multiple disposition words appear in verdict (['merge', 'reject'])",
+      "PR 1000: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1002: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1003: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1004: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1005: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1006: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1007: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1008: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1009: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1010: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1011: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1012: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1013: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1014: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1015: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1016: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1017: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1018: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1019: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1020: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1021: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1022: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1023: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1024: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1025: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1026: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1027: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1028: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1029: multiple disposition words appear in verdict (['merge', 'reject'])",
+      "PR 1030: multiple disposition words appear in verdict (['merge', 'reject', 'revise'])",
+      "PR 1032: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1033: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1034: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1035: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1036: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1037: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1038: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1039: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1040: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1042: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1043: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1044: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1045: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1046: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1047: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1048: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1049: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1050: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1051: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1052: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1053: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1054: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1055: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1056: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "PR 1057: multiple disposition words appear in verdict (['merge', 'revise'])",
+      "dependency analysis does not enumerate 447/676 raw frozen-file pairs; raw lists include known reverse-drift, so this is reported separately and is not itself a semantic failure"
+    ]
+  },
+  "telemetry": {
+    "schema_version": 2,
+    "run_name": "deepseek-v4-flash-0731_75pr_v4",
+    "source_csv": "/tmp/bench-autopilot/deepseek-v4-flash-0731-gpu_power.csv",
+    "generated_at": "2026-08-01T19:23:07.968024+00:00",
+    "analyzer": {
+      "path": "/home/michael/bench-deepseek-v4-flash-0731/tooling/deployments/deepseek-v4-flash-0731-tower2/campaign/analyze_dual_gpu_telemetry.py",
+      "file_sha256": "125bbf72856608e8608b05913cbb15282285ada68c77986e2fc05c4abffca056",
+      "git_sha": "025c0412138831f0808ac83875299f20eddcc6cf",
+      "git_dirty": false,
+      "interval_attribution": "A sample is held until the next paired observation, subject to max_gap_s and clipped to the authoritative summary start/end window."
+    },
+    "sampling": {
+      "paired_samples": 144,
+      "paired_samples_before_window_clip": 148,
+      "excluded_before_run": 0,
+      "excluded_after_run": 4,
+      "first_sample": "2026-08-01T19:09:59+00:00",
+      "last_sample": "2026-08-01T19:22:05+00:00",
+      "summary_started_at": "2026-08-01T19:09:58.246933+00:00",
+      "summary_ended_at": "2026-08-01T19:22:06.060402+00:00",
+      "window_clipped_to_summary": true,
+      "integrated_coverage_s": 727.1,
+      "summary_wall_s": 727.8,
+      "coverage_fraction_of_wall": 0.999,
+      "max_accepted_gap_s": 15.0
+    },
+    "combined": {
+      "mean_sample_power_w": 692.18,
+      "time_weighted_power_w": 691.09,
+      "median_power_w": 761.92,
+      "p90_power_w": 826.35,
+      "max_power_w": 1003.33,
+      "max_fraction_of_dual_cap": 1.0033,
+      "both_gpus_decode_fraction": 0.7361,
+      "both_gpus_90pct_util_fraction": 0.6181
+    },
+    "per_gpu": {
+      "0": {
+        "mean_power_w": 359.64,
+        "p90_power_w": 417.9,
+        "max_power_w": 502.77,
+        "mean_sm_util_pct": 72.32,
+        "max_temp_c": 72.0,
+        "max_memory_used_mib": 96899.0
+      },
+      "1": {
+        "mean_power_w": 332.54,
+        "p90_power_w": 409.12,
+        "max_power_w": 500.56,
+        "mean_sm_util_pct": 77.08,
+        "max_temp_c": 76.0,
+        "max_memory_used_mib": 96903.0
+      }
+    },
+    "energy_and_cost": {
+      "sampled_kwh": 0.139573,
+      "sampled_cost_usd": 0.018144,
+      "projected_full_kwh_at_sampled_mean": 0.139715,
+      "projected_full_cost_usd_at_sampled_mean": 0.018163,
+      "dual_gpu_cap_upper_bound_kwh": 0.202167,
+      "dual_gpu_cap_upper_bound_cost_usd": 0.026282,
+      "rate_usd_per_kwh": 0.13,
+      "note": "Sampled energy uses both GPUs. Projection fills uncovered wall time at the sampled mean and is suggestive; the dual-cap value is the true 2xGPU ceiling."
+    }
+  },
+  "evidence": {
+    "summary_sha256": "4b4f912a20a99545d0c53ee45965239d6e28b6a6f0d61a28435bfb3ff3d3baee",
+    "receipt_sha256": "3a66a4833be8b3af3c0ed152331fc3940a2bf3d91111c1a44877a4605c42d824",
+    "transcript_sha256": "80a6f7111e7975e5441b70f027bac4a2490e89aac523b160a774bce17b808237",
+    "validator_sha256": "11479b273a7c7c4b7597736ccc6eb8b763443192c8f6c1e6a9b7067ec0dded83",
+    "task_sha256": "0d426e15303b3f886a75db81165cdbe9d91534a474217f91f4e2baf41c0056a6",
+    "fixture_path": "/mnt/bulk/benchmark-fixtures/dreamserver-75-pr-audit-2026-04-27"
+  }
+}

@@ -13,6 +13,7 @@
 
 | Entry | Tree | Models / arms | N | Headline |
 |---|---|---|---|---|
+| [`deepseek-v4-flash-0731`](benchmarks/deepseek-v4-flash-0731/) | benchmarks/ | **DeepSeek-V4-Flash-0731** at its model-card sampling point | 3 | Raw 23/36; corrected 35/36 after reproducible grader defects were repaired without rerunning the model. One genuine failure: 773 words against a 700-word cap. |
 | [`microbench-2026-04-28`](benchmarks/microbench-2026-04-28/) | benchmarks/ | Qwen3.6-**27B-AWQ** vs Qwen3-Coder-Next-**AWQ** | 3 | Aggregate-tied ~7/12 each; complementary task-class strengths; Coder-Next much faster/cheaper. |
 | [`microbench-phase-b-2026-05-02`](benchmarks/microbench-phase-b-2026-05-02/) | benchmarks/ | + **27B-AWQ no-think** third arm; 4 differential cells to N=10 | 10 | 27B ships 86.8% no-think vs 75% think (same `p3_doc` word-limit loop); Coder-Next market 0/10 (Wilson [0, 27.8%]). |
 | [`qwen3.5-397b-vs-step3.7-flash-2026-05-29`](hardware-tests/qwen3.5-397b-vs-step3.7-flash-2026-05-29/) | hardware-tests/ | **397B-A17B** (Q3 GGUF) no-think/think; **Step-3.7-Flash** (NVFP4) low/med/high; **MiniMax-M2.7** (NVFP4); **27B-Q4 / Coder-Q4** refs | 397B 10 · Step 3 (low/med) 1 (high) · MiniMax 5 · 27B/Coder-Q4 = single cited rep from N=3 | Thinking net-negative (397B 82→72); small-N misreads cells; aggregate ties ~7–8/12 across ~15× scale; MiniMax "exhaustive completer" + temp serving-trap. |
@@ -37,9 +38,20 @@ the same `p3_doc` word-limit / over-production mechanism (see [issue #36](https:
 for the grader artifact that compounds it). Failure *temperament* tracks lineage, not size: Qwen-family
 models (397B, 27B) **stall**; Coder-Next / Flash / MiniMax(@temp0.3) **run away**.
 
+## DeepSeek changes the historical aggregate band
+
+The corrected DeepSeek result, **35/36 (97.2%)**, is well above the historical
+~7-8/12 family band. It is not a clean leaderboard claim: DeepSeek is N=3,
+uses temperature 1.0/top-p 0.95, exposes 1,048,576 context, and was graded after
+reproducible harness defects were repaired. The published non-destructive
+Qwen3.5-397B writing overlay moves its N=10 no-think result from 82/120 to
+92/120 (76.67%), still directionally below DeepSeek. A uniform historical
+regrade and DeepSeek N=10 expansion would be required for a statistically
+matched ranking.
+
 ## Qualitative comparison
 
-Pass-rates tie; the qualitative layer is where models actually differ. Provisional cross-model
+Most historical pass-rates tie; the qualitative layer is where those models actually differ. Provisional cross-model
 qualitative spot-grades (stance, calibration, source-skepticism, safety) live in
 [`QUALITATIVE-SPOT-GRADES.md`](QUALITATIVE-SPOT-GRADES.md), graded per
 [`tooling/QUALITATIVE-GRADING-PROTOCOL.md`](tooling/QUALITATIVE-GRADING-PROTOCOL.md). **Single-grader,

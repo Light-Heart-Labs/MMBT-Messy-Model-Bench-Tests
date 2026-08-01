@@ -1,0 +1,11 @@
+[Unit]
+Description=DeepSeek V4 Flash full-context frozen-75PR replacement supervisor
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/michael/bench-deepseek-v4-flash-extended/tooling/run_deepseek_75pr_fullctx_replacements.py
+Restart=no
+
+[Install]
+WantedBy=default.target

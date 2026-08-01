@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "campaign": "Qwen3.5-397B-A17B canonical 12-family N=10",
+  "purpose": "Correct the known writing-grader false negatives without modifying the published historical artifacts.",
+  "raw_published": {
+    "nothink": {
+      "pass": 82,
+      "total": 120
+    },
+    "think": {
+      "pass": 72,
+      "total": 120
+    }
+  },
+  "writing_cells": {
+    "nothink": {
+      "raw_pass": 0,
+      "corrected_pass": 10,
+      "delta": 10
+    },
+    "think": {
+      "raw_pass": 0,
+      "corrected_pass": 9,
+      "delta": 9
+    }
+  },
+  "corrected_overlay": {
+    "nothink": {
+      "pass": 92,
+      "total": 120,
+      "pass_fraction": 0.7667
+    },
+    "think": {
+      "pass": 81,
+      "total": 120,
+      "pass_fraction": 0.675
+    }
+  },
+  "evidence": {
+    "writing_regrade": "qwen397-writing-regrade.json",
+    "writing_regrade_sha256": "fe341613a3ebddece1b64763499501fd663a86bc934e1a43f6064bd9336135aa",
+    "fixed_grader_sha256": "a3461f31be9d24cc1c5132fff4bff96a27af77af2457dad839ef5498afba8f56",
+    "audience_briefs_sha256": "0c22573bd97d973d6de73cbbf2e9b806b3099f90872a5f0ec8a4fa33948f94cd"
+  },
+  "scope_caveat": "This is a targeted overlay for the independently reproduced writing-grader defect, not a rewrite of the historical campaign. The historical raw totals remain preserved. Other families retain their published verdicts unless separately regraded and audited.",
+  "comparison_caveat": "DeepSeek N=3 and Qwen N=10 have different sample sizes and model-specific sampling configurations. Corrected pass fractions are directional quality evidence, not a claim of statistical equivalence."
+}

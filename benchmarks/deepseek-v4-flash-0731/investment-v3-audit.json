@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "protocol": "MMBT investment-artifact audit protocol v1",
+  "run_name": "deepseek-v4-flash-0731_invest_memo_v3",
+  "audited_at": "2026-08-01T17:30:41Z",
+  "model": "DeepSeek-V4-Flash-0731",
+  "legacy_classification": "SHIPPED",
+  "substantive_classification": "SHIPPED_WITH_MATERIAL_MODEL_DEFECTS",
+  "recommendation_correctness_graded": false,
+  "artifacts": {
+    "company": "Ollie's Bargain Outlet Holdings (OLLI)",
+    "workbook": "model/OLLI_three_statement_model.xlsx",
+    "workbook_sha256": "52d7aa57b3e83486e7f9c106cba95a9bd08fea3c6aa4b6056e866fd9461e2b87",
+    "memo_pdf": "memo/investment_memo_OLLI.pdf",
+    "memo_pdf_sha256": "ca97f8377608376d1c71da4d5cf46e811907971f6c7dca46afedd1379c2733c1",
+    "memo_pages": 6,
+    "tag": "v1.0",
+    "tagged_head": "10b01dae"
+  },
+  "legacy_evidence": {
+    "finish_reason": "done_signal",
+    "wall_s": 568.3,
+    "iterations": 229,
+    "completion_tokens": 89734,
+    "prompt_tokens": 18546259,
+    "required_top_level_shape_present": true,
+    "clean_tagged_repo": true,
+    "workspace_archive_gzip_test": "PASS"
+  },
+  "workbook_inventory": {
+    "sheets": [
+      "Overview",
+      "Income Statement",
+      "Balance Sheet",
+      "Cash Flow",
+      "Assumptions"
+    ],
+    "formula_cells": 0,
+    "formula_error_scan_matches": 0,
+    "missing_claimed_sheets": [
+      "DCF",
+      "Relative Valuation",
+      "Scenarios"
+    ],
+    "note": "The builder docstring and completion summary claim DCF, relative valuation, and scenario components, but those calculations live only in Python/CSV and selected cached outputs on Overview."
+  },
+  "material_findings": [
+    {
+      "severity": "critical",
+      "id": "not-auditable-three-statement",
+      "evidence": "All five workbook sheets contain zero formulas. The income sheet is seven selected columns, the balance sheet omits liabilities and totals, and the cash-flow sheet contains only operating cash, capex, and FCF.",
+      "impact": "There is no balanced three-statement model, cash roll-forward, debt/equity roll-forward, or editable linkage between assumptions and outputs."
+    },
+    {
+      "severity": "critical",
+      "id": "working-capital-explicitly-ignored",
+      "evidence": "build_model.py computes projected operating cash as net income + D&A + (sales-prev_sales)*0.0 while separately projecting inventory from $650.3M to $776.3M in FY2026 and $1.203B by FY2030.",
+      "impact": "FY2026 FCF is overstated by roughly $126M from inventory growth alone before any payable/other-working-capital offsets; the omission materially inflates the DCF."
+    },
+    {
+      "severity": "critical",
+      "id": "fcfe-ev-cash-double-count-risk",
+      "evidence": "The DCF discounts net-income-based levered FCF that includes interest income, labels the result enterprise value, then valuation.py adds $562.8M cash/investments to reach $84.78/share.",
+      "impact": "The valuation mixes FCFE and enterprise-value conventions and risks double-counting cash; no workbook equity bridge exposes the error."
+    },
+    {
+      "severity": "high",
+      "id": "store-ramp-calibration-inconsistency",
+      "evidence": "The builder comment describes a 0.6 first-year productivity ramp, but the implemented factor is 0.92. The memo discloses 0.92 as calibrated to guidance, not a sourced cohort curve.",
+      "impact": "Long-run revenue growth depends on an aggressive calibrated assumption without a modeled cohort schedule."
+    },
+    {
+      "severity": "high",
+      "id": "buyback-double-modeling",
+      "evidence": "Cash/equity are reduced by a 50% FCF buyback, but diluted shares are a separately hard-coded declining series with no price/share calculation linking the two.",
+      "impact": "EPS growth and cash deployment are not mechanically reconciled."
+    },
+    {
+      "severity": "medium",
+      "id": "hard-coded-scenarios-outside-workbook",
+      "evidence": "Bear/base/bull EPS and exit multiples are defined directly in analysis/scenarios.py and emitted to CSV/memo; the XLSX has no scenario or sensitivity table.",
+      "impact": "The scenario outputs do not recalculate from the stated operating drivers."
+    },
+    {
+      "severity": "medium",
+      "id": "visual-legibility",
+      "evidence": "Every rendered workbook sheet clips labels or numeric headers; EPS displays as whole numbers; the overview DCF labels and values overlap. No source comments or visible checks are present.",
+      "impact": "The six-page memo is polished, but the supporting XLSX is not analyst-ready."
+    }
+  ],
+  "positive_findings": [
+    "The six-page PDF is polished, fully legible, within the eight-page limit, and contains recommendation, risks, explicit scenario probabilities, confidence/limitations, and traceability instructions.",
+    "The repository includes primary filings, line-numbered transcripts, extraction scripts, six ADRs, research logs, source hashes, and a clean annotated release.",
+    "Unlike replicate 2, memo historical figures match the cached historical workbook values and the run performed explicit raw-to-extracted-to-model spot checks before shipping.",
+    "The DCF arithmetic in valuation_dcf.csv is internally reproducible from the supplied FCF series; the defect is in cash-flow construction and valuation convention, not arithmetic execution."
+  ],
+  "comparability_note": "Count as SHIPPED under the historical Qwen wallstreet ship-rate convention. Do not count as a substantive finance pass. Historical entries were not uniformly audited at this depth, so this overlay must remain a separate axis until all comparators are regraded."
+}

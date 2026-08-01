@@ -50,6 +50,17 @@ If the model isn't listed above, check `vllm/entrypoints/openai/tool_parsers/` i
 
 ## Per-model launch
 
+### DeepSeek V4 Flash 0731 (FP4, 1M context, dual Blackwell)
+
+Tower2's accepted DeepSeek build uses a pinned Gilded Gnosis r16 image, TP=2,
+B12X MLA/MoE/linear kernels, DSpark K=5, FP8 KV, a 500 W cap per GPU, and a
+narrow workspace overlay required for repeated-prefix stability. It differs
+materially from the generic vLLM examples in this file.
+
+Use the exact launcher and follow the reproduction/validation procedure in
+[`deployments/deepseek-v4-flash-0731-tower2/`](deployments/deepseek-v4-flash-0731-tower2/README.md).
+Do not reconstruct this launch from an abbreviated receipt.
+
 ### Qwen3.6-27B AWQ (dense, thinking-mode)
 
 ```bash

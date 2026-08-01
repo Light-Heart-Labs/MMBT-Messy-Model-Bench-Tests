@@ -148,9 +148,21 @@ for entry in "${TASKS[@]}"; do
     run_name="${task_short}_${LABEL}_v${v}"
     DONE=$((DONE + 1))
 
-    # Skip if already done (idempotent re-runs)
+    # Skip clean completions and explicitly operator-labeled terminal
+    # pathologies.  The latter intentionally lack a workspace tarball because
+    # the published substance-monitoring protocol SIGTERMs the harness.
     if [ -f "logs/${run_name}/summary.json" ] && [ -f "logs/${run_name}/workspace_final.tar.gz" ]; then
       echo "[$DONE/$TOTAL_RUNS] SKIP $run_name (already complete)"
+      SKIPPED=$((SKIPPED + 1))
+      continue
+    fi
+    if [ -f "logs/${run_name}/receipt.json" ] && \
+       [ -f "logs/${run_name}/transcript.jsonl" ] && \
+       [ -f "logs/${run_name}/label.json" ] && \
+       python3 -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1])).get("primary") == "identical-call-loop" else 1)' \
+         "logs/${run_name}/label.json"
+    then
+      echo "[$DONE/$TOTAL_RUNS] SKIP $run_name (operator-labeled terminal pathology)"
       SKIPPED=$((SKIPPED + 1))
       continue
     fi

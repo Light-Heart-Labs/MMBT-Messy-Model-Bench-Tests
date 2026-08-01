@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "accepted_at": "2026-08-01",
+  "host": "Tower2",
+  "hardware": {
+    "cpu": "AMD Ryzen Threadripper PRO 7965WX",
+    "gpus": "2x NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+    "gpu_memory_mib_each": 97887,
+    "gpu_power_limit_w_each": 500
+  },
+  "model": {
+    "served_name": "DeepSeek-V4-Flash-0731",
+    "revision": "9e165c30e2704aec5d9d593cce3eebd58bbef1cb",
+    "max_model_len": 1048576
+  },
+  "runtime": {
+    "image": "voipmonitor/vllm@sha256:48518e91cf87dd0c0483c76ff86e81dfc0f46de7e364b46f7a82c481ce08188f",
+    "launcher_sha256": "4fca6a4a478f0876a1e6d7241dd87a3c9574bd970f29943bb3696993d4bfe25d",
+    "workspace_overlay_sha256": "50b5a02e83a419e6da309efb2f78580b72e5b04c57babf6d34854ef3d3fb6dbe",
+    "power_unit_sha256": "0ddc863bd20ed48c71be6d0b53466c2b264636aaec5dcf7a05d3055db6a41ddb",
+    "tensor_parallel_size": 2,
+    "decode_context_parallel_size": 1,
+    "gpu_memory_utilization": 0.9842,
+    "max_num_seqs": 16,
+    "max_num_batched_tokens": 2112,
+    "max_cudagraph_capture_size": 96,
+    "workspace_lane0_min_mib": 1152,
+    "kv_cache_dtype": "fp8",
+    "kv_cache_tokens": 1660655,
+    "full_context_concurrency": 1.58,
+    "temperature": 1.0,
+    "top_p": 0.95
+  },
+  "validation": {
+    "uncached_128k_prefill_tokens_per_second": 7255.113,
+    "single_coding_decode_tokens_per_second": 271.778,
+    "c4_decode_aggregate_tokens_per_second": 850.143,
+    "c8_decode_aggregate_tokens_per_second": 1373.176,
+    "near_full_context": {
+      "measured_prompt_tokens": 1019753,
+      "inference_seconds": 222.223,
+      "start_recalled": true,
+      "middle_recalled": true,
+      "end_recalled": true,
+      "pass": true
+    },
+    "restart_recovery_seconds": 132.1,
+    "container_restart_count": 0,
+    "container_oom_killed": false,
+    "shared_prefix_postrestart_runs": 2,
+    "shared_prefix_postrestart_passes": 2,
+    "sanctuary_pre_and_post_restart": true,
+    "pixel_pre_and_post_restart": true
+  }
+}

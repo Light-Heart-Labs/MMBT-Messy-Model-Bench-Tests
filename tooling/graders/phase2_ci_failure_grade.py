@@ -32,12 +32,12 @@ def grade(workspace: Path) -> dict:
     # Install package (in case it's not already). --break-system-packages
     # because some host Pythons enforce PEP 668; we're in a throwaway grading
     # env where contaminating user-site is fine.
-    install = run(["pip", "install", "-q", "--break-system-packages", "-e", ".[dev]"],
+    install = run([sys.executable, "-m", "pip", "install", "-q", "--break-system-packages", "-e", ".[dev]"],
                   cwd=workspace, timeout=120)
     install_ok = install["rc"] == 0
 
     # Run ruff
-    ruff_r = run(["ruff", "check", "src/", "tests/"], cwd=workspace, timeout=60)
+    ruff_r = run([sys.executable, "-m", "ruff", "check", "src/", "tests/"], cwd=workspace, timeout=60)
     ruff_clean = ruff_r["rc"] == 0
     ruff_issues = 0
     m = re.search(r"Found (\d+) error", ruff_r["stdout"])
@@ -47,11 +47,15 @@ def grade(workspace: Path) -> dict:
         ruff_issues = 0
 
     # Run pytest
-    pyt_r = run(["pytest", "-q", "--tb=no"], cwd=workspace, timeout=180)
+    # pyproject.toml already supplies ``-q``. Adding a second ``-q`` suppresses
+    # the summary line and makes a green seven-test run appear to contain zero
+    # tests, so invoke pytest without another quiet flag.
+    pyt_r = run([sys.executable, "-m", "pytest", "--tb=no"], cwd=workspace, timeout=180)
     pyt_clean = pyt_r["rc"] == 0
     pyt_passed = pyt_failed = 0
-    m_p = re.search(r"(\d+) passed", pyt_r["stdout"])
-    m_f = re.search(r"(\d+) failed", pyt_r["stdout"])
+    pyt_output = pyt_r["stdout"] + "\n" + pyt_r["stderr"]
+    m_p = re.search(r"(\d+) passed", pyt_output)
+    m_f = re.search(r"(\d+) failed", pyt_output)
     if m_p:
         pyt_passed = int(m_p.group(1))
     if m_f:
@@ -79,10 +83,10 @@ def grade(workspace: Path) -> dict:
     )
 
     # Verdict
-    verdict = "PASS" if (ruff_clean and pyt_clean and noqa_count == 0 and skip_count == 0) else "FAIL"
+    verdict = "PASS" if (install_ok and ruff_clean and pyt_clean and noqa_count == 0 and skip_count == 0) else "FAIL"
 
     # Commit count (how many fixes the agent broke things into)
-    git_log = run(["git", "log", "--oneline"], cwd=workspace, timeout=10)
+    git_log = run(["git", "-c", f"safe.directory={workspace}", "log", "--oneline"], cwd=workspace, timeout=10)
     commits = len(git_log["stdout"].strip().splitlines()) if git_log["rc"] == 0 else 0
 
     # Changelog mention

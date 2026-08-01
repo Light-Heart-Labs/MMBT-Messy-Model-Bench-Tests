@@ -1,0 +1,12 @@
+[Unit]
+Description=DeepSeek V4 Flash deterministic MMBT pathology labeling sideca
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/michael/bench-deepseek-v4-flash-0731/tooling/deployments/deepseek-v4-flash-0731-tower2/campaign/mmbt-deepseek-pathology-sidecar.py
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=default.target

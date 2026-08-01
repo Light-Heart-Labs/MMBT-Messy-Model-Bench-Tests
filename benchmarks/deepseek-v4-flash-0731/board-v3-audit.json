@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "protocol": "MMBT board-presentation artifact audit protocol v1",
+  "run_name": "deepseek-v4-flash-0731_board_pres_v3",
+  "audited_at": "2026-08-01T17:43:44Z",
+  "model": "DeepSeek-V4-Flash-0731",
+  "legacy_classification": "SHIPPED",
+  "substantive_classification": "SHIPPED_WITH_MATERIAL_DECK_DEFECTS",
+  "recommendation_correctness_graded": false,
+  "input_memo": {
+    "run_name": "deepseek-v4-flash-0731_invest_memo_v3",
+    "company": "Ollie's Bargain Outlet Holdings (OLLI)",
+    "substantive_classification": "SHIPPED_WITH_MATERIAL_MODEL_DEFECTS",
+    "handling": "The deck's financial-model defects are inherited from its read-only input memo and are reported as inherited caveats rather than charged again as transformation failures."
+  },
+  "artifacts": {
+    "pptx": "deck/board_advisors_OLLI.pptx",
+    "pptx_sha256": "aa8993fa87035fc29d32e0a8383b9d22775487d6be0ba38307825d75193d0a7a",
+    "pptx_slides": 23,
+    "pdf": "deck/board_advisors_OLLI.pdf",
+    "pdf_sha256": "447d69bbd7e0169080996fd7e39bb70d4e284f4b8d233ac433ae122aeef2f9bb",
+    "pdf_pages": 23,
+    "workspace_archive": "workspace_final.tar.gz",
+    "workspace_archive_sha256": "96531409dcd7bb47e4342fdf99cb816b0362a82cbc2ac024d8145547c67ae187",
+    "workspace_archive_bytes": 20705186,
+    "workspace_archive_gzip_test": "PASS",
+    "tag": "v1.0.0",
+    "tagged_head": "0569c85ec4da8495359794eccdf3f3e1cf18a141"
+  },
+  "legacy_evidence": {
+    "finish_reason": "done_signal",
+    "wall_s": 578.3,
+    "iterations": 184,
+    "completion_tokens": 94005,
+    "prompt_tokens": 16397070,
+    "completion_tps_avg": 197.7,
+    "clean_tagged_repo": true,
+    "storyboard_commit_predates_first_deck_commit": true,
+    "storyboard_commit": "6006b76",
+    "first_deck_commit": "1782b2a",
+    "required_slide_count_range_met": true,
+    "pptx_pdf_count_match": true,
+    "required_top_level_shape_present": true,
+    "per_claim_trace_files": 19,
+    "numbers_index_entries": 37,
+    "reconciled_numbers": 5,
+    "chart_generators": 10,
+    "design_adrs": 7
+  },
+  "telemetry": {
+    "coverage_fraction_of_wall": 0.991,
+    "combined_time_weighted_power_w": 659.08,
+    "combined_p90_power_w": 826.85,
+    "combined_max_power_w": 997.43,
+    "both_gpus_decode_fraction": 0.6667,
+    "sampled_kwh": 0.104919,
+    "gpu0_max_temp_c": 73.0,
+    "gpu1_max_temp_c": 77.0,
+    "gpu0_max_memory_used_mib": 96897.0,
+    "gpu1_max_memory_used_mib": 96897.0
+  },
+  "material_findings": [
+    {
+      "severity": "critical",
+      "id": "slide-08-x-axis-label-collapse",
+      "evidence": "On slide 8, hundreds of date labels overlap below the price-history chart and render as a large solid black wedge. The defect is present in both the final PPTX render and the matching PDF.",
+      "impact": "A centerpiece mispricing chart is not board-usable and obscures the time axis needed to interpret the drawdown."
+    },
+    {
+      "severity": "critical",
+      "id": "slide-14-confidence-visual-overlap",
+      "evidence": "On slide 14, the high-confidence, modeled-assumption, and not-done cards overlap one another; multiple labels and supporting lines are clipped or unreadable.",
+      "impact": "The explicitly required confidence-and-limitations visual does not communicate its content reliably."
+    },
+    {
+      "severity": "high",
+      "id": "multi-slide-title-overflow",
+      "evidence": "Slides 6, 11, 12, 17, 18, and 23 wrap titles outside their allotted title region. Continuation lines cross the horizontal divider, and slide 23's title is visibly clipped at the top/left.",
+      "impact": "The repeated layout failure materially reduces presentation polish and makes several slides look unfinished."
+    },
+    {
+      "severity": "high",
+      "id": "slide-12-risk-label-overlap",
+      "evidence": "On slide 12, the first risk label ('Consumer weakness / comps') overlaps its materialization-condition sentence.",
+      "impact": "The highest-priority risk row is partially unreadable on the required risk-assessment slide."
+    },
+    {
+      "severity": "medium",
+      "id": "bottom-callout-clipping",
+      "evidence": "The frame statement on slide 13 and the concluding watchlist statement on slide 19 collide with or sit inside the footer band.",
+      "impact": "Important interpretive copy is visually cramped and partially clipped."
+    },
+    {
+      "severity": "high",
+      "id": "incomplete-visual-qa",
+      "evidence": "The run rendered the deck but visually sampled slides 1, 4, 9, and 15. It then declared the deck complete without inspecting every final slide, missing obvious failures on slides 8, 12, 14, 17, 18, and 23.",
+      "impact": "The self-auditing process and completion summary overstate visual verification coverage."
+    }
+  ],
+  "positive_findings": [
+    "The 23-slide PPTX and 23-page PDF match exactly by count and render the same defects; both open successfully.",
+    "The narrative order matches the committed storyboard, and the storyboard commit predates the first deck artifact commit.",
+    "All twelve required content areas are present, including the probability-weighted scenario chart, dependency graph, dead ends, self-audit mechanism, risks, and confidence/limitations section.",
+    "The repo is unusually complete: clean annotated release, 19 trace files, 37-number index, contextual quote ledger, five full reconciliations, ten chart generators, seven design ADRs, research notes, rejected alternatives, and a clear README.",
+    "Slides 1-5, 7, 9-10, 15-16, and 20-22 are generally coherent and visually usable; slide 9's dependency graph and slide 15's worked audit example are particularly effective.",
+    "The deck faithfully transforms the supplied memo rather than inventing a different recommendation, and it visibly labels judgment/calibration assumptions."
+  ],
+  "inherited_input_caveats": [
+    "The deck calls build_model.py a three-statement model, but the input workbook contains no formulas, omits liabilities and cash/debt roll-forwards, and is not a mechanically linked three-statement model.",
+    "The presented $85 DCF inherits the memo's working-capital omission and FCFE/enterprise-value convention mix. These are input-model defects, not newly introduced board-deck arithmetic errors."
+  ],
+  "comparability_note": "Count as SHIPPED under the historical board-task deliverable gate. Under the stricter visual/structural overlay, classify as SHIPPED_WITH_MATERIAL_DECK_DEFECTS. Historical comparator decks were not uniformly audited slide-by-slide at this depth, so retain the overlay as a separate axis until they are regraded."
+}

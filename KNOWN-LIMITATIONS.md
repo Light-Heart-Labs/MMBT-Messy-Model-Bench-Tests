@@ -6,13 +6,26 @@ If you're considering quoting a number from this repo or building a deployment d
 
 ## Reproducibility caveats
 
-### All published receipts have `git_dirty: true`
+### Legacy receipts have `git_dirty: true`; the DeepSeek campaign does not
 
-Every `receipt.json` in this repo records `harness.git_dirty: true`, meaning the source bench repo had uncommitted changes when the run executed. The harness was being iterated on during the experiment (we made several substantive changes mid-batch — see `tooling/HARNESS-CHANGELOG.md`), and the runs that produced these entries happened against working trees, not clean tagged states. The harness git SHA in each receipt is therefore a near-but-not-exact reference; replays from those SHAs may differ slightly from the published runs.
+The heading in older revisions applied to the original entries. The DeepSeek
+V4 Flash campaign implements the process fix: run identity is captured before
+launch, incomplete attempts are isolated, and canonical and extended runs use
+committed harness states. This improves the new entry's reproducibility but
+does not remove the caveat from older receipts.
 
-For future canonical runs intended for publication, runs should be made from clean trees. This is a process fix going forward, not a fix to the published entries.
+Every earlier `receipt.json` in this repo records `harness.git_dirty: true`, meaning the source bench repo had uncommitted changes when the run executed. The harness was being iterated on during the experiment (we made several substantive changes mid-batch — see `tooling/HARNESS-CHANGELOG.md`), and the runs that produced those entries happened against working trees, not clean tagged states. The harness git SHA in each legacy receipt is therefore a near-but-not-exact reference; replays from those SHAs may differ slightly from the published runs.
+
+Future canonical runs intended for publication should be made from clean trees. The DeepSeek campaign implements that process fix; it does not retroactively change the legacy entries.
 
 ### Cherry-picked successful runs are published
+
+The DeepSeek entry is deliberately different: all three canonical replicates
+and all three valid 75-PR outcomes are included in its aggregates. Two earlier
+75-PR attempts are preserved but excluded because they hit an artificial 180K
+response ceiling while safe served context remained. The exclusion policy and
+replacement manifest are published; the successful-looking run is not
+cherry-picked.
 
 The local-model entries that have a deliverable are the *single best of multiple attempts*. The Coder-Next single-PR audit, for example, is `n1_coder_v2` — the one of three runs that produced a correct verdict; the other two (`v1` and `v3`) gave wrong verdicts with fabricated supporting evidence. Each entry's README documents its variance honestly and quotes the per-run shipped-rate fraction. But: a reader comparing entries cell-by-cell sees the best of N, not the expected outcome.
 
@@ -30,6 +43,12 @@ This means: for the 9 lean entries, you can read the per-model verdict, cost, an
 
 ### Failed-run artifacts not currently included for most entries
 
+The DeepSeek publication keeps compact per-suite audits, run classifications,
+hashes, and reproduction tooling in git. Its full workspace archives and long
+transcripts remain external because the terminal-run archive alone is 137 MB.
+This follows `REPO-SPACE.md`: conclusions are hash-auditable from the repository,
+while byte-for-byte replay of every model turn requires the external archives.
+
 Source bench repo has full receipts + transcripts + workspaces for every attempted run (success and failure). MMBT publishes receipts + transcripts only for the single representative run per entry. The 5 failed runs across the local models (`27b_invest_memo_v3`, `27b_invest_memo_v4`, `coder_invest_memo_v6`, `coder_invest_memo_v7`, `n1_coder_v1`, `n1_coder_v3`, all three 27B PR-audit canonicals' "secondary" runs, and the 35B-A3B failure runs) have receipts and transcripts in the private bench repo but not here. A more rigorous audit of variance would need those.
 
 ## Methodology caveats
@@ -46,6 +65,11 @@ The citation-validity sample on the 27B market-research entry (18 of 33 URLs, me
 
 ### Small N (typically N=3 per model × task)
 
+DeepSeek's corrected 35/36 result is also N=3 per family. Qwen3.5-397B has N=10,
+and its `p3_market` majority interpretation changed between N=3 and N=10. Treat
+DeepSeek as the highest observed corrected local result, not a settled population
+rate; an N=10 expansion is the direct follow-up.
+
 3 runs per cell is enough to see that variance exists; not enough to bound it. Confidence intervals on a 1/3 success rate are wide ([1%, 71%] at 95%). Aggregate claims like "Coder-Next is wrong 67% of the time at N=1" are best read as "in the runs we ran, it was wrong 2/3 of the time." Generalization needs more data.
 
 ### Approximate determinism only
@@ -53,6 +77,35 @@ The citation-validity sample on the 27B market-research entry (18 of 33 URLs, me
 vLLM's bf16 paths aren't bitwise-deterministic, so `temperature=0.0 + seed=42` doesn't produce identical runs. Most runs in this repo use `temperature=0.3` deliberately, to break deterministic loop traps surfaced during the smokes. That makes per-run variance an inherent property of the data, not a bug — but it also means rerunning the same prompt with the same flags will produce a different output, and comparing single runs cell-by-cell is misleading.
 
 ### Live data drift
+
+The DeepSeek 75-PR campaign discovered that the live backlog had grown to 272
+PRs. Its scored replacements therefore use a frozen source-only fixture with
+the same 75 PR numbers as the historical Qwen, GPT-5.5, and Opus artifacts,
+pinned to baseline `d5154c3`. The first live-272 attempt is retained as
+infrastructure-invalid. This restores set comparability, but comments and other
+network-fetched context can still drift.
+
+### DeepSeek V4 Flash 0731 is not a uniform leaderboard arm
+
+DeepSeek runs at its published agentic sampling point (`temperature=1.0`,
+`top_p=0.95`) with a 1,048,576-token served context. Earlier local arms commonly
+used temperature 0.3 and 131K or 262K context. Its raw canonical score is 23/36;
+the corrected score is 35/36 after reproducible cache-file false negatives,
+host-runtime grader crashes, and contradictory writing rules were repaired
+against unchanged archives. Original grades remain published.
+
+The Qwen3.5-397B writing overlay applies equivalent non-destructive writing
+corrections and moves no-think from 82/120 to 92/120, but Step, MiniMax, 27B,
+and Coder-Next have not all been uniformly regraded with every new repair.
+Therefore the corrected DeepSeek result is directional evidence of a strong
+local lead, not a statistically or methodologically uniform global rank.
+
+Artifact quality varies sharply by modality. DeepSeek completed all three
+single-PR repositories, yet both audited investment workbooks contained zero
+formulas and failed substantive finance review, and the valid board deck had
+material visual defects. The full-context 75-PR result is 0/3 strict. Do not
+generalize 35/36 bounded-task performance to finance, visual QA, or unattended
+marathon reliability.
 
 Tasks that reference real public state (DreamServer PRs, SEC filings, market prices) will see that state drift over time. The DreamServer PR audit task pins to a specific baseline commit (`d5154c37...`) but PR comments accumulate, contributors close PRs, the issue tracker moves. The wallstreet task has no such anchor — the company-pick is the agent's decision and the analyzed material may have been updated since extraction. Take time-of-run into account when comparing across replicates.
 

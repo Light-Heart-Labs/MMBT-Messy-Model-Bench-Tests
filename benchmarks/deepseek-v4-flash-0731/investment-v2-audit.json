@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "protocol": "MMBT investment-artifact audit protocol v1",
+  "run_name": "deepseek-v4-flash-0731_invest_memo_v2",
+  "audited_at": "2026-08-01T17:30:41Z",
+  "model": "DeepSeek-V4-Flash-0731",
+  "legacy_classification": "SHIPPED",
+  "substantive_classification": "SHIPPED_WITH_MATERIAL_MODEL_DEFECTS",
+  "recommendation_correctness_graded": false,
+  "artifacts": {
+    "company": "Knife River Corporation (KNF)",
+    "workbook": "model/KNF_3statement_model.xlsx",
+    "workbook_sha256": "09f359f99928ec17b3c5e854d73482199689b6cc4ab418bde83e09af9c496059",
+    "memo_pdf": "memo/KNF_investment_memo.pdf",
+    "memo_pdf_sha256": "5197776d23fe91abfc0e748e9db83942a5f77667b12cd252e8cbb4decd43e190",
+    "memo_pages": 8,
+    "tag": "v1.0",
+    "tagged_head": "40fbd99"
+  },
+  "legacy_evidence": {
+    "finish_reason": "done_signal",
+    "wall_s": 698.1,
+    "iterations": 296,
+    "completion_tokens": 110323,
+    "prompt_tokens": 26382768,
+    "required_top_level_shape_present": true,
+    "clean_tagged_repo": true,
+    "workspace_archive_gzip_test": "PASS"
+  },
+  "workbook_inventory": {
+    "sheets": [
+      "Assumptions",
+      "Income Statement",
+      "Cash Flow",
+      "Net Debt",
+      "DCF",
+      "Scenarios"
+    ],
+    "formula_cells": 0,
+    "formula_error_scan_matches": 0,
+    "note": "Zero formula errors is not a positive result here: every calculation and scenario output is hard-coded."
+  },
+  "material_findings": [
+    {
+      "severity": "critical",
+      "id": "growth-capex-unit-error",
+      "evidence": "Assumptions label organic growth capex as 0.131 $B/year, but build_model.py inserts 0.131 into $M cash-flow and FCFF series instead of 131.",
+      "impact": "Correcting only this error lowers the model's DCF from $74.72/share to approximately $52.67/share (-$22.05, -29.5%)."
+    },
+    {
+      "severity": "critical",
+      "id": "not-three-statement",
+      "evidence": "The workbook has no complete balance sheet. The Net Debt sheet contains one data row and mixes a $B opening balance with $M FCF, producing -$152.75B in FY2026 and -$1,074.65B by FY2030.",
+      "impact": "The required three-statement model and balance/cash/debt tie-outs are absent."
+    },
+    {
+      "severity": "critical",
+      "id": "interest-unit-and-memo-reconciliation",
+      "evidence": "build_model.py represents interest expense as 0.058/0.055/0.082 in a $M model, which rounds to $0.1M. The workbook therefore shows FY2025 net income $230.0M and EPS $4.06 while the memo shows $157.1M and $2.77.",
+      "impact": "The memo-to-model traceability claim fails for core earnings figures."
+    },
+    {
+      "severity": "critical",
+      "id": "cash-flow-contradiction",
+      "evidence": "The workbook manufactures historical CFO as 66% of adjusted EBITDA and shows FY2025 FCF +$138.9M. The memo says FY2025 FCF was -$69.6M before acquisitions.",
+      "impact": "The central capital-intensity thesis is contradicted by the supporting workbook."
+    },
+    {
+      "severity": "high",
+      "id": "hard-coded-model",
+      "evidence": "Artifact-tool inspection found zero Excel formula cells across all six sheets; scenarios, DCF, forecasts, totals, and weighted target are static values.",
+      "impact": "A reader cannot change an assumption and reproduce the claimed outputs."
+    },
+    {
+      "severity": "medium",
+      "id": "visual-legibility",
+      "evidence": "Rendered workbook sheets clip many labels and headers; the workbook lacks source comments, visible model checks, and standard input/formula/link conventions.",
+      "impact": "The XLSX is not PM- or analyst-ready despite the polished memo."
+    }
+  ],
+  "positive_findings": [
+    "The research repository is unusually complete: 13 SEC filings, five line-numbered transcripts, peer data, eight ADRs, questions, dead ends, source hashes, and a clean tagged release.",
+    "The eight-page PDF is readable, within the page limit, leads with the recommendation, includes explicit scenario probabilities, and has a substantive confidence/limitations section.",
+    "The model self-corrected an earlier net-debt DCF unit error before shipping, showing useful cross-check behavior, but did not detect the remaining growth-capex and statement-model defects."
+  ],
+  "comparability_note": "Count as SHIPPED under the historical Qwen wallstreet ship-rate convention. Do not count as a substantive finance pass. Historical entries were not uniformly audited at this depth, so this overlay must remain a separate axis until all comparators are regraded."
+}

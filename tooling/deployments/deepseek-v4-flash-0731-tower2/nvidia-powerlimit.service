@@ -1,0 +1,14 @@
+[Unit]
+Description=Apply NVIDIA GPU power limits (GPU0+GPU1 500W; DeepSeek V4 Flash inference/MMBT)
+After=nvidia-persistenced.service multi-user.target
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/nvidia-smi -pm 1
+ExecStart=/usr/bin/nvidia-smi -i 0 -pl 500
+ExecStart=/usr/bin/nvidia-smi -i 1 -pl 500
+
+[Install]
+WantedBy=multi-user.target

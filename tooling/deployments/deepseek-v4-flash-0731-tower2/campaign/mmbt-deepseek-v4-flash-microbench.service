@@ -1,0 +1,14 @@
+[Unit]
+Description=DeepSeek V4 Flash reproducible MMBT N=3 canonical microbench superviso
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/michael/bench-deepseek-v4-flash-0731
+ExecStart=/usr/bin/python3 /home/michael/bench-deepseek-v4-flash-0731/tooling/bench_autopilot.py --config /home/michael/bench-deepseek-v4-flash-0731/tooling/deepseek-v4-flash-0731-mmbt.json --target-n 3 --max-passes 12
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=default.target

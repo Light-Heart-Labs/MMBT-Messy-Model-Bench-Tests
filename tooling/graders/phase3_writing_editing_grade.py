@@ -40,7 +40,10 @@ PROHIBITED_PER_AUDIENCE = {
     ],
     "legal_summary": [
         # No marketing language
-        "trust", "we're committed", "we are committed",
+        # Do not prohibit the factual phrase "lost trust": it appears in the
+        # source memo and is relevant to the required relationship-driven
+        # credit recommendation.  Commitment slogans remain marketing copy.
+        "we're committed", "we are committed",
         # No named-employee blame
         "marcus",
         # No informal candor
@@ -63,7 +66,7 @@ REQUIRED_PER_AUDIENCE = {
     ],
     "customer_email": [
         # scope acknowledgement
-        ["outage", "downtime", "incident"],
+        ["outage", "downtime", "incident", "service disruption", "service interruption"],
         # SLA credit reference
         ["sla", "credit"],
         # contact path

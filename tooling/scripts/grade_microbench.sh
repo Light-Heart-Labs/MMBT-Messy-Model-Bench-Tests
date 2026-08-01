@@ -118,6 +118,18 @@ for run_dir in "${LOGS_DIR}"/p[1-3]_*_${LABEL}_v*/; do
         /g/phase1_grade.py "$task1" /ws /base --out /out/grade.json 2>&1 | tail -1 || \
         echo "  (phase1 grader failed — see ${run_dir}/grade.json or stderr)"
       ;;
+    p2_ci)
+      # This grader executes the delivered project and requires its pinned
+      # pytest/ruff toolchain. Run it in the same reproducible sandbox used for
+      # Phase 1 instead of depending on executables installed on the host.
+      docker run --rm \
+        -v "${workspace}":/ws \
+        -v "${TOOLING}/graders":/g:ro \
+        -v "${run_dir}":/out \
+        --entrypoint python3 bench-sandbox:latest \
+        /g/phase2_ci_failure_grade.py /ws --out /out/grade.json 2>&1 | tail -1 || \
+        echo "  (CI grader failed — see ${run_dir}/grade.json or stderr)"
+      ;;
     *)
       if [ -n "$gt" ]; then
         python3 "$grader" "$workspace" "$gt" --out "${run_dir}/grade.json" 2>&1 | tail -1 || \

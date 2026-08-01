@@ -19,7 +19,7 @@
 # entry once it's been published.
 
 schema_version: 0.1
-last_updated: "2026-05-31"
+last_updated: "2026-08-01"
 
 claims:
 
@@ -456,6 +456,89 @@ claims:
     evidence: "QUALITATIVE-SPOT-GRADES.md; benchmarks/microbench-2026-04-28 grade.json hand-rating blocks"
     caveats:
       - "Provisional single-LLM-grader scores; not validated; not a ranking. Cloud models (Opus/GPT-5.5) are ungraded on these axes and cannot be Claude-graded (grader-independence)."
+
+  # ─── DeepSeek V4 Flash 0731 cross-suite campaign ───────────────────────────
+
+  - id: model.deepseek-v4-flash-0731.tower2-serving
+    text: >
+      DeepSeek V4 Flash 0731 serves stably across two RTX PRO 6000 Blackwell
+      GPUs at a 1,048,576-token model length with TP=2, FP8 KV, and 500 W per
+      GPU. Accepted checks include 7,255.113 prompt tok/s at 128K, 271.778
+      single-request decode tok/s, 1,373.176 aggregate decode tok/s at C8,
+      successful recall at 1,019,753 prompt tokens, and a clean 132.1-second
+      restart with no OOM.
+    status: provisional
+    scope: single Tower2 rig, pinned model/runtime revisions, accepted deployment recipe
+    evidence: "tooling/deployments/deepseek-v4-flash-0731-tower2/final-validation.json; benchmarks/deepseek-v4-flash-0731/README.md"
+    caveats:
+      - "Single rig and runtime image; cross-engine and cross-day variance are not characterized."
+      - "The recipe nearly fills both 97,887 MiB GPUs and is not portable to smaller VRAM tiers unchanged."
+
+  - id: hw.deepseek-v4-flash-0731.500w-efficiency
+    text: >
+      On the matched 128K-prefill check, a persistent 500 W limit per GPU
+      retained 95.8% of the 600 W result. Ordinary decode remained below the
+      cap, so 500 W materially improves PSU headroom with negligible measured
+      ordinary-decode loss at this operating point.
+    status: provisional
+    scope: single Tower2 rig, matched 128K prefill A/B and observed decode workload
+    evidence: "benchmarks/deepseek-v4-flash-0731/README.md § Accepted Tower2 deployment"
+    caveats:
+      - "Matched A/B is one workload shape; sustained kernels outside MMBT may respond differently."
+
+  - id: model.deepseek-v4-flash-0731.canonical-corrected
+    text: >
+      On the 12-family canonical MMBT at N=3, DeepSeek reports 23/36 under the
+      original graders and 35/36 after reproducible generated-cache false
+      negatives, host-runtime grader crashes, and contradictory writing rules
+      were repaired against unchanged model archives. The remaining failure is
+      a 773-word response against a 700-word limit.
+    status: provisional
+    scope: DeepSeek V4 Flash 0731, canonical N=3, model-card sampling
+    evidence: "benchmarks/deepseek-v4-flash-0731/canonical-regrade-audit.json; benchmarks/deepseek-v4-flash-0731/README.md"
+    caveats:
+      - "N=3 is too small to establish a population rate."
+      - "Older Step, MiniMax, 27B, and Coder entries have not all received every new grader repair."
+      - "DeepSeek uses temperature=1.0/top_p=0.95 and 1M context, unlike several historical arms."
+
+  - id: model.deepseek-v4-flash-0731.highest-observed-local-corrected
+    text: >
+      DeepSeek's 35/36 (97.2%) is the highest observed corrected local result
+      published on the 12-family matrix. The non-destructive Qwen3.5-397B
+      writing overlay reaches 92/120 (76.67%) no-think and 81/120 (67.5%)
+      think, so the direction favors DeepSeek but is not a statistically
+      matched global leaderboard claim.
+    status: provisional
+    scope: published corrected local MMBT results as of 2026-08-01
+    evidence: "benchmarks/deepseek-v4-flash-0731/qwen397-corrected-score-overlay.json; benchmarks/deepseek-v4-flash-0731/DEEPSEEK_V4_FLASH_0731_VERIFIED_RESULTS.md"
+    caveats:
+      - "DeepSeek N=3 vs Qwen N=10; sampling, context, campaign date, and grader coverage differ."
+
+  - id: model.deepseek-v4-flash-0731.artifact-modality-gaps
+    text: >
+      Strong bounded-task performance does not transfer uniformly to complex
+      artifacts: both audited shipped investment workbooks contain zero formulas
+      and fail substantive finance review, while the valid board deck has
+      material chart, overflow, and readability defects.
+    status: provisional
+    scope: two shipped investment workbooks and one valid board-presentation replicate
+    evidence: "benchmarks/deepseek-v4-flash-0731/investment-v2-audit.json; benchmarks/deepseek-v4-flash-0731/investment-v3-audit.json; benchmarks/deepseek-v4-flash-0731/board-v3-audit.json"
+    caveats:
+      - "Small modality-specific N; historical local workbooks were not all re-audited to this stricter standard."
+
+  - id: model.deepseek-v4-flash-0731.75pr-zero-of-three
+    text: >
+      DeepSeek scores 0/3 on the strict frozen 75-PR audit at its full served
+      context. Two valid runs are scaffold-and-stop outcomes; the third consumes
+      the remaining safe context with an 815,279-token response, makes no tool
+      call, and terminates at length. This is a model-control failure, not a
+      server OOM or an artificial 180K convenience cap.
+    status: provisional
+    scope: frozen historical 75-PR set, three valid outcomes, 1,048,576 served context
+    evidence: "benchmarks/deepseek-v4-flash-0731/75pr-valid-replicates.json; benchmarks/deepseek-v4-flash-0731/75pr-v1-audit.json; benchmarks/deepseek-v4-flash-0731/75pr-v4-audit.json; benchmarks/deepseek-v4-flash-0731/75pr-v5-terminal-audit.json"
+    caveats:
+      - "Per-PR factual accuracy is not exhaustively graded; the strict result is artifact completeness and audit quality."
+      - "One task family on one rig; partitioned multi-agent execution was not tested."
 
 # ─── Retracted ────────────────────────────────────────────────────────────────
 

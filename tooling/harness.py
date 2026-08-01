@@ -16,6 +16,37 @@ def now_iso():
     return datetime.now(timezone.utc).isoformat()
 
 
+def prepare_log_dir(log_dir, run_name):
+    """Create a clean run directory without ever appending to prior evidence.
+
+    Complete cells fail closed. Incomplete/nonterminal attempts are atomically
+    moved under ``logs/_invalid`` before the same canonical run name is retried.
+    """
+    log_dir = Path(log_dir)
+    if not log_dir.exists():
+        log_dir.mkdir(parents=True)
+        return None
+
+    entries = list(log_dir.iterdir())
+    if not entries:
+        return None
+
+    if ((log_dir / "summary.json").exists()
+            and (log_dir / "workspace_final.tar.gz").exists()):
+        raise RuntimeError(
+            f"refusing to overwrite completed benchmark evidence: {log_dir}"
+        )
+
+    invalid_root = log_dir.parent / "_invalid"
+    invalid_root.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    archive = invalid_root / f"{run_name}_retry-{stamp}-{uuid.uuid4().hex[:8]}"
+    log_dir.rename(archive)
+    log_dir.mkdir(parents=True)
+    print(f"ARCHIVED_INCOMPLETE_LOG_DIR: {archive}")
+    return archive
+
+
 def file_sha256(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -35,14 +66,15 @@ def docker_inspect(name, fmt=None):
 def record_environment(run_name, model, api_url, task_file, log_dir, *,
                        sandbox_runtime=None, temperature=0.0, stuck_threshold=30,
                        max_iters=10000, reasoning_effort=None, enable_thinking=None,
-                       max_model_len=262144):
+                       max_model_len=262144, max_output_tokens_cap=180000,
+                       top_p=None, top_k=None):
     """Capture everything needed to reproduce the run. Written before the loop starts.
 
     sandbox_runtime: dict of per-run sandbox flags (gh_token_set, docker_socket,
     gpus, input_mount). The token value itself is never recorded — only whether
     one was set.
 
-    temperature, stuck_threshold, max_iters: actual loop config — receipt fields
+    temperature, top_p, top_k, stuck_threshold, max_iters: actual loop config — receipt fields
     reflect these exact values (used to be hardcoded constants). Default values
     here match the historical hardcoded ones for back-compat with prior receipts."""
     receipt = {
@@ -80,29 +112,84 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
         },
     }
 
-    # Try to identify the vLLM container serving this model by hitting the URL's port
-    # Best-effort: list vllm-* containers and capture inspect for each
+    # Best-effort: identify running vLLM containers either by the historical
+    # ``vllm-*`` naming convention or by the exact served model name in the
+    # container name/arguments.  Production deployments often use host
+    # networking and a model-specific name, so filtering only on ``vllm-*``
+    # silently produced empty provenance receipts for those deployments.
     p = subprocess.run(
-        ["docker", "ps", "--filter", "name=vllm-", "--format", "{{.Names}}"],
+        ["docker", "ps", "--format", "{{.Names}}"],
         capture_output=True, text=True,
     )
     receipt["vllm"]["containers"] = []
     for cname in p.stdout.split():
-        info = docker_inspect(cname, fmt='{{.Image}}|{{.Id}}|{{.State.StartedAt}}|{{json .Args}}|{{json .Config.Cmd}}|{{json .HostConfig.PortBindings}}')
-        if not info: continue
-        parts = info.split("|", 5)
-        image_ref, cid, started_at, args_json, cmd_json, ports_json = (parts + [None]*6)[:6]
+        raw_info = docker_inspect(cname)
+        if not raw_info:
+            continue
+        try:
+            info = json.loads(raw_info)[0]
+        except (json.JSONDecodeError, IndexError, TypeError):
+            continue
+
+        args = info.get("Args") or []
+        cmd = (info.get("Config") or {}).get("Cmd") or []
+        runtime_identity = json.dumps([args, cmd], ensure_ascii=False).lower()
+        normalized_name = "".join(ch for ch in cname.lower() if ch.isalnum())
+        normalized_model = "".join(ch for ch in model.lower() if ch.isalnum())
+        if not (
+            cname.lower().startswith("vllm-")
+            or normalized_name == normalized_model
+            or model.lower() in runtime_identity
+        ):
+            continue
+
+        image_ref = info.get("Image")
+        image_name = (info.get("Config") or {}).get("Image")
+        cid = info.get("Id")
+        started_at = (info.get("State") or {}).get("StartedAt")
+        host_config = info.get("HostConfig") or {}
+        mounts = [
+            {
+                "type": mount.get("Type"),
+                "source": mount.get("Source"),
+                "destination": mount.get("Destination"),
+                "mode": mount.get("Mode"),
+                "rw": mount.get("RW"),
+            }
+            for mount in (info.get("Mounts") or [])
+        ]
+        model_mount = next(
+            (mount for mount in mounts if mount.get("destination") == "/model"),
+            None,
+        )
+        model_revision = None
+        if model_mount and model_mount.get("source"):
+            revision_file = (
+                Path(model_mount["source"])
+                / ".cache/huggingface/download/config.json.metadata"
+            )
+            try:
+                model_revision = revision_file.read_text().splitlines()[0].strip()
+            except (OSError, IndexError):
+                pass
+
         # Resolve image digest
-        image_digest = docker_inspect(image_ref, fmt='{{index .RepoDigests 0}}') or "unknown"
+        image_digest = docker_inspect(
+            image_name or image_ref, fmt='{{index .RepoDigests 0}}'
+        ) or "unknown"
         receipt["vllm"]["containers"].append({
             "name": cname,
+            "image_name": image_name,
             "image_ref": image_ref,
             "image_digest": image_digest,
             "container_id": cid,
             "started_at": started_at,
-            "args": json.loads(args_json) if args_json else [],
-            "cmd": json.loads(cmd_json) if cmd_json else [],
-            "port_bindings": json.loads(ports_json) if ports_json else {},
+            "args": args,
+            "cmd": cmd,
+            "network_mode": host_config.get("NetworkMode"),
+            "port_bindings": host_config.get("PortBindings") or {},
+            "mounts": mounts,
+            "model_revision": model_revision,
         })
 
     # Sandbox image digest
@@ -122,8 +209,14 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
     # Inference request defaults (the constants used in the loop body)
     receipt["inference_request_defaults"] = {
         "temperature": temperature,
-        "max_tokens_strategy": "min(180000, max_model_len - last_prompt_tokens - 14000), floor 2048",
+        "top_p": top_p,
+        "top_k": top_k,
+        "max_tokens_strategy": (
+            f"min({max_output_tokens_cap}, max_model_len - "
+            "last_prompt_tokens - 14000), floor 2048"
+        ),
         "max_model_len": max_model_len,
+        "max_output_tokens_cap": max_output_tokens_cap,
         "stream": False,
         "tool_choice": "auto",
         "tools": [t["function"]["name"] for t in TOOLS],
@@ -154,22 +247,141 @@ def workspace_state_hash():
     return p.stdout.strip()
 
 
+_EXEC_SESSION_CLEANUP = r"""
+import glob
+import os
+import signal
+import sys
+import time
+
+target_sid = int(sys.argv[1])
+
+
+def session_id(pid):
+    try:
+        stat = open(f"/proc/{pid}/stat", encoding="utf-8").read()
+        # Fields after the final ')' begin with state, ppid, pgrp, session.
+        return int(stat[stat.rfind(")") + 2:].split()[3])
+    except (FileNotFoundError, PermissionError, IndexError, ValueError):
+        return None
+
+
+def members():
+    own_pid = os.getpid()
+    found = []
+    for path in glob.glob("/proc/[0-9]*/stat"):
+        pid = int(path.split("/")[2])
+        if pid != own_pid and session_id(pid) == target_sid:
+            found.append(pid)
+    return found
+
+
+terminated = members()
+for pid in terminated:
+    try:
+        os.kill(pid, signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+time.sleep(0.5)
+survivors = members()
+for pid in survivors:
+    try:
+        os.kill(pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+print(f"session={target_sid} term={len(terminated)} kill={len(survivors)}")
+"""
+
+
+def cleanup_exec_session(session_id):
+    """Kill processes left in one timed-out ``docker exec`` session."""
+    if session_id is None:
+        return "session id unavailable; descendant cleanup could not run"
+    try:
+        p = subprocess.run(
+            ["docker", "exec", SANDBOX, "python3", "-c", _EXEC_SESSION_CLEANUP,
+             str(session_id)],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return f"session cleanup failed: {exc}"
+    detail = (p.stdout or p.stderr).strip()
+    if p.returncode != 0:
+        return f"session cleanup rc={p.returncode}: {detail}"
+    return f"session cleanup: {detail}"
+
+
+def extract_exec_session(stderr, marker):
+    """Remove the private SID marker from stderr and return ``(sid, text)``."""
+    sid = None
+    kept = []
+    for line in stderr.splitlines():
+        if line.startswith(marker):
+            try:
+                sid = int(line[len(marker):].strip())
+            except ValueError:
+                kept.append(line)
+        else:
+            kept.append(line)
+    return sid, "\n".join(kept)
+
+
 def docker_exec(cmd, workdir="/workspace", timeout=300):
     """Run a command in the sandbox. Returns dict with stdout/stderr/rc/duration.
 
     Pipes the command via stdin (`bash -s`) instead of `bash -c "..."` so we
     don't hit Linux's ~128KB argv limit on long heredocs. Hit this when a
     model emitted a 680-token python heredoc as a single bash call.
+
+    The timeout must live *inside* the container. A host-only
+    ``subprocess.run(..., timeout=N)`` kills the ``docker exec`` client but
+    leaves its in-container shell and descendants running. Those orphans can
+    contaminate later tool timings. Nested GNU ``timeout`` calls create their
+    own process groups, so killing only the outer command is insufficient. We
+    therefore record the Docker exec session ID and, only when the outer guard
+    fires, terminate every remaining process in that session. The slightly
+    longer host timeout remains a Docker-runtime failsafe.
     """
     t0 = time.time()
-    full = ["docker", "exec", "-i", "-w", workdir, SANDBOX, "bash", "-s"]
+    timeout = max(1, int(timeout))
+    marker = f"__MMBT_EXEC_SID_{uuid.uuid4().hex}__="
+    probe = (
+        f'import os,sys; print("{marker}" + str(os.getsid(0)), file=sys.stderr)'
+    )
+    wrapper = (
+        f"python3 -c {json.dumps(probe)}; "
+        f"exec timeout --signal=TERM --kill-after=5s {timeout}s bash -s"
+    )
+    full = [
+        "docker", "exec", "-i", "-w", workdir, SANDBOX,
+        "bash", "-c", wrapper,
+    ]
     try:
         # Capture as bytes; decode with errors='replace' so binary outputs (e.g. curl-piping
         # gzipped content) don't raise UnicodeDecodeError. Hit this on a Coder-Next run where
         # a bash command piped \x1f\x8b… into stdout.
-        p = subprocess.run(full, input=cmd.encode("utf-8"), capture_output=True, timeout=timeout)
+        p = subprocess.run(
+            full,
+            input=cmd.encode("utf-8"),
+            capture_output=True,
+            timeout=timeout + 15,
+        )
         out = p.stdout.decode("utf-8", errors="replace")
         err = p.stderr.decode("utf-8", errors="replace")
+        session_id, err = extract_exec_session(err, marker)
+        if p.returncode == 124:
+            timeout_note = f"timeout after {timeout}s"
+            cleanup_note = cleanup_exec_session(session_id)
+            err = f"{err.rstrip()}\n{timeout_note}\n{cleanup_note}".strip()
+            return {
+                "rc": -1,
+                "stdout": out[-20000:],
+                "stderr": err[-5000:],
+                "duration_s": round(time.time() - t0, 2),
+                "truncated_stdout": len(out) > 20000,
+            }
         return {
             "rc": p.returncode,
             "stdout": out[-20000:],
@@ -177,8 +389,22 @@ def docker_exec(cmd, workdir="/workspace", timeout=300):
             "duration_s": round(time.time() - t0, 2),
             "truncated_stdout": len(out) > 20000,
         }
-    except subprocess.TimeoutExpired:
-        return {"rc": -1, "stdout": "", "stderr": f"timeout after {timeout}s", "duration_s": timeout}
+    except subprocess.TimeoutExpired as exc:
+        raw_err = exc.stderr or b""
+        if isinstance(raw_err, bytes):
+            raw_err = raw_err.decode("utf-8", errors="replace")
+        session_id, raw_err = extract_exec_session(raw_err, marker)
+        cleanup_note = cleanup_exec_session(session_id)
+        return {
+            "rc": -1,
+            "stdout": "",
+            "stderr": (
+                f"outer docker-exec failsafe fired after {timeout + 15}s; "
+                f"the in-container timeout did not return\n{raw_err.rstrip()}\n"
+                f"{cleanup_note}"
+            ),
+            "duration_s": round(time.time() - t0, 2),
+        }
 
 
 # ----- Tools available to the agent --------------------------------------
@@ -268,7 +494,7 @@ def validate_done(require_files, require_git_tag):
         # audit repos like /workspace/dreamserver-audit/.
         cmd = (
             "for d in /workspace /workspace/*/ /workspace/*/*/; do "
-            "  [ -d \"${d}.git\" ] && (cd \"$d\" && git tag -l 2>/dev/null | grep -q . && echo TAG_FOUND && break); "
+            "  [ -d \"$d/.git\" ] && (cd \"$d\" && git tag -l 2>/dev/null | grep -q . && echo TAG_FOUND && break); "
             "done"
         )
         r = docker_exec(cmd, timeout=15)
@@ -339,7 +565,7 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
                max_completion_total=10**12, max_model_len=262144,
                stuck_threshold=30, temperature=0.0, top_p=None, top_k=None,
                require_files=None, require_git_tag=False, reasoning_effort=None,
-               enable_thinking=None):
+               enable_thinking=None, max_output_tokens_cap=180000):
     """Run the agent until done() or limits hit. Returns final state dict."""
     log_path = Path(log_dir) / "transcript.jsonl"
     summary_path = Path(log_dir) / "summary.json"
@@ -366,7 +592,7 @@ def agent_loop(api_url, model, system_prompt, task, log_dir, max_iters=10000,
         estimated_prompt = max(last_prompt_tokens + 12000, 8000)
         safety = 2048
         max_tokens_safe = max(2048, max_model_len - estimated_prompt - safety)
-        max_tokens_safe = min(max_tokens_safe, 180000)
+        max_tokens_safe = min(max_tokens_safe, max_output_tokens_cap)
         payload = {
             "model": model,
             "messages": messages,
@@ -572,6 +798,10 @@ def main():
                          "matches the vLLM models benched so far. Set to the served --ctx-size for "
                          "models hosted with a smaller window (e.g. 131072 for the 397B GGUF on llama.cpp) "
                          "so requests don't exceed the context and 400.")
+    ap.add_argument("--max-output-tokens-cap", type=int, default=180000,
+                    help="Hard cap for each request's max_tokens. Default 180000 matches the "
+                         "current PR-audit and microbench harness. Use 64000 to reproduce the "
+                         "historical investment-memo/board harness operating point.")
     ap.add_argument("--temperature", type=float, default=0.0,
                     help="Sampling temperature sent on every request. Default 0.0 (deterministic). "
                          "At temp=0 with seed=42, models can fall into fixed-point loops on long-horizon "
@@ -640,11 +870,12 @@ def main():
     global SANDBOX
     SANDBOX = f"bench-sandbox-{args.run_name}"
 
-    # Logs and workspaces live alongside this script — wherever harness.py is
-    # placed, `logs/` and `workspace/` are created as siblings.
+    # Published benchmark artifacts live at the repository root.  Keep mutable
+    # workspaces under tooling/, but write logs where the runner, graders,
+    # autopilot, and reproduction docs all expect them: <repo>/logs/.
     HARNESS_DIR = Path(__file__).resolve().parent
-    log_dir = HARNESS_DIR / "logs" / args.run_name
-    log_dir.mkdir(parents=True, exist_ok=True)
+    log_dir = HARNESS_DIR.parent / "logs" / args.run_name
+    prepare_log_dir(log_dir, args.run_name)
     workspace_host = HARNESS_DIR / "workspace" / args.run_name
     if workspace_host.exists():
         subprocess.run(["rm", "-rf", str(workspace_host)], check=True)
@@ -653,7 +884,10 @@ def main():
     # Stop any prior sandbox, start a fresh one with the workspace mounted
     subprocess.run(["docker", "rm", "-f", SANDBOX], capture_output=True)
     docker_run = [
-        "docker", "run", "-d", "--name", SANDBOX,
+        # Docker's tiny init must be PID 1 so descendants killed by an
+        # in-container tool timeout are reaped instead of accumulating as
+        # zombies under ``sleep infinity`` during long campaigns.
+        "docker", "run", "-d", "--init", "--name", SANDBOX,
         "-v", f"{workspace_host}:/workspace",
     ]
     if gh_token:
@@ -709,6 +943,7 @@ def main():
     receipt = record_environment(
         args.run_name, args.model, api_url, args.task_file, log_dir,
         sandbox_runtime={
+            "docker_init": True,
             "gh_token_set": bool(gh_token),
             "docker_socket": bool(args.docker_socket),
             "gpus": args.gpus,
@@ -722,6 +957,9 @@ def main():
         reasoning_effort=args.reasoning_effort,
         enable_thinking=enable_thinking,
         max_model_len=args.max_model_len,
+        max_output_tokens_cap=args.max_output_tokens_cap,
+        top_p=args.top_p,
+        top_k=args.top_k,
     )
     print(f"receipt -> {log_dir / 'receipt.json'}  (vllm containers logged: {len(receipt['vllm']['containers'])})")
 
@@ -733,7 +971,8 @@ def main():
                          require_git_tag=bool(args.require_git_tag),
                          reasoning_effort=args.reasoning_effort,
                          enable_thinking=enable_thinking,
-                         max_model_len=args.max_model_len)
+                         max_model_len=args.max_model_len,
+                         max_output_tokens_cap=args.max_output_tokens_cap)
     print("\n=== SUMMARY ===")
     print(json.dumps(summary, indent=2))
 

@@ -1,0 +1,19 @@
+--- workspace.py.image-r16
++++ workspace.py.tower2
+@@ -162,6 +162,17 @@
+                 f"{self._num_lanes} lane(s)."
+             )
+         workspace_id = ubatch_id * self._num_lanes + lane
++        # Gilded Gnosis r16 does not warm every B12X compressed-MLA
++        # continuation-prefill shape before locking this manager.  In
++        # particular, the 4,096-wide contract peaks at about 1,028 MiB for
++        # 256 rows even though its captured graphs reserve only about 597 MiB.
++        # Allow deployments to reserve a target-lane floor during startup so
++        # all graph pointers remain stable once the workspace is locked.
++        if lane == 0 and not self._locked:
++            floor_mib = int(os.environ.get("VLLM_WORKSPACE_LANE0_MIN_MIB", "0"))
++            if floor_mib < 0:
++                raise ValueError("VLLM_WORKSPACE_LANE0_MIN_MIB must be non-negative")
++            required_bytes = max(required_bytes, floor_mib * _MB)
+         current_workspace = self._current_workspaces[workspace_id]
+         current_size = self._workspace_size_bytes(current_workspace)
