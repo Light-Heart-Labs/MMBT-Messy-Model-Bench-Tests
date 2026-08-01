@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "preset": "gemma4-31b-q4",
+  "engine": "external",
+  "model": "Gemma-4-31B-it-QAT-Q4_0",
+  "port": 8000,
+  "max_model_len": 262144,
+  "benchmark_temperature": 1.0,
+  "benchmark_top_p": 0.95,
+  "benchmark_top_k": 64,
+  "container": "gemma4-31b-q4-router",
+  "launcher": "/home/michael/start-gemma4-31b-q4.sh",
+  "arms": [
+    {
+      "label": "gemma4-31b-q4",
+      "thinking": ""
+    }
+  ],
+  "canonical_n": 3,
+  "variance_expansion_n": 10,
+  "variance_expansion_scope": "all_12_families",
+  "stuck_secs": 1200,
+  "endpoint_grace_secs": 300
+}

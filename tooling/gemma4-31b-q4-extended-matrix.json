@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "model": "Gemma-4-31B-it-QAT-Q4_0",
+  "endpoint": "http://127.0.0.1:8000/v1",
+  "served_context_tokens": 262144,
+  "temperature": 1.0,
+  "top_p": 0.95,
+  "top_k": 64,
+  "replicates": 3,
+  "historical_comparison_arms": [
+    "Qwen3.6-27B-AWQ",
+    "Qwen3.6-35B-A3B-AWQ",
+    "Qwen3-Coder-Next-AWQ",
+    "Qwen3.5-397B-A17B-Q3",
+    "DeepSeek-V4-Flash-0731"
+  ],
+  "suites": [
+    {
+      "id": "dreamserver-1-pr-audit",
+      "task": "tooling/tasks/task_pr_audit_n1.md",
+      "historical_task_sha256": "2e8770b3dbd210679e291f043f75b0d8aa5ec030c38b956926b8ba41c2cfb55c",
+      "current_task_sha256": "18c722e23dc9b38ce2be015bd2f3ab912c678bda7b44e5089d20af8a2f3e61c1",
+      "temperature": 1.0,
+      "top_p": 0.95,
+      "top_k": 64,
+      "max_output_tokens_cap": 262144,
+      "stuck_threshold": 500,
+      "require_git_tag": true
+    },
+    {
+      "id": "wallstreet-investment-memo",
+      "task": "tooling/tasks/task_investment_memo.md",
+      "historical_task_sha256": "02f48c90f5c951cff424ad0646dab2d00e7225194c9a64aefee1c6aa736c61a3",
+      "current_task_sha256": "02f48c90f5c951cff424ad0646dab2d00e7225194c9a64aefee1c6aa736c61a3",
+      "temperature": 1.0,
+      "top_p": 0.95,
+      "top_k": 64,
+      "max_output_tokens_cap": 262144,
+      "stuck_threshold": 500,
+      "require_git_tag": true
+    },
+    {
+      "id": "wallstreet-board-presentation",
+      "task": "tooling/tasks/task_board_presentation.md",
+      "historical_task_sha256": null,
+      "current_task_sha256": "b9f5e451d04bf7cad85eeb5fa98051b44b61028847b984048930437aadbbf4be",
+      "temperature": 1.0,
+      "top_p": 0.95,
+      "top_k": 64,
+      "max_output_tokens_cap": 262144,
+      "stuck_threshold": 500,
+      "require_git_tag": true,
+      "input_from": "wallstreet-investment-memo"
+    },
+    {
+      "id": "dreamserver-75-pr-audit",
+      "task": "tooling/tasks/task_dreamserver_pr_audit_frozen75.md",
+      "historical_task_sha256": "5f3ee8854907bbd78d9a6a6aaaad91e632821b0c77e09ac3fbcf42e0c5b33fde",
+      "current_task_sha256": "0d426e15303b3f886a75db81165cdbe9d91534a474217f91f4e2baf41c0056a6",
+      "temperature": 1.0,
+      "top_p": 0.95,
+      "top_k": 64,
+      "max_output_tokens_cap": 262144,
+      "stuck_threshold": 500,
+      "require_git_tag": true,
+      "input_path": "/mnt/bulk/benchmark-fixtures/dreamserver-75-pr-audit-2026-04-27"
+    }
+  ],
+  "comparability_notes": [
+    "Gemma is served at its model-card 262144-token native limit. Every suite uses that value as the request cap, while the harness retains a 14000-token safety reserve and subtracts actual prompt tokens.",
+    "Gemma is evaluated at its published sampling point: temperature=1.0, top_p=0.95, top_k=64. Historical arms with different sampling are compared with an explicit operating-point caveat.",
+    "The canonical first cohort is N=3 for direct historical comparison. The same immutable v1-v3 cohort is then extended through v10 for every one of the 12 families; v1-v3 are never replaced by later runs.",
+    "Both RTX PRO 6000 GPUs remain capped at 500 W. The selected serving topology is chosen by a preregistered bakeoff and may use independent per-GPU replicas if that beats cross-GPU splitting.",
+    "The current public 1-PR and 75-PR task files differ bytewise from historical private-receipt hashes after extraction and sanitization; both historical and current hashes are pinned.",
+    "The 75-PR suite uses the frozen historical fixture at baseline d5154c3. Its canonical PR-number set SHA-256 is 569b95b3384af0c4ae4b54a2c8c8f7c908b396124777927a37b5c8fa0211ecd1.",
+    "Every attempt is preserved. Only a proven pre-response infrastructure failure may be excluded; length termination, looping, malformed tool use, artifact omissions, server-visible API failures without a demonstrated endpoint outage, and other model-control failures remain valid outcomes.",
+    "Raw grades are immutable. Any grader correction is stored as a non-destructive overlay tied to unchanged archive hashes and grader commits."
+  ]
+}

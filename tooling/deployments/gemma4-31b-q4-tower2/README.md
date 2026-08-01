@@ -1,0 +1,26 @@
+# Gemma 4 31B QAT Q4_0 on Tower2
+
+This directory is the reproducibility package for the Gemma 4 31B Q4 campaign.
+It is created before serving optimization so runtime choices cannot be selected
+after seeing benchmark quality.
+
+Read in this order:
+
+1. `PREREGISTRATION.md` — immutable questions, cohorts, validity policy, and
+   topology selection rule.
+2. `model-manifest.json` — exact local artifacts, hashes, upstream revision,
+   hardware, and runtime candidates.
+3. `topology-matrix.json` — serving candidates, workloads, and winner rule.
+4. `final-validation.json` — populated only after a serving candidate passes.
+5. `campaign/` — launchers, units, telemetry, and benchmark supervision added as
+   the preregistered phases execute.
+
+The source is Google's [official QAT Q4_0 GGUF](https://huggingface.co/google/gemma-4-31B-it-qat-q4_0-gguf).
+Google documents [llama.cpp as an OpenAI-compatible Gemma serving route](https://ai.google.dev/gemma/docs/integrations/llamacpp),
+and the model repository pins the 256K context and temperature 1.0 / top-p 0.95 /
+top-k 64 operating point.
+
+This package deliberately tests one model per GPU as well as cross-GPU splitting.
+The 17 GB text model fits on either 98 GB GPU; using both GPUs for every request
+would add communication without necessarily improving latency or aggregate
+throughput.

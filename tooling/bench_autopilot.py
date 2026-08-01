@@ -704,6 +704,29 @@ def publish_scorecard(cfg, target, final_status):
         log(f"publish: git step failed (non-fatal): {e}")
 
 
+def benchmark_environment(cfg, base_env=None):
+    """Return the child environment carrying a model's pinned sampling point.
+
+    ``run_microbench.sh`` intentionally keeps historical defaults, so model-card
+    campaigns must pass their explicit overrides through the supervisor.  Keep
+    this in a testable helper: a config field that is only written to a receipt
+    or README but not sent to the harness is a methodology failure.
+    """
+    run_env = dict(os.environ if base_env is None else base_env)
+    sampling_env = {
+        "benchmark_temperature": "BENCH_TEMP",
+        "benchmark_top_p": "BENCH_TOP_P",
+        "benchmark_top_k": "BENCH_TOP_K",
+    }
+    for config_key, env_key in sampling_env.items():
+        value = cfg.get(config_key)
+        if value is not None:
+            run_env[env_key] = str(value)
+        else:
+            run_env.pop(env_key, None)
+    return run_env
+
+
 def run_arm_with_supervision(cfg, arm, target, started_at):
     """Spawn run_microbench for one arm; watchdog endpoint + stuck cells until it exits."""
     label, thinking = arm["label"], arm["thinking"]
@@ -715,7 +738,8 @@ def run_arm_with_supervision(cfg, arm, target, started_at):
     proc = subprocess.Popen(
         ["bash", str(SCRIPTS / "run_microbench.sh"), cfg["model"], str(cfg["port"]),
          label, str(target), "", thinking, str(cfg["max_model_len"])],
-        stdout=open(STATE_DIR / f"run-{label}.log", "a"), stderr=subprocess.STDOUT)
+        stdout=open(STATE_DIR / f"run-{label}.log", "a"), stderr=subprocess.STDOUT,
+        env=benchmark_environment(cfg))
     last_endpoint_ok = time.time()
     while proc.poll() is None:
         time.sleep(30)

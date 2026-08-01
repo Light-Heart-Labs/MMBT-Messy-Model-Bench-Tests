@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "campaign": "gemma4-31b-q4-mmbt",
+  "captured_at": "2026-08-01",
+  "source_repository": "google/gemma-4-31B-it-qat-q4_0-gguf",
+  "source_revision": "59dde24573e7e61570dba08b18a2e1fe246955ed",
+  "base_model": "google/gemma-4-31B-it-qat-q4_0-unquantized",
+  "served_name": "Gemma-4-31B-it-QAT-Q4_0",
+  "model": {
+    "path": "/mnt/bulk/models/google-gemma-4-31B-it-QAT-Q4_0-GGUF/gemma-4-31B_q4_0-it.gguf",
+    "bytes": 17651001568,
+    "sha256": "179cfb99212709597eae5929112cfca677e1bbf566178b479ae1da0c4772874b"
+  },
+  "multimodal_projector": {
+    "path": "/mnt/bulk/models/google-gemma-4-31B-it-QAT-Q4_0-GGUF/gemma-4-31B-it-mmproj.gguf",
+    "bytes": 1200726368,
+    "sha256": "6bd60bdb958548b4093196d38744b0f2290c12503a3fddd7486bffa9c5eb07a4"
+  },
+  "model_card": {
+    "parameters": 30700000000,
+    "architecture": "dense",
+    "quantization": "QAT Q4_0 GGUF",
+    "native_context_tokens": 262144,
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": 64,
+    "modalities": ["text", "image"]
+  },
+  "tower2": {
+    "gpus": "2x NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+    "gpu_memory_mib_each": 97887,
+    "gpu_power_limit_w_each": 500,
+    "mmbt_base_commit": "dcd9431d82168a17f039de084dce1a46ce3cc01a"
+  },
+  "runtime_candidates": [
+    {
+      "kind": "llama.cpp-current-source",
+      "commit": "11924d4c17abc27383376a1ac6a24fa3e36c1c0c",
+      "status": "must_build_and_validate"
+    },
+    {
+      "kind": "llama.cpp-container-fallback",
+      "image": "ghcr.io/ggml-org/llama.cpp@sha256:9b17daa3579c05543a0e7c87f3af92f05434b9f3d1608b45ae9ec855130eb8ac",
+      "build": 9641,
+      "status": "predates_qat_upload_revalidate_before_use"
+    }
+  ]
+}
