@@ -166,6 +166,18 @@ limitations are committed. Oversized raw archives remain external under
 unit, link, evidence, secret, size, and synthetic-merge audits; the draft PR is
 merged only after those pass and production agents are healthy.
 
+## Append-only serving amendment: six-slot measurement
+
+At 2026-08-01T23:44:00Z, before any canonical or extended MMBT quality run, the
+independent-replica serving search was extended from slots `[1, 2, 4]` to
+`[1, 2, 4, 6]`. The measured four-slot Q8 candidate occupied 64,789 MiB of
+97,887 MiB while maintaining four hard 262,144-token slots. Its observed
+incremental KV footprint supports measuring a six-slot, 1,572,864-token pool
+with a material VRAM safety margin. This amendment uses only serving memory and
+throughput evidence, responds to the explicit full-utilization objective, and
+does not discard or replace any prior topology attempt. The exact machine-
+readable amendment and anti-cherry-pick note are in `topology-matrix.json`.
+
 ## Stop conditions
 
 The campaign is complete only when the selected serving topology is stable, all

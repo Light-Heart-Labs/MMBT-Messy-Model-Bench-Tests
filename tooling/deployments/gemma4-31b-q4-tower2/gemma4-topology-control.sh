@@ -8,6 +8,7 @@ KNOWN_INSTANCES=(
   replica-gpu0 replica-gpu1
   replica-gpu0-f16-s2 replica-gpu1-f16-s2
   replica-gpu0-q8-s4 replica-gpu1-q8-s4
+  replica-gpu0-q8-s6 replica-gpu1-q8-s6
 )
 
 usage() {
