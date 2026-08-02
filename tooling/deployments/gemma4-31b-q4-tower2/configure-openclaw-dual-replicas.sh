@@ -50,7 +50,7 @@ jq --arg model "$MODEL" '
 ' "$CONFIG" >"$patch_file"
 
 "$OPENCLAW" config patch --file "$patch_file" --dry-run --json >"$dry_run_file"
-jq -e '.valid == true' "$dry_run_file" >/dev/null
+jq -e '.ok == true' "$dry_run_file" >/dev/null
 "$OPENCLAW" config patch --file "$patch_file" >/dev/null
 "$OPENCLAW" config validate --json | jq -e '.valid == true'
 
