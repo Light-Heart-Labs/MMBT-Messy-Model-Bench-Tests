@@ -1,0 +1,13 @@
+[Unit]
+Description=Gemma 4 31B Q4 per-run telemetry and cost artifacts
+After=mmbt-gemma4-power-logger.service
+Wants=mmbt-gemma4-power-logger.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/bash /home/michael/bench-gemma4-31b-q4/tooling/deployments/gemma4-31b-q4-tower2/gemma4-telemetry-sidecar.sh
+Restart=always
+RestartSec=30s
+
+[Install]
+WantedBy=default.target

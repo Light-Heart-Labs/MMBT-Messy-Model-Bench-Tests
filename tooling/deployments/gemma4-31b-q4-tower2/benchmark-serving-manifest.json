@@ -47,6 +47,26 @@
     "minimum_estimated_prompt_tokens": 8000,
     "minimum_request_max_tokens": 2048
   },
+  "telemetry": {
+    "interval_seconds": 5,
+    "raw_csv": "/home/michael/gemma4-campaign-state/telemetry/gemma4-31b-q4-gpu.csv",
+    "gpu_fields": [
+      "power_limit_w",
+      "power_w",
+      "util_sm",
+      "util_mem",
+      "mem_used_mib",
+      "temp_c",
+      "sm_clk_mhz"
+    ],
+    "cpu_field": "RAPL package power derived from energy_uj",
+    "attribution": "live harness port 8000 maps to GPU 0; port 8001 maps to GPU 1",
+    "wall_power": "unavailable to software; GPU plus CPU component telemetry is not labeled as AC wall draw",
+    "services": [
+      "mmbt-gemma4-power-logger.service",
+      "mmbt-gemma4-telemetry-sidecar.service"
+    ]
+  },
   "evidence_references": [
     {
       "path": "model-manifest.json",

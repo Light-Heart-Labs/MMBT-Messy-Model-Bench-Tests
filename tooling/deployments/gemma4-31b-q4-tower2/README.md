@@ -61,6 +61,13 @@ increases campaign throughput without introducing a cross-GPU dependency.
   stable run ordinal modulo two, so the lanes are disjoint and reproducible.
 - Every run receipt captures the deployment manifest, live `/v1/models`
   identity, and the exact host `llama-server` path, arguments, and SHA-256.
+- `gemma4_gpu_telemetry.py` samples both GPUs and the CPU package every five
+  seconds. It attributes port 8000's active harness to GPU 0 and port 8001's to
+  GPU 1, so simultaneous cells are not mislabeled as one dual-GPU request.
+- `analyze_replica_telemetry.py` clips samples to authoritative summary windows
+  and writes per-run power, utilization, memory, temperature, clock, energy,
+  CPU-package context, coverage, and concurrent-lane evidence. AC wall draw is
+  explicitly unavailable to software and is not fabricated from component data.
 
 The two-lane optimization changes scheduling only. It does not change the
 canonical run names, cohort membership, prompts, grading, or attempt-preservation
