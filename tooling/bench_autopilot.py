@@ -198,33 +198,63 @@ def endpoint_up(port: int) -> bool:
 
 
 def container_running(name: str) -> bool:
+    if not name:
+        return False
     r = sh(["docker", "ps", "--format", "{{.Names}}"])
     return name in r.stdout.split()
+
+
+def configured_ports(cfg: dict) -> list[int]:
+    ports = cfg.get("lane_ports") or [cfg["port"]]
+    return list(dict.fromkeys(int(port) for port in ports))
+
+
+def configured_services(cfg: dict) -> list[str]:
+    return [str(service) for service in (cfg.get("services") or [])]
+
+
+def service_running(name: str) -> bool:
+    return sh(["systemctl", "--user", "is-active", "--quiet", name]).returncode == 0
+
+
+def runtime_running(cfg: dict) -> bool:
+    services = configured_services(cfg)
+    if services:
+        return all(service_running(service) for service in services)
+    return container_running(cfg.get("container"))
 
 
 def ensure_endpoint(cfg: dict) -> bool:
     engine = cfg.get("engine", "llamacpp")
     if engine == "external":
-        port, name = cfg["port"], cfg["container"]
-        if endpoint_up(port):
+        ports = configured_ports(cfg)
+        name = cfg.get("container") or ", ".join(configured_services(cfg)) or "external runtime"
+        if all(endpoint_up(port) for port in ports):
             return True
         launcher = cfg.get("launcher")
         if not launcher:
             raise ValueError("external engine config requires a launcher")
-        log(f"endpoint down — invoking external launcher {launcher}")
-        notify("bench: endpoint restart", f"{name} down — invoking {launcher}", 0)
-        sh(["bash", launcher])
-        for _ in range(cfg["endpoint_grace_secs"] // 5):
-            if endpoint_up(port):
-                log("endpoint back up")
+        missing = [port for port in ports if not endpoint_up(port)]
+        log(f"endpoint lane(s) {missing} down — invoking external launcher {launcher}")
+        notify("bench: endpoint restart", f"{name} lane(s) {missing} down — invoking {launcher}", 0)
+        launched = sh(["bash", launcher])
+        if launched.returncode != 0:
+            detail = (launched.stderr or launched.stdout).strip()[-800:]
+            log(f"ERROR: external launcher failed rc={launched.returncode}: {detail}")
+            notify("bench: endpoint FAILED", f"{name} launcher failed rc={launched.returncode}", 1)
+            return False
+        for _ in range(max(1, cfg["endpoint_grace_secs"] // 5)):
+            if all(endpoint_up(port) for port in ports):
+                log(f"all endpoint lanes back up: {ports}")
                 return True
-            if not container_running(name):
-                log("ERROR: external endpoint container died during load")
+            if not runtime_running(cfg):
+                log("ERROR: external inference runtime died during load")
                 notify("bench: endpoint FAILED", f"{name} died during model load", 1)
                 return False
             time.sleep(5)
-        log("ERROR: external endpoint did not come up within grace period")
-        notify("bench: endpoint FAILED", f"{name} did not load within grace period", 1)
+        missing = [port for port in ports if not endpoint_up(port)]
+        log(f"ERROR: external endpoint lane(s) {missing} did not come up within grace period")
+        notify("bench: endpoint FAILED", f"{name} lane(s) {missing} did not load within grace period", 1)
         return False
     if engine != "llamacpp":
         note = cfg.get("_notimplemented", f"engine '{engine}' has no launcher")
@@ -540,12 +570,15 @@ def write_status(cfg, target, phase, arms_done, started_at=None):
         eta_secs = int(statistics.median(all_walls) * rem)
     recent, fails = recent_cells_and_fails(cfg)
     now = time.time()
+    lane_endpoint_status = {
+        str(port): endpoint_up(port) for port in configured_ports(cfg)
+    }
     status = {
         # ---- original keys (unchanged) ----
         "updated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "target_n": target, "phase": phase,
-        "endpoint_up": endpoint_up(cfg["port"]),
-        "container_up": container_running(cfg["container"]),
+        "endpoint_up": all(lane_endpoint_status.values()),
+        "container_up": runtime_running(cfg),
         "grand_done": grand_done, "grand_total": grand_total,
         "pct": round(100 * grand_done / grand_total, 1) if grand_total else 0,
         "current": cur, "arms": arms, "arms_done": arms_done, "tasks": TASKS,
@@ -558,6 +591,8 @@ def write_status(cfg, target, phase, arms_done, started_at=None):
         "preset": cfg.get("preset"),       # addition A: which preset is driving
         "model": cfg.get("model"),
         "engine": cfg.get("engine", "llamacpp"),
+        "lane_endpoints": lane_endpoint_status,
+        "runtime_up": runtime_running(cfg),
     }
     STATUS.write_text(json.dumps(status, indent=2))
     return status
@@ -717,6 +752,8 @@ def benchmark_environment(cfg, base_env=None):
         "benchmark_temperature": "BENCH_TEMP",
         "benchmark_top_p": "BENCH_TOP_P",
         "benchmark_top_k": "BENCH_TOP_K",
+        "benchmark_max_output_tokens_cap": "BENCH_MAX_OUTPUT_TOKENS_CAP",
+        "serving_manifest": "BENCH_SERVING_MANIFEST",
     }
     for config_key, env_key in sampling_env.items():
         value = cfg.get(config_key)
@@ -728,36 +765,56 @@ def benchmark_environment(cfg, base_env=None):
 
 
 def run_arm_with_supervision(cfg, arm, target, started_at):
-    """Spawn run_microbench for one arm; watchdog endpoint + stuck cells until it exits."""
+    """Shard one arm deterministically across configured replica endpoints."""
     label, thinking = arm["label"], arm["thinking"]
     ids = sh("docker ps -aq --filter name=bench-sandbox-").stdout.split()
     if ids:
         sh(["docker", "rm", "-f", *ids])
     sh(f"sudo rm -rf {TOOLING}/workspace/*{label}_v* 2>/dev/null")
-    log(f"RUN arm {label} (thinking={thinking}) target N={target}")
-    proc = subprocess.Popen(
-        ["bash", str(SCRIPTS / "run_microbench.sh"), cfg["model"], str(cfg["port"]),
-         label, str(target), "", thinking, str(cfg["max_model_len"])],
-        stdout=open(STATE_DIR / f"run-{label}.log", "a"), stderr=subprocess.STDOUT,
-        env=benchmark_environment(cfg))
-    last_endpoint_ok = time.time()
-    while proc.poll() is None:
-        time.sleep(30)
-        write_heartbeat()
-        write_status(cfg, target, f"run:{label}", [], started_at)
-        check_harness_anomaly(cfg)                            # addition C
-        check_current_substance(cfg)
-        if not endpoint_up(cfg["port"]):
-            if time.time() - last_endpoint_ok > 90:
-                log("watchdog: endpoint down >90s — restarting")
-                ensure_endpoint(cfg)
-                last_endpoint_ok = time.time()
-        else:
-            last_endpoint_ok = time.time()
-        cur = current_cell_info(cfg)
-        if cur["cell"] and cur["frozen_secs"] and cur["frozen_secs"] > cfg["stuck_secs"]:
-            kill_stuck(cur["cell"])
-    log(f"run_microbench {label} exited rc={proc.returncode}")
+    ports = configured_ports(cfg)
+    lane_count = len(ports)
+    log(f"RUN arm {label} (thinking={thinking}) target N={target} lanes={ports}")
+    procs = []
+    handles = []
+    try:
+        for lane_index, port in enumerate(ports):
+            run_env = benchmark_environment(cfg)
+            run_env["BENCH_LANE_INDEX"] = str(lane_index)
+            run_env["BENCH_LANE_COUNT"] = str(lane_count)
+            log_path = STATE_DIR / (
+                f"run-{label}.log" if lane_count == 1
+                else f"run-{label}-lane{lane_index}-port{port}.log"
+            )
+            handle = open(log_path, "a")
+            handles.append(handle)
+            proc = subprocess.Popen(
+                ["bash", str(SCRIPTS / "run_microbench.sh"), cfg["model"], str(port),
+                 label, str(target), "", thinking, str(cfg["max_model_len"])],
+                stdout=handle, stderr=subprocess.STDOUT, env=run_env)
+            procs.append((lane_index, port, proc))
+
+        last_endpoint_ok = {port: time.time() for port in ports}
+        while any(proc.poll() is None for _, _, proc in procs):
+            time.sleep(30)
+            write_heartbeat()
+            write_status(cfg, target, f"run:{label}", [], started_at)
+            check_harness_anomaly(cfg)                        # addition C
+            check_current_substance(cfg)
+            for port in ports:
+                if endpoint_up(port):
+                    last_endpoint_ok[port] = time.time()
+                elif time.time() - last_endpoint_ok[port] > 90:
+                    log(f"watchdog: endpoint lane {port} down >90s — restarting runtime")
+                    ensure_endpoint(cfg)
+                    last_endpoint_ok[port] = time.time()
+            cur = current_cell_info(cfg)
+            if cur["cell"] and cur["frozen_secs"] and cur["frozen_secs"] > cfg["stuck_secs"]:
+                kill_stuck(cur["cell"])
+        lane_results = {port: proc.returncode for _, port, proc in procs}
+        log(f"run_microbench {label} lane exit codes={lane_results}")
+    finally:
+        for handle in handles:
+            handle.close()
     sh(f"sudo rm -rf /tmp/grade_*{label}_v* 2>/dev/null")
     g = sh(["bash", str(SCRIPTS / "grade_microbench.sh"), label])
     (STATE_DIR / f"grade-{label}.log").write_text(g.stdout + g.stderr)

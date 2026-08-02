@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "campaign": "gemma4-31b-q4-mmbt",
+  "served_name": "Gemma-4-31B-it-QAT-Q4_0",
+  "artifact": {
+    "path": "/mnt/bulk/models/google-gemma-4-31B-it-QAT-Q4_0-GGUF/gemma-4-31B_q4_0-it.gguf",
+    "sha256": "179cfb99212709597eae5929112cfca677e1bbf566178b479ae1da0c4772874b",
+    "source_revision": "59dde24573e7e61570dba08b18a2e1fe246955ed"
+  },
+  "multimodal_projector": {
+    "path": "/mnt/bulk/models/google-gemma-4-31B-it-QAT-Q4_0-GGUF/gemma-4-31B-it-mmproj.gguf",
+    "sha256": "6bd60bdb958548b4093196d38744b0f2290c12503a3fddd7486bffa9c5eb07a4"
+  },
+  "runtime": {
+    "kind": "host-native llama.cpp",
+    "commit": "11924d4c17abc27383376a1ac6a24fa3e36c1c0c",
+    "version": 10223,
+    "llama_server_sha256": "200b403b5735418ff1f6da0cea1938e413e11869ae362e8044a12b0df04622fc",
+    "cuda": "13.1.115",
+    "cuda_architecture": "120a-real"
+  },
+  "topology": {
+    "kind": "two independent full-offload replicas",
+    "lane_ports": [8000, 8001],
+    "services": [
+      "mmbt-gemma4@replica-gpu0-q8-s4.service",
+      "mmbt-gemma4@replica-gpu1-q8-s4.service"
+    ],
+    "physical_gpu_per_lane": [0, 1],
+    "slots_per_replica": 4,
+    "context_tokens_per_slot": 262144,
+    "context_pool_tokens_per_replica": 1048576,
+    "cache_type_k": "q8_0",
+    "cache_type_v": "q8_0",
+    "kv_unified": false,
+    "flash_attention": true,
+    "gpu_power_limit_w_each": 500
+  },
+  "benchmark_operating_point": {
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": 64,
+    "max_model_len": 262144,
+    "max_output_tokens_cap": 262144,
+    "prompt_growth_reserve_tokens": 12000,
+    "context_safety_tokens": 2048,
+    "minimum_estimated_prompt_tokens": 8000,
+    "minimum_request_max_tokens": 2048
+  },
+  "evidence_references": [
+    {
+      "path": "model-manifest.json",
+      "sha256": "9208a912a473c94c0d016700025fd3576777c1b864ae381111f4ceb6695e1796"
+    },
+    {
+      "path": "final-validation.json",
+      "sha256": "295945748ca82fd55fb768368aa1f5b75827411bf33dfe21c7c7adfd257883a8"
+    }
+  ]
+}

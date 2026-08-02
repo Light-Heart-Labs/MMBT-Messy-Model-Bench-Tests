@@ -64,6 +64,25 @@ THINKING_FLAG=""
 MAXLEN="${7:-}"             # optional: served context window (e.g. 131072 for the 397B GGUF on llama.cpp)
 MAXLEN_FLAG=""
 [ -n "$MAXLEN" ] && MAXLEN_FLAG="--max-model-len $MAXLEN"
+MAX_OUTPUT_TOKENS_CAP="${BENCH_MAX_OUTPUT_TOKENS_CAP:-180000}"
+if ! [[ "$MAX_OUTPUT_TOKENS_CAP" =~ ^[1-9][0-9]*$ ]]; then
+  echo "ERROR: invalid BENCH_MAX_OUTPUT_TOKENS_CAP=$MAX_OUTPUT_TOKENS_CAP" >&2
+  exit 2
+fi
+MAX_OUTPUT_TOKENS_CAP_FLAG="--max-output-tokens-cap $MAX_OUTPUT_TOKENS_CAP"
+SERVING_MANIFEST_FLAG=""
+[ -n "${BENCH_SERVING_MANIFEST:-}" ] && SERVING_MANIFEST_FLAG="--serving-manifest $BENCH_SERVING_MANIFEST"
+
+# Deterministic run sharding allows one supervisor to drive independent GPU
+# replicas without duplicate claims. The default remains the historical single
+# lane. A run's zero-based ordinal modulo BENCH_LANE_COUNT owns the run.
+LANE_INDEX="${BENCH_LANE_INDEX:-0}"
+LANE_COUNT="${BENCH_LANE_COUNT:-1}"
+if ! [[ "$LANE_INDEX" =~ ^[0-9]+$ && "$LANE_COUNT" =~ ^[1-9][0-9]*$ ]] || \
+   (( LANE_INDEX >= LANE_COUNT )); then
+  echo "ERROR: invalid BENCH_LANE_INDEX=$LANE_INDEX BENCH_LANE_COUNT=$LANE_COUNT" >&2
+  exit 2
+fi
 
 # Sampling overrides via env (default keeps the cross-model temp=0.3 protocol). Some models
 # specify a required operating point and loop under low temp — e.g. MiniMax-M2 card mandates
@@ -130,9 +149,15 @@ TASKS=(
 )
 
 TOTAL_RUNS=$(( ${#TASKS[@]} * N ))
+if (( LANE_INDEX < TOTAL_RUNS )); then
+  ASSIGNED_RUNS=$(( (TOTAL_RUNS - 1 - LANE_INDEX) / LANE_COUNT + 1 ))
+else
+  ASSIGNED_RUNS=0
+fi
 START_T=$(date +%s)
 
 echo "==> Microbench chain: $TOTAL_RUNS runs (${#TASKS[@]} task families × N=$N)"
+echo "    lane:     $LANE_INDEX/$LANE_COUNT ($ASSIGNED_RUNS assigned runs)"
 echo "    model:    $MODEL  (label: $LABEL)"
 echo "    port:     $PORT"
 echo "    started:  $(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -141,10 +166,16 @@ echo ""
 DONE=0
 SKIPPED=0
 FAILED=0
+RUN_ORDINAL=0
 
 for entry in "${TASKS[@]}"; do
   IFS='|' read -r task_short task_file input_dir <<< "$entry"
   for v in $(seq 1 "$N"); do
+    ordinal="$RUN_ORDINAL"
+    RUN_ORDINAL=$((RUN_ORDINAL + 1))
+    if (( ordinal % LANE_COUNT != LANE_INDEX )); then
+      continue
+    fi
     run_name="${task_short}_${LABEL}_v${v}"
     DONE=$((DONE + 1))
 
@@ -184,6 +215,8 @@ for entry in "${TASKS[@]}"; do
       $REASONING_FLAG \
       $THINKING_FLAG \
       $MAXLEN_FLAG \
+      $MAX_OUTPUT_TOKENS_CAP_FLAG \
+      $SERVING_MANIFEST_FLAG \
       $INPUT_FLAG \
       --docker-socket \
       --gpus all 2>&1 | tail -3
@@ -202,7 +235,7 @@ M=$(( (ELAPSED % 3600) / 60 ))
 
 echo ""
 echo "==> Microbench chain complete"
-echo "    total:    $TOTAL_RUNS runs"
+echo "    total:    $ASSIGNED_RUNS assigned runs (of $TOTAL_RUNS campaign runs)"
 echo "    skipped:  $SKIPPED (already complete from prior invocations)"
 echo "    failed:   $FAILED (see logs/<run_name>/transcript.jsonl)"
 echo "    elapsed:  ${H}h${M}m"

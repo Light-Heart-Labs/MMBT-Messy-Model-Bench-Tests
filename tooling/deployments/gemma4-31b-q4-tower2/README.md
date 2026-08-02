@@ -42,3 +42,26 @@ Serving files
   and refuses to start while the DeepSeek container still owns the GPUs.
 - Split-GPU builds use the privately pinned NCCL runtime recorded in
   `model-manifest.json`; no system CUDA or NCCL package is modified.
+
+Validated benchmark serving
+---------------------------
+
+The winning quality-preserving topology is two independent Q8-KV, four-slot
+replicas: GPU 0 on port 8000 and GPU 1 on port 8001. Each request stays on one
+GPU and retains a hard 262,144-token context; using both replicas concurrently
+increases campaign throughput without introducing a cross-GPU dependency.
+
+- `benchmark-serving-manifest.json` is the compact immutable receipt anchor for
+  the artifact, runtime, topology, sampling point, context, output ceiling, and
+  500 W power caps.
+- `ensure-gemma4-winner.sh` starts and health-checks both systemd services; the
+  benchmark supervisor uses it for recovery rather than assuming a container.
+- `tooling/gemma4-31b-q4-mmbt.json` sends temperature 1.0, top-p 0.95, top-k 64,
+  and the 262,144-token output ceiling to the harness. Work is assigned by
+  stable run ordinal modulo two, so the lanes are disjoint and reproducible.
+- Every run receipt captures the deployment manifest, live `/v1/models`
+  identity, and the exact host `llama-server` path, arguments, and SHA-256.
+
+The two-lane optimization changes scheduling only. It does not change the
+canonical run names, cohort membership, prompts, grading, or attempt-preservation
+rules, and v1-v3 remain the immutable first cohort before expansion through v10.
