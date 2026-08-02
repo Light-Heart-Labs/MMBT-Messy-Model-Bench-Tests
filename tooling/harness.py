@@ -609,10 +609,34 @@ def validate_done(require_files, require_git_tag):
 
 
 def execute_tool(name, args, log_dir, require_files=None, require_git_tag=False):
+    # Tool schemas declare these fields required, but a model can still emit a
+    # syntactically valid call that omits one. That must become an observable
+    # tool error the model can repair, never a harness exception that destroys
+    # the benchmark attempt.
+    if not isinstance(args, dict):
+        return f"TOOL_ERROR: {name} arguments must be a JSON object"
+    required = {
+        "bash": ("command",),
+        "write_file": ("path", "content"),
+        "read_file": ("path",),
+    }
+    missing = [key for key in required.get(name, ()) if key not in args]
+    if missing:
+        return f"TOOL_ERROR: {name} missing required argument(s): {', '.join(missing)}"
+
     if name == "bash":
-        cmd = args.get("command", "")
+        cmd = args["command"]
+        if not isinstance(cmd, str) or not cmd:
+            return "TOOL_ERROR: bash argument 'command' must be a non-empty string"
         workdir = args.get("workdir") or "/workspace"
-        timeout = int(args.get("timeout_s") or 300)
+        if not isinstance(workdir, str):
+            return "TOOL_ERROR: bash argument 'workdir' must be a string"
+        try:
+            timeout = int(args.get("timeout_s") or 300)
+        except (TypeError, ValueError):
+            return "TOOL_ERROR: bash argument 'timeout_s' must be a positive integer"
+        if timeout <= 0:
+            return "TOOL_ERROR: bash argument 'timeout_s' must be a positive integer"
         r = docker_exec(cmd, workdir=workdir, timeout=timeout)
         body = f"rc={r['rc']}  duration={r['duration_s']}s\n--- stdout ---\n{r['stdout']}"
         if r['stderr']:
@@ -622,9 +646,13 @@ def execute_tool(name, args, log_dir, require_files=None, require_git_tag=False)
         return body
     elif name == "write_file":
         path = args["path"]
+        content = args["content"]
+        if not isinstance(path, str) or not path:
+            return "TOOL_ERROR: write_file argument 'path' must be a non-empty string"
+        if not isinstance(content, str):
+            return "TOOL_ERROR: write_file argument 'content' must be a string"
         if not path.startswith("/"):
             path = "/workspace/" + path
-        content = args["content"]
         # Stage via tempfile on host, docker cp into sandbox (handles binary/special chars cleanly)
         tmp = Path(log_dir) / f".write_{uuid.uuid4().hex}.tmp"
         tmp.write_text(content, encoding="utf-8")
@@ -639,6 +667,8 @@ def execute_tool(name, args, log_dir, require_files=None, require_git_tag=False)
         return f"wrote {size} bytes to {path}"
     elif name == "read_file":
         path = args["path"]
+        if not isinstance(path, str) or not path:
+            return "TOOL_ERROR: read_file argument 'path' must be a non-empty string"
         if not path.startswith("/"):
             path = "/workspace/" + path
         r = docker_exec(f"head -c 200000 {path!r}", timeout=10)
