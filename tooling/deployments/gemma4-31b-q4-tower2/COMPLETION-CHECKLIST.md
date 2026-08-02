@@ -47,7 +47,7 @@ does not relax `PREREGISTRATION.md`.
   monitoring, and server-slot progress watchdogs have isolated tests.
 - [x] Explicit terminal outcomes retain receipt, transcript, cost, telemetry,
   label, and evidence-window provenance without fabricating normal grades.
-- [ ] The one-hour transport-timeout refactor attempt remains preserved as
+- [x] The one-hour transport-timeout refactor attempt remains preserved as
   infrastructure-invalid, and its exact replacement reaches a model-native
   stop condition under the corrected 14,400-second server timeout.
 - [ ] The committed boundary bundle passes syntax, unit, ShellCheck,

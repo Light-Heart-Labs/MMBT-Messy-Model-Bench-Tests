@@ -145,6 +145,10 @@ python3 tooling/summarize_gemma4_campaign.py \
   --allow-pretelemetry-run p1_bugfix_gemma4-31b-q4_v2 \
   --output-json logs/_campaign_audit/gemma4-canonical-n3-scorecard.json \
   --output-markdown logs/_campaign_audit/gemma4-canonical-n3-scorecard.md
+
+python3 tooling/correct_gemma4_project_mgmt_grades.py \
+  --target-n 3 \
+  --output logs/_campaign_audit/gemma4-canonical-n3-project-mgmt-correction.json
 ```
 
 N=10 repeats the snapshot, audit, grader-manifest, and scorecard commands with
@@ -162,6 +166,16 @@ reproducible grader corrections remain separate hash-tied overlays.
 all task graders and ground-truth inputs, the sandbox image, runtime versions,
 repository commit, and every raw grade/terminal-label file before any overlay
 is considered.
+
+The raw project-management grader searches for a few contiguous phrases and
+misses semantically exact wording such as “Maevia … push back,” “Legal has not
+yet responded,” hyphenated “web-responsive,” and “private beta (3-5
+customers).” `tooling/correct_gemma4_project_mgmt_grades.py` is a narrow,
+non-destructive overlay fixed after N=3 and before N=10. It records the raw
+grade, report, archive, raw-grader, and correction-script hashes; changes only
+those four lexical false negatives; and never overwrites `grade.json`. Raw
+scores remain primary and the corrected total is reported separately. No other
+failure is reinterpreted without an independently reproducible grader defect.
 
 `invalid-attempt-classifications.json` is the exclusion ledger. The canonical
 auditor requires every `logs/_invalid/` directory to have a matching

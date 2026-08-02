@@ -65,5 +65,27 @@
   "post_boundary_reanalysis": {
     "git_sha": "fdcc24964bdde6db7c602bacb3a53b8780229985",
     "treatment": "the original telemetry is immutable; a separately named reanalysis adds explicit evidence-window provenance without replacing it"
+  },
+  "replacement_result": {
+    "started_at": "2026-08-02T02:40:35.025584Z",
+    "ended_at": "2026-08-02T02:43:53.245183Z",
+    "elapsed_s": 198.2,
+    "iterations": 40,
+    "completion_tokens": 10797,
+    "prompt_tokens_cumulative": 399232,
+    "finish_reason": "done_signal",
+    "server_read_write_timeout_s": 14400,
+    "harness_git_sha": "1a4a954715bf7b228a2d5496fa87547318be6ba8",
+    "harness_git_dirty": false,
+    "grade_verdict": "PASS",
+    "files": {
+      "receipt.json": "d8b8de86c6abb82b39c59fd2ed56571dc1c05e4c1cf2214fce1a54803bb20dca",
+      "summary.json": "e22036d8e57d95f93243ae7cd3f22cfc271686c8134c715dfc44b7459410fe61",
+      "transcript.jsonl": "5ac6ee6b8399781a2394c9e663e4ac0c0850655b6ccb4d80d8ad307e6b62d3ab",
+      "workspace_final.tar.gz": "427d4a3a2eaef5eb3ed46b025996fdbc51fce966e234f63855e4542984c3bd1e",
+      "cost.json": "b296c66ff2312ad59757460488b509e23770bf1e6d79e3bee11d7a11110770cf",
+      "gpu_telemetry.json": "0c735a89e20aa5047ba35be526f88aeda1add9f5b234af221f4034ed3d706a7e",
+      "grade.json": "7f69334378ac3187de489eb74ad81c8245267d1a5711612b94879f297e758bcf"
+    }
   }
 }

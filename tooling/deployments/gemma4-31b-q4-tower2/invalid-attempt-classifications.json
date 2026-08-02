@@ -103,7 +103,15 @@
         "transcript.jsonl": "e887af90ea26038d3d8aadf22998eaa443eeb78eaa59d204bc7fcc741124e00e",
         "workspace_final.tar.gz": "90a1b1918640b2a496b66ed5fbaf8649eb5902aa2e4e36c1f6b4debc71c720bc"
       },
-      "replacement": {"required": true, "canonical_run": "p1_refactor_gemma4-31b-q4_v3", "status": "pending"}
+      "replacement": {
+        "required": true,
+        "canonical_run": "p1_refactor_gemma4-31b-q4_v3",
+        "status": "completed",
+        "receipt_sha256": "d8b8de86c6abb82b39c59fd2ed56571dc1c05e4c1cf2214fce1a54803bb20dca",
+        "summary_sha256": "e22036d8e57d95f93243ae7cd3f22cfc271686c8134c715dfc44b7459410fe61",
+        "server_timeout_seconds": 14400,
+        "finish_reason": "done_signal"
+      }
     }
   }
 }
