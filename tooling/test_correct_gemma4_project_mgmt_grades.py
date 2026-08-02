@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import importlib.util
+import io
+import tarfile
 from pathlib import Path
 
 
@@ -62,3 +64,29 @@ def test_unrelated_text_does_not_change_a_failure():
     corrected, changes = MODULE.apply_correction(raw_grade(), "No additional evidence.")
     assert corrected["verdict"] == "FAIL"
     assert changes == []
+
+
+def test_archived_report_is_authoritative_when_live_workspace_is_gone(tmp_path):
+    report = b"Risks: Maevia may push back on private beta.\n"
+    archive = tmp_path / "workspace_final.tar.gz"
+    with tarfile.open(archive, "w:gz") as bundle:
+        member = tarfile.TarInfo("./status_report.md")
+        member.size = len(report)
+        bundle.addfile(member, io.BytesIO(report))
+
+    text, digest = MODULE.read_archived_report(archive)
+    assert text == report.decode("utf-8")
+    assert digest == MODULE.sha256_bytes(report)
+
+
+def test_archived_report_rejects_missing_member(tmp_path):
+    archive = tmp_path / "workspace_final.tar.gz"
+    with tarfile.open(archive, "w:gz"):
+        pass
+
+    try:
+        MODULE.read_archived_report(archive)
+    except ValueError as exc:
+        assert "expected one ./status_report.md" in str(exc)
+    else:
+        raise AssertionError("missing status_report.md should fail closed")

@@ -7,6 +7,7 @@ import copy
 import hashlib
 import json
 import re
+import tarfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -45,6 +46,30 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def read_archived_report(archive: Path) -> tuple[str, str]:
+    """Read status_report.md from immutable run evidence without extracting it."""
+    with tarfile.open(archive, "r:gz") as bundle:
+        matches = [
+            member
+            for member in bundle.getmembers()
+            if member.isfile()
+            and member.name.removeprefix("./") == "status_report.md"
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                f"expected one ./status_report.md in {archive}, found {len(matches)}"
+            )
+        handle = bundle.extractfile(matches[0])
+        if handle is None:
+            raise ValueError(f"could not read ./status_report.md from {archive}")
+        data = handle.read()
+    return data.decode("utf-8"), sha256_bytes(data)
 
 
 def apply_correction(raw: dict, report_text: str) -> tuple[dict, list[dict]]:
@@ -108,19 +133,24 @@ def build(root: Path, target_n: int, script_path: Path) -> tuple[dict, list[str]
         name = f"p3_pm_gemma4-31b-q4_v{replicate}"
         run = root / "logs" / name
         raw_grade = run / "grade.json"
-        report = root / "tooling" / "workspace" / name / "status_report.md"
         archive = run / "workspace_final.tar.gz"
-        missing = [str(path) for path in (raw_grade, report, archive) if not path.is_file()]
+        missing = [str(path) for path in (raw_grade, archive) if not path.is_file()]
         if missing:
             errors.append(f"{name}: missing {missing}")
             continue
+        try:
+            report_text, report_sha256 = read_archived_report(archive)
+        except (OSError, tarfile.TarError, UnicodeDecodeError, ValueError) as exc:
+            errors.append(f"{name}: archived status report error: {exc}")
+            continue
         raw = json.loads(raw_grade.read_text())
-        corrected, changes = apply_correction(raw, report.read_text())
+        corrected, changes = apply_correction(raw, report_text)
         cells.append({
             "run_name": name,
             "raw_grade_sha256": sha256(raw_grade),
             "workspace_archive_sha256": sha256(archive),
-            "status_report_sha256": sha256(report),
+            "status_report_source": "workspace_final.tar.gz:./status_report.md",
+            "status_report_sha256": report_sha256,
             "raw_verdict": raw.get("verdict"),
             "corrected_verdict": corrected.get("verdict"),
             "changes": changes,
