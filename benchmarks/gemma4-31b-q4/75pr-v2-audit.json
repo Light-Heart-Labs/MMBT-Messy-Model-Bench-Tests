@@ -1,0 +1,1265 @@
+{
+  "schema_version": 2,
+  "audited_at": "2026-08-02T06:46:32.358185+00:00",
+  "run_name": "Gemma-4-31B-it-QAT-Q4_0 gemma4-31b-q4_75pr_v2",
+  "classification": "MODEL_TERMINAL_FAILURE",
+  "legacy_shipped": false,
+  "verdict_counts": {
+    "merge": 1
+  },
+  "runtime": {
+    "wall_s": 193.8,
+    "iterations": 32,
+    "completion_tokens": 7592,
+    "prompt_tokens": 879716,
+    "completion_tps_model_call": 40.8
+  },
+  "artifact_integrity": {
+    "archive_sha256": "f9a10fe0fa04125aa230dd9e588b5763544b3fa3ebcba9666e6d78bc9e427fd9",
+    "archive_bytes": 54035493,
+    "archive_gzip_valid": true,
+    "head": "08578de7132caff2f4330b5eef3d5dcd90f007dc",
+    "tags": [],
+    "tag_targets": {},
+    "tag_at_head": false,
+    "clean": true,
+    "commit_count": 2
+  },
+  "substance": {
+    "test_evidence_count": 0,
+    "test_evidence_prs": [],
+    "missing_test_or_skip_count": 75,
+    "missing_test_or_skip_prs": [
+      959,
+      966
+    ],
+    "reviews_under_800_bytes_count": 2,
+    "reviews_under_800_bytes_prs": [
+      959,
+      966
+    ],
+    "reviews_with_source_citation_count": 1,
+    "reviews_with_source_citation_prs": [
+      959
+    ],
+    "reviews_with_hunk_marker_count": 0,
+    "traces_with_source_citation_count": 0,
+    "traces_with_hunk_marker_count": 0,
+    "diff_analyses_with_hunk_marker_count": 0,
+    "explicit_actual_bounty_tier_count": 0,
+    "explicit_actual_bounty_tier_prs": [],
+    "transcript_tool_events": 31,
+    "numbered_tool_log_entries": 0
+  },
+  "strict_validation": {
+    "schema_version": 1,
+    "workspace": "/home/michael/bench-gemma4-31b-q4/tooling/workspace/gemma4-31b-q4_75pr_v2/audit-repo",
+    "fixture": "/mnt/bulk/benchmark-fixtures/dreamserver-75-pr-audit-2026-04-27",
+    "pass": false,
+    "metrics": {
+      "canonical_prs": 75,
+      "actual_pr_dirs": 2,
+      "missing_pr_dirs": [
+        351,
+        364,
+        716,
+        750,
+        961,
+        973,
+        974,
+        983,
+        988,
+        990,
+        991,
+        992,
+        993,
+        994,
+        996,
+        997,
+        998,
+        999,
+        1000,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1008,
+        1009,
+        1010,
+        1011,
+        1012,
+        1013,
+        1014,
+        1015,
+        1016,
+        1017,
+        1018,
+        1019,
+        1020,
+        1021,
+        1022,
+        1023,
+        1024,
+        1025,
+        1026,
+        1027,
+        1028,
+        1029,
+        1030,
+        1032,
+        1033,
+        1034,
+        1035,
+        1036,
+        1037,
+        1038,
+        1039,
+        1040,
+        1042,
+        1043,
+        1044,
+        1045,
+        1046,
+        1047,
+        1048,
+        1049,
+        1050,
+        1051,
+        1052,
+        1053,
+        1054,
+        1055,
+        1056,
+        1057
+      ],
+      "extra_pr_dirs": [],
+      "verdict_counts": {
+        "merge": 1
+      },
+      "raw_frozen_file_overlap_pairs": 676,
+      "trusted_file_list_prs": 63,
+      "trusted_file_overlap_pairs": 205,
+      "listed_pair_mentions": 0,
+      "missing_trusted_file_overlap_pairs": 205,
+      "missing_trusted_file_overlap_pair_sample": [
+        [
+          990,
+          991
+        ],
+        [
+          992,
+          1013
+        ],
+        [
+          992,
+          1017
+        ],
+        [
+          993,
+          994
+        ],
+        [
+          993,
+          997
+        ],
+        [
+          993,
+          998
+        ],
+        [
+          993,
+          999
+        ],
+        [
+          993,
+          1000
+        ],
+        [
+          993,
+          1002
+        ],
+        [
+          993,
+          1006
+        ],
+        [
+          993,
+          1007
+        ],
+        [
+          993,
+          1008
+        ],
+        [
+          993,
+          1011
+        ],
+        [
+          993,
+          1016
+        ],
+        [
+          993,
+          1018
+        ],
+        [
+          993,
+          1020
+        ],
+        [
+          994,
+          997
+        ],
+        [
+          994,
+          998
+        ],
+        [
+          994,
+          999
+        ],
+        [
+          994,
+          1000
+        ],
+        [
+          994,
+          1002
+        ],
+        [
+          994,
+          1006
+        ],
+        [
+          994,
+          1007
+        ],
+        [
+          994,
+          1008
+        ],
+        [
+          994,
+          1010
+        ],
+        [
+          994,
+          1011
+        ],
+        [
+          994,
+          1016
+        ],
+        [
+          994,
+          1017
+        ],
+        [
+          994,
+          1018
+        ],
+        [
+          994,
+          1020
+        ],
+        [
+          996,
+          1012
+        ],
+        [
+          996,
+          1017
+        ],
+        [
+          996,
+          1026
+        ],
+        [
+          997,
+          998
+        ],
+        [
+          997,
+          999
+        ],
+        [
+          997,
+          1000
+        ],
+        [
+          997,
+          1002
+        ],
+        [
+          997,
+          1006
+        ],
+        [
+          997,
+          1007
+        ],
+        [
+          997,
+          1008
+        ],
+        [
+          997,
+          1011
+        ],
+        [
+          997,
+          1016
+        ],
+        [
+          997,
+          1018
+        ],
+        [
+          997,
+          1020
+        ],
+        [
+          998,
+          999
+        ],
+        [
+          998,
+          1000
+        ],
+        [
+          998,
+          1002
+        ],
+        [
+          998,
+          1006
+        ],
+        [
+          998,
+          1007
+        ],
+        [
+          998,
+          1008
+        ]
+      ],
+      "missing_raw_frozen_overlap_pairs": 676,
+      "missing_raw_frozen_overlap_pair_sample": [
+        [
+          351,
+          364
+        ],
+        [
+          351,
+          716
+        ],
+        [
+          351,
+          750
+        ],
+        [
+          351,
+          959
+        ],
+        [
+          351,
+          961
+        ],
+        [
+          351,
+          966
+        ],
+        [
+          351,
+          973
+        ],
+        [
+          351,
+          974
+        ],
+        [
+          351,
+          983
+        ],
+        [
+          351,
+          988
+        ],
+        [
+          351,
+          990
+        ],
+        [
+          351,
+          991
+        ],
+        [
+          351,
+          992
+        ],
+        [
+          351,
+          993
+        ],
+        [
+          351,
+          994
+        ],
+        [
+          351,
+          996
+        ],
+        [
+          351,
+          997
+        ],
+        [
+          351,
+          998
+        ],
+        [
+          351,
+          999
+        ],
+        [
+          351,
+          1000
+        ],
+        [
+          351,
+          1002
+        ],
+        [
+          351,
+          1003
+        ],
+        [
+          351,
+          1004
+        ],
+        [
+          351,
+          1005
+        ],
+        [
+          351,
+          1006
+        ],
+        [
+          351,
+          1007
+        ],
+        [
+          351,
+          1008
+        ],
+        [
+          351,
+          1009
+        ],
+        [
+          351,
+          1010
+        ],
+        [
+          351,
+          1011
+        ],
+        [
+          351,
+          1012
+        ],
+        [
+          351,
+          1013
+        ],
+        [
+          351,
+          1015
+        ],
+        [
+          351,
+          1016
+        ],
+        [
+          351,
+          1017
+        ],
+        [
+          351,
+          1018
+        ],
+        [
+          351,
+          1019
+        ],
+        [
+          351,
+          1020
+        ],
+        [
+          351,
+          1021
+        ],
+        [
+          351,
+          1022
+        ],
+        [
+          351,
+          1023
+        ],
+        [
+          351,
+          1024
+        ],
+        [
+          351,
+          1025
+        ],
+        [
+          351,
+          1026
+        ],
+        [
+          351,
+          1027
+        ],
+        [
+          351,
+          1028
+        ],
+        [
+          351,
+          1029
+        ],
+        [
+          351,
+          1030
+        ],
+        [
+          351,
+          1032
+        ],
+        [
+          351,
+          1033
+        ]
+      ],
+      "raw_file_count_metadata_mismatch_prs": [
+        351,
+        364,
+        716,
+        750,
+        959,
+        961,
+        966,
+        973,
+        974,
+        983,
+        988,
+        1043
+      ],
+      "transcript_tool_events": 31,
+      "numbered_tool_log_entries": 0
+    },
+    "failures": [
+      "missing or empty required artifact: README.md",
+      "missing or empty required artifact: sources.md",
+      "missing or empty required artifact: report/executive-summary.md",
+      "missing or empty required artifact: report/backlog-strategy.md",
+      "missing or empty required artifact: report/contributor-notes.md",
+      "missing or empty required artifact: report/project-health.md",
+      "missing or empty required artifact: analysis/dependency-graph.md",
+      "missing or empty required artifact: analysis/risk-matrix.md",
+      "missing or empty required artifact: analysis/surface-area.md",
+      "missing or empty required artifact: testing/baseline.md",
+      "missing or empty required artifact: research/questions.md",
+      "missing or empty required artifact: research/dead-ends.md",
+      "missing or empty required artifact: research/upstream-context.md",
+      "missing non-empty decisions directory",
+      "missing PR directories: [351, 364, 716, 750, 961, 973, 974, 983, 988, 990, 991, 992, 993, 994, 996, 997, 998, 999, 1000, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026, 1027, 1028, 1029, 1030, 1032, 1033, 1034, 1035, 1036, 1037, 1038, 1039, 1040, 1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1054, 1055, 1056, 1057]",
+      "PR 351: missing or empty verdict.md",
+      "PR 351: missing or empty summary.md",
+      "PR 351: missing or empty review.md",
+      "PR 351: missing or empty diff-analysis.md",
+      "PR 351: missing or empty interactions.md",
+      "PR 351: missing or empty trace.md",
+      "PR 351: no merge/revise/reject disposition near verdict start",
+      "PR 351: no non-empty test-evidence file",
+      "PR 364: missing or empty verdict.md",
+      "PR 364: missing or empty summary.md",
+      "PR 364: missing or empty review.md",
+      "PR 364: missing or empty diff-analysis.md",
+      "PR 364: missing or empty interactions.md",
+      "PR 364: missing or empty trace.md",
+      "PR 364: no merge/revise/reject disposition near verdict start",
+      "PR 364: no non-empty test-evidence file",
+      "PR 716: missing or empty verdict.md",
+      "PR 716: missing or empty summary.md",
+      "PR 716: missing or empty review.md",
+      "PR 716: missing or empty diff-analysis.md",
+      "PR 716: missing or empty interactions.md",
+      "PR 716: missing or empty trace.md",
+      "PR 716: no merge/revise/reject disposition near verdict start",
+      "PR 716: no non-empty test-evidence file",
+      "PR 750: missing or empty verdict.md",
+      "PR 750: missing or empty summary.md",
+      "PR 750: missing or empty review.md",
+      "PR 750: missing or empty diff-analysis.md",
+      "PR 750: missing or empty interactions.md",
+      "PR 750: missing or empty trace.md",
+      "PR 750: no merge/revise/reject disposition near verdict start",
+      "PR 750: no non-empty test-evidence file",
+      "PR 959: missing or empty interactions.md",
+      "PR 959: missing or empty trace.md",
+      "PR 959: no non-empty test-evidence file",
+      "PR 961: missing or empty verdict.md",
+      "PR 961: missing or empty summary.md",
+      "PR 961: missing or empty review.md",
+      "PR 961: missing or empty diff-analysis.md",
+      "PR 961: missing or empty interactions.md",
+      "PR 961: missing or empty trace.md",
+      "PR 961: no merge/revise/reject disposition near verdict start",
+      "PR 961: no non-empty test-evidence file",
+      "PR 966: missing or empty verdict.md",
+      "PR 966: missing or empty summary.md",
+      "PR 966: missing or empty review.md",
+      "PR 966: missing or empty diff-analysis.md",
+      "PR 966: missing or empty interactions.md",
+      "PR 966: missing or empty trace.md",
+      "PR 966: no merge/revise/reject disposition near verdict start",
+      "PR 966: no non-empty test-evidence file",
+      "PR 973: missing or empty verdict.md",
+      "PR 973: missing or empty summary.md",
+      "PR 973: missing or empty review.md",
+      "PR 973: missing or empty diff-analysis.md",
+      "PR 973: missing or empty interactions.md",
+      "PR 973: missing or empty trace.md",
+      "PR 973: no merge/revise/reject disposition near verdict start",
+      "PR 973: no non-empty test-evidence file",
+      "PR 974: missing or empty verdict.md",
+      "PR 974: missing or empty summary.md",
+      "PR 974: missing or empty review.md",
+      "PR 974: missing or empty diff-analysis.md",
+      "PR 974: missing or empty interactions.md",
+      "PR 974: missing or empty trace.md",
+      "PR 974: no merge/revise/reject disposition near verdict start",
+      "PR 974: no non-empty test-evidence file",
+      "PR 983: missing or empty verdict.md",
+      "PR 983: missing or empty summary.md",
+      "PR 983: missing or empty review.md",
+      "PR 983: missing or empty diff-analysis.md",
+      "PR 983: missing or empty interactions.md",
+      "PR 983: missing or empty trace.md",
+      "PR 983: no merge/revise/reject disposition near verdict start",
+      "PR 983: no non-empty test-evidence file",
+      "PR 988: missing or empty verdict.md",
+      "PR 988: missing or empty summary.md",
+      "PR 988: missing or empty review.md",
+      "PR 988: missing or empty diff-analysis.md",
+      "PR 988: missing or empty interactions.md",
+      "PR 988: missing or empty trace.md",
+      "PR 988: no merge/revise/reject disposition near verdict start",
+      "PR 988: no non-empty test-evidence file",
+      "PR 990: missing or empty verdict.md",
+      "PR 990: missing or empty summary.md",
+      "PR 990: missing or empty review.md",
+      "PR 990: missing or empty diff-analysis.md",
+      "PR 990: missing or empty interactions.md",
+      "PR 990: missing or empty trace.md",
+      "PR 990: no merge/revise/reject disposition near verdict start",
+      "PR 990: no non-empty test-evidence file",
+      "PR 991: missing or empty verdict.md",
+      "PR 991: missing or empty summary.md",
+      "PR 991: missing or empty review.md",
+      "PR 991: missing or empty diff-analysis.md",
+      "PR 991: missing or empty interactions.md",
+      "PR 991: missing or empty trace.md",
+      "PR 991: no merge/revise/reject disposition near verdict start",
+      "PR 991: no non-empty test-evidence file",
+      "PR 992: missing or empty verdict.md",
+      "PR 992: missing or empty summary.md",
+      "PR 992: missing or empty review.md",
+      "PR 992: missing or empty diff-analysis.md",
+      "PR 992: missing or empty interactions.md",
+      "PR 992: missing or empty trace.md",
+      "PR 992: no merge/revise/reject disposition near verdict start",
+      "PR 992: no non-empty test-evidence file",
+      "PR 993: missing or empty verdict.md",
+      "PR 993: missing or empty summary.md",
+      "PR 993: missing or empty review.md",
+      "PR 993: missing or empty diff-analysis.md",
+      "PR 993: missing or empty interactions.md",
+      "PR 993: missing or empty trace.md",
+      "PR 993: no merge/revise/reject disposition near verdict start",
+      "PR 993: no non-empty test-evidence file",
+      "PR 994: missing or empty verdict.md",
+      "PR 994: missing or empty summary.md",
+      "PR 994: missing or empty review.md",
+      "PR 994: missing or empty diff-analysis.md",
+      "PR 994: missing or empty interactions.md",
+      "PR 994: missing or empty trace.md",
+      "PR 994: no merge/revise/reject disposition near verdict start",
+      "PR 994: no non-empty test-evidence file",
+      "PR 996: missing or empty verdict.md",
+      "PR 996: missing or empty summary.md",
+      "PR 996: missing or empty review.md",
+      "PR 996: missing or empty diff-analysis.md",
+      "PR 996: missing or empty interactions.md",
+      "PR 996: missing or empty trace.md",
+      "PR 996: no merge/revise/reject disposition near verdict start",
+      "PR 996: no non-empty test-evidence file",
+      "PR 997: missing or empty verdict.md",
+      "PR 997: missing or empty summary.md",
+      "PR 997: missing or empty review.md",
+      "PR 997: missing or empty diff-analysis.md",
+      "PR 997: missing or empty interactions.md",
+      "PR 997: missing or empty trace.md",
+      "PR 997: no merge/revise/reject disposition near verdict start",
+      "PR 997: no non-empty test-evidence file",
+      "PR 998: missing or empty verdict.md",
+      "PR 998: missing or empty summary.md",
+      "PR 998: missing or empty review.md",
+      "PR 998: missing or empty diff-analysis.md",
+      "PR 998: missing or empty interactions.md",
+      "PR 998: missing or empty trace.md",
+      "PR 998: no merge/revise/reject disposition near verdict start",
+      "PR 998: no non-empty test-evidence file",
+      "PR 999: missing or empty verdict.md",
+      "PR 999: missing or empty summary.md",
+      "PR 999: missing or empty review.md",
+      "PR 999: missing or empty diff-analysis.md",
+      "PR 999: missing or empty interactions.md",
+      "PR 999: missing or empty trace.md",
+      "PR 999: no merge/revise/reject disposition near verdict start",
+      "PR 999: no non-empty test-evidence file",
+      "PR 1000: missing or empty verdict.md",
+      "PR 1000: missing or empty summary.md",
+      "PR 1000: missing or empty review.md",
+      "PR 1000: missing or empty diff-analysis.md",
+      "PR 1000: missing or empty interactions.md",
+      "PR 1000: missing or empty trace.md",
+      "PR 1000: no merge/revise/reject disposition near verdict start",
+      "PR 1000: no non-empty test-evidence file",
+      "PR 1002: missing or empty verdict.md",
+      "PR 1002: missing or empty summary.md",
+      "PR 1002: missing or empty review.md",
+      "PR 1002: missing or empty diff-analysis.md",
+      "PR 1002: missing or empty interactions.md",
+      "PR 1002: missing or empty trace.md",
+      "PR 1002: no merge/revise/reject disposition near verdict start",
+      "PR 1002: no non-empty test-evidence file",
+      "PR 1003: missing or empty verdict.md",
+      "PR 1003: missing or empty summary.md",
+      "PR 1003: missing or empty review.md",
+      "PR 1003: missing or empty diff-analysis.md",
+      "PR 1003: missing or empty interactions.md",
+      "PR 1003: missing or empty trace.md",
+      "PR 1003: no merge/revise/reject disposition near verdict start",
+      "PR 1003: no non-empty test-evidence file",
+      "PR 1004: missing or empty verdict.md",
+      "PR 1004: missing or empty summary.md",
+      "PR 1004: missing or empty review.md",
+      "PR 1004: missing or empty diff-analysis.md",
+      "PR 1004: missing or empty interactions.md",
+      "PR 1004: missing or empty trace.md",
+      "PR 1004: no merge/revise/reject disposition near verdict start",
+      "PR 1004: no non-empty test-evidence file",
+      "PR 1005: missing or empty verdict.md",
+      "PR 1005: missing or empty summary.md",
+      "PR 1005: missing or empty review.md",
+      "PR 1005: missing or empty diff-analysis.md",
+      "PR 1005: missing or empty interactions.md",
+      "PR 1005: missing or empty trace.md",
+      "PR 1005: no merge/revise/reject disposition near verdict start",
+      "PR 1005: no non-empty test-evidence file",
+      "PR 1006: missing or empty verdict.md",
+      "PR 1006: missing or empty summary.md",
+      "PR 1006: missing or empty review.md",
+      "PR 1006: missing or empty diff-analysis.md",
+      "PR 1006: missing or empty interactions.md",
+      "PR 1006: missing or empty trace.md",
+      "PR 1006: no merge/revise/reject disposition near verdict start",
+      "PR 1006: no non-empty test-evidence file",
+      "PR 1007: missing or empty verdict.md",
+      "PR 1007: missing or empty summary.md",
+      "PR 1007: missing or empty review.md",
+      "PR 1007: missing or empty diff-analysis.md",
+      "PR 1007: missing or empty interactions.md",
+      "PR 1007: missing or empty trace.md",
+      "PR 1007: no merge/revise/reject disposition near verdict start",
+      "PR 1007: no non-empty test-evidence file",
+      "PR 1008: missing or empty verdict.md",
+      "PR 1008: missing or empty summary.md",
+      "PR 1008: missing or empty review.md",
+      "PR 1008: missing or empty diff-analysis.md",
+      "PR 1008: missing or empty interactions.md",
+      "PR 1008: missing or empty trace.md",
+      "PR 1008: no merge/revise/reject disposition near verdict start",
+      "PR 1008: no non-empty test-evidence file",
+      "PR 1009: missing or empty verdict.md",
+      "PR 1009: missing or empty summary.md",
+      "PR 1009: missing or empty review.md",
+      "PR 1009: missing or empty diff-analysis.md",
+      "PR 1009: missing or empty interactions.md",
+      "PR 1009: missing or empty trace.md",
+      "PR 1009: no merge/revise/reject disposition near verdict start",
+      "PR 1009: no non-empty test-evidence file",
+      "PR 1010: missing or empty verdict.md",
+      "PR 1010: missing or empty summary.md",
+      "PR 1010: missing or empty review.md",
+      "PR 1010: missing or empty diff-analysis.md",
+      "PR 1010: missing or empty interactions.md",
+      "PR 1010: missing or empty trace.md",
+      "PR 1010: no merge/revise/reject disposition near verdict start",
+      "PR 1010: no non-empty test-evidence file",
+      "PR 1011: missing or empty verdict.md",
+      "PR 1011: missing or empty summary.md",
+      "PR 1011: missing or empty review.md",
+      "PR 1011: missing or empty diff-analysis.md",
+      "PR 1011: missing or empty interactions.md",
+      "PR 1011: missing or empty trace.md",
+      "PR 1011: no merge/revise/reject disposition near verdict start",
+      "PR 1011: no non-empty test-evidence file",
+      "PR 1012: missing or empty verdict.md",
+      "PR 1012: missing or empty summary.md",
+      "PR 1012: missing or empty review.md",
+      "PR 1012: missing or empty diff-analysis.md",
+      "PR 1012: missing or empty interactions.md",
+      "PR 1012: missing or empty trace.md",
+      "PR 1012: no merge/revise/reject disposition near verdict start",
+      "PR 1012: no non-empty test-evidence file",
+      "PR 1013: missing or empty verdict.md",
+      "PR 1013: missing or empty summary.md",
+      "PR 1013: missing or empty review.md",
+      "PR 1013: missing or empty diff-analysis.md",
+      "PR 1013: missing or empty interactions.md",
+      "PR 1013: missing or empty trace.md",
+      "PR 1013: no merge/revise/reject disposition near verdict start",
+      "PR 1013: no non-empty test-evidence file",
+      "PR 1014: missing or empty verdict.md",
+      "PR 1014: missing or empty summary.md",
+      "PR 1014: missing or empty review.md",
+      "PR 1014: missing or empty diff-analysis.md",
+      "PR 1014: missing or empty interactions.md",
+      "PR 1014: missing or empty trace.md",
+      "PR 1014: no merge/revise/reject disposition near verdict start",
+      "PR 1014: no non-empty test-evidence file",
+      "PR 1015: missing or empty verdict.md",
+      "PR 1015: missing or empty summary.md",
+      "PR 1015: missing or empty review.md",
+      "PR 1015: missing or empty diff-analysis.md",
+      "PR 1015: missing or empty interactions.md",
+      "PR 1015: missing or empty trace.md",
+      "PR 1015: no merge/revise/reject disposition near verdict start",
+      "PR 1015: no non-empty test-evidence file",
+      "PR 1016: missing or empty verdict.md",
+      "PR 1016: missing or empty summary.md",
+      "PR 1016: missing or empty review.md",
+      "PR 1016: missing or empty diff-analysis.md",
+      "PR 1016: missing or empty interactions.md",
+      "PR 1016: missing or empty trace.md",
+      "PR 1016: no merge/revise/reject disposition near verdict start",
+      "PR 1016: no non-empty test-evidence file",
+      "PR 1017: missing or empty verdict.md",
+      "PR 1017: missing or empty summary.md",
+      "PR 1017: missing or empty review.md",
+      "PR 1017: missing or empty diff-analysis.md",
+      "PR 1017: missing or empty interactions.md",
+      "PR 1017: missing or empty trace.md",
+      "PR 1017: no merge/revise/reject disposition near verdict start",
+      "PR 1017: no non-empty test-evidence file",
+      "PR 1018: missing or empty verdict.md",
+      "PR 1018: missing or empty summary.md",
+      "PR 1018: missing or empty review.md",
+      "PR 1018: missing or empty diff-analysis.md",
+      "PR 1018: missing or empty interactions.md",
+      "PR 1018: missing or empty trace.md",
+      "PR 1018: no merge/revise/reject disposition near verdict start",
+      "PR 1018: no non-empty test-evidence file",
+      "PR 1019: missing or empty verdict.md",
+      "PR 1019: missing or empty summary.md",
+      "PR 1019: missing or empty review.md",
+      "PR 1019: missing or empty diff-analysis.md",
+      "PR 1019: missing or empty interactions.md",
+      "PR 1019: missing or empty trace.md",
+      "PR 1019: no merge/revise/reject disposition near verdict start",
+      "PR 1019: no non-empty test-evidence file",
+      "PR 1020: missing or empty verdict.md",
+      "PR 1020: missing or empty summary.md",
+      "PR 1020: missing or empty review.md",
+      "PR 1020: missing or empty diff-analysis.md",
+      "PR 1020: missing or empty interactions.md",
+      "PR 1020: missing or empty trace.md",
+      "PR 1020: no merge/revise/reject disposition near verdict start",
+      "PR 1020: no non-empty test-evidence file",
+      "PR 1021: missing or empty verdict.md",
+      "PR 1021: missing or empty summary.md",
+      "PR 1021: missing or empty review.md",
+      "PR 1021: missing or empty diff-analysis.md",
+      "PR 1021: missing or empty interactions.md",
+      "PR 1021: missing or empty trace.md",
+      "PR 1021: no merge/revise/reject disposition near verdict start",
+      "PR 1021: no non-empty test-evidence file",
+      "PR 1022: missing or empty verdict.md",
+      "PR 1022: missing or empty summary.md",
+      "PR 1022: missing or empty review.md",
+      "PR 1022: missing or empty diff-analysis.md",
+      "PR 1022: missing or empty interactions.md",
+      "PR 1022: missing or empty trace.md",
+      "PR 1022: no merge/revise/reject disposition near verdict start",
+      "PR 1022: no non-empty test-evidence file",
+      "PR 1023: missing or empty verdict.md",
+      "PR 1023: missing or empty summary.md",
+      "PR 1023: missing or empty review.md",
+      "PR 1023: missing or empty diff-analysis.md",
+      "PR 1023: missing or empty interactions.md",
+      "PR 1023: missing or empty trace.md",
+      "PR 1023: no merge/revise/reject disposition near verdict start",
+      "PR 1023: no non-empty test-evidence file",
+      "PR 1024: missing or empty verdict.md",
+      "PR 1024: missing or empty summary.md",
+      "PR 1024: missing or empty review.md",
+      "PR 1024: missing or empty diff-analysis.md",
+      "PR 1024: missing or empty interactions.md",
+      "PR 1024: missing or empty trace.md",
+      "PR 1024: no merge/revise/reject disposition near verdict start",
+      "PR 1024: no non-empty test-evidence file",
+      "PR 1025: missing or empty verdict.md",
+      "PR 1025: missing or empty summary.md",
+      "PR 1025: missing or empty review.md",
+      "PR 1025: missing or empty diff-analysis.md",
+      "PR 1025: missing or empty interactions.md",
+      "PR 1025: missing or empty trace.md",
+      "PR 1025: no merge/revise/reject disposition near verdict start",
+      "PR 1025: no non-empty test-evidence file",
+      "PR 1026: missing or empty verdict.md",
+      "PR 1026: missing or empty summary.md",
+      "PR 1026: missing or empty review.md",
+      "PR 1026: missing or empty diff-analysis.md",
+      "PR 1026: missing or empty interactions.md",
+      "PR 1026: missing or empty trace.md",
+      "PR 1026: no merge/revise/reject disposition near verdict start",
+      "PR 1026: no non-empty test-evidence file",
+      "PR 1027: missing or empty verdict.md",
+      "PR 1027: missing or empty summary.md",
+      "PR 1027: missing or empty review.md",
+      "PR 1027: missing or empty diff-analysis.md",
+      "PR 1027: missing or empty interactions.md",
+      "PR 1027: missing or empty trace.md",
+      "PR 1027: no merge/revise/reject disposition near verdict start",
+      "PR 1027: no non-empty test-evidence file",
+      "PR 1028: missing or empty verdict.md",
+      "PR 1028: missing or empty summary.md",
+      "PR 1028: missing or empty review.md",
+      "PR 1028: missing or empty diff-analysis.md",
+      "PR 1028: missing or empty interactions.md",
+      "PR 1028: missing or empty trace.md",
+      "PR 1028: no merge/revise/reject disposition near verdict start",
+      "PR 1028: no non-empty test-evidence file",
+      "PR 1029: missing or empty verdict.md",
+      "PR 1029: missing or empty summary.md",
+      "PR 1029: missing or empty review.md",
+      "PR 1029: missing or empty diff-analysis.md",
+      "PR 1029: missing or empty interactions.md",
+      "PR 1029: missing or empty trace.md",
+      "PR 1029: no merge/revise/reject disposition near verdict start",
+      "PR 1029: no non-empty test-evidence file",
+      "PR 1030: missing or empty verdict.md",
+      "PR 1030: missing or empty summary.md",
+      "PR 1030: missing or empty review.md",
+      "PR 1030: missing or empty diff-analysis.md",
+      "PR 1030: missing or empty interactions.md",
+      "PR 1030: missing or empty trace.md",
+      "PR 1030: no merge/revise/reject disposition near verdict start",
+      "PR 1030: no non-empty test-evidence file",
+      "PR 1032: missing or empty verdict.md",
+      "PR 1032: missing or empty summary.md",
+      "PR 1032: missing or empty review.md",
+      "PR 1032: missing or empty diff-analysis.md",
+      "PR 1032: missing or empty interactions.md",
+      "PR 1032: missing or empty trace.md",
+      "PR 1032: no merge/revise/reject disposition near verdict start",
+      "PR 1032: no non-empty test-evidence file",
+      "PR 1033: missing or empty verdict.md",
+      "PR 1033: missing or empty summary.md",
+      "PR 1033: missing or empty review.md",
+      "PR 1033: missing or empty diff-analysis.md",
+      "PR 1033: missing or empty interactions.md",
+      "PR 1033: missing or empty trace.md",
+      "PR 1033: no merge/revise/reject disposition near verdict start",
+      "PR 1033: no non-empty test-evidence file",
+      "PR 1034: missing or empty verdict.md",
+      "PR 1034: missing or empty summary.md",
+      "PR 1034: missing or empty review.md",
+      "PR 1034: missing or empty diff-analysis.md",
+      "PR 1034: missing or empty interactions.md",
+      "PR 1034: missing or empty trace.md",
+      "PR 1034: no merge/revise/reject disposition near verdict start",
+      "PR 1034: no non-empty test-evidence file",
+      "PR 1035: missing or empty verdict.md",
+      "PR 1035: missing or empty summary.md",
+      "PR 1035: missing or empty review.md",
+      "PR 1035: missing or empty diff-analysis.md",
+      "PR 1035: missing or empty interactions.md",
+      "PR 1035: missing or empty trace.md",
+      "PR 1035: no merge/revise/reject disposition near verdict start",
+      "PR 1035: no non-empty test-evidence file",
+      "PR 1036: missing or empty verdict.md",
+      "PR 1036: missing or empty summary.md",
+      "PR 1036: missing or empty review.md",
+      "PR 1036: missing or empty diff-analysis.md",
+      "PR 1036: missing or empty interactions.md",
+      "PR 1036: missing or empty trace.md",
+      "PR 1036: no merge/revise/reject disposition near verdict start",
+      "PR 1036: no non-empty test-evidence file",
+      "PR 1037: missing or empty verdict.md",
+      "PR 1037: missing or empty summary.md",
+      "PR 1037: missing or empty review.md",
+      "PR 1037: missing or empty diff-analysis.md",
+      "PR 1037: missing or empty interactions.md",
+      "PR 1037: missing or empty trace.md",
+      "PR 1037: no merge/revise/reject disposition near verdict start",
+      "PR 1037: no non-empty test-evidence file",
+      "PR 1038: missing or empty verdict.md",
+      "PR 1038: missing or empty summary.md",
+      "PR 1038: missing or empty review.md",
+      "PR 1038: missing or empty diff-analysis.md",
+      "PR 1038: missing or empty interactions.md",
+      "PR 1038: missing or empty trace.md",
+      "PR 1038: no merge/revise/reject disposition near verdict start",
+      "PR 1038: no non-empty test-evidence file",
+      "PR 1039: missing or empty verdict.md",
+      "PR 1039: missing or empty summary.md",
+      "PR 1039: missing or empty review.md",
+      "PR 1039: missing or empty diff-analysis.md",
+      "PR 1039: missing or empty interactions.md",
+      "PR 1039: missing or empty trace.md",
+      "PR 1039: no merge/revise/reject disposition near verdict start",
+      "PR 1039: no non-empty test-evidence file",
+      "PR 1040: missing or empty verdict.md",
+      "PR 1040: missing or empty summary.md",
+      "PR 1040: missing or empty review.md",
+      "PR 1040: missing or empty diff-analysis.md",
+      "PR 1040: missing or empty interactions.md",
+      "PR 1040: missing or empty trace.md",
+      "PR 1040: no merge/revise/reject disposition near verdict start",
+      "PR 1040: no non-empty test-evidence file",
+      "PR 1042: missing or empty verdict.md",
+      "PR 1042: missing or empty summary.md",
+      "PR 1042: missing or empty review.md",
+      "PR 1042: missing or empty diff-analysis.md",
+      "PR 1042: missing or empty interactions.md",
+      "PR 1042: missing or empty trace.md",
+      "PR 1042: no merge/revise/reject disposition near verdict start",
+      "PR 1042: no non-empty test-evidence file",
+      "PR 1043: missing or empty verdict.md",
+      "PR 1043: missing or empty summary.md",
+      "PR 1043: missing or empty review.md",
+      "PR 1043: missing or empty diff-analysis.md",
+      "PR 1043: missing or empty interactions.md",
+      "PR 1043: missing or empty trace.md",
+      "PR 1043: no merge/revise/reject disposition near verdict start",
+      "PR 1043: no non-empty test-evidence file",
+      "PR 1044: missing or empty verdict.md",
+      "PR 1044: missing or empty summary.md",
+      "PR 1044: missing or empty review.md",
+      "PR 1044: missing or empty diff-analysis.md",
+      "PR 1044: missing or empty interactions.md",
+      "PR 1044: missing or empty trace.md",
+      "PR 1044: no merge/revise/reject disposition near verdict start",
+      "PR 1044: no non-empty test-evidence file",
+      "PR 1045: missing or empty verdict.md",
+      "PR 1045: missing or empty summary.md",
+      "PR 1045: missing or empty review.md",
+      "PR 1045: missing or empty diff-analysis.md",
+      "PR 1045: missing or empty interactions.md",
+      "PR 1045: missing or empty trace.md",
+      "PR 1045: no merge/revise/reject disposition near verdict start",
+      "PR 1045: no non-empty test-evidence file",
+      "PR 1046: missing or empty verdict.md",
+      "PR 1046: missing or empty summary.md",
+      "PR 1046: missing or empty review.md",
+      "PR 1046: missing or empty diff-analysis.md",
+      "PR 1046: missing or empty interactions.md",
+      "PR 1046: missing or empty trace.md",
+      "PR 1046: no merge/revise/reject disposition near verdict start",
+      "PR 1046: no non-empty test-evidence file",
+      "PR 1047: missing or empty verdict.md",
+      "PR 1047: missing or empty summary.md",
+      "PR 1047: missing or empty review.md",
+      "PR 1047: missing or empty diff-analysis.md",
+      "PR 1047: missing or empty interactions.md",
+      "PR 1047: missing or empty trace.md",
+      "PR 1047: no merge/revise/reject disposition near verdict start",
+      "PR 1047: no non-empty test-evidence file",
+      "PR 1048: missing or empty verdict.md",
+      "PR 1048: missing or empty summary.md",
+      "PR 1048: missing or empty review.md",
+      "PR 1048: missing or empty diff-analysis.md",
+      "PR 1048: missing or empty interactions.md",
+      "PR 1048: missing or empty trace.md",
+      "PR 1048: no merge/revise/reject disposition near verdict start",
+      "PR 1048: no non-empty test-evidence file",
+      "PR 1049: missing or empty verdict.md",
+      "PR 1049: missing or empty summary.md",
+      "PR 1049: missing or empty review.md",
+      "PR 1049: missing or empty diff-analysis.md",
+      "PR 1049: missing or empty interactions.md",
+      "PR 1049: missing or empty trace.md",
+      "PR 1049: no merge/revise/reject disposition near verdict start",
+      "PR 1049: no non-empty test-evidence file",
+      "PR 1050: missing or empty verdict.md",
+      "PR 1050: missing or empty summary.md",
+      "PR 1050: missing or empty review.md",
+      "PR 1050: missing or empty diff-analysis.md",
+      "PR 1050: missing or empty interactions.md",
+      "PR 1050: missing or empty trace.md",
+      "PR 1050: no merge/revise/reject disposition near verdict start",
+      "PR 1050: no non-empty test-evidence file",
+      "PR 1051: missing or empty verdict.md",
+      "PR 1051: missing or empty summary.md",
+      "PR 1051: missing or empty review.md",
+      "PR 1051: missing or empty diff-analysis.md",
+      "PR 1051: missing or empty interactions.md",
+      "PR 1051: missing or empty trace.md",
+      "PR 1051: no merge/revise/reject disposition near verdict start",
+      "PR 1051: no non-empty test-evidence file",
+      "PR 1052: missing or empty verdict.md",
+      "PR 1052: missing or empty summary.md",
+      "PR 1052: missing or empty review.md",
+      "PR 1052: missing or empty diff-analysis.md",
+      "PR 1052: missing or empty interactions.md",
+      "PR 1052: missing or empty trace.md",
+      "PR 1052: no merge/revise/reject disposition near verdict start",
+      "PR 1052: no non-empty test-evidence file",
+      "PR 1053: missing or empty verdict.md",
+      "PR 1053: missing or empty summary.md",
+      "PR 1053: missing or empty review.md",
+      "PR 1053: missing or empty diff-analysis.md",
+      "PR 1053: missing or empty interactions.md",
+      "PR 1053: missing or empty trace.md",
+      "PR 1053: no merge/revise/reject disposition near verdict start",
+      "PR 1053: no non-empty test-evidence file",
+      "PR 1054: missing or empty verdict.md",
+      "PR 1054: missing or empty summary.md",
+      "PR 1054: missing or empty review.md",
+      "PR 1054: missing or empty diff-analysis.md",
+      "PR 1054: missing or empty interactions.md",
+      "PR 1054: missing or empty trace.md",
+      "PR 1054: no merge/revise/reject disposition near verdict start",
+      "PR 1054: no non-empty test-evidence file",
+      "PR 1055: missing or empty verdict.md",
+      "PR 1055: missing or empty summary.md",
+      "PR 1055: missing or empty review.md",
+      "PR 1055: missing or empty diff-analysis.md",
+      "PR 1055: missing or empty interactions.md",
+      "PR 1055: missing or empty trace.md",
+      "PR 1055: no merge/revise/reject disposition near verdict start",
+      "PR 1055: no non-empty test-evidence file",
+      "PR 1056: missing or empty verdict.md",
+      "PR 1056: missing or empty summary.md",
+      "PR 1056: missing or empty review.md",
+      "PR 1056: missing or empty diff-analysis.md",
+      "PR 1056: missing or empty interactions.md",
+      "PR 1056: missing or empty trace.md",
+      "PR 1056: no merge/revise/reject disposition near verdict start",
+      "PR 1056: no non-empty test-evidence file",
+      "PR 1057: missing or empty verdict.md",
+      "PR 1057: missing or empty summary.md",
+      "PR 1057: missing or empty review.md",
+      "PR 1057: missing or empty diff-analysis.md",
+      "PR 1057: missing or empty interactions.md",
+      "PR 1057: missing or empty trace.md",
+      "PR 1057: no merge/revise/reject disposition near verdict start",
+      "PR 1057: no non-empty test-evidence file",
+      "parsed verdict total is 1, expected 75",
+      "PRs without a source-file or frozen-diff trace pointer: [351, 364, 716, 750, 959, 961, 966, 973, 974, 983, 988, 990, 991, 992, 993, 994, 996, 997, 998, 999, 1000, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026, 1027, 1028, 1029, 1030, 1032, 1033, 1034, 1035, 1036, 1037, 1038, 1039, 1040, 1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1054, 1055, 1056, 1057]",
+      "PRs whose review has no source-file/diff citation: [351, 364, 716, 750, 961, 966, 973, 974, 983, 988, 990, 991, 992, 993, 994, 996, 997, 998, 999, 1000, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026, 1027, 1028, 1029, 1030, 1032, 1033, 1034, 1035, 1036, 1037, 1038, 1039, 1040, 1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1054, 1055, 1056, 1057]",
+      "PRs without an explicit bounty-tier declaration: [351, 364, 716, 750, 959, 961, 966, 973, 974, 983, 988, 990, 991, 992, 993, 994, 996, 997, 998, 999, 1000, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026, 1027, 1028, 1029, 1030, 1032, 1033, 1034, 1035, 1036, 1037, 1038, 1039, 1040, 1042, 1043, 1044, 1045, 1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1054, 1055, 1056, 1057]",
+      "dependency analysis omits 205/205 high-confidence file-overlap pairs",
+      "frozen files.txt counts disagree with metadata for PRs, but the audit does not document the baseline/reverse-drift limitation",
+      "tool log records 0/31 transcript tool events"
+    ],
+    "warnings": [
+      "dependency analysis does not enumerate 676/676 raw frozen-file pairs; raw lists include known reverse-drift, so this is reported separately and is not itself a semantic failure"
+    ]
+  },
+  "telemetry": {
+    "schema_version": 1,
+    "run_name": "gemma4-31b-q4_75pr_v2",
+    "source_csv": "/home/michael/gemma4-campaign-state/telemetry/gemma4-31b-q4-gpu.csv",
+    "generated_at": "2026-08-02T06:45:35.340803+00:00",
+    "analyzer": {
+      "path": "/home/michael/bench-gemma4-31b-q4/tooling/deployments/gemma4-31b-q4-tower2/analyze_replica_telemetry.py",
+      "file_sha256": "19a2d7a9cdfc36d2fcd9840581015410b5451aacff43e2328e050c1214e771bd",
+      "git_sha": "17e0128cb8c3268d4616a51147b1b754db8103b6"
+    },
+    "attribution": {
+      "method": "live harness --port maps port 8000 to GPU 0 and port 8001 to GPU 1",
+      "active_gpu_ids_observed": [
+        "0"
+      ],
+      "other_gpu_work_is_reported_as_concurrency_not_charged_to_active_gpu_energy": true,
+      "cpu_package_power_is_shared_host_context_and_not_uniquely_attributable_when_runs_overlap": true
+    },
+    "sampling": {
+      "samples": 39,
+      "paired_host_samples": 39,
+      "first_sample": "2026-08-02T06:15:26+00:00",
+      "last_sample": "2026-08-02T06:18:36+00:00",
+      "window_source": "summary.json",
+      "window_started_at": "2026-08-02T06:15:25.365160+00:00",
+      "window_ended_at": "2026-08-02T06:18:39.125819+00:00",
+      "window_wall_s": 193.8,
+      "integrated_coverage_s": 190.0,
+      "coverage_fraction_of_wall": 0.9804,
+      "max_accepted_gap_s": 15.0
+    },
+    "active_gpu": {
+      "mean_power_w": 459.98,
+      "time_weighted_power_w": 462.99,
+      "p90_power_w": 500.57,
+      "max_power_w": 509.05,
+      "mean_sm_util_pct": 83.54,
+      "p90_sm_util_pct": 98.0,
+      "max_memory_used_mib": 66503.0,
+      "max_temp_c": 73.0,
+      "mean_sm_clock_mhz": 2631.9,
+      "configured_cap_w": 500.0
+    },
+    "cpu_package_shared_context": {
+      "samples": 39,
+      "mean_power_w": 135.56,
+      "max_power_w": 136.98,
+      "integrated_coverage_s": 190.0
+    },
+    "concurrency": {
+      "other_gpu_cell_sample_counts": {
+        "gemma4-31b-q4_75pr_v1": 39
+      },
+      "both_gpus_over_20pct_sm_fraction": 0.8718,
+      "mean_observed_two_gpu_plus_cpu_package_w": 1090.46,
+      "max_observed_two_gpu_plus_cpu_package_w": 1144.89,
+      "wall_power_note": "This is GPU plus CPU package telemetry, not AC wall draw; no software wall meter is available."
+    },
+    "energy_and_cost": {
+      "active_gpu_sampled_kwh": 0.024436,
+      "active_gpu_sampled_cost_usd": 0.003177,
+      "cpu_package_shared_sampled_kwh": 0.007153,
+      "active_gpu_cap_upper_bound_kwh": 0.026917,
+      "rate_usd_per_kwh": 0.13
+    }
+  },
+  "evidence": {
+    "summary_sha256": "84671b0076d1eed4faca9a26553b399a002e9bf90e732e37bbf32d477d02a0e4",
+    "receipt_sha256": "3f06c30bdae4813b39c0ccf74770892179550be0590463e672c0609f889d2b7c",
+    "transcript_sha256": "01c6decba025a16b03929e68486de8aa8ce653f65e83dc4472195b36013a1c56",
+    "validator_sha256": "11479b273a7c7c4b7597736ccc6eb8b763443192c8f6c1e6a9b7067ec0dded83",
+    "task_sha256": "0d426e15303b3f886a75db81165cdbe9d91534a474217f91f4e2baf41c0056a6",
+    "fixture_path": "/mnt/bulk/benchmark-fixtures/dreamserver-75-pr-audit-2026-04-27"
+  }
+}

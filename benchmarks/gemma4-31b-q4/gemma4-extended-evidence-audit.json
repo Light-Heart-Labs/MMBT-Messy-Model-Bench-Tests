@@ -1,0 +1,705 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-02T06:44:07.041628+00:00",
+  "root": "/home/michael/bench-gemma4-31b-q4",
+  "matrix": {
+    "path": "/home/michael/bench-gemma4-31b-q4/tooling/gemma4-31b-q4-extended-matrix.json",
+    "sha256": "be3022cdf50872d8f5e9920a44eabfc9d4a51617302d49a4ea32d597e67c1359"
+  },
+  "expected_runs": 12,
+  "audited_runs": 12,
+  "passed": false,
+  "errors": [
+    "n1_gemma4-31b-q4_v1: artifact does not identify pinned subject ref 1678f19404c54f8588eceabfb21c3f4ce812b483",
+    "n1_gemma4-31b-q4_v1: artifact does not identify pinned subject ref 488f5b48f02946ff31ce3f342566d2a1a9687201",
+    "n1_gemma4-31b-q4_v1: artifact does not identify pinned subject ref ff20aadf067905b89c9c781cb5ee7ea0532551d5",
+    "n1_gemma4-31b-q4_v1: artifact does not identify pinned subject ref ab148dee598635644b759f87abb3f594918276b6",
+    "n1_gemma4-31b-q4_v2: artifact does not identify pinned subject ref 309e9cd0ad5d572ab9313eb577ec30a3e8524752",
+    "n1_gemma4-31b-q4_v2: artifact does not identify pinned subject ref e5ceb43ea0f9c3939a154fb42e6649b828eca878",
+    "n1_gemma4-31b-q4_v2: artifact does not identify pinned subject ref 1678f19404c54f8588eceabfb21c3f4ce812b483",
+    "n1_gemma4-31b-q4_v2: artifact does not identify pinned subject ref e4e83fedfee36c651afc6af7f3dba9851fa5dc96",
+    "n1_gemma4-31b-q4_v2: artifact does not identify pinned subject ref 488f5b48f02946ff31ce3f342566d2a1a9687201",
+    "n1_gemma4-31b-q4_v2: artifact does not identify pinned subject ref ff20aadf067905b89c9c781cb5ee7ea0532551d5",
+    "n1_gemma4-31b-q4_v2: artifact does not identify pinned subject ref ab148dee598635644b759f87abb3f594918276b6",
+    "n1_gemma4-31b-q4_v3: artifact does not identify pinned subject ref 1678f19404c54f8588eceabfb21c3f4ce812b483"
+  ],
+  "warnings": [],
+  "runs": [
+    {
+      "run_name": "n1_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "2edfd7773c5243b460d7402468dbcb5c86efeb21",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 288.6,
+      "iterations": 32,
+      "completion_tokens": 11141,
+      "prompt_tokens_cumulative": 1095202,
+      "model_turns": 32,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9875,
+        "mean_power_w": 458.59,
+        "mean_sm_util_pct": 85.19,
+        "max_temp_c": 73.0,
+        "cpu_package_mean_power_w": 132.56
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9472,
+          "sha256": "4c3308a0e67ff0c66c121c0cd0e481c254d943ea11145e84165d8cf0c14042ec"
+        },
+        "transcript.jsonl": {
+          "bytes": 33062,
+          "sha256": "4439ce94aacdf22011e95e438d2721551b5db657c4f85e70a7600b7338259bce"
+        },
+        "summary.json": {
+          "bytes": 588,
+          "sha256": "ea1105b39de0245dda40eb4e94e6007bdddc8ec6f25c64a97de143892e0f0fc8"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 44563623,
+          "sha256": "36a69bbc5635483742b3187dc8c26928a5abe5bdf9c640a4ece8f7e57d079af6"
+        },
+        "cost.json": {
+          "bytes": 1232,
+          "sha256": "90139506ea41482a59f7d06c3baeacfb1b192016a36b98c61ef5ff54139ee478"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2388,
+          "sha256": "5448acd781b2c8fd477755e821cad21717677aec9bf20a29f4bcb8bf3a0e81c6"
+        }
+      },
+      "suite": "dreamserver-1-pr-audit",
+      "replicate": 1,
+      "ordinal": 0
+    },
+    {
+      "run_name": "n1_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "2edfd7773c5243b460d7402468dbcb5c86efeb21",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 290.8,
+      "iterations": 29,
+      "completion_tokens": 12262,
+      "prompt_tokens_cumulative": 979694,
+      "model_turns": 29,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9801,
+        "mean_power_w": 471.42,
+        "mean_sm_util_pct": 92.14,
+        "max_temp_c": 80.0,
+        "cpu_package_mean_power_w": 132.56
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9472,
+          "sha256": "8312185d2c7077f5b8a7290b53b011fd0071fc38cfb83060d99c6b026f12daa2"
+        },
+        "transcript.jsonl": {
+          "bytes": 37260,
+          "sha256": "2b6bf9b02a8ef6ae6f0b178cfed1e16a9f65469a7dccb474fd7cbac591ba8338"
+        },
+        "summary.json": {
+          "bytes": 727,
+          "sha256": "0a1cdb090b3f1cafd5926fc52b16ffe28e3f33fdc460e5c5e3c5b4afeb45ae83"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 35319738,
+          "sha256": "675a82e99d568a7d67d0f27155e9e946e734c09f77caa675ef7dab9e7bc7e056"
+        },
+        "cost.json": {
+          "bytes": 1229,
+          "sha256": "f6e9c7e7b9b0b8a2f69d055546e6b36eb878b142d78947489a8ba5b385f7caa0"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2389,
+          "sha256": "2b744b53e9f1a88e60ed7ec8cb6519866d5caaaeadee2c271deb8e8c597cc91c"
+        }
+      },
+      "suite": "dreamserver-1-pr-audit",
+      "replicate": 2,
+      "ordinal": 1
+    },
+    {
+      "run_name": "n1_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "2edfd7773c5243b460d7402468dbcb5c86efeb21",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 301.0,
+      "iterations": 37,
+      "completion_tokens": 12061,
+      "prompt_tokens_cumulative": 1199565,
+      "model_turns": 37,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9801,
+        "mean_power_w": 463.7,
+        "mean_sm_util_pct": 86.8,
+        "max_temp_c": 74.0,
+        "cpu_package_mean_power_w": 134.74
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9475,
+          "sha256": "ae07345f67f98fbf724d7042cf58023d7991bb87bf781a7620e0c65e32db1074"
+        },
+        "transcript.jsonl": {
+          "bytes": 32696,
+          "sha256": "6543161fa9f6cc3053e264822d3bfe0622bcdbef0edb4cbbc26bec4cb33e9ec0"
+        },
+        "summary.json": {
+          "bytes": 897,
+          "sha256": "a39102ba583247ab793f0dfde96238e811a60d64e0bd576aa7707b1987cce044"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 35372453,
+          "sha256": "ecf822386e837254c8955986a05d042e814cd57488f73a5bc66912d68a263645"
+        },
+        "cost.json": {
+          "bytes": 1235,
+          "sha256": "e00196d50b43ed63c16e4776a05b5050109a5bf09de5d77911b83d6e86149835"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2395,
+          "sha256": "0811f37cc399b3f519fce10e1bfc66bfa83cdb76c84ab94db0862073653d8723"
+        }
+      },
+      "suite": "dreamserver-1-pr-audit",
+      "replicate": 3,
+      "ordinal": 2
+    },
+    {
+      "run_name": "gemma4-31b-q4_invest_memo_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "2edfd7773c5243b460d7402468dbcb5c86efeb21",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 499.1,
+      "iterations": 52,
+      "completion_tokens": 21513,
+      "prompt_tokens_cumulative": 1417966,
+      "model_turns": 52,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9918,
+        "mean_power_w": 468.66,
+        "mean_sm_util_pct": 88.67,
+        "max_temp_c": 82.0,
+        "cpu_package_mean_power_w": 134.32
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9488,
+          "sha256": "9825d68667206159264702789b0e99f8da8b889ee3f72299cb945f1f71882f09"
+        },
+        "transcript.jsonl": {
+          "bytes": 63001,
+          "sha256": "bf1d7bdb0c9fe073e5a45a516e903b583fdd30de918eb4e19f99bfc662e52b88"
+        },
+        "summary.json": {
+          "bytes": 1656,
+          "sha256": "05ad14fd22f58043b3e21e1ac8d5a9d36e98fe2ca31ef47b190d13631b722af9"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 14871211,
+          "sha256": "2081780297fcdc6f6854ff89508602035b1e8a6dd7a8582aaf00addadff8a8db"
+        },
+        "cost.json": {
+          "bytes": 1242,
+          "sha256": "0d8e1d5536413bb9b2e0e54f3d732ab6cc642ab1b8be954f46b78cd09bda3201"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2481,
+          "sha256": "5766a571c30bd9a0ffa803bc1ad1d50c57456aaadcb85a813eeb9dfd9cbd1845"
+        }
+      },
+      "suite": "wallstreet-investment-memo",
+      "replicate": 1,
+      "ordinal": 3
+    },
+    {
+      "run_name": "gemma4-31b-q4_invest_memo_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "2edfd7773c5243b460d7402468dbcb5c86efeb21",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 527.9,
+      "iterations": 55,
+      "completion_tokens": 20235,
+      "prompt_tokens_cumulative": 2650157,
+      "model_turns": 55,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9945,
+        "mean_power_w": 464.18,
+        "mean_sm_util_pct": 84.12,
+        "max_temp_c": 74.0,
+        "cpu_package_mean_power_w": 135.68
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9487,
+          "sha256": "ec55215a3d6382df4dd49d106b5874d1ec0a0f499cb8c04cc92c01c0b10d1a3e"
+        },
+        "transcript.jsonl": {
+          "bytes": 70598,
+          "sha256": "94302f3a30b52a995d03598229c5ca9c4676e830ca6e3d745f8037eea4c28547"
+        },
+        "summary.json": {
+          "bytes": 1117,
+          "sha256": "1ea1bfa8e6b5cb6b84044b60dd1e32e4e703be9707bd49adcea7825fef49adbb"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 2081783,
+          "sha256": "09b573d50aeda91dfc8eb2b8b35f9158b971b24ef0d45d027d6e3659d672dbdc"
+        },
+        "cost.json": {
+          "bytes": 1242,
+          "sha256": "23a00ed6e081129360c1a0d2b3281e318bb10564d3faac30ad74ae295c759ac9"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2492,
+          "sha256": "5a1720568453f58d9d437eee15460b1c7fc56202002dcd28994e1ba9fcc24bcf"
+        }
+      },
+      "suite": "wallstreet-investment-memo",
+      "replicate": 2,
+      "ordinal": 4
+    },
+    {
+      "run_name": "gemma4-31b-q4_invest_memo_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "2edfd7773c5243b460d7402468dbcb5c86efeb21",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 413.6,
+      "iterations": 53,
+      "completion_tokens": 15676,
+      "prompt_tokens_cumulative": 2347299,
+      "model_turns": 53,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9913,
+        "mean_power_w": 457.58,
+        "mean_sm_util_pct": 83.6,
+        "max_temp_c": 81.0,
+        "cpu_package_mean_power_w": 135.76
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9489,
+          "sha256": "d067e1d9291a7ed28a9702ac2ee75f37907bddd8b04849a1ee953fa0bbc12ddf"
+        },
+        "transcript.jsonl": {
+          "bytes": 51513,
+          "sha256": "95a15eb5c1a08f07a0ca6864eea3301ad1ce8af08d883a2cd3e848e233d03687"
+        },
+        "summary.json": {
+          "bytes": 1131,
+          "sha256": "fbd117d21e2bb9d2764cc275978dbb825471c39814f488c1537755c15d10f30b"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 9286952,
+          "sha256": "a54068f11048fdab8529893a935856fb591491ce373545bbd734f9899d72dc40"
+        },
+        "cost.json": {
+          "bytes": 1243,
+          "sha256": "4cfdc410bb505792a5efaac954e7f72b954b33e4a7a44014a22ea0cccf9864ff"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2488,
+          "sha256": "d7b32114e33b188eb541af710919e7528bc458027dbde946f81547d702243f49"
+        }
+      },
+      "suite": "wallstreet-investment-memo",
+      "replicate": 3,
+      "ordinal": 5
+    },
+    {
+      "run_name": "gemma4-31b-q4_board_pres_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "2edfd7773c5243b460d7402468dbcb5c86efeb21",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 345.5,
+      "iterations": 55,
+      "completion_tokens": 16170,
+      "prompt_tokens_cumulative": 1335224,
+      "model_turns": 55,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9841,
+        "mean_power_w": 475.35,
+        "mean_sm_util_pct": 88.68,
+        "max_temp_c": 75.0,
+        "cpu_package_mean_power_w": 136.49
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9568,
+          "sha256": "9359047f762d4e921e232027fa399360c39c299b470e3d6067692d58d8bd91aa"
+        },
+        "transcript.jsonl": {
+          "bytes": 61777,
+          "sha256": "2ad9abfdb05532a3abee4379115da3be5f4a66bf638c80a611e05b17cbe8a3e5"
+        },
+        "summary.json": {
+          "bytes": 713,
+          "sha256": "ca5398982b2d89cda9e2096988b3e2be00e02c57328f2beb3b97f82b2c222dc9"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 1013461,
+          "sha256": "c57c381efeafacf75b4ff11257b8040dfc5975a92c8dd6ae3fb4b898b60684bf"
+        },
+        "cost.json": {
+          "bytes": 1240,
+          "sha256": "5968faaf42e4b8527fb61ad2e9ba683fcf962dcb78f30dbe554d804ee760b46c"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2487,
+          "sha256": "2346cc1744a1c13129e199e3bfb4c831dac412668e9c6b552db47017bbe794ab"
+        }
+      },
+      "suite": "wallstreet-board-presentation",
+      "replicate": 1,
+      "ordinal": 6
+    },
+    {
+      "run_name": "gemma4-31b-q4_board_pres_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "2edfd7773c5243b460d7402468dbcb5c86efeb21",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 334.8,
+      "iterations": 39,
+      "completion_tokens": 17763,
+      "prompt_tokens_cumulative": 494272,
+      "model_turns": 39,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9857,
+        "mean_power_w": 466.48,
+        "mean_sm_util_pct": 88.06,
+        "max_temp_c": 83.0,
+        "cpu_package_mean_power_w": 136.07
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9569,
+          "sha256": "52067ac01815cef44f0b76f4b22079317cb6f4e4b4bd54066020dc189e073fb5"
+        },
+        "transcript.jsonl": {
+          "bytes": 59495,
+          "sha256": "f88c6829668cb989122d0007f1f1793c6675c9287bbb693f0d3a1ec1333257c7"
+        },
+        "summary.json": {
+          "bytes": 871,
+          "sha256": "5d0f896e9cd0acc1e06ccb20ceca8970d6d08b48595f8a7cfe5d6e28786a81e9"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 662464,
+          "sha256": "270c8feebf15eb3e5a7d1413b04f2d1aa95126921bdd739f4986338392d1d4bf"
+        },
+        "cost.json": {
+          "bytes": 1238,
+          "sha256": "6589e51cd7862d05ba9a7403bcbd4dd713edf9e834190357be66f54028037bd5"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2484,
+          "sha256": "cef85b72bb935d97a038600f3e757ba82e7116241ad2ff6687e78d489d67c0e5"
+        }
+      },
+      "suite": "wallstreet-board-presentation",
+      "replicate": 2,
+      "ordinal": 7
+    },
+    {
+      "run_name": "gemma4-31b-q4_board_pres_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "2edfd7773c5243b460d7402468dbcb5c86efeb21",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 276.5,
+      "iterations": 39,
+      "completion_tokens": 13446,
+      "prompt_tokens_cumulative": 719464,
+      "model_turns": 39,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9765,
+        "mean_power_w": 469.31,
+        "mean_sm_util_pct": 82.73,
+        "max_temp_c": 75.0,
+        "cpu_package_mean_power_w": 134.12
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9568,
+          "sha256": "e4b677e582bcc80085bba12239dd2e6624b330a79ec1cbb85212685c235ec0bd"
+        },
+        "transcript.jsonl": {
+          "bytes": 44658,
+          "sha256": "bea08e24361aaaaf39a32cf751e4e5e10502d1b25327c8bb61ece2207d206473"
+        },
+        "summary.json": {
+          "bytes": 724,
+          "sha256": "d826023fac361cb2ea063e736cc846d9bad17275008e20882ac29650841b8d91"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 889261,
+          "sha256": "7e13b973a52100048c866bada8fb4ef60cf6e5740ee6e569293d8f64d48e9613"
+        },
+        "cost.json": {
+          "bytes": 1239,
+          "sha256": "752887cd2873372346c251cc4a329ccf4a20b11b401a426af9ed2759f56c3c55"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2480,
+          "sha256": "40b7fdabae80d03ec04cb9f8ff14e8862910b219064edbc1ad3b31da498430d8"
+        }
+      },
+      "suite": "wallstreet-board-presentation",
+      "replicate": 3,
+      "ordinal": 8
+    },
+    {
+      "run_name": "gemma4-31b-q4_75pr_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "2edfd7773c5243b460d7402468dbcb5c86efeb21",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 496.2,
+      "iterations": 41,
+      "completion_tokens": 17996,
+      "prompt_tokens_cumulative": 2129829,
+      "model_turns": 41,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9976,
+        "mean_power_w": 478.13,
+        "mean_sm_util_pct": 91.13,
+        "max_temp_c": 82.0,
+        "cpu_package_mean_power_w": 132.51
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9556,
+          "sha256": "e391c2ae8b53e64597c7274da1c5a2407df958229b77d4618a3dbbd8746898ab"
+        },
+        "transcript.jsonl": {
+          "bytes": 51607,
+          "sha256": "fedf67f0ef5f5faac2b2ee92057d9f4c0b67c506dfb2c08807190994af1dc6eb"
+        },
+        "summary.json": {
+          "bytes": 903,
+          "sha256": "bcd3d259a03c267301caa15b59f8d1940887d8b39c4d686f2492a280195dd45f"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 34921336,
+          "sha256": "2986ef9cc929b714eb48976c400957248f7f289376fbe5c2886c9d4f8f45141e"
+        },
+        "cost.json": {
+          "bytes": 1233,
+          "sha256": "2647027537956b6ddfb84e29cd2b12b80c1e363dd7b8225a569dd62df841bbc4"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2477,
+          "sha256": "512ebf212572dd92fa402e27ac903c3bf98fbfc939b6a6ecee11261d63348816"
+        }
+      },
+      "suite": "dreamserver-75-pr-audit",
+      "replicate": 1,
+      "ordinal": 9
+    },
+    {
+      "run_name": "gemma4-31b-q4_75pr_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "2edfd7773c5243b460d7402468dbcb5c86efeb21",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "model_stopped",
+      "elapsed_s": 193.8,
+      "iterations": 32,
+      "completion_tokens": 7592,
+      "prompt_tokens_cumulative": 879716,
+      "model_turns": 32,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9804,
+        "mean_power_w": 459.98,
+        "mean_sm_util_pct": 83.54,
+        "max_temp_c": 73.0,
+        "cpu_package_mean_power_w": 135.56
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9556,
+          "sha256": "3f06c30bdae4813b39c0ccf74770892179550be0590463e672c0609f889d2b7c"
+        },
+        "transcript.jsonl": {
+          "bytes": 23651,
+          "sha256": "01c6decba025a16b03929e68486de8aa8ce653f65e83dc4472195b36013a1c56"
+        },
+        "summary.json": {
+          "bytes": 427,
+          "sha256": "84671b0076d1eed4faca9a26553b399a002e9bf90e732e37bbf32d477d02a0e4"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 54035493,
+          "sha256": "f9a10fe0fa04125aa230dd9e588b5763544b3fa3ebcba9666e6d78bc9e427fd9"
+        },
+        "cost.json": {
+          "bytes": 1231,
+          "sha256": "183017e80971ab13628c21da1aa56d27cd31c0b755f7caa351778f4259bd37e0"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2394,
+          "sha256": "6f7cfc0572a40cea88c6d5d9abdfdf52f1e8449f3b26f89697fbf744dbbe7284"
+        }
+      },
+      "suite": "dreamserver-75-pr-audit",
+      "replicate": 2,
+      "ordinal": 10
+    },
+    {
+      "run_name": "gemma4-31b-q4_75pr_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "17e0128cb8c3268d4616a51147b1b754db8103b6",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 561.7,
+      "iterations": 41,
+      "completion_tokens": 25841,
+      "prompt_tokens_cumulative": 1193936,
+      "model_turns": 41,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9881,
+        "mean_power_w": 475.31,
+        "mean_sm_util_pct": 90.95,
+        "max_temp_c": 71.0,
+        "cpu_package_mean_power_w": 113.63
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9554,
+          "sha256": "ec88a1c45d985f0fb5e47b7b0a0f781e68087f4a7d01fb7d85bf796e3a752b18"
+        },
+        "transcript.jsonl": {
+          "bytes": 84879,
+          "sha256": "3bdf12182ac973b2b7e647152b6a150aebf1f8cfdeb90172de95c3e81a4aae27"
+        },
+        "summary.json": {
+          "bytes": 954,
+          "sha256": "ce48b91c08ea6759d22844de7533700fdecd0c4b7ce6a2c857cdba9f80bd95e4"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 626792011,
+          "sha256": "3246d75825dc7c8b9f0abb76c3b4ddf2e1a716a4b18e679e10922a86756275cc"
+        },
+        "cost.json": {
+          "bytes": 1233,
+          "sha256": "3286a47bec380fa22049ba1491353221c6760658d9181f8217af1a0e3747af5b"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2399,
+          "sha256": "53cfcf980e4301302ad3a218ae8bef57c1375c5f9f96f7cb2b2875b8affc2411"
+        }
+      },
+      "suite": "dreamserver-75-pr-audit",
+      "replicate": 3,
+      "ordinal": 11
+    }
+  ],
+  "preserved_infrastructure_invalid_attempts": [
+    {
+      "attempt": "gemma4-31b-q4_75pr_v3-attempt1-20260802T062523Z",
+      "files": {
+        "gpu_telemetry.json": {
+          "bytes": 2424,
+          "sha256": "09e3321f1d6730b6ea0d767f2b6becec50f7c07d529decdcc93592e50b362de9"
+        },
+        "invalidation.json": {
+          "bytes": 1485,
+          "sha256": "bf2f4230faa203ccec907912c1133bf40f1141a0e1c562b8c6a52a2cf33fee74"
+        },
+        "label.json": {
+          "bytes": 1351,
+          "sha256": "3aeee812852f6e4f71a8fe15899d7892b1a8e92f4806cc868f65fe1eac771d0d"
+        },
+        "receipt.json": {
+          "bytes": 9556,
+          "sha256": "7b5d95e4779d530d1d7f3df84fea87d93906ea6b2cabe65a27972604e286df93"
+        },
+        "transcript.jsonl": {
+          "bytes": 35844,
+          "sha256": "eda95eb4d40d46556d222b4ffff0d88ee9d56cead5a21b0c4685bc2890393d5c"
+        }
+      }
+    }
+  ],
+  "scope_note": "This audit proves identity, configuration, routing, telemetry, and artifact preservation. Suite-specific substantive grading and visual/workbook/code inspection are separate required overlays; this document is not a quality pass."
+}

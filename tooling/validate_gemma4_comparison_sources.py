@@ -35,17 +35,34 @@ def read_json(path: Path) -> dict:
     return json.loads(path.read_text())
 
 
+def git_blob_sha256(root: Path, commit: str, path: str) -> str | None:
+    result = subprocess.run(
+        ["git", "-C", str(root), "show", f"{commit}:{path}"],
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return None
+    return hashlib.sha256(result.stdout).hexdigest()
+
+
 def validate(root: Path, manifest_path: Path) -> list[str]:
     errors = []
     manifest = read_json(manifest_path)
+    source_commit = manifest.get("source_repository_commit")
     for source in manifest.get("source_documents", []):
         path = root / source["path"]
-        if not path.is_file():
+        if source.get("verify_at_source_commit"):
+            observed = git_blob_sha256(root, source_commit, source["path"])
+            if observed is None:
+                errors.append(f"missing source document at pinned commit: {source['path']}")
+            elif observed != source["sha256"]:
+                errors.append(f"source hash drift at pinned commit: {source['path']}")
+        elif not path.is_file():
             errors.append(f"missing source document: {source['path']}")
         elif sha256(path) != source["sha256"]:
             errors.append(f"source hash drift: {source['path']}")
 
-    source_commit = manifest.get("source_repository_commit")
     ancestor = subprocess.run(
         ["git", "-C", str(root), "merge-base", "--is-ancestor", source_commit, "HEAD"],
         capture_output=True,

@@ -1,0 +1,386 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-02T03:06:02.921035+00:00",
+  "root": "/home/michael/bench-gemma4-31b-q4",
+  "label": "gemma4-31b-q4",
+  "target_n": 3,
+  "passed": true,
+  "errors": [],
+  "repository_commit": "c7d0ee9bbd287716a5ef11a077ec3d89652ce25d",
+  "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+  "docker_version": "29.2.1",
+  "bench_sandbox_image_id": "sha256:61fae3bdff98a8a307a3aff35d482cf6ad9bf31f83c151499c99ae4cee64a9cd",
+  "grader_files": {
+    "tooling/scripts/grade_microbench.sh": {
+      "bytes": 5789,
+      "sha256": "fb65e0be31abeb86ece4cb1eef6c894200266b57fe48a069952c53af84016c9d"
+    },
+    "tooling/graders/phase1_grade.py": {
+      "bytes": 12036,
+      "sha256": "cccf4967bccb7e013d5ea29a21cba0b274a8c81037d6bbe9d91e3428389875cb"
+    },
+    "tooling/graders/code_task_grader.py": {
+      "bytes": 9546,
+      "sha256": "82aeb55f87f123c7920458a5346412378cfd3f9db100d924f51ea2f4a91a1eb5"
+    },
+    "tooling/graders/phase2_extraction_grade.py": {
+      "bytes": 4958,
+      "sha256": "9e390ab2531e72aab64613382b01ce83e60ca6242e9abef87a0deefb502726d6"
+    },
+    "tooling/graders/phase2_ci_failure_grade.py": {
+      "bytes": 5242,
+      "sha256": "6ae717a937da8abc4aca74621f67445667ea34b06767d64a8310f0b5fae53ab4"
+    },
+    "tooling/graders/phase2_hallucination_grade.py": {
+      "bytes": 4945,
+      "sha256": "24e64182b04810bb3938ecdd9d3886d994e440716f4889952edb69786c7bb237"
+    },
+    "tooling/graders/phase2_triage_grade.py": {
+      "bytes": 4493,
+      "sha256": "ea3eebcf6a2fc085276e555f2cb1a54239e1dc9286bac3cb2300f01929b855a1"
+    },
+    "tooling/graders/phase3_doc_synthesis_grade.py": {
+      "bytes": 4068,
+      "sha256": "8c117c0a3bfec94a91f94e49bb5b4281a458bcc4a650e9ae86e2450f0f5cac0a"
+    },
+    "tooling/graders/phase3_business_memo_grade.py": {
+      "bytes": 5996,
+      "sha256": "691c5c6cec0f3bbf2fc86e80c47dd3fc2bde4873dc630297a0aea13edd548d7b"
+    },
+    "tooling/graders/phase3_market_research_grade.py": {
+      "bytes": 4585,
+      "sha256": "e87c20a55bb74e9be883a9b2628fd954a99aaebf937f1d1bd4fbbf111b836de6"
+    },
+    "tooling/graders/phase3_writing_editing_grade.py": {
+      "bytes": 5520,
+      "sha256": "a3461f31be9d24cc1c5132fff4bff96a27af77af2457dad839ef5498afba8f56"
+    },
+    "tooling/graders/phase3_project_mgmt_grade.py": {
+      "bytes": 5706,
+      "sha256": "e1c3a9190e6d19cffd76734c8c922450b22d674bd5fd2db052fef31f91777bca"
+    },
+    "tooling/graders/ground_truth/phase2_extraction.json": {
+      "bytes": 4012,
+      "sha256": "fead89b8051621404257afd0d5cbd5edb3b81cfcc4fe94fd58cf59e546a82d67"
+    },
+    "tooling/graders/ground_truth/phase2_hallucination.json": {
+      "bytes": 4847,
+      "sha256": "eb2d03bbb161d1619306904a1850b6ac7106e35cbc49febff431e0f7280900c3"
+    },
+    "tooling/graders/ground_truth/phase2_triage.json": {
+      "bytes": 5105,
+      "sha256": "6ca3763f32abfe3a5b8dfa56662c9083f91f81c2c3d06d3117bfb974367669d1"
+    },
+    "tooling/graders/ground_truth/phase3_doc_synthesis.json": {
+      "bytes": 3569,
+      "sha256": "20e2baef1b99f4dc9339e87208105c9c5a57cf6b6266f09ce88518d5931ebe9d"
+    },
+    "tooling/graders/ground_truth/phase3_business_memo.json": {
+      "bytes": 5197,
+      "sha256": "d422f262007c219a5b2da654e9c1282bfb94e19837eafd33ca70009e66b72313"
+    },
+    "tooling/graders/ground_truth/phase3_market_research_rubric.json": {
+      "bytes": 3428,
+      "sha256": "d67aaf1664f2280d1e47855aaeaf543590f40b34e7d42aa194729e5e28fa90a5"
+    },
+    "tooling/graders/ground_truth/phase3_project_mgmt.json": {
+      "bytes": 4382,
+      "sha256": "ff97a618bcb888a7f4d67eba55b2e5b1d0b459c694b90db0f6ec4072e0280220"
+    },
+    "tooling/inputs/phase3_writing_editing/audience_briefs.json": {
+      "bytes": 4254,
+      "sha256": "0c22573bd97d973d6de73cbbf2e9b806b3099f90872a5f0ec8a4fa33948f94cd"
+    }
+  },
+  "raw_grades": [
+    {
+      "run_name": "p1_bugfix_gemma4-31b-q4_v1",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 467,
+        "sha256": "8ef51f6f2d9457eb209c41700017a65b6f13674d9251e4c8b02352a7ad89a4aa"
+      }
+    },
+    {
+      "run_name": "p1_bugfix_gemma4-31b-q4_v2",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 468,
+        "sha256": "8c1caead3b6ffa35ac77aefd6150cc3bc5513596a7f125c9e024d34226cdfe3f"
+      }
+    },
+    {
+      "run_name": "p1_bugfix_gemma4-31b-q4_v3",
+      "verdict": "FAIL",
+      "grade_json": {
+        "bytes": 468,
+        "sha256": "10243cc2a1b0f2c8df720128ec698608433a7b5176a9ffe716efd29205815667"
+      }
+    },
+    {
+      "run_name": "p1_testwrite_gemma4-31b-q4_v1",
+      "verdict": "FAIL",
+      "grade_json": {
+        "bytes": 1155,
+        "sha256": "73b7129ab31845b98ef25c4e1501e5367510c8b7fbda84357be4bb3294bbd2f3"
+      }
+    },
+    {
+      "run_name": "p1_testwrite_gemma4-31b-q4_v2",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 341,
+        "sha256": "42c1da43e1c31be25775668d65010e502b8383356f35bfd846be7b583f7e153e"
+      }
+    },
+    {
+      "run_name": "p1_testwrite_gemma4-31b-q4_v3",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 341,
+        "sha256": "b99e9530499f12935a79df989d2f182b0917530a4b3be44b95eaa26e7f2d2c33"
+      }
+    },
+    {
+      "run_name": "p1_refactor_gemma4-31b-q4_v1",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 510,
+        "sha256": "7f69334378ac3187de489eb74ad81c8245267d1a5711612b94879f297e758bcf"
+      }
+    },
+    {
+      "run_name": "p1_refactor_gemma4-31b-q4_v2",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 510,
+        "sha256": "7f69334378ac3187de489eb74ad81c8245267d1a5711612b94879f297e758bcf"
+      }
+    },
+    {
+      "run_name": "p1_refactor_gemma4-31b-q4_v3",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 510,
+        "sha256": "7f69334378ac3187de489eb74ad81c8245267d1a5711612b94879f297e758bcf"
+      }
+    },
+    {
+      "run_name": "p2_extract_gemma4-31b-q4_v1",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 3204,
+        "sha256": "b6bc97fc6e03c0b85c34d7e6b5aa1ffcfdf128e953247bc7569f9417170aa2b8"
+      }
+    },
+    {
+      "run_name": "p2_extract_gemma4-31b-q4_v2",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 3204,
+        "sha256": "b6bc97fc6e03c0b85c34d7e6b5aa1ffcfdf128e953247bc7569f9417170aa2b8"
+      }
+    },
+    {
+      "run_name": "p2_extract_gemma4-31b-q4_v3",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 3204,
+        "sha256": "b6bc97fc6e03c0b85c34d7e6b5aa1ffcfdf128e953247bc7569f9417170aa2b8"
+      }
+    },
+    {
+      "run_name": "p2_ci_gemma4-31b-q4_v1",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 482,
+        "sha256": "69e86f389fb98ab93705abc5fd07431d5a9730ba5b0214d67cccdc8eeb154ba6"
+      }
+    },
+    {
+      "run_name": "p2_ci_gemma4-31b-q4_v2",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 482,
+        "sha256": "eae0f41e05a5ce0e1a370e295ccb33bfd10b26e892ff34e286253904640fd666"
+      }
+    },
+    {
+      "run_name": "p2_ci_gemma4-31b-q4_v3",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 482,
+        "sha256": "1cdcddf815967c7395bceb0d8ac5b955294d82d5d932594f553e43f22ab4234d"
+      }
+    },
+    {
+      "run_name": "p2_hallucination_gemma4-31b-q4_v1",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 3586,
+        "sha256": "80910919c9e64a98ef035d0e5da409c4b26fc67de0ad65bcf63df6b4012393e6"
+      }
+    },
+    {
+      "run_name": "p2_hallucination_gemma4-31b-q4_v2",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 3892,
+        "sha256": "2553e9edff94d4bf1cc8fda5c170ae25201bd4baa261fc4ab14d5754dbc11bed"
+      }
+    },
+    {
+      "run_name": "p2_hallucination_gemma4-31b-q4_v3",
+      "verdict": "MISSING_OUTPUT",
+      "grade_json": {
+        "bytes": 153,
+        "sha256": "e4f8b9da1c7aba632e47e0a97771274c35662e1f1e2920b050928e498df8692a"
+      }
+    },
+    {
+      "run_name": "p2_triage_gemma4-31b-q4_v1",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 2250,
+        "sha256": "dbe6f269c365da51b85a5053d621051e8877fc7a7642fcc441c97f6c7653b5f5"
+      }
+    },
+    {
+      "run_name": "p2_triage_gemma4-31b-q4_v2",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 2159,
+        "sha256": "c14e218d16bc8ba2bfb56fd8577d0f8539d628d0366f9340f7d2f60f17c91290"
+      }
+    },
+    {
+      "run_name": "p2_triage_gemma4-31b-q4_v3",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 1914,
+        "sha256": "8b145bdcbc912d2f546ce33b90d11fe348c69829b205abe91d6513b83ba9daef"
+      }
+    },
+    {
+      "run_name": "p3_doc_gemma4-31b-q4_v1",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 2357,
+        "sha256": "addcd3cfc419649494adf40c60fd2385ec3b403f91e07f3423695aac6fd5c0dc"
+      }
+    },
+    {
+      "run_name": "p3_doc_gemma4-31b-q4_v2",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 2357,
+        "sha256": "addcd3cfc419649494adf40c60fd2385ec3b403f91e07f3423695aac6fd5c0dc"
+      }
+    },
+    {
+      "run_name": "p3_doc_gemma4-31b-q4_v3",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 2360,
+        "sha256": "a1e32ee1296ef6f8f122b96d91586e2fbd3df7e2ff1f5aea3b13c97c6cb2bdd8"
+      }
+    },
+    {
+      "run_name": "p3_business_gemma4-31b-q4_v1",
+      "verdict": "FAIL",
+      "grade_json": {
+        "bytes": 3866,
+        "sha256": "3c85cb074672401082ba6adecc5f454e5124b81323f35fc312a8458bba0ab815"
+      }
+    },
+    {
+      "run_name": "p3_business_gemma4-31b-q4_v2",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 3873,
+        "sha256": "13358399cce26683f59886f1cfc577330fd90233e4065a9af249f51edd05c4ab"
+      }
+    },
+    {
+      "run_name": "p3_business_gemma4-31b-q4_v3",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 3873,
+        "sha256": "13358399cce26683f59886f1cfc577330fd90233e4065a9af249f51edd05c4ab"
+      }
+    },
+    {
+      "run_name": "p3_market_gemma4-31b-q4_v1",
+      "verdict": "STRUCTURAL_PASS",
+      "grade_json": {
+        "bytes": 991,
+        "sha256": "ec7f817b56a4a6ab2128042d09466fdcdf5b77eaf246ea588cbb987a0865d5fa"
+      }
+    },
+    {
+      "run_name": "p3_market_gemma4-31b-q4_v2",
+      "verdict": "STRUCTURAL_PASS",
+      "grade_json": {
+        "bytes": 991,
+        "sha256": "7a993d6b3110622d5558f7d78f2ebb57044bb1bdf2b0e9f52585b7fdcf81dddc"
+      }
+    },
+    {
+      "run_name": "p3_market_gemma4-31b-q4_v3",
+      "verdict": "STRUCTURAL_PASS",
+      "grade_json": {
+        "bytes": 990,
+        "sha256": "5d1bcb2c532b0323a5acdb93607cd0a957b6254f0dc687a6751be84f10ba86b2"
+      }
+    },
+    {
+      "run_name": "p3_writing_gemma4-31b-q4_v1",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 2879,
+        "sha256": "4d52cac7e70665c17a000630f5e703deb8c2dd7fa09b140e58cd916809855594"
+      }
+    },
+    {
+      "run_name": "p3_writing_gemma4-31b-q4_v2",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 2879,
+        "sha256": "d5b96fa97f5173b2c03372286d3f1337cdad83a2d8433953285d8c1b96d080de"
+      }
+    },
+    {
+      "run_name": "p3_writing_gemma4-31b-q4_v3",
+      "verdict": "PASS",
+      "grade_json": {
+        "bytes": 2876,
+        "sha256": "5554d7976a5268e573cd20176244ba7db50716c7dc7dad7df89386f9fc269564"
+      }
+    },
+    {
+      "run_name": "p3_pm_gemma4-31b-q4_v1",
+      "verdict": "FAIL",
+      "grade_json": {
+        "bytes": 2404,
+        "sha256": "eade149c12512150ebb28d5a446c6dc1037e0ded24a3ed5e83d65d87aba47bc4"
+      }
+    },
+    {
+      "run_name": "p3_pm_gemma4-31b-q4_v2",
+      "verdict": "FAIL",
+      "grade_json": {
+        "bytes": 2425,
+        "sha256": "5e98c1230f111ddb4d1a15ae7063c80590fbee19b72661c4b56e9c94f0b12352"
+      }
+    },
+    {
+      "run_name": "p3_pm_gemma4-31b-q4_v3",
+      "verdict": "FAIL",
+      "grade_json": {
+        "bytes": 2408,
+        "sha256": "be7951b5c0b3770b9ee61e8f3bd5042dfc0fa486d2be1086b97314e4a8976ca3"
+      }
+    }
+  ],
+  "correction_policy": "grade.json and label.json hashes are immutable raw evidence. Any correction must be a separate overlay naming the original hash, corrected grader hash, unchanged workspace archive hash, and reproducible defect."
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "model": "Gemma-4-31B-it-QAT-Q4_0",
+  "canonical": {
+    "n3": {"raw_passes": 29, "corrected_passes": 32, "total": 36, "done_signal": 35},
+    "n10": {"raw_passes": 89, "corrected_passes": 99, "total": 120, "done_signal": 116},
+    "correction_scope": "project-management lexical false negatives only"
+  },
+  "qwen3_6_27b": {
+    "thinking_n3": {"raw_passes": 20, "total": 36},
+    "nothink_operational": {"done_signal": 113, "denominator": 118, "quality_grade": null},
+    "single_stream_500w_tps": 72.1,
+    "batch_500w": {"concurrency": 32, "aggregate_tps_one_gpu": 1336.5}
+  },
+  "gemma_serving": {
+    "single_stream_short_context_tps": 70.28992948492308,
+    "single_stream_131072_context_tps": 47.26540986218625,
+    "single_stream_250000_context_tps": 36.69319756850233,
+    "two_replica_total_concurrency_8_tps": 290.2791998689652
+  },
+  "extended": {
+    "strict_substantive_passes": 0,
+    "total_runs": 12,
+    "frozen_75pr": [
+      {"replicate": 1, "actual_pr_dirs": 6, "parsable_verdicts": 6, "classification": "MODEL_TERMINAL_FAILURE"},
+      {"replicate": 2, "actual_pr_dirs": 2, "parsable_verdicts": 1, "classification": "MODEL_TERMINAL_FAILURE"},
+      {"replicate": 3, "actual_pr_dirs": 75, "parsable_verdicts": 14, "classification": "MODEL_TERMINAL_FAILURE"}
+    ]
+  },
+  "comparison_rules": [
+    "A done_signal rate is not a quality PASS rate.",
+    "The Qwen C32 vLLM and Gemma C8 llama.cpp batching rows are operational measurements, not a controlled model-speed A/B.",
+    "Corrected results never overwrite raw grades.",
+    "Cross-date and cross-operating-point rates are directional, not a global leaderboard."
+  ]
+}

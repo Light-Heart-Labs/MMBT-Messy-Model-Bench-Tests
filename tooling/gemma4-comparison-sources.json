@@ -1,11 +1,12 @@
 {
   "schema_version": 1,
-  "source_repository_commit": "0adec7c5e9a91ef19b0f1385e9d9d2b589fee45c",
+  "source_repository_commit": "dc8f57d443aeccba652a33852fda32d37cd701f3",
   "purpose": "Pin the exact published evidence used for the post-campaign Gemma comparison before Gemma grades are known.",
   "source_documents": [
     {
       "path": "SCORECARD.md",
-      "sha256": "50d4a8b23addb1ceb32ff7d36c91be99e4a470a495d9a5d1f4bb18337526be30"
+      "sha256": "50d4a8b23addb1ceb32ff7d36c91be99e4a470a495d9a5d1f4bb18337526be30",
+      "verify_at_source_commit": true
     },
     {
       "path": "benchmarks/microbench-2026-04-28/bug-fixing/Qwen3.6-27B-AWQ/receipt.json",

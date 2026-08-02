@@ -1,0 +1,2435 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-02T03:06:02.993594+00:00",
+  "label": "gemma4-31b-q4",
+  "target_n": 3,
+  "passed": true,
+  "errors": [],
+  "aggregate": {
+    "runs": 36,
+    "completed": 36,
+    "normal_completed": 36,
+    "terminal_outcomes": 0,
+    "graded": 36,
+    "scored_outcomes": 36,
+    "raw_passes": 29,
+    "raw_pass_rate": 0.805556,
+    "verdicts": {
+      "FAIL": 6,
+      "MISSING_OUTPUT": 1,
+      "PASS": 26,
+      "STRUCTURAL_PASS": 3
+    },
+    "quality_outcomes": {
+      "FAIL": 6,
+      "MISSING_OUTPUT": 1,
+      "PASS": 26,
+      "STRUCTURAL_PASS": 3
+    },
+    "finish_reasons": {
+      "done_signal": 35,
+      "model_stopped": 1
+    },
+    "wall_s": {
+      "sum": 7164.3,
+      "median": 122.8,
+      "max": 708.7
+    },
+    "completion_tokens": {
+      "sum": 291243,
+      "median": 6332.5,
+      "max": 25223
+    },
+    "model_call_completion_tps": {
+      "median": 54.5,
+      "min": 19.7,
+      "max": 61.9
+    },
+    "telemetry": {
+      "runs": 34,
+      "coverage_mean": 0.944515,
+      "active_gpu_mean_power_w_mean": 465.854,
+      "active_gpu_mean_sm_util_pct_mean": 87.904,
+      "max_temp_c": 87.0
+    },
+    "per_task": {
+      "p1_bugfix": {
+        "runs": 3,
+        "graded": 3,
+        "scored_outcomes": 3,
+        "raw_passes": 2,
+        "verdicts": {
+          "FAIL": 1,
+          "PASS": 2
+        },
+        "quality_outcomes": {
+          "FAIL": 1,
+          "PASS": 2
+        },
+        "finish_reasons": {
+          "done_signal": 3
+        }
+      },
+      "p1_testwrite": {
+        "runs": 3,
+        "graded": 3,
+        "scored_outcomes": 3,
+        "raw_passes": 2,
+        "verdicts": {
+          "FAIL": 1,
+          "PASS": 2
+        },
+        "quality_outcomes": {
+          "FAIL": 1,
+          "PASS": 2
+        },
+        "finish_reasons": {
+          "done_signal": 3
+        }
+      },
+      "p1_refactor": {
+        "runs": 3,
+        "graded": 3,
+        "scored_outcomes": 3,
+        "raw_passes": 3,
+        "verdicts": {
+          "PASS": 3
+        },
+        "quality_outcomes": {
+          "PASS": 3
+        },
+        "finish_reasons": {
+          "done_signal": 3
+        }
+      },
+      "p2_extract": {
+        "runs": 3,
+        "graded": 3,
+        "scored_outcomes": 3,
+        "raw_passes": 3,
+        "verdicts": {
+          "PASS": 3
+        },
+        "quality_outcomes": {
+          "PASS": 3
+        },
+        "finish_reasons": {
+          "done_signal": 3
+        }
+      },
+      "p2_ci": {
+        "runs": 3,
+        "graded": 3,
+        "scored_outcomes": 3,
+        "raw_passes": 3,
+        "verdicts": {
+          "PASS": 3
+        },
+        "quality_outcomes": {
+          "PASS": 3
+        },
+        "finish_reasons": {
+          "done_signal": 3
+        }
+      },
+      "p2_hallucination": {
+        "runs": 3,
+        "graded": 3,
+        "scored_outcomes": 3,
+        "raw_passes": 2,
+        "verdicts": {
+          "MISSING_OUTPUT": 1,
+          "PASS": 2
+        },
+        "quality_outcomes": {
+          "MISSING_OUTPUT": 1,
+          "PASS": 2
+        },
+        "finish_reasons": {
+          "done_signal": 2,
+          "model_stopped": 1
+        }
+      },
+      "p2_triage": {
+        "runs": 3,
+        "graded": 3,
+        "scored_outcomes": 3,
+        "raw_passes": 3,
+        "verdicts": {
+          "PASS": 3
+        },
+        "quality_outcomes": {
+          "PASS": 3
+        },
+        "finish_reasons": {
+          "done_signal": 3
+        }
+      },
+      "p3_doc": {
+        "runs": 3,
+        "graded": 3,
+        "scored_outcomes": 3,
+        "raw_passes": 3,
+        "verdicts": {
+          "PASS": 3
+        },
+        "quality_outcomes": {
+          "PASS": 3
+        },
+        "finish_reasons": {
+          "done_signal": 3
+        }
+      },
+      "p3_business": {
+        "runs": 3,
+        "graded": 3,
+        "scored_outcomes": 3,
+        "raw_passes": 2,
+        "verdicts": {
+          "FAIL": 1,
+          "PASS": 2
+        },
+        "quality_outcomes": {
+          "FAIL": 1,
+          "PASS": 2
+        },
+        "finish_reasons": {
+          "done_signal": 3
+        }
+      },
+      "p3_market": {
+        "runs": 3,
+        "graded": 3,
+        "scored_outcomes": 3,
+        "raw_passes": 3,
+        "verdicts": {
+          "STRUCTURAL_PASS": 3
+        },
+        "quality_outcomes": {
+          "STRUCTURAL_PASS": 3
+        },
+        "finish_reasons": {
+          "done_signal": 3
+        }
+      },
+      "p3_writing": {
+        "runs": 3,
+        "graded": 3,
+        "scored_outcomes": 3,
+        "raw_passes": 3,
+        "verdicts": {
+          "PASS": 3
+        },
+        "quality_outcomes": {
+          "PASS": 3
+        },
+        "finish_reasons": {
+          "done_signal": 3
+        }
+      },
+      "p3_pm": {
+        "runs": 3,
+        "graded": 3,
+        "scored_outcomes": 3,
+        "raw_passes": 0,
+        "verdicts": {
+          "FAIL": 3
+        },
+        "quality_outcomes": {
+          "FAIL": 3
+        },
+        "finish_reasons": {
+          "done_signal": 3
+        }
+      }
+    }
+  },
+  "runs": [
+    {
+      "run_name": "p1_bugfix_gemma4-31b-q4_v1",
+      "task": "p1_bugfix",
+      "replicate": 1,
+      "summary": {
+        "started_at": "2026-08-02T00:21:07.782391+00:00",
+        "ended_at": "2026-08-02T00:32:56.494903+00:00",
+        "elapsed_s": 708.7,
+        "iterations": 80,
+        "total_completion_tokens": 18475,
+        "total_prompt_tokens": 1583932,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Stabilized the `logalyzer` codebase by fixing critical bugs and performance bottlenecks, removing a security vulnerability, and increasing test coverage to 91%.\n\nKey accomplishments:\n- **Performance**: Fixed an O(n\u00b2) log loading bottleneck, reducing 50MB log load time from >300s to ~3s.\n- **Security**: Removed the `eval()`-based `expression_filter` and corresponding CLI argument to prevent remote code execution.\n- **Stability**: Fixed a missing month in date parsing, corrected URL regex matching, and normalized CLI input types.\n- **Modernization**: Updated the codebase for Python 3.11+ and replaced manual JSON string building with the `json` module.\n- **Quality**: Removed dead code, added comprehensive tests for all modules, and achieved 91% line coverage.\n- **Documentation**: Created a full audit trail including a triage report, before-after metrics, ADRs, research notes, and a detailed CHANGELOG.\n\nThe final repository is located at `/workspace/` and is tagged as `v0.3.2`."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p1_bugfix_gemma4-31b-q4_v1",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 708.7,
+        "iters": 80,
+        "tokens": {
+          "completion_total": 18475,
+          "prompt_total": 1583932,
+          "all_total": 1602407
+        },
+        "throughput": {
+          "completion_tps_avg": 47.6,
+          "model_call_wall_s": 388.0,
+          "tool_call_wall_s": 314.2,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 404.7,
+          "first_commit_s": 0.1,
+          "first_tag_s": 689.9
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 20.92,
+          "memory_used_mib_at_start": 65197.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0984,
+          "cost_usd_upper_bound": 0.0128,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": null
+    },
+    {
+      "run_name": "p1_bugfix_gemma4-31b-q4_v2",
+      "task": "p1_bugfix",
+      "replicate": 2,
+      "summary": {
+        "started_at": "2026-08-02T00:21:07.781614+00:00",
+        "ended_at": "2026-08-02T00:31:47.326458+00:00",
+        "elapsed_s": 639.5,
+        "iterations": 58,
+        "total_completion_tokens": 14733,
+        "total_prompt_tokens": 984362,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "I have successfully adopted and stabilized the `logalyzer` codebase. \n\n**Key Accomplishments:**\n- **Fixed Critical Performance Issue**: Identified and fixed an O(n\u00b2) bottleneck in `logalyzer.io.load` where list concatenation was used in a loop. This resulted in a speedup from >300s to ~3.2s for a 50MB log file (approx. 90x improvement).\n- **Resolved Bugs**: \n    - Fixed `parse_timestamp` missing 'Jul' in its lookup table, which caused crashes for July logs.\n    - Fixed `status_filter` to correctly handle string inputs from the CLI.\n    - Fixed `url_regex_filter` to perform substring matches using `re.search` instead of `re.match`.\n- **Modernized Codebase**: \n    - Updated `collections.Iterable` to `collections.abc.Iterable` for Python 3.11 compatibility.\n    - Optimized `ip_allowlist_filter` by converting the allowlist to a `set`, reducing lookup time from O(N) to O(1) per entry.\n- **Improved Quality & Coverage**:\n    - Increased test coverage from 34% to 85% by adding comprehensive tests for `cli`, `io`, `output`, and `utils` modules.\n    - Removed dead code (`logalyzer/experimental.py`).\n    - Cleaned up unused imports and followed PEP8 standards using `ruff`.\n- **Documentation & Audit**:\n    - Provided a full triage of issues in `/audit/triage.md`.\n    - Documented hard metrics in `/audit/before-after.md`.\n    - Created Architecture Decision Records (ADRs) and research logs in `/architecture/`, `/decisions/`, and `/research/`.\n    - Updated `README.md` to remove false claims and accurately describe the tool's capabilities.\n    - Created a user-facing `CHANGELOG.md`.\n\nThe final repository is tagged `v0.3.0` and is ready for hand-off."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p1_bugfix_gemma4-31b-q4_v2",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 639.5,
+        "iters": 58,
+        "tokens": {
+          "completion_total": 14733,
+          "prompt_total": 984362,
+          "all_total": 999095
+        },
+        "throughput": {
+          "completion_tps_avg": 45.7,
+          "model_call_wall_s": 322.4,
+          "tool_call_wall_s": 312.4,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 329.9,
+          "first_commit_s": 6.1,
+          "first_tag_s": 605.9
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 20.92,
+          "memory_used_mib_at_start": 65197.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0888,
+          "cost_usd_upper_bound": 0.0115,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": null
+    },
+    {
+      "run_name": "p1_bugfix_gemma4-31b-q4_v3",
+      "task": "p1_bugfix",
+      "replicate": 3,
+      "summary": {
+        "started_at": "2026-08-02T00:45:34.628923+00:00",
+        "ended_at": "2026-08-02T00:55:58.294596+00:00",
+        "elapsed_s": 623.7,
+        "iterations": 62,
+        "total_completion_tokens": 14968,
+        "total_prompt_tokens": 1161167,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Adopted and stabilized the `logalyzer` codebase. \n\nKey accomplishments:\n1.  **Bug Fixes**: Fixed critical timestamp parsing error (missing July) and filter logic bugs (status type mismatch, URL regex match vs search).\n2.  **Modernization**: Updated `collections` imports to `collections.abc` for Python 3.10+ compatibility.\n3.  **Performance**: Optimized `logalyzer.io.load` from O(n\u00b2) to O(n) by replacing quadratic string and list concatenation with a streaming generator, reducing 50MB log processing time from >300s to ~3.3s.\n4.  **Security**: Eliminated a critical Remote Code Execution (RCE) vulnerability by removing the `eval()`-based `expression_filter` and corresponding CLI flag.\n5.  **Code Cleanup**: Removed dead code including an unused experimental module and several legacy utility functions.\n6.  **Testing**: Expanded the test suite to cover CLI, IO, and Output modules, increasing total line coverage from 24% to 91% and achieving a 100% pass rate.\n7.  **Documentation**: Updated the README (removed false claims), created a detailed CHANGELOG, and provided full audit and research trails including ADRs and decision records.\n\nThe final repository is tagged as `v0.3.0`."
+      },
+      "verdict": "FAIL",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p1_bugfix_gemma4-31b-q4_v3",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 623.7,
+        "iters": 62,
+        "tokens": {
+          "completion_total": 14968,
+          "prompt_total": 1161167,
+          "all_total": 1176135
+        },
+        "throughput": {
+          "completion_tps_avg": 48.9,
+          "model_call_wall_s": 305.9,
+          "tool_call_wall_s": 312.7,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 337.5,
+          "first_commit_s": 3.3,
+          "first_tag_s": 597.7
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 87.25,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0866,
+          "cost_usd_upper_bound": 0.0113,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9941,
+        "mean_power_w": 249.36,
+        "mean_sm_util_pct": 44.38,
+        "max_temp_c": 76.0
+      }
+    },
+    {
+      "run_name": "p1_testwrite_gemma4-31b-q4_v1",
+      "task": "p1_testwrite",
+      "replicate": 1,
+      "summary": {
+        "started_at": "2026-08-02T00:45:34.629990+00:00",
+        "ended_at": "2026-08-02T00:54:18.228621+00:00",
+        "elapsed_s": 523.6,
+        "iterations": 49,
+        "total_completion_tokens": 25223,
+        "total_prompt_tokens": 1273638,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Increased test coverage of the logalyzer codebase from 25% to 72% by adding high-value tests for under-covered modules. \n\nKey accomplishments:\n- Added new test files: `tests/test_cli.py`, `tests/test_experimental.py`, `tests/test_io.py`, `tests/test_output.py`, `tests/test_utils.py`, and `tests/test_parser_edge.py`.\n- Achieved 100% coverage for `experimental.py`, `io.py`, `output.py`, and `utils.py`.\n- Significantly increased coverage for `cli.py` (98%), `filters.py` (97%), and `parser.py` (88%).\n- Implemented a monkeypatch in `tests/conftest.py` to resolve a Python 3.11 incompatibility in the production code (`collections.Iterable` removal) without modifying the production code itself.\n- Documented several baseline bugs (e.g., `status_filter` type mismatch, `re.match` instead of `re.search` in `url_regex_filter`, and a missing 'Jul' in `MONTH_NAMES`) in `research/dead-ends.md` as per the rules.\n- Maintained the original codebase's byte-identical status in `/logalyzer/`.\n- Followed the required repository structure and provided a detailed `CHANGELOG.md`.\n- Committed changes frequently with descriptive messages and tagged the final release.\n"
+      },
+      "verdict": "FAIL",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p1_testwrite_gemma4-31b-q4_v1",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 523.6,
+        "iters": 49,
+        "tokens": {
+          "completion_total": 25223,
+          "prompt_total": 1273638,
+          "all_total": 1298861
+        },
+        "throughput": {
+          "completion_tps_avg": 49.1,
+          "model_call_wall_s": 514.0,
+          "tool_call_wall_s": 6.8,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 56.9,
+          "first_commit_s": 0.1,
+          "first_tag_s": 502.9
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 87.25,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0727,
+          "cost_usd_upper_bound": 0.0095,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9836,
+        "mean_power_w": 481.16,
+        "mean_sm_util_pct": 91.31,
+        "max_temp_c": 81.0
+      }
+    },
+    {
+      "run_name": "p1_testwrite_gemma4-31b-q4_v2",
+      "task": "p1_testwrite",
+      "replicate": 2,
+      "summary": {
+        "started_at": "2026-08-02T00:56:00.566809+00:00",
+        "ended_at": "2026-08-02T01:02:29.405349+00:00",
+        "elapsed_s": 388.8,
+        "iterations": 48,
+        "total_completion_tokens": 18809,
+        "total_prompt_tokens": 1029851,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Increased test coverage of the logalyzer tool from 34% to 94% by adding high-value tests for previously uncovered modules (`experimental.py`, `io.py`, `output.py`, `utils.py`, and `cli.py`). All new tests pass, and baseline tests were preserved (with documented bugs in the starter codebase). Followed the requested directory structure and documented decisions in ADRs."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p1_testwrite_gemma4-31b-q4_v2",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 388.8,
+        "iters": 48,
+        "tokens": {
+          "completion_total": 18809,
+          "prompt_total": 1029851,
+          "all_total": 1048660
+        },
+        "throughput": {
+          "completion_tps_avg": 49.5,
+          "model_call_wall_s": 379.9,
+          "tool_call_wall_s": 6.1,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 24.6,
+          "first_commit_s": 6.5,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 500.03,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.054,
+          "cost_usd_upper_bound": 0.007,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9902,
+        "mean_power_w": 479.04,
+        "mean_sm_util_pct": 89.65,
+        "max_temp_c": 78.0
+      }
+    },
+    {
+      "run_name": "p1_testwrite_gemma4-31b-q4_v3",
+      "task": "p1_testwrite",
+      "replicate": 3,
+      "summary": {
+        "started_at": "2026-08-02T00:54:18.937486+00:00",
+        "ended_at": "2026-08-02T01:00:58.817170+00:00",
+        "elapsed_s": 399.9,
+        "iterations": 42,
+        "total_completion_tokens": 19900,
+        "total_prompt_tokens": 825275,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Increased test coverage of the logalyzer codebase from 34% to 98% by adding comprehensive test suites for previously uncovered modules. \n\nKey accomplishments:\n- Added `tests/test_experimental.py`, `tests/test_io.py`, `tests/test_output.py`, `tests/test_utils.py`, and `tests/test_cli.py`.\n- Improved `tests/test_parser.py` to cover error paths.\n- Implemented a monkeypatch in `tests/conftest.py` to handle `collections.Iterable` removal in Python 3.11, ensuring tests can run without modifying production code.\n- Documented three critical production bugs in `research/dead-ends.md` that caused baseline test failures (status filter type mismatch, URL regex matching behavior, and missing 'Jul' in MONTH_NAMES).\n- Maintained zero regressions to passing baseline tests.\n- Adhered strictly to the requirement of not modifying production code.\n"
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p1_testwrite_gemma4-31b-q4_v3",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 399.9,
+        "iters": 42,
+        "tokens": {
+          "completion_total": 19900,
+          "prompt_total": 825275,
+          "all_total": 845175
+        },
+        "throughput": {
+          "completion_tps_avg": 50.8,
+          "model_call_wall_s": 392.0,
+          "tool_call_wall_s": 5.4,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 24.0,
+          "first_commit_s": 4.7,
+          "first_tag_s": 380.1
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 251.09,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0555,
+          "cost_usd_upper_bound": 0.0072,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9877,
+        "mean_power_w": 468.52,
+        "mean_sm_util_pct": 91.96,
+        "max_temp_c": 86.0
+      }
+    },
+    {
+      "run_name": "p1_refactor_gemma4-31b-q4_v1",
+      "task": "p1_refactor",
+      "replicate": 1,
+      "summary": {
+        "started_at": "2026-08-02T01:02:30.232102+00:00",
+        "ended_at": "2026-08-02T01:05:36.464935+00:00",
+        "elapsed_s": 186.2,
+        "iterations": 35,
+        "total_completion_tokens": 9779,
+        "total_prompt_tokens": 351967,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Refactored `logalyzer/output.py` into a focused package `logalyzer/output/` containing `json_renderer.py`, `csv_renderer.py`, `plain_renderer.py`, and `legacy.py`. Preserved the public API through `logalyzer/output/__init__.py`. Verified that existing call sites and tests remain unchanged in behavior, including the preservation of existing bugs in `filters.py` and `parser.py`. All documentation (ADRs, research notes, CHANGELOG) has been created in the required structure."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p1_refactor_gemma4-31b-q4_v1",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 186.2,
+        "iters": 35,
+        "tokens": {
+          "completion_total": 9779,
+          "prompt_total": 351967,
+          "all_total": 361746
+        },
+        "throughput": {
+          "completion_tps_avg": 53.9,
+          "model_call_wall_s": 181.5,
+          "tool_call_wall_s": 2.8,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 70.6,
+          "first_commit_s": 62.8,
+          "first_tag_s": 167.0
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 498.71,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0259,
+          "cost_usd_upper_bound": 0.0034,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9667,
+        "mean_power_w": 465.36,
+        "mean_sm_util_pct": 85.35,
+        "max_temp_c": 78.0
+      }
+    },
+    {
+      "run_name": "p1_refactor_gemma4-31b-q4_v2",
+      "task": "p1_refactor",
+      "replicate": 2,
+      "summary": {
+        "started_at": "2026-08-02T01:00:59.565226+00:00",
+        "ended_at": "2026-08-02T01:04:31.084608+00:00",
+        "elapsed_s": 211.5,
+        "iterations": 41,
+        "total_completion_tokens": 11126,
+        "total_prompt_tokens": 508191,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Refactored `logalyzer/output.py` into a `logalyzer/output/` package with specialized modules (`json_renderer.py`, `csv_renderer.py`, `plain_renderer.py`, `legacy.py`) while maintaining full backward compatibility for the public API. Verified that the test suite (including existing bugs) remains unchanged and that other files are byte-identical. Documentation provided in `/decisions/`, `/research/`, and `CHANGELOG.md`."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p1_refactor_gemma4-31b-q4_v2",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 211.5,
+        "iters": 41,
+        "tokens": {
+          "completion_total": 11126,
+          "prompt_total": 508191,
+          "all_total": 519317
+        },
+        "throughput": {
+          "completion_tps_avg": 54.1,
+          "model_call_wall_s": 205.7,
+          "tool_call_wall_s": 3.5,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 101.4,
+          "first_commit_s": 98.0,
+          "first_tag_s": 196.3
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 253.02,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0294,
+          "cost_usd_upper_bound": 0.0038,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9693,
+        "mean_power_w": 459.06,
+        "mean_sm_util_pct": 89.05,
+        "max_temp_c": 84.0
+      }
+    },
+    {
+      "run_name": "p1_refactor_gemma4-31b-q4_v3",
+      "task": "p1_refactor",
+      "replicate": 3,
+      "summary": {
+        "started_at": "2026-08-02T02:40:35.025584+00:00",
+        "ended_at": "2026-08-02T02:43:53.245183+00:00",
+        "elapsed_s": 198.2,
+        "iterations": 40,
+        "total_completion_tokens": 10797,
+        "total_prompt_tokens": 399232,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Refactored `logalyzer/output.py` into a modular subpackage `logalyzer/output/` containing `json_renderer.py`, `csv_renderer.py`, `plain_renderer.py`, and `legacy.py`. Preserved the public API surface and the exact behavior of the original codebase, including a pre-existing `ImportError` in tests caused by Python 3.11 compatibility issues in `logalyzer/filters.py` (which was left untouched per constraints). All verification steps passed except for the pre-existing test failure. Documentation (ADRs, research notes, and CHANGELOG) has been provided. Final release tagged as v0.2.1."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p1_refactor_gemma4-31b-q4_v3",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 198.2,
+        "iters": 40,
+        "tokens": {
+          "completion_total": 10797,
+          "prompt_total": 399232,
+          "all_total": 410029
+        },
+        "throughput": {
+          "completion_tps_avg": 56.0,
+          "model_call_wall_s": 192.8,
+          "tool_call_wall_s": 3.1,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 101.4,
+          "first_commit_s": 89.7,
+          "first_tag_s": 186.1
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 17.56,
+          "memory_used_mib_at_start": 65197.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0275,
+          "cost_usd_upper_bound": 0.0036,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9586,
+        "mean_power_w": 471.53,
+        "mean_sm_util_pct": 87.9,
+        "max_temp_c": 71.0
+      }
+    },
+    {
+      "run_name": "p2_extract_gemma4-31b-q4_v1",
+      "task": "p2_extract",
+      "replicate": 1,
+      "summary": {
+        "started_at": "2026-08-02T01:04:31.829002+00:00",
+        "ended_at": "2026-08-02T01:05:48.226058+00:00",
+        "elapsed_s": 76.4,
+        "iterations": 6,
+        "total_completion_tokens": 4449,
+        "total_prompt_tokens": 22299,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Extracted 20 financial and operational fields from the Veridyne Networks Q3 2026 press release. All fields matched the provided JSON schema in terms of type and units. Results are stored in /workspace/extraction_results.json."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p2_extract_gemma4-31b-q4_v1",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 76.4,
+        "iters": 6,
+        "tokens": {
+          "completion_total": 4449,
+          "prompt_total": 22299,
+          "all_total": 26748
+        },
+        "throughput": {
+          "completion_tps_avg": 58.8,
+          "model_call_wall_s": 75.7,
+          "tool_call_wall_s": 0.3,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 37.1,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 214.87,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0106,
+          "cost_usd_upper_bound": 0.0014,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9162,
+        "mean_power_w": 460.29,
+        "mean_sm_util_pct": 91.33,
+        "max_temp_c": 83.0
+      }
+    },
+    {
+      "run_name": "p2_extract_gemma4-31b-q4_v2",
+      "task": "p2_extract",
+      "replicate": 2,
+      "summary": {
+        "started_at": "2026-08-02T02:08:59.939496+00:00",
+        "ended_at": "2026-08-02T02:10:12.503118+00:00",
+        "elapsed_s": 72.6,
+        "iterations": 6,
+        "total_completion_tokens": 4449,
+        "total_prompt_tokens": 22299,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Extracted 20 financial and operational fields from the Veridyne Networks Q3 2026 press release. All fields matched the provided JSON schema in terms of type and units. Results are stored in /workspace/extraction_results.json."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p2_extract_gemma4-31b-q4_v2",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 72.6,
+        "iters": 6,
+        "tokens": {
+          "completion_total": 4449,
+          "prompt_total": 22299,
+          "all_total": 26748
+        },
+        "throughput": {
+          "completion_tps_avg": 61.9,
+          "model_call_wall_s": 71.9,
+          "tool_call_wall_s": 0.3,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 36.7,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 443.93,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0101,
+          "cost_usd_upper_bound": 0.0013,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.8953,
+        "mean_power_w": 493.67,
+        "mean_sm_util_pct": 90.86,
+        "max_temp_c": 75.0
+      }
+    },
+    {
+      "run_name": "p2_extract_gemma4-31b-q4_v3",
+      "task": "p2_extract",
+      "replicate": 3,
+      "summary": {
+        "started_at": "2026-08-02T01:05:49.001024+00:00",
+        "ended_at": "2026-08-02T01:07:02.880774+00:00",
+        "elapsed_s": 73.9,
+        "iterations": 6,
+        "total_completion_tokens": 4449,
+        "total_prompt_tokens": 22299,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Extracted 20 financial and operational fields from the Veridyne Networks Q3 2026 press release. All fields matched the provided JSON schema in terms of type and units. Results are stored in /workspace/extraction_results.json."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p2_extract_gemma4-31b-q4_v3",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 73.9,
+        "iters": 6,
+        "tokens": {
+          "completion_total": 4449,
+          "prompt_total": 22299,
+          "all_total": 26748
+        },
+        "throughput": {
+          "completion_tps_avg": 60.8,
+          "model_call_wall_s": 73.2,
+          "tool_call_wall_s": 0.3,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 37.1,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 260.34,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0103,
+          "cost_usd_upper_bound": 0.0013,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.8796,
+        "mean_power_w": 489.97,
+        "mean_sm_util_pct": 97.5,
+        "max_temp_c": 83.0
+      }
+    },
+    {
+      "run_name": "p2_ci_gemma4-31b-q4_v1",
+      "task": "p2_ci",
+      "replicate": 1,
+      "summary": {
+        "started_at": "2026-08-02T02:10:13.425486+00:00",
+        "ended_at": "2026-08-02T02:11:41.932894+00:00",
+        "elapsed_s": 88.5,
+        "iterations": 29,
+        "total_completion_tokens": 4141,
+        "total_prompt_tokens": 234185,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Fixed CI failures in discountkit. \n1. Resolved ruff linting errors by removing an unused import and updating type annotations to Python 3.11 standards.\n2. Fixed a bug in `discount_amount` where the percent-off value was not divided by 100.\n3. Updated `test_cart.py` to align with the v0.3.0 breaking change regarding `Cart.line_count()`.\n4. Documented all changes in `CHANGELOG.md` and `diagnosis.md`, and added an ADR for the test update.\n5. Verified that `ruff check src/ tests/` and `pytest -q` both pass.\n6. Tagged the release as v0.3.2."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p2_ci_gemma4-31b-q4_v1",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 88.5,
+        "iters": 29,
+        "tokens": {
+          "completion_total": 4141,
+          "prompt_total": 234185,
+          "all_total": 238326
+        },
+        "throughput": {
+          "completion_tps_avg": 50.5,
+          "model_call_wall_s": 82.0,
+          "tool_call_wall_s": 4.7,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 34.1,
+          "first_commit_s": 0.1,
+          "first_tag_s": 77.9
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 281.18,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0123,
+          "cost_usd_upper_bound": 0.0016,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.904,
+        "mean_power_w": 440.07,
+        "mean_sm_util_pct": 69.35,
+        "max_temp_c": 76.0
+      }
+    },
+    {
+      "run_name": "p2_ci_gemma4-31b-q4_v2",
+      "task": "p2_ci",
+      "replicate": 2,
+      "summary": {
+        "started_at": "2026-08-02T01:07:03.642776+00:00",
+        "ended_at": "2026-08-02T01:08:38.188117+00:00",
+        "elapsed_s": 94.5,
+        "iterations": 29,
+        "total_completion_tokens": 4551,
+        "total_prompt_tokens": 230536,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Fixed CI failures in discountkit v0.3.1. \n\n1. Fixed linting errors using `ruff check --fix` (unused imports, sort imports, deprecated type hints).\n2. Fixed `discount_amount` and `apply_discount` to correctly handle percentages (0-100) instead of fractions (0-1).\n3. Updated `test_line_count` to expect the number of lines instead of total quantity, as specified in the v0.3.0 changelog.\n4. Documented all changes in `CHANGELOG.md`, `diagnosis.md`, and an ADR in `decisions/`.\n5. Tagged the final state as `v0.3.2`.\n\nVerification:\n- `ruff check src/ tests/` -> Passed\n- `pytest -q` -> Passed (7 tests, 0 failed)\n"
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p2_ci_gemma4-31b-q4_v2",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 94.5,
+        "iters": 29,
+        "tokens": {
+          "completion_total": 4551,
+          "prompt_total": 230536,
+          "all_total": 235087
+        },
+        "throughput": {
+          "completion_tps_avg": 51.7,
+          "model_call_wall_s": 88.0,
+          "tool_call_wall_s": 4.9,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 36.3,
+          "first_commit_s": 0.1,
+          "first_tag_s": 84.1
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 222.35,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0131,
+          "cost_usd_upper_bound": 0.0017,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.8995,
+        "mean_power_w": 427.5,
+        "mean_sm_util_pct": 81.5,
+        "max_temp_c": 84.0
+      }
+    },
+    {
+      "run_name": "p2_ci_gemma4-31b-q4_v3",
+      "task": "p2_ci",
+      "replicate": 3,
+      "summary": {
+        "started_at": "2026-08-02T02:11:42.872352+00:00",
+        "ended_at": "2026-08-02T02:13:03.154857+00:00",
+        "elapsed_s": 80.3,
+        "iterations": 21,
+        "total_completion_tokens": 3754,
+        "total_prompt_tokens": 162381,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Fixed CI failures in discountkit. \n- Corrected `discount_amount` to properly divide the percentage by 100.\n- Updated `test_line_count_matches_qty_sum` in `tests/test_cart.py` to expect the number of lines instead of total quantity, in accordance with the v0.3.0 breaking change documented in the CHANGELOG.\n- Fixed all `ruff` linting errors, including an unused import and outdated type annotations.\n- Verified that `ruff check src/ tests/` and `pytest -q` both pass.\n- Documented the fixes in `diagnosis.md` and updated `CHANGELOG.md` for the v0.3.2 release.\n\"\"\"\n"
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p2_ci_gemma4-31b-q4_v3",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 80.3,
+        "iters": 21,
+        "tokens": {
+          "completion_total": 3754,
+          "prompt_total": 162381,
+          "all_total": 166135
+        },
+        "throughput": {
+          "completion_tps_avg": 50.2,
+          "model_call_wall_s": 74.8,
+          "tool_call_wall_s": 4.2,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 31.6,
+          "first_commit_s": 0.1,
+          "first_tag_s": 66.1
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 256.59,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0112,
+          "cost_usd_upper_bound": 0.0015,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.934,
+        "mean_power_w": 435.34,
+        "mean_sm_util_pct": 79.44,
+        "max_temp_c": 72.0
+      }
+    },
+    {
+      "run_name": "p2_hallucination_gemma4-31b-q4_v1",
+      "task": "p2_hallucination",
+      "replicate": 1,
+      "summary": {
+        "started_at": "2026-08-02T01:08:38.973119+00:00",
+        "ended_at": "2026-08-02T01:10:34.526607+00:00",
+        "elapsed_s": 115.6,
+        "iterations": 16,
+        "total_completion_tokens": 6454,
+        "total_prompt_tokens": 121925,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Verified 15 issues from the code-review report against the logalyzer codebase. Found 6 real issues and 9 fabricated issues. The final results are recorded in /workspace/triage.json."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p2_hallucination_gemma4-31b-q4_v1",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 115.6,
+        "iters": 16,
+        "tokens": {
+          "completion_total": 6454,
+          "prompt_total": 121925,
+          "all_total": 128379
+        },
+        "throughput": {
+          "completion_tps_avg": 56.8,
+          "model_call_wall_s": 113.7,
+          "tool_call_wall_s": 0.9,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 105.4,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 220.81,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0161,
+          "cost_usd_upper_bound": 0.0021,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9516,
+        "mean_power_w": 488.6,
+        "mean_sm_util_pct": 91.83,
+        "max_temp_c": 83.0
+      }
+    },
+    {
+      "run_name": "p2_hallucination_gemma4-31b-q4_v2",
+      "task": "p2_hallucination",
+      "replicate": 2,
+      "summary": {
+        "started_at": "2026-08-02T02:13:04.107174+00:00",
+        "ended_at": "2026-08-02T02:14:58.207247+00:00",
+        "elapsed_s": 114.1,
+        "iterations": 17,
+        "total_completion_tokens": 6154,
+        "total_prompt_tokens": 128689,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Verified 15 issues from issue_report.md. 6 were found to be real and 9 were fabricated. Results are written to /workspace/triage.json."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p2_hallucination_gemma4-31b-q4_v2",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 114.1,
+        "iters": 17,
+        "tokens": {
+          "completion_total": 6154,
+          "prompt_total": 128689,
+          "all_total": 134843
+        },
+        "throughput": {
+          "completion_tps_avg": 54.9,
+          "model_call_wall_s": 112.1,
+          "tool_call_wall_s": 1.0,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 98.6,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 241.92,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0158,
+          "cost_usd_upper_bound": 0.0021,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9202,
+        "mean_power_w": 481.27,
+        "mean_sm_util_pct": 93.09,
+        "max_temp_c": 74.0
+      }
+    },
+    {
+      "run_name": "p2_hallucination_gemma4-31b-q4_v3",
+      "task": "p2_hallucination",
+      "replicate": 3,
+      "summary": {
+        "started_at": "2026-08-02T01:10:35.323382+00:00",
+        "ended_at": "2026-08-02T01:11:07.770827+00:00",
+        "elapsed_s": 32.4,
+        "iterations": 9,
+        "total_completion_tokens": 1494,
+        "total_prompt_tokens": 43015,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "model_stopped",
+        "done_summary": "(model stopped without explicit done())"
+      },
+      "verdict": "MISSING_OUTPUT",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p2_hallucination_gemma4-31b-q4_v3",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 32.4,
+        "iters": 9,
+        "tokens": {
+          "completion_total": 1494,
+          "prompt_total": 43015,
+          "all_total": 44509
+        },
+        "throughput": {
+          "completion_tps_avg": 47.5,
+          "model_call_wall_s": 31.4,
+          "tool_call_wall_s": 0.5,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": null,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 225.87,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0045,
+          "cost_usd_upper_bound": 0.0006,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.7716,
+        "mean_power_w": 417.97,
+        "mean_sm_util_pct": 83.33,
+        "max_temp_c": 83.0
+      }
+    },
+    {
+      "run_name": "p2_triage_gemma4-31b-q4_v1",
+      "task": "p2_triage",
+      "replicate": 1,
+      "summary": {
+        "started_at": "2026-08-02T02:14:59.166581+00:00",
+        "ended_at": "2026-08-02T02:16:47.170718+00:00",
+        "elapsed_s": 108.0,
+        "iterations": 8,
+        "total_completion_tokens": 6211,
+        "total_prompt_tokens": 57359,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Triaged 30 support tickets, classifying them into 12 categories with associated urgency levels. Identified two duplicate clusters and recorded non-obvious decisions in ADRs. The final output is a structured JSON file at /workspace/triage_results.json, accompanied by a README and decision logs."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p2_triage_gemma4-31b-q4_v1",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 108.0,
+        "iters": 8,
+        "tokens": {
+          "completion_total": 6211,
+          "prompt_total": 57359,
+          "all_total": 63570
+        },
+        "throughput": {
+          "completion_tps_avg": 58.1,
+          "model_call_wall_s": 107.0,
+          "tool_call_wall_s": 0.5,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 78.1,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 254.58,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.015,
+          "cost_usd_upper_bound": 0.0019,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9259,
+        "mean_power_w": 470.89,
+        "mean_sm_util_pct": 85.81,
+        "max_temp_c": 75.0
+      }
+    },
+    {
+      "run_name": "p2_triage_gemma4-31b-q4_v2",
+      "task": "p2_triage",
+      "replicate": 2,
+      "summary": {
+        "started_at": "2026-08-02T01:11:08.557629+00:00",
+        "ended_at": "2026-08-02T01:13:14.023931+00:00",
+        "elapsed_s": 125.5,
+        "iterations": 7,
+        "total_completion_tokens": 7489,
+        "total_prompt_tokens": 52650,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Triaged 30 support tickets from /input/repo/tickets.txt. Categorized each ticket, assigned urgency, and identified duplicate clusters. The results are stored in /workspace/triage_results.json, with a detailed approach in /workspace/README.md and a decision record for API limit classification in /workspace/decisions/ADR-001-API-Limit-Classification.md."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p2_triage_gemma4-31b-q4_v2",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 125.5,
+        "iters": 7,
+        "tokens": {
+          "completion_total": 7489,
+          "prompt_total": 52650,
+          "all_total": 60139
+        },
+        "throughput": {
+          "completion_tps_avg": 60.1,
+          "model_call_wall_s": 124.6,
+          "tool_call_wall_s": 0.4,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 99.2,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 259.2,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0174,
+          "cost_usd_upper_bound": 0.0023,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9562,
+        "mean_power_w": 499.84,
+        "mean_sm_util_pct": 97.36,
+        "max_temp_c": 84.0
+      }
+    },
+    {
+      "run_name": "p2_triage_gemma4-31b-q4_v3",
+      "task": "p2_triage",
+      "replicate": 3,
+      "summary": {
+        "started_at": "2026-08-02T02:16:48.127387+00:00",
+        "ended_at": "2026-08-02T02:18:56.402816+00:00",
+        "elapsed_s": 128.3,
+        "iterations": 7,
+        "total_completion_tokens": 7493,
+        "total_prompt_tokens": 52729,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Triaged 30 support tickets. Categorized each ticket by type and urgency, identified two duplicate clusters (dashboard permissions and API rate limits), and produced a structured JSON output at /workspace/triage_results.json. Additionally provided a README and an ADR explaining the decision to treat rate-limit blocks as active incidents."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p2_triage_gemma4-31b-q4_v3",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 128.3,
+        "iters": 7,
+        "tokens": {
+          "completion_total": 7493,
+          "prompt_total": 52729,
+          "all_total": 60222
+        },
+        "throughput": {
+          "completion_tps_avg": 58.8,
+          "model_call_wall_s": 127.4,
+          "tool_call_wall_s": 0.4,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 99.1,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 269.79,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0178,
+          "cost_usd_upper_bound": 0.0023,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9353,
+        "mean_power_w": 489.85,
+        "mean_sm_util_pct": 91.68,
+        "max_temp_c": 75.0
+      }
+    },
+    {
+      "run_name": "p3_doc_gemma4-31b-q4_v1",
+      "task": "p3_doc",
+      "replicate": 1,
+      "summary": {
+        "started_at": "2026-08-02T01:13:14.831432+00:00",
+        "ended_at": "2026-08-02T01:15:16.584695+00:00",
+        "elapsed_s": 121.8,
+        "iterations": 8,
+        "total_completion_tokens": 7296,
+        "total_prompt_tokens": 51659,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Produced a 1-page executive brief recommending a 'Pass' on the follow-on investment for Nimbus Logistics. The brief synthesizes contradictions between the company's public press release and internal memos/leaked reports, highlighting valuation repricing, high customer concentration, and a shift from growth to survival. Supporting documentation including key facts, research notes, and decision records are provided."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_doc_gemma4-31b-q4_v1",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 121.8,
+        "iters": 8,
+        "tokens": {
+          "completion_total": 7296,
+          "prompt_total": 51659,
+          "all_total": 58955
+        },
+        "throughput": {
+          "completion_tps_avg": 60.4,
+          "model_call_wall_s": 120.7,
+          "tool_call_wall_s": 0.5,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 62.9,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 202.22,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0169,
+          "cost_usd_upper_bound": 0.0022,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9442,
+        "mean_power_w": 488.83,
+        "mean_sm_util_pct": 96.71,
+        "max_temp_c": 84.0
+      }
+    },
+    {
+      "run_name": "p3_doc_gemma4-31b-q4_v2",
+      "task": "p3_doc",
+      "replicate": 2,
+      "summary": {
+        "started_at": "2026-08-02T02:18:57.378753+00:00",
+        "ended_at": "2026-08-02T02:21:01.214442+00:00",
+        "elapsed_s": 123.8,
+        "iterations": 8,
+        "total_completion_tokens": 7296,
+        "total_prompt_tokens": 51659,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Produced a 1-page executive brief recommending a 'Pass' on the follow-on investment for Nimbus Logistics. The brief synthesizes contradictions between the company's public press release and internal memos/leaked reports, highlighting valuation repricing, high customer concentration, and a shift from growth to survival. Supporting documentation including key facts, research notes, and decision records are provided."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_doc_gemma4-31b-q4_v2",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 123.8,
+        "iters": 8,
+        "tokens": {
+          "completion_total": 7296,
+          "prompt_total": 51659,
+          "all_total": 58955
+        },
+        "throughput": {
+          "completion_tps_avg": 59.4,
+          "model_call_wall_s": 122.8,
+          "tool_call_wall_s": 0.5,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 62.4,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 230.18,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0172,
+          "cost_usd_upper_bound": 0.0022,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9693,
+        "mean_power_w": 480.4,
+        "mean_sm_util_pct": 92.72,
+        "max_temp_c": 78.0
+      }
+    },
+    {
+      "run_name": "p3_doc_gemma4-31b-q4_v3",
+      "task": "p3_doc",
+      "replicate": 3,
+      "summary": {
+        "started_at": "2026-08-02T01:15:17.434478+00:00",
+        "ended_at": "2026-08-02T01:17:10.700188+00:00",
+        "elapsed_s": 113.3,
+        "iterations": 10,
+        "total_completion_tokens": 6632,
+        "total_prompt_tokens": 67272,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Produced a 1-page executive brief recommending a 'Pass' on follow-on investment in Nimbus Logistics, Inc. The brief synthesizes data from five sources, highlighting critical tensions between the company's public growth narrative and internal austerity measures, including ARR inflation, customer concentration risk, and planned headcount reductions. Supporting documentation includes a key-facts list, research notes, and a decision record."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_doc_gemma4-31b-q4_v3",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 113.3,
+        "iters": 10,
+        "tokens": {
+          "completion_total": 6632,
+          "prompt_total": 67272,
+          "all_total": 73904
+        },
+        "throughput": {
+          "completion_tps_avg": 59.2,
+          "model_call_wall_s": 112.1,
+          "tool_call_wall_s": 0.6,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 50.8,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 215.59,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0157,
+          "cost_usd_upper_bound": 0.002,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9709,
+        "mean_power_w": 469.09,
+        "mean_sm_util_pct": 89.09,
+        "max_temp_c": 83.0
+      }
+    },
+    {
+      "run_name": "p3_business_gemma4-31b-q4_v1",
+      "task": "p3_business",
+      "replicate": 1,
+      "summary": {
+        "started_at": "2026-08-02T02:21:02.195182+00:00",
+        "ended_at": "2026-08-02T02:22:36.370720+00:00",
+        "elapsed_s": 94.2,
+        "iterations": 9,
+        "total_completion_tokens": 5487,
+        "total_prompt_tokens": 43691,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "I have completed the independent review of the Borealis Analytics acquisition diligence pack. I recommended a HOLD on the $84M LOI due to a fundamental contradiction between the stated strategic rationale (acquiring a differentiated product) and the integration plan (sunsetting the product in 12 months). Additional concerns include unexpectedly low gross margins (71%), high execution risk regarding the forced relocation of the engineering team, and thin customer diligence (only 5 of 280 customers contacted). I have provided a detailed memo, a full list of concerns, specific diligence asks for the next two weeks, and ADRs for my judgment calls."
+      },
+      "verdict": "FAIL",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_business_gemma4-31b-q4_v1",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 94.2,
+        "iters": 9,
+        "tokens": {
+          "completion_total": 5487,
+          "prompt_total": 43691,
+          "all_total": 49178
+        },
+        "throughput": {
+          "completion_tps_avg": 59.0,
+          "model_call_wall_s": 93.1,
+          "tool_call_wall_s": 0.6,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 42.4,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 235.08,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0131,
+          "cost_usd_upper_bound": 0.0017,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9554,
+        "mean_power_w": 458.24,
+        "mean_sm_util_pct": 78.84,
+        "max_temp_c": 77.0
+      }
+    },
+    {
+      "run_name": "p3_business_gemma4-31b-q4_v2",
+      "task": "p3_business",
+      "replicate": 2,
+      "summary": {
+        "started_at": "2026-08-02T01:17:11.532735+00:00",
+        "ended_at": "2026-08-02T01:18:32.429360+00:00",
+        "elapsed_s": 80.9,
+        "iterations": 9,
+        "total_completion_tokens": 4742,
+        "total_prompt_tokens": 37120,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "I have completed the independent review of the Borealis Analytics acquisition diligence pack. My primary recommendation is to HOLD the LOI due to a critical discrepancy in the target's reported runway (implied 5.5 months vs claimed 22 months), a strategic contradiction in paying a growth multiple for a product slated for sunset, and overly optimistic staff retention assumptions. I have provided a detailed memo, a comprehensive list of concerns, a specific set of diligence asks for the next two weeks, and an ADR documenting the decision logic."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_business_gemma4-31b-q4_v2",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 80.9,
+        "iters": 9,
+        "tokens": {
+          "completion_total": 4742,
+          "prompt_total": 37120,
+          "all_total": 41862
+        },
+        "throughput": {
+          "completion_tps_avg": 59.4,
+          "model_call_wall_s": 79.8,
+          "tool_call_wall_s": 0.6,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 32.4,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 194.34,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0112,
+          "cost_usd_upper_bound": 0.0015,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9271,
+        "mean_power_w": 495.91,
+        "mean_sm_util_pct": 95.5,
+        "max_temp_c": 83.0
+      }
+    },
+    {
+      "run_name": "p3_business_gemma4-31b-q4_v3",
+      "task": "p3_business",
+      "replicate": 3,
+      "summary": {
+        "started_at": "2026-08-02T02:22:37.368829+00:00",
+        "ended_at": "2026-08-02T02:23:57.088651+00:00",
+        "elapsed_s": 79.7,
+        "iterations": 9,
+        "total_completion_tokens": 4742,
+        "total_prompt_tokens": 37120,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "I have completed the independent review of the Borealis Analytics acquisition diligence pack. My primary recommendation is to HOLD the LOI due to a critical discrepancy in the target's reported runway (implied 5.5 months vs claimed 22 months), a strategic contradiction in paying a growth multiple for a product slated for sunset, and overly optimistic staff retention assumptions. I have provided a detailed memo, a comprehensive list of concerns, a specific set of diligence asks for the next two weeks, and an ADR documenting the decision logic."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_business_gemma4-31b-q4_v3",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 79.7,
+        "iters": 9,
+        "tokens": {
+          "completion_total": 4742,
+          "prompt_total": 37120,
+          "all_total": 41862
+        },
+        "throughput": {
+          "completion_tps_avg": 60.3,
+          "model_call_wall_s": 78.6,
+          "tool_call_wall_s": 0.6,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 32.0,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 248.35,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0111,
+          "cost_usd_upper_bound": 0.0014,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.941,
+        "mean_power_w": 486.72,
+        "mean_sm_util_pct": 93.75,
+        "max_temp_c": 74.0
+      }
+    },
+    {
+      "run_name": "p3_market_gemma4-31b-q4_v1",
+      "task": "p3_market",
+      "replicate": 1,
+      "summary": {
+        "started_at": "2026-08-02T01:18:33.283109+00:00",
+        "ended_at": "2026-08-02T01:22:50.667125+00:00",
+        "elapsed_s": 257.4,
+        "iterations": 16,
+        "total_completion_tokens": 8071,
+        "total_prompt_tokens": 387754,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "I have researched and recommended a password manager for a 50-person engineering team. After evaluating 1Password, Bitwarden, Keeper, Dashlane, and NordPass, I recommended 1Password Business due to its superior developer experience and high adoption likelihood, which are critical for eliminating shadow-IT within 90 days. I provided a full feature/pricing comparison, detailed decision records (ADRs), and a comprehensive list of sources."
+      },
+      "verdict": "STRUCTURAL_PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_market_gemma4-31b-q4_v1",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 257.4,
+        "iters": 16,
+        "tokens": {
+          "completion_total": 8071,
+          "prompt_total": 387754,
+          "all_total": 395825
+        },
+        "throughput": {
+          "completion_tps_avg": 32.0,
+          "model_call_wall_s": 251.9,
+          "tool_call_wall_s": 4.5,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 9.4,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 205.07,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0357,
+          "cost_usd_upper_bound": 0.0046,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9713,
+        "mean_power_w": 495.65,
+        "mean_sm_util_pct": 96.29,
+        "max_temp_c": 85.0
+      }
+    },
+    {
+      "run_name": "p3_market_gemma4-31b-q4_v2",
+      "task": "p3_market",
+      "replicate": 2,
+      "summary": {
+        "started_at": "2026-08-02T02:23:58.119775+00:00",
+        "ended_at": "2026-08-02T02:27:12.186064+00:00",
+        "elapsed_s": 194.1,
+        "iterations": 20,
+        "total_completion_tokens": 9028,
+        "total_prompt_tokens": 442437,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Researched and recommended a password manager for a 50-person engineering team. Evaluated 1Password, Bitwarden, Dashlane, Keeper, and NordPass. Recommended 1Password Business due to superior developer experience (CLI) and strong SOC2 compliance, with Bitwarden as a runner-up for open-source requirements. All findings are cited in sources.md and summarized in recommendation.md."
+      },
+      "verdict": "STRUCTURAL_PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_market_gemma4-31b-q4_v2",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 194.1,
+        "iters": 20,
+        "tokens": {
+          "completion_total": 9028,
+          "prompt_total": 442437,
+          "all_total": 451465
+        },
+        "throughput": {
+          "completion_tps_avg": 48.0,
+          "model_call_wall_s": 188.1,
+          "tool_call_wall_s": 4.8,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 9.3,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 274.21,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.027,
+          "cost_usd_upper_bound": 0.0035,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9531,
+        "mean_power_w": 485.18,
+        "mean_sm_util_pct": 93.97,
+        "max_temp_c": 75.0
+      }
+    },
+    {
+      "run_name": "p3_market_gemma4-31b-q4_v3",
+      "task": "p3_market",
+      "replicate": 3,
+      "summary": {
+        "started_at": "2026-08-02T01:22:51.546562+00:00",
+        "ended_at": "2026-08-02T01:28:13.595380+00:00",
+        "elapsed_s": 322.0,
+        "iterations": 15,
+        "total_completion_tokens": 8059,
+        "total_prompt_tokens": 271715,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Successfully researched and recommended a password manager for a 50-person engineering team. Evaluated 5 products (1Password, Bitwarden, Dashlane, Keeper, NordPass) against a set of defined criteria including SSO, SOC2 compliance, and Developer Experience. Recommended 1Password Business for its superior CLI and UX, with Bitwarden Enterprise as a cost-effective, open-source runner-up. All factual claims are cited with public URLs in sources.md and the recommendation memo."
+      },
+      "verdict": "STRUCTURAL_PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_market_gemma4-31b-q4_v3",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 322.0,
+        "iters": 15,
+        "tokens": {
+          "completion_total": 8059,
+          "prompt_total": 271715,
+          "all_total": 279774
+        },
+        "throughput": {
+          "completion_tps_avg": 25.3,
+          "model_call_wall_s": 318.3,
+          "tool_call_wall_s": 2.8,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 20.1,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 499.37,
+          "memory_used_mib_at_start": 65453.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0447,
+          "cost_usd_upper_bound": 0.0058,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9783,
+        "mean_power_w": 489.71,
+        "mean_sm_util_pct": 92.86,
+        "max_temp_c": 86.0
+      }
+    },
+    {
+      "run_name": "p3_writing_gemma4-31b-q4_v1",
+      "task": "p3_writing",
+      "replicate": 1,
+      "summary": {
+        "started_at": "2026-08-02T02:27:13.236311+00:00",
+        "ended_at": "2026-08-02T02:28:46.227783+00:00",
+        "elapsed_s": 93.0,
+        "iterations": 13,
+        "total_completion_tokens": 5089,
+        "total_prompt_tokens": 72407,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Produced three audience-tailored rewrites of an incident memo: a CEO brief, a customer email, and a legal summary. Each rewrite adheres to specific constraints regarding tone, content, and word limits defined in `audience_briefs.json`. Documentation includes a README, research notes, and ADR-style decision records for transparency on content omissions and tone choices."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_writing_gemma4-31b-q4_v1",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 93.0,
+        "iters": 13,
+        "tokens": {
+          "completion_total": 5089,
+          "prompt_total": 72407,
+          "all_total": 77496
+        },
+        "throughput": {
+          "completion_tps_avg": 55.7,
+          "model_call_wall_s": 91.3,
+          "tool_call_wall_s": 0.8,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 24.1,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 226.75,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0129,
+          "cost_usd_upper_bound": 0.0017,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.914,
+        "mean_power_w": 460.49,
+        "mean_sm_util_pct": 86.0,
+        "max_temp_c": 73.0
+      }
+    },
+    {
+      "run_name": "p3_writing_gemma4-31b-q4_v2",
+      "task": "p3_writing",
+      "replicate": 2,
+      "summary": {
+        "started_at": "2026-08-02T01:28:14.508298+00:00",
+        "ended_at": "2026-08-02T01:31:26.342552+00:00",
+        "elapsed_s": 191.8,
+        "iterations": 11,
+        "total_completion_tokens": 4336,
+        "total_prompt_tokens": 58205,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Successfully produced three audience-specific rewrites of the internal outage memo. \n\n1. **CEO Brief**: Concise executive summary focusing on board-level signal (second outage in 90 days) and key remediations, without technical jargon.\n2. **Customer Email**: Accountable and warm communication explaining the outage in plain language and offering SLA credits, while omitting internal blame and board-level context.\n3. **Legal Summary**: Precise, dispassionate factual record for SLA credit determination, focusing on time windows, account impact, and contractual thresholds.\n\nAll outputs were verified against the `audience_briefs.json` constraints for content, tone, and word limits. Supporting documentation (decisions and research notes) has been provided."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_writing_gemma4-31b-q4_v2",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 191.8,
+        "iters": 11,
+        "tokens": {
+          "completion_total": 4336,
+          "prompt_total": 58205,
+          "all_total": 62541
+        },
+        "throughput": {
+          "completion_tps_avg": 22.8,
+          "model_call_wall_s": 190.4,
+          "tool_call_wall_s": 0.7,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 86.8,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 500.05,
+          "memory_used_mib_at_start": 65581.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0266,
+          "cost_usd_upper_bound": 0.0035,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9645,
+        "mean_power_w": 482.8,
+        "mean_sm_util_pct": 87.37,
+        "max_temp_c": 87.0
+      }
+    },
+    {
+      "run_name": "p3_writing_gemma4-31b-q4_v3",
+      "task": "p3_writing",
+      "replicate": 3,
+      "summary": {
+        "started_at": "2026-08-02T02:28:47.253711+00:00",
+        "ended_at": "2026-08-02T02:30:00.964816+00:00",
+        "elapsed_s": 73.7,
+        "iterations": 11,
+        "total_completion_tokens": 4250,
+        "total_prompt_tokens": 58290,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Produced three tailored rewrites of the outage memo (CEO brief, Customer email, and Legal summary) adhering to all constraints specified in audience_briefs.json. Included detailed decision records and research notes."
+      },
+      "verdict": "PASS",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_writing_gemma4-31b-q4_v3",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 73.7,
+        "iters": 11,
+        "tokens": {
+          "completion_total": 4250,
+          "prompt_total": 58290,
+          "all_total": 62540
+        },
+        "throughput": {
+          "completion_tps_avg": 58.7,
+          "model_call_wall_s": 72.4,
+          "tool_call_wall_s": 0.7,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 38.9,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 259.41,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0102,
+          "cost_usd_upper_bound": 0.0013,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9498,
+        "mean_power_w": 441.34,
+        "mean_sm_util_pct": 79.0,
+        "max_temp_c": 77.0
+      }
+    },
+    {
+      "run_name": "p3_pm_gemma4-31b-q4_v1",
+      "task": "p3_pm",
+      "replicate": 1,
+      "summary": {
+        "started_at": "2026-08-02T01:31:27.254962+00:00",
+        "ended_at": "2026-08-02T01:34:31.145299+00:00",
+        "elapsed_s": 183.9,
+        "iterations": 7,
+        "total_completion_tokens": 3786,
+        "total_prompt_tokens": 28755,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Produced a structured project status report for Project Aurora, synthesizing six weeks of meeting notes. The final deliverables include `status_report.md` (the primary report), `research/notes.md` (working synthesis), and a `README.md`. The report highlights the shift of the embedded SDK to a private beta due to a discovered security gap and tracks milestones for mid-May and late-July."
+      },
+      "verdict": "FAIL",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_pm_gemma4-31b-q4_v1",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 183.9,
+        "iters": 7,
+        "tokens": {
+          "completion_total": 3786,
+          "prompt_total": 28755,
+          "all_total": 32541
+        },
+        "throughput": {
+          "completion_tps_avg": 20.7,
+          "model_call_wall_s": 183.0,
+          "tool_call_wall_s": 0.4,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 115.9,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 499.9,
+          "memory_used_mib_at_start": 65581.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0255,
+          "cost_usd_upper_bound": 0.0033,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9788,
+        "mean_power_w": 484.17,
+        "mean_sm_util_pct": 90.46,
+        "max_temp_c": 86.0
+      }
+    },
+    {
+      "run_name": "p3_pm_gemma4-31b-q4_v2",
+      "task": "p3_pm",
+      "replicate": 2,
+      "summary": {
+        "started_at": "2026-08-02T02:30:01.998527+00:00",
+        "ended_at": "2026-08-02T02:31:14.189844+00:00",
+        "elapsed_s": 72.2,
+        "iterations": 7,
+        "total_completion_tokens": 4145,
+        "total_prompt_tokens": 29617,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "I have produced a structured project status report for Project Aurora based on the provided six weeks of meeting notes. The report includes a headline, a detailed workstream table, a risk register ordered by severity, a chronological decisions log, and a milestone list. All claims are cited by the meeting week, and the most recent status updates were used for all workstreams. All deliverables are located in the /workspace directory as requested."
+      },
+      "verdict": "FAIL",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_pm_gemma4-31b-q4_v2",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 72.2,
+        "iters": 7,
+        "tokens": {
+          "completion_total": 4145,
+          "prompt_total": 29617,
+          "all_total": 33762
+        },
+        "throughput": {
+          "completion_tps_avg": 58.1,
+          "model_call_wall_s": 71.3,
+          "tool_call_wall_s": 0.4,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 44.1,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 249.69,
+          "memory_used_mib_at_start": 66221.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.01,
+          "cost_usd_upper_bound": 0.0013,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9695,
+        "mean_power_w": 472.88,
+        "mean_sm_util_pct": 90.27,
+        "max_temp_c": 76.0
+      }
+    },
+    {
+      "run_name": "p3_pm_gemma4-31b-q4_v3",
+      "task": "p3_pm",
+      "replicate": 3,
+      "summary": {
+        "started_at": "2026-08-02T01:34:32.050965+00:00",
+        "ended_at": "2026-08-02T01:37:24.333730+00:00",
+        "elapsed_s": 172.3,
+        "iterations": 6,
+        "total_completion_tokens": 3386,
+        "total_prompt_tokens": 25278,
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "finish_reason": "done_signal",
+        "done_summary": "Produced a structured project status report for Project Aurora. The final deliverable (`/workspace/status_report.md`) synthesizes six weeks of meeting notes into a high-level overview for the CEO, including a workstream roadmap, risk register, decisions log, and milestone list. All claims are cited by week and grounded in the provided source material. Synthesis notes and a README were also provided."
+      },
+      "verdict": "FAIL",
+      "terminal_label": null,
+      "label": null,
+      "cost": {
+        "run_name": "p3_pm_gemma4-31b-q4_v3",
+        "model": "Gemma-4-31B-it-QAT-Q4_0",
+        "wall_s": 172.3,
+        "iters": 6,
+        "tokens": {
+          "completion_total": 3386,
+          "prompt_total": 25278,
+          "all_total": 28664
+        },
+        "throughput": {
+          "completion_tps_avg": 19.7,
+          "model_call_wall_s": 171.5,
+          "tool_call_wall_s": 0.4,
+          "_note": "completion_tps is over model-API call time only, not wall (tool execution + sandbox not counted)"
+        },
+        "time_to": {
+          "first_write_s": 112.3,
+          "first_commit_s": null,
+          "first_tag_s": null
+        },
+        "gpu": {
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "power_limit_w": 500.0,
+          "power_draw_w_at_start": 500.09,
+          "memory_used_mib_at_start": 65709.0,
+          "memory_total_mib": 97887.0,
+          "_note": "power and memory captured at run START only; real values vary during the run. For truthful power, future runs need a sidecar nvidia-smi sampler."
+        },
+        "energy_estimate": {
+          "kwh_upper_bound": 0.0239,
+          "cost_usd_upper_bound": 0.0031,
+          "rate_usd_per_kwh": 0.13,
+          "_note": "Upper bound: assumes GPU drew at power.limit for the entire wall time. Real draw is lower (idle between calls, peaks during decode). Treat as ceiling, not point estimate."
+        }
+      },
+      "telemetry": {
+        "coverage": 0.9867,
+        "mean_power_w": 478.32,
+        "mean_sm_util_pct": 93.23,
+        "max_temp_c": 86.0
+      }
+    }
+  ]
+}

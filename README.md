@@ -15,6 +15,7 @@ but I'm making it public so that other people can use it too.
 | Where the benchmark folders start | [`benchmarks/README.md`](benchmarks/README.md) — agent-task benchmark landing page |
 | **"Coder-Next or 27B (or 27B-no-think) for my task?"** | [`COMPARISON.md`](COMPARISON.md) — head-to-head decision doc |
 | The full single-table comparison across all entries | [`SCORECARD.md`](SCORECARD.md) |
+| **Gemma 4 31B QAT Q4: complete verified campaign** | [`benchmarks/gemma4-31b-q4/`](benchmarks/gemma4-31b-q4/) — native-256K serving, canonical N=3/N=10, strict artifact audits, and Qwen3.6-27B comparison |
 | **DeepSeek V4 Flash 0731: complete verified campaign** | [`benchmarks/deepseek-v4-flash-0731/`](benchmarks/deepseek-v4-flash-0731/) — deployment, canonical N=3, extended suites, strict artifact audits, and full-context 75-PR outcomes |
 | **All 12-family microbench results (across both trees) + the four "27B"s** | [`MICROBENCH-INDEX.md`](MICROBENCH-INDEX.md) — cross-tree microbench index + quant disambiguation |
 | Cross-model **qualitative** spot-grades (provisional, not a ranking) | [`QUALITATIVE-SPOT-GRADES.md`](QUALITATIVE-SPOT-GRADES.md) + [`tooling/QUALITATIVE-GRADING-PROTOCOL.md`](tooling/QUALITATIVE-GRADING-PROTOCOL.md) — single-grader provisional scores + grader-independence rules |
@@ -24,7 +25,7 @@ but I'm making it public so that other people can use it too.
 
 ## Operating point (read before quoting)
 
-Most earlier agent-task benchmarks under [`benchmarks/`](benchmarks/) use **Cyankiwi 4-bit AWQ** quants on **2x RTX PRO 6000 Blackwell at 500 W cap**. The DeepSeek V4 Flash 0731 entry is an explicit exception: official FP4 weights, FP8 KV, model-card sampling, and a validated 1,048,576-token context. Every entry README pins its own operating point. Other quants, VRAM tiers, hardware classes, and languages other than Python are **not characterized** unless an entry says otherwise. See [`COMPARISON.md` section "What this benchmark doesn't characterize"](COMPARISON.md#what-this-benchmark-doesnt-characterize) for the model-benchmark validity boundaries, and [`ROADMAP.md`](ROADMAP.md) for what's queued to fill those gaps.
+Most earlier agent-task benchmarks under [`benchmarks/`](benchmarks/) use **Cyankiwi 4-bit AWQ** quants on **2x RTX PRO 6000 Blackwell at 500 W cap**. DeepSeek V4 Flash 0731 and Gemma 4 31B are explicit exceptions: DeepSeek uses official FP4 weights, FP8 KV, and a validated 1,048,576-token context; Gemma uses Google's official QAT Q4_0 GGUF, Q8 KV, llama.cpp, and a validated native 262,144-token context per slot. Every entry README pins its own operating point. Other quants, VRAM tiers, hardware classes, and languages other than Python are **not characterized** unless an entry says otherwise. See [`COMPARISON.md` section "What this benchmark doesn't characterize"](COMPARISON.md#what-this-benchmark-doesnt-characterize) for the model-benchmark validity boundaries, and [`ROADMAP.md`](ROADMAP.md) for what's queued to fill those gaps.
 
 Rig-characterisation studies under [`hardware-tests/`](hardware-tests/) have their own operating-point scope. Start with [`hardware-tests/README.md`](hardware-tests/README.md) before quoting hardware claims. In particular, [`hardware-tests/qwen3.6-q8-fleet-2026-05-17/`](hardware-tests/qwen3.6-q8-fleet-2026-05-17/) ranks four hardware classes on **Q8_0 GGUF** dense and MoE workloads under llama.cpp, with a Tower2 vLLM-FP8 appendix row for the MoE model the llama.cpp/CUDA path crashes on.
 
@@ -33,6 +34,7 @@ Rig-characterisation studies under [`hardware-tests/`](hardware-tests/) have the
 ```text
 benchmarks/
   README.md                    agent-task benchmark landing page and navigation map
+  gemma4-31b-q4/               complete Gemma campaign, N=3/N=10, strict audits, comparisons
   deepseek-v4-flash-0731/      cross-suite DeepSeek campaign, strict audits, and deployment evidence
   dreamserver-75-pr-audit/
     GPT-5.5/                   cloud, full audit
@@ -63,6 +65,7 @@ hardware-tests/
 
 | Benchmark | Prompt Shape | Model Entries |
 |---|---|---|
+| [`gemma4-31b-q4`](benchmarks/gemma4-31b-q4/) | Cross-suite publication: full 12-family N=3 and N=10, single-PR N=3, investment research, board presentation, and frozen 75-PR N=3. | `Gemma-4-31B-it-QAT-Q4_0`; includes immutable raw grades, a narrow corrected overlay, strict substantive audit, and Qwen3.6-27B comparison. |
 | [`deepseek-v4-flash-0731`](benchmarks/deepseek-v4-flash-0731/) | Cross-suite publication: full 12-family N=3, single-PR N=3, investment research, board presentation, and three valid full-context frozen 75-PR outcomes. | `DeepSeek-V4-Flash-0731`; includes corrected grader overlay and compact audit evidence. |
 | [`dreamserver-75-pr-audit`](benchmarks/dreamserver-75-pr-audit/) | Audit 75 open PRs in a live repository and produce a traceable maintainer triage repo. | `GPT-5.5`, `Opus-4.7`, `Qwen3.6-27B-AWQ`, `Qwen3-Coder-Next-AWQ` (failure-mode entry) |
 | [`dreamserver-1-pr-audit`](benchmarks/dreamserver-1-pr-audit/) | Same task spec, scaled to a single PR. Built as the floor of an escalation ladder (1 → 2 → 4 → 8 → 16 → 32) to find each model's complexity ceiling. | `Qwen3-Coder-Next-AWQ`, `Qwen3.6-27B-AWQ`, `Qwen3.6-35B-A3B-AWQ` (floor failure) |
@@ -93,6 +96,7 @@ For the benchmark landing page and per-folder navigation map, start with
 
 Two synthesis docs sit between this README and the per-entry detail:
 
+- [`benchmarks/gemma4-31b-q4/GEMMA4_31B_Q4_VERIFIED_RESULTS.md`](benchmarks/gemma4-31b-q4/GEMMA4_31B_Q4_VERIFIED_RESULTS.md) — full Gemma result, native-256K deployment, N=3/N=10 quality, strict artifact audit, and direct Qwen3.6-27B comparison.
 - [`benchmarks/deepseek-v4-flash-0731/DEEPSEEK_V4_FLASH_0731_VERIFIED_RESULTS.md`](benchmarks/deepseek-v4-flash-0731/DEEPSEEK_V4_FLASH_0731_VERIFIED_RESULTS.md) — full verified DeepSeek result, including corrected-vs-raw grading, strict artifact audits, production validation, and caveats.
 - [`COMPARISON.md`](COMPARISON.md) — **head-to-head decision doc** for the three local model arms (Coder-Next vs 27B-thinking vs 27B-no-think). Organized by task class with cell-level evidence. Read this if your question is "which one should I use?"
 - [`SCORECARD.md`](SCORECARD.md) — single-table summary across all entries (spec compliance, factual accuracy, fabricated-claim count, tests run, wall, cost upper bound, failure mode, "when to use which" guide). Read this if your question is "what's the full picture?"
@@ -127,6 +131,10 @@ This repository is licensed under [MIT](LICENSE). Third-party content (DreamServ
 The repo keeps the failures because the *kinds* of failure are themselves the comparison data. A reader picking a model for their own work needs to know that "this model can't complete this task" or "this model produces output shape without substance" — those are real properties of the model, not noise to filter out.
 
 ## Current Entries
+
+**gemma4-31b-q4:**
+- [Verified campaign entry](benchmarks/gemma4-31b-q4/) — Gemma 4 31B QAT Q4_0 on two independent 500 W RTX PRO 6000 replicas, with native 262,144-token context per slot. Canonical N=10 is 89/120 raw and 99/120 corrected; extended strict result is 0/12. It beats Qwen3.6-27B on directly comparable bounded quality but not on batched serving.
+- [Completion audit](benchmarks/gemma4-31b-q4/GEMMA4_31B_Q4_COMPLETION_AUDIT.md) — requirement-to-evidence handoff, including the pending production restore gate.
 
 **deepseek-v4-flash-0731:**
 - [Verified campaign entry](benchmarks/deepseek-v4-flash-0731/) — DeepSeek V4 Flash 0731 on 2x RTX PRO 6000 at 500 W/GPU and 1,048,576 context. Canonical corrected result 35/36 (N=3); single-PR 2/3 expected verdicts with all three complete; investment workbooks 0/2 substantively valid; board deck shipped with material visual defects; frozen 75-PR strict result 0/3 (two scaffold-and-stop, one 815,279-token runaway-generation terminal failure).

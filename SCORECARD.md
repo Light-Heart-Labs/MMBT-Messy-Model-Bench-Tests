@@ -15,8 +15,12 @@
 > **DeepSeek V4 Flash 0731 is a newer cross-suite entry** with its own model-card sampling, 1,048,576-token
 > context, strict artifact audits, and corrected grader overlay. Its raw and corrected results are reported
 > separately; do not silently mix its corrected N=3 result with older raw-score or ship-rate columns.
+> **Gemma 4 31B QAT Q4_0 is the newest cross-suite entry** with native 262,144-token context, model-card
+> sampling, N=3 and N=10 cohorts, and strict artifact audits. Its project-management correction is a separate
+> hash-tied overlay; its 116/120 completion count is not interchangeable with its 99/120 corrected quality score.
 >
 > **Newer microbench results (summary; full detail in the linked entries):**
+> - **Gemma 4 31B QAT Q4_0**, N=10: raw 89/120; corrected 99/120 (82.5%); 116/120 `done_signal`; extended strict result 0/12. ([entry](benchmarks/gemma4-31b-q4/))
 > - **DeepSeek V4 Flash 0731**, N=3: raw 23/36; corrected 35/36 (97.2%) after reproducible grader defects were repaired without rerunning the model. ([entry](benchmarks/deepseek-v4-flash-0731/))
 > - **397B-A17B** (Q3 GGUF), N=10: no-think 82/120, think 72/120 — *thinking net-negative*.
 > - **27B-FP8**, N=5: no-think 35/60, think 29/60 — *thinking net-negative*; FP8 serving stable where Q8 failed. ([entry](hardware-tests/qwen3.6-27b-fp8-microbench-2026-05-31/))
@@ -63,6 +67,7 @@ The microbench tables below alternate between p-codes (used in receipt names and
 |---|---|---|---|---|---|---|---|---|
 | **Opus-4.7** (cloud) | 1/1 | ✓ full | not graded (would need per-PR ground truth across all 75) | not graded | not visible from artifacts | ~5 hr | n/a | success-shipped |
 | **GPT-5.5** (cloud) | 1/1 | ✓ full + `verify_coverage.py` self-check passes | not graded | not graded | not visible from artifacts | not recorded | n/a | success-shipped |
+| **Gemma-4-31B-QAT-Q4_0** (local) | 3/3 valid + 1 invalid monitor attempt preserved | ✗ **0/3 strict**; 6/75, 2/75, then 75 dirs with only 14 verdicts | not graded per PR | not graded | 6, 0, and 4 PRs with test evidence | 3.2-9.4 min | see receipts | 3× model-terminal/incomplete audit |
 | **DeepSeek-V4-Flash-0731** (local) | 3 valid / 5 preserved | ✗ **0/3 strict**; v4 created 75 packages but all reviews were shallow | not graded per PR | not graded | extensive investigation, but incomplete final test/skip and tool records | 12.1-53.9 min | see receipts | 2× scaffold-and-stop; 1× full-context runaway-generation |
 | **Qwen3.6-27B-AWQ** (local) | 1/3 published | △ 75/75 verdict.md *files* but only 3 are real reviews; 72 are template stubs | partial (3 reviewed PRs match ground truth; 72 stubs unverified) | 0 in the 3 deep reviews | **0** | 24 min | $0.031 | scaffold-and-stop |
 | **Qwen3-Coder-Next-AWQ** (local) | 0/5 | ✗ no deliverable across 5 attempts | n/a | n/a | n/a | 1-42 min | $0.001-$0.054 | identical-call-loop, cyclic-name-slop, stuck-in-research |
@@ -73,6 +78,7 @@ The microbench tables below alternate between p-codes (used in receipt names and
 
 | Model | Runs | Spec | Factual accuracy | Fabricated | Tests | Wall | Cost | Failure mode |
 |---|---|---|---|---|---|---|---|---|
+| **Gemma-4-31B-QAT-Q4_0** | 3/3 complete workspaces | ✗ 0/3 common provenance gate; pinned subject refs omitted | **2/3 expected MERGE**; v3 wrongly REJECTed the subject | no material fabrication found in v1/v2 | independent reproduction: 67 base / 76 head / 261 current | 4.8-5.0 min | see receipts | 2× correct-but-provenance-incomplete; 1× wrong-subject verdict |
 | **DeepSeek-V4-Flash-0731** | 3/3 complete | ✓ full repos, tags, done() | **2/3 expected MERGE**; 1/3 defensible but over-strict REVISE | no material fabrication found | baseline/PR/current-main tests and reproductions recorded | 5.1-25.5 min | see receipts | 2× success; 1× over-investigation |
 | **Qwen3-Coder-Next-AWQ** | 1/3 published (cherry-picked correct) | ✓ 13/13 files, tag, done() | **2/3 wrong** across the three runs (this entry's run is the 1 correct; v1 and v3 said REJECT incorrectly) | 1 in v1, **4 in v3** including a fabricated `test_stderr_truncation.py` | repro script, no execution | 3 min | $0.004 | success-shipped (cherry-picked) |
 | **Qwen3.6-27B-AWQ** | 1/3 published | ✗ 7/13 files; **no verdict.md, no tag, no done()** in any of 3 runs | 3/3 implicit-MERGE-correct (in `review.md`'s Summary of Findings table; never in a `verdict.md`) | 0 | **pytest invoked, 38 tests on both branches** | 7 min | $0.009 | partial-no-spec-output |
@@ -84,12 +90,36 @@ The microbench tables below alternate between p-codes (used in receipt names and
 
 | Model | Company | Rec | Runs | Spec | Factual accuracy | Fabricated | Wall | Cost | Failure mode |
 |---|---|---|---|---|---|---|---|---|---|
+| **Gemma-4-31B-QAT-Q4_0** (local) | Dropbox / Duolingo / Coursera | BUY / BUY / BUY | 3/3 | ✗ all omit required PDF; **0/3 substantive finance pass** | targets unsupported by workbook mechanics | v2/v3 workbooks have zero formulas; v1 valuation bridge contradicts $110 target | 6.9-8.8 min | see receipts | polished-but-financially-invalid |
 | **Opus-4.7** (cloud) | Vita Coco (`COCO`) | HOLD ($46 vs $52 spot) | 1/1 | ✓ full memo + machine-readable verification | not graded (opinion) | not graded | not recorded | n/a | success-shipped |
 | **GPT-5.5** (cloud) | YETI Holdings (`YETI`) | HOLD ($41) | 1/1 | ✓ full memo + verification + board-deck follow-on | not graded (opinion) | not graded | not recorded | n/a | success-shipped |
 | **DeepSeek-V4-Flash-0731** (local) | Knife River / Ollie's | HOLD / BUY | 2 audited shipped runs | ✓ historical artifact gate; **0/2 substantive finance pass** | unit/convention errors and incomplete statements | zero workbook formulas in both | 9.5-11.6 min | see receipts | polished-but-financially-invalid |
 | **Qwen3.6-27B-AWQ** (local) | GitLab (`GTLB`) | BUY | 1/3 published | ✓ full memo + 17 KB XLSX | not graded (opinion) | not graded | 27 min | $0.032 | success-shipped (cherry-picked) |
 | **Qwen3-Coder-Next-AWQ** (local) | DocuSign (`DOCU`) | BUY | 1/3 published | ✓ full memo + 10.6 KB XLSX | not graded (opinion). **Caveat: this model's PR-audit verdicts were 2/3 wrong with fabricated evidence; same risk likely extends to BUY calls** | not graded | 11 min | $0.013 | success-shipped (cherry-picked) |
 | **Qwen3.6-35B-A3B-AWQ** (local) | — | — | 0/3 | ✗ no usable deliverable | n/a | n/a | 0.2-7 min | $0.0002-$0.0085 | floor-failure / api-error / stuck-in-research |
+
+---
+
+## Gemma 4 31B QAT Q4_0 cross-suite result
+
+The complete entry is at [`benchmarks/gemma4-31b-q4/`](benchmarks/gemma4-31b-q4/).
+Its canonical N=3 result is **29/36 raw and 32/36 corrected**; the broader N=10
+result is **89/120 raw and 99/120 corrected**. The only overlay changes ten
+project-management lexical false negatives and never overwrites original
+grades. Four hallucination runs stopped without required output; no canonical
+failure is an artificial low-output-ceiling event.
+
+Against Qwen3.6-27B thinking's directly comparable 20/36 raw result, Gemma is
+the bounded-quality winner. Short-context single-stream speed is effectively
+tied at 500 W (70.3 versus 72.1 tok/s), while Qwen's vLLM deployment is vastly
+better at dense batching. Qwen no-think's 113/118 is a completion rate with the
+quality sweep pending, not a score comparable to Gemma's corrected 99/120.
+
+The strict extended result is **0/12**. All three finance models are
+substantively invalid, two decks omit PDF and the third has material visual
+defects, every single-PR result fails pinned-subject provenance, and all three
+75-PR attempts fail completeness/substance. Gemma is excellent on bounded
+tasks but is not a trustworthy unattended artifact or marathon agent.
 
 ---
 
@@ -242,6 +272,13 @@ not reliable unattended marathon delivery.
 - **Use verification around financial models and presentation output.** Historical shipping gates did not catch zero-formula workbooks, unit/convention errors, or material slide-layout defects.
 - **Do not assign one monolithic unattended marathon.** The strict 75-PR campaign is 0/3. Partition the work, cap each subtask, require artifact gates between batches, and detect responses that stop calling tools.
 - **Keep Qwen3.5-397B as a conservative comparison arm.** Its N=10 evidence is broader and its failure temperament is less explosive, although its corrected bounded score is lower and its serving rate/context are much smaller.
+
+### When to use **Gemma 4 31B QAT Q4_0**
+
+- **Bounded high-quality work on one GPU.** It beats Qwen3.6-27B and Coder-Next on the directly comparable N=3 matrix and gives every slot the native 256K context.
+- **Two isolated production agents.** One full model per GPU avoids cross-GPU dependencies; Sanctuary and Pixel each retain four slots and independent failure domains.
+- **Single-user quality over high-concurrency throughput.** Short-context decode is close to Qwen3.6-27B, but Qwen/vLLM is the clear batched-serving winner.
+- **Require hard stage gates for complex artifacts.** The extended strict result is 0/12. Finance, slide layout, pinned provenance, and marathon completeness all need independent validation.
 
 ### When to use **Qwen3.6-27B-AWQ**
 

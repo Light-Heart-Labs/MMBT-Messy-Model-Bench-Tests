@@ -1,16 +1,33 @@
-# Local-model head-to-head — Coder-Next vs 27B (thinking) vs 27B (no-think)
+# Local-model head-to-head — Gemma 4 31B, Coder-Next, and Qwen3.6-27B
 
 > **Five-minute decision doc.** The detail lives in [`SCORECARD.md`](SCORECARD.md) and the per-benchmark `findings*.md` docs; this page is the synthesis. Every claim links to its source so you can drill straight into the evidence.
 >
 > **Read [`KNOWN-LIMITATIONS.md`](KNOWN-LIMITATIONS.md) before quoting any cell.** Most caveats live there, not here.
 >
-> **Last updated**: 2026-05-02 — reflects [`microbench-phase-b-2026-05-02`](benchmarks/microbench-phase-b-2026-05-02/) (N=10 + 27B-no-think third arm). Pre-no-think readers: the picture has shifted.
+> **Last updated**: 2026-08-02 — adds the complete [`Gemma 4 31B Q4 campaign`](benchmarks/gemma4-31b-q4/) while preserving the original three-AWQ-arm tables below.
 
-> **Operating point**: All arms are **Cyankiwi 4-bit AWQ** on **2× RTX PRO 6000 Blackwell at 500 W cap**. Other quants, VRAM tiers, hardware classes, and languages are **not characterized** — see [What this benchmark doesn't characterize](#what-this-benchmark-doesnt-characterize) below. The within-quant comparison here is informative; absolute model capability at higher precisions is a separate question.
+> **Operating point**: The original three arms are **Cyankiwi 4-bit AWQ** on **2× RTX PRO 6000 Blackwell at 500 W cap**. Gemma is Google's official QAT Q4_0 GGUF under llama.cpp at model-card sampling and native 262,144-token context. Other quants, VRAM tiers, hardware classes, and languages are **not characterized** — see [What this benchmark doesn't characterize](#what-this-benchmark-doesnt-characterize) below.
+
+## 2026-08-02 Gemma addendum
+
+Gemma changes the bounded-quality recommendation, but not the marathon warning:
+
+| Question | Current evidence-based choice | Evidence |
+|---|---|---|
+| Highest bounded quality versus Qwen3.6-27B | **Gemma 4 31B Q4** | 29/36 raw and 32/36 corrected at N=3 versus Qwen thinking's 20/36 raw |
+| One interactive user | approximately tied | 70.3 tok/s Gemma versus 72.1 tok/s Qwen at short context and 500 W |
+| Many simultaneous users | **Qwen3.6-27B/vLLM** | Qwen 1,336.5 aggregate tok/s at C32 on one GPU; Gemma 290.3 at total C8 across two GPUs; shapes differ but the operational gap is large |
+| Reliable ordinary completion | approximately tied | Gemma 116/120 `done_signal`; Qwen no-think 113/118 published valid outcomes |
+| Unattended marathon work | **none** | Gemma and Qwen both score zero strict passes on their published frozen 75-PR evidence |
+
+Qwen's 113/118 is not a quality score: its published phase-B grader sweep was
+pending. Gemma's 99/120 corrected figure is a quality result, with the raw
+89/120 preserved separately. The full Gemma comparison and artifact audit are
+in [`benchmarks/gemma4-31b-q4/GEMMA4_31B_Q4_VERIFIED_RESULTS.md`](benchmarks/gemma4-31b-q4/GEMMA4_31B_Q4_VERIFIED_RESULTS.md).
 
 ## TL;DR
 
-**No model is overall best.** The three arms have orthogonal strengths and statistically indistinguishable headline ship rates (74–96%). Pick by task class:
+**No model is overall best.** Within the original three AWQ arms, the models have orthogonal strengths and statistically indistinguishable headline ship rates (74–96%). Pick by task class; include Gemma when bounded answer quality matters more than dense batching:
 
 - **Default for most non-coding tasks**: **27B-no-think** — 95.8% ship rate across 12 cells × N=10, beats both originals on raw shipping
 - **Hallucination-sensitive or research-driven work**: **27B (either mode)** — 27B-thinking is the only arm that ships market-research at >70%; no-think 10/10 on adversarial-hallucination

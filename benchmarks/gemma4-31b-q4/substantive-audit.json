@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "model": "Gemma-4-31B-it-QAT-Q4_0",
+  "audited_at": "2026-08-02",
+  "evidence_audit": {
+    "path": "gemma4-extended-evidence-audit.json",
+    "sha256": "5cf402097ab50a900f021da44fdb3e5ac91862653980c673dc21fd53be1d6242",
+    "valid_runs": 12,
+    "preserved_infrastructure_invalid_attempts": 1,
+    "passed": false,
+    "failure_reason": "all three single-PR artifacts omit one or more pinned subject commits"
+  },
+  "overall": {
+    "strict_substantive_passes": 0,
+    "runs": 12,
+    "note": "A normal harness completion or historical artifact gate is necessary but not sufficient for a substantive pass."
+  },
+  "single_pr": [
+    {
+      "replicate": 1,
+      "disposition": "MERGE",
+      "expected": "MERGE",
+      "classification": "COMMON_PROVENANCE_GATE_FAIL",
+      "findings": ["useful review", "76 tests preserved", "required pinned refs/history omitted", "final audit repo untagged"]
+    },
+    {
+      "replicate": 2,
+      "disposition": "MERGE",
+      "expected": "MERGE",
+      "classification": "COMMON_PROVENANCE_GATE_FAIL",
+      "findings": ["correct disposition", "claimed 76 tests without preserved output", "required pinned refs/history omitted", "final audit repo untagged and nested audit workspace dirty"]
+    },
+    {
+      "replicate": 3,
+      "disposition": "REJECT",
+      "expected": "MERGE",
+      "classification": "WRONG_SUBJECT_AND_VERDICT",
+      "findings": ["treated unrelated current-main extensions as PR contamination", "required squash/history refs omitted", "preserved 76/76 test claim", "clean tagged nested audit repo"]
+    }
+  ],
+  "investment_memo": [
+    {
+      "replicate": 1,
+      "classification": "SHIPPED_WITH_MATERIAL_FINANCE_DEFECTS",
+      "historical_gate": "FAIL_MISSING_PDF",
+      "findings": ["tiny one-sheet workbook", "not a three-statement model", "no scenario/share-price checks", "stated $110 target contradicts workbook and independent bridge"]
+    },
+    {
+      "replicate": 2,
+      "classification": "SHIPPED_WITH_MATERIAL_FINANCE_DEFECTS",
+      "historical_gate": "FAIL_MISSING_PDF",
+      "findings": ["one static historical sheet", "zero formulas", "no forecast statements or valuation", "unsupported $85 target"]
+    },
+    {
+      "replicate": 3,
+      "classification": "SHIPPED_WITH_MATERIAL_FINANCE_DEFECTS",
+      "historical_gate": "FAIL_MISSING_PDF",
+      "findings": ["one static sheet", "zero formulas", "no merger combination, valuation, or share bridge", "unsupported $15 target"]
+    }
+  ],
+  "board_presentation": [
+    {
+      "replicate": 1,
+      "classification": "MATERIAL_DECK_DEFECTS",
+      "historical_gate": "FAIL_MISSING_PDF",
+      "findings": ["15-slide PPTX", "severe overlap/clipping on slides 4, 5, 6, 11, and 13", "unresolved >X% placeholder", "unsupported $110 valuation"]
+    },
+    {
+      "replicate": 2,
+      "classification": "MATERIAL_DECK_DEFECTS",
+      "historical_gate": "FAIL_MISSING_PDF",
+      "findings": ["16-slide PPTX", "sparse and generic", "clipped chart/subtitle", "synthetic unsupported positioning/distribution visuals", "unsupported $85 valuation"]
+    },
+    {
+      "replicate": 3,
+      "classification": "SHIPPED_WITH_MATERIAL_DECK_DEFECTS",
+      "historical_gate": "PASS_PPTX_AND_PDF",
+      "findings": ["15-slide PPTX and 15-page PDF", "portrait layout with large whitespace and tiny visuals", "axis collision", "generic/synthetic visuals", "unsupported $15 valuation"]
+    }
+  ],
+  "frozen_75pr": [
+    {
+      "replicate": 1,
+      "audit": "75pr-v1-audit.json",
+      "audit_sha256": "a8943774041bb7b419620c18fd4558e9481f7d755ae664713a0ce25b520a83d8",
+      "classification": "MODEL_TERMINAL_FAILURE",
+      "actual_pr_dirs": 6,
+      "missing_pr_dirs": 69,
+      "parsable_verdicts": 6,
+      "test_evidence": 6
+    },
+    {
+      "replicate": 2,
+      "audit": "75pr-v2-audit.json",
+      "audit_sha256": "889686929e81a49956a83aad3ed07692acdef47aa1f9f8e954c52631e5268cb8",
+      "classification": "MODEL_TERMINAL_FAILURE",
+      "actual_pr_dirs": 2,
+      "missing_pr_dirs": 73,
+      "parsable_verdicts": 1,
+      "test_evidence": 0
+    },
+    {
+      "replicate": 3,
+      "audit": "75pr-v3-audit.json",
+      "audit_sha256": "71af86f5da85e5be17eaa2b617b91ae0e441f100f9187faf173bcb5dd5ba0823",
+      "classification": "MODEL_TERMINAL_FAILURE",
+      "actual_pr_dirs": 75,
+      "missing_pr_dirs": 0,
+      "parsable_verdicts": 14,
+      "test_evidence": 4,
+      "reviews_under_800_bytes": 75,
+      "clean_final_repo": false
+    }
+  ],
+  "independent_reproduction": {
+    "single_pr_base": "67 passed",
+    "single_pr_head": "76 passed",
+    "single_pr_current": "261 passed",
+    "conclusion": "The pinned subject is a test-only rescue over runtime code already present on current main; MERGE is the expected disposition."
+  }
+}

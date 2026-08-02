@@ -188,6 +188,64 @@
     "required_after_campaign": true,
     "manifest": "production-restore.json",
     "deepseek_launcher_sha256": "4fca6a4a478f0876a1e6d7241dd87a3c9574bd970f29943bb3696993d4bfe25d",
-    "pre_campaign_openclaw_sha256": "79f2872821d68f76a2c42cb8f3972ae494b380a4d0d058fba405dbcc5e489c7f"
+    "pre_campaign_openclaw_sha256": "79f2872821d68f76a2c42cb8f3972ae494b380a4d0d058fba405dbcc5e489c7f",
+    "status": "completed_and_validated",
+    "validated_at": "2026-08-02T07:06:18Z",
+    "evidence_directory": "/home/michael/gemma4-campaign-state/production-restore/20260802T070054Z",
+    "deepseek": {
+      "served_model": "DeepSeek-V4-Flash-0731",
+      "max_model_len": 1048576,
+      "health_http_status": 200,
+      "image_digest": "sha256:48518e91cf87dd0c0483c76ff86e81dfc0f46de7e364b46f7a82c481ce08188f",
+      "container_restart_policy": "unless-stopped",
+      "container_restart_count": 0,
+      "container_oom_killed": false,
+      "gpu_power_limits_w": [500, 500]
+    },
+    "openclaw": {
+      "restored_config_sha256": "79f2872821d68f76a2c42cb8f3972ae494b380a4d0d058fba405dbcc5e489c7f",
+      "restored_config_mode": "600",
+      "gateway_active": true,
+      "sanctuary_portal_healthy": true,
+      "pixel_portal_healthy": true
+    },
+    "fresh_agent_tool_checks": {
+      "sanctuary": {
+        "status": "ok",
+        "provider": "tower",
+        "model": "DeepSeek-V4-Flash-0731",
+        "context_tokens": 1048576,
+        "fallback_used": false,
+        "tool": "exec",
+        "tool_command": "printf SANCTUARY_OK",
+        "tool_result": "SANCTUARY_OK",
+        "final_text": "SANCTUARY_OK",
+        "result_sha256": "e52e459db9165e488fddf799e32304f4066a3392810f87ea885604d206e5f8a9",
+        "session_trace_sha256": "e8e6af4f8dfab6ce19acdd0df1e95658415b4f94a6c39639b738d750df1491e9"
+      },
+      "pixel": {
+        "status": "ok",
+        "provider": "tower",
+        "model": "DeepSeek-V4-Flash-0731",
+        "context_tokens": 1048576,
+        "fallback_used": false,
+        "tool": "exec",
+        "tool_command": "printf PIXEL_OK",
+        "tool_result": "PIXEL_OK",
+        "final_text": "PIXEL_OK",
+        "result_sha256": "4099f3faf1effcad60c8a2afae04636b9930afe4eac6c1e380f0491229183647",
+        "session_trace_sha256": "e55d69c95581e9c7ef4b679a1005d3c69f56235207edea9e4c9f6af0922fec8a"
+      }
+    },
+    "campaign_cleanup": {
+      "gemma_serving_services_running": 0,
+      "gemma_serving_containers_running": 0,
+      "campaign_sandbox_containers_stopped_not_deleted": 96
+    },
+    "invalid_validation_attempts_retained": {
+      "count": 2,
+      "classification": "harness_invalid_before_model_invocation",
+      "reason": "SSH retokenized a multiword --message argument; the replacement checks used --message-file and fresh session IDs."
+    }
   }
 }

@@ -19,7 +19,7 @@
 # entry once it's been published.
 
 schema_version: 0.1
-last_updated: "2026-08-01"
+last_updated: "2026-08-02"
 
 claims:
 
@@ -509,7 +509,7 @@ claims:
       think, so the direction favors DeepSeek but is not a statistically
       matched global leaderboard claim.
     status: provisional
-    scope: published corrected local MMBT results as of 2026-08-01
+    scope: published corrected local MMBT results as of 2026-08-02
     evidence: "benchmarks/deepseek-v4-flash-0731/qwen397-corrected-score-overlay.json; benchmarks/deepseek-v4-flash-0731/DEEPSEEK_V4_FLASH_0731_VERIFIED_RESULTS.md"
     caveats:
       - "DeepSeek N=3 vs Qwen N=10; sampling, context, campaign date, and grader coverage differ."
@@ -541,6 +541,62 @@ claims:
       - "One task family on one rig; partitioned multi-agent execution was not tested."
 
 # ─── Retracted ────────────────────────────────────────────────────────────────
+
+  # Gemma 4 31B QAT Q4_0 cross-suite campaign
+
+  - id: model.gemma4-31b-q4.tower2-serving
+    text: >
+      Gemma 4 31B QAT Q4_0 serves stably as two independent full-offload
+      llama.cpp replicas on Tower2, one per RTX PRO 6000 at 500 W. Each replica
+      exposes four Q8-KV slots with a hard native 262,144-token context per slot;
+      the pair reached 290.279 aggregate decode tok/s at eight total concurrent
+      requests and passed near-native-context recall plus chat/tool contracts.
+    status: provisional
+    scope: single Tower2 rig, pinned official GGUF and llama.cpp build
+    evidence: "tooling/deployments/gemma4-31b-q4-tower2/final-validation.json; benchmarks/gemma4-31b-q4/README.md"
+    caveats:
+      - "Single rig and runtime build; cross-engine and cross-day variance are not characterized."
+      - "Cross-GPU split candidates were corrupt or unsupported, so this is an independent-replica result."
+
+  - id: model.gemma4-31b-q4.canonical-corrected
+    text: >
+      On the canonical 12-family MMBT, Gemma scores 29/36 raw and 32/36
+      corrected at N=3, and 89/120 raw and 99/120 corrected at N=10. The
+      correction changes only project-management lexical false negatives and
+      is tied to unchanged raw grades, reports, archives, and grader hashes.
+    status: provisional
+    scope: Gemma 4 31B official QAT Q4_0, model-card sampling, native 256K context
+    evidence: "benchmarks/gemma4-31b-q4/gemma4-canonical-n10-scorecard.json; benchmarks/gemma4-31b-q4/gemma4-canonical-n10-project-mgmt-correction.json"
+    caveats:
+      - "The corrected total depends on a narrow post-run semantic correction; raw grades remain primary and published."
+      - "Market-research passes are structural and do not prove every citation."
+
+  - id: model.gemma4-31b-q4.beats-qwen36-27b-bounded
+    text: >
+      Gemma is materially stronger than Qwen3.6-27B-AWQ thinking on the pinned
+      directly comparable N=3 quality matrix: 29/36 raw and 32/36 corrected
+      versus Qwen's 20/36 raw. Short-context single-stream speed is nearly tied,
+      while Qwen's vLLM stack is substantially stronger under dense batching.
+    status: provisional
+    scope: Tower2, historical N=3 MMBT comparison and separate 500 W serving measurements
+    evidence: "benchmarks/gemma4-31b-q4/comparison.json; tooling/gemma4-comparison-sources.json"
+    caveats:
+      - "Sampling, runtime engine, campaign date, and grader coverage differ."
+      - "Qwen no-think 113/118 is a done_signal rate, not a comparable quality score."
+
+  - id: model.gemma4-31b-q4.extended-zero-of-twelve
+    text: >
+      Gemma scores 0/12 under the strict extended substantive audit. Every
+      single-PR artifact fails pinned-subject provenance, all three investment
+      workbooks are financially invalid and omit PDF, all three board decks
+      fail common or visual-quality gates, and all three frozen 75-PR attempts
+      are materially incomplete.
+    status: provisional
+    scope: four extended suites times three replicates on the pinned Tower2 deployment
+    evidence: "benchmarks/gemma4-31b-q4/substantive-audit.json; benchmarks/gemma4-31b-q4/gemma4-extended-evidence-audit.json"
+    caveats:
+      - "Small modality-specific N; older local entries have not all received the same strict overlay."
+      - "Per-PR factual accuracy is not exhaustively graded; the 75-PR result is artifact completeness and audit substance."
 
 retracted:
 

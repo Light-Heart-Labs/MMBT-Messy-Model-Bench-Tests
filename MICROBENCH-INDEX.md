@@ -13,6 +13,7 @@
 
 | Entry | Tree | Models / arms | N | Headline |
 |---|---|---|---|---|
+| [`gemma4-31b-q4`](benchmarks/gemma4-31b-q4/) | benchmarks/ | **Gemma-4-31B-it-QAT-Q4_0** at model-card sampling | 3 and 10 | N=3 raw 29/36, corrected 32/36; N=10 raw 89/120, corrected 99/120. Extended strict audit 0/12. |
 | [`deepseek-v4-flash-0731`](benchmarks/deepseek-v4-flash-0731/) | benchmarks/ | **DeepSeek-V4-Flash-0731** at its model-card sampling point | 3 | Raw 23/36; corrected 35/36 after reproducible grader defects were repaired without rerunning the model. One genuine failure: 773 words against a 700-word cap. |
 | [`microbench-2026-04-28`](benchmarks/microbench-2026-04-28/) | benchmarks/ | Qwen3.6-**27B-AWQ** vs Qwen3-Coder-Next-**AWQ** | 3 | Aggregate-tied ~7/12 each; complementary task-class strengths; Coder-Next much faster/cheaper. |
 | [`microbench-phase-b-2026-05-02`](benchmarks/microbench-phase-b-2026-05-02/) | benchmarks/ | + **27B-AWQ no-think** third arm; 4 differential cells to N=10 | 10 | 27B ships 86.8% no-think vs 75% think (same `p3_doc` word-limit loop); Coder-Next market 0/10 (Wilson [0, 27.8%]). |
@@ -48,6 +49,16 @@ Qwen3.5-397B writing overlay moves its N=10 no-think result from 82/120 to
 92/120 (76.67%), still directionally below DeepSeek. A uniform historical
 regrade and DeepSeek N=10 expansion would be required for a statistically
 matched ranking.
+
+## Gemma adds a broader high-scoring local cohort
+
+Gemma's corrected **99/120 (82.5%)** at N=10 is the largest high-scoring
+canonical cohort in the current local set, and its N=3 corrected 32/36 is below
+DeepSeek's 35/36 but above Qwen3.6-27B and Coder-Next's 20/36 raw results. This
+still is not a global leaderboard: Gemma uses different sampling and a newer
+grader/campaign date. Its strict extended result is 0/12, which is why the
+canonical aggregate must not be read as proof of reliable complex-artifact or
+marathon execution.
 
 ## Qualitative comparison
 
