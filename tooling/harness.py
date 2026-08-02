@@ -578,7 +578,9 @@ def validate_done(require_files, require_git_tag):
     File requirements are matched as bare filenames against `find /workspace
     -maxdepth 2 -name <name>` so the agent's choice of audit-repo location
     (e.g. /workspace/ vs /workspace/audit-repo/ vs /workspace/audit-pr-1057/)
-    doesn't matter. Same for the git-tag check."""
+    doesn't matter. The git check accepts only a clean candidate repository
+    whose HEAD has an annotated tag, so a pre-existing tag in an input clone
+    cannot satisfy the completion gate."""
     missing = []
     for fname in (require_files or []):
         # Strip leading slashes so we always match by basename pattern; the
@@ -588,17 +590,24 @@ def validate_done(require_files, require_git_tag):
         if not r['stdout'].strip():
             missing.append(fname)
     if require_git_tag:
-        # Find any git repo under /workspace with at least one annotated tag.
+        # Find a clean git repo under /workspace with an annotated tag at HEAD.
         # /workspace itself, /workspace/*/, and /workspace/*/*/ — covers nested
         # audit repos like /workspace/dreamserver-audit/.
         cmd = (
             "for d in /workspace /workspace/*/ /workspace/*/*/; do "
-            "  [ -d \"$d/.git\" ] && (cd \"$d\" && git tag -l 2>/dev/null | grep -q . && echo TAG_FOUND && break); "
+            "  [ -d \"$d/.git\" ] || continue; "
+            "  git -C \"$d\" diff --quiet 2>/dev/null || continue; "
+            "  git -C \"$d\" diff --cached --quiet 2>/dev/null || continue; "
+            "  [ -z \"$(git -C \"$d\" ls-files --others --exclude-standard 2>/dev/null)\" ] || continue; "
+            "  for t in $(git -C \"$d\" tag --points-at HEAD 2>/dev/null); do "
+            "    [ \"$(git -C \"$d\" cat-file -t \"refs/tags/$t\" 2>/dev/null)\" = tag ] "
+            "      && echo TAG_FOUND && break 2; "
+            "  done; "
             "done"
         )
         r = docker_exec(cmd, timeout=15)
         if "TAG_FOUND" not in r['stdout']:
-            missing.append("(no annotated git tag in any workspace repo)")
+            missing.append("(no clean workspace repo with an annotated tag at HEAD)")
     if missing:
         return (
             "DONE_REJECTED: Required artifacts missing — task spec demands these before completion: "

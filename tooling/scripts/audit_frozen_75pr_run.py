@@ -41,6 +41,14 @@ def command(*args: str) -> str:
     return subprocess.check_output(args, text=True).strip()
 
 
+def read_text_or_empty(path: Path) -> str:
+    """Treat a missing required artifact as empty so the audit fails closed."""
+    try:
+        return path.read_text(errors="replace")
+    except FileNotFoundError:
+        return ""
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("log_dir", type=Path)
@@ -78,10 +86,10 @@ def main() -> int:
     structural = json.loads(validation.stdout)
 
     prs = sorted((workspace / "prs").glob("pr-*"), key=lambda path: int(path.name[3:]))
-    reviews = {int(path.name[3:]): (path / "review.md").read_text(errors="replace") for path in prs}
-    traces = {int(path.name[3:]): (path / "trace.md").read_text(errors="replace") for path in prs}
-    diffs = {int(path.name[3:]): (path / "diff-analysis.md").read_text(errors="replace") for path in prs}
-    verdicts = {int(path.name[3:]): (path / "verdict.md").read_text(errors="replace") for path in prs}
+    reviews = {int(path.name[3:]): read_text_or_empty(path / "review.md") for path in prs}
+    traces = {int(path.name[3:]): read_text_or_empty(path / "trace.md") for path in prs}
+    diffs = {int(path.name[3:]): read_text_or_empty(path / "diff-analysis.md") for path in prs}
+    verdicts = {int(path.name[3:]): read_text_or_empty(path / "verdict.md") for path in prs}
     test_prs = sorted(
         {
             int(path.parents[1].name[3:])
@@ -97,7 +105,7 @@ def main() -> int:
         except Exception:
             continue
     tool_events = sum(row.get("type") == "tool" for row in transcript_rows)
-    tool_log = (workspace / "tool-log.md").read_text(errors="replace")
+    tool_log = read_text_or_empty(workspace / "tool-log.md")
     numbered_tool_entries = sum(
         bool(re.match(r"^\s*\d+[.)]\s+", line)) for line in tool_log.splitlines()
     )

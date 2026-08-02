@@ -36,3 +36,30 @@ def test_malformed_argument_types_are_recoverable_tool_errors():
 
 def test_non_object_arguments_are_recoverable_tool_errors():
     assert execute("read_file", []) == "TOOL_ERROR: read_file arguments must be a JSON object"
+
+
+def test_git_tag_gate_requires_clean_annotated_tag_at_head(monkeypatch):
+    calls = []
+
+    def fake_docker_exec(command, timeout):
+        calls.append(command)
+        return {"stdout": "TAG_FOUND\n", "stderr": "", "returncode": 0}
+
+    monkeypatch.setattr(MODULE, "docker_exec", fake_docker_exec)
+    assert MODULE.validate_done([], True) is None
+    command = calls[-1]
+    assert "diff --quiet" in command
+    assert "diff --cached --quiet" in command
+    assert "ls-files --others --exclude-standard" in command
+    assert "tag --points-at HEAD" in command
+    assert "cat-file -t" in command
+
+
+def test_git_tag_gate_fails_closed_without_qualifying_repo(monkeypatch):
+    monkeypatch.setattr(
+        MODULE,
+        "docker_exec",
+        lambda command, timeout: {"stdout": "", "stderr": "", "returncode": 0},
+    )
+    error = MODULE.validate_done([], True)
+    assert "no clean workspace repo with an annotated tag at HEAD" in error
