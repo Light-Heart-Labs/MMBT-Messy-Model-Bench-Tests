@@ -1,0 +1,15 @@
+[Unit]
+Description=Gemma 4 31B Q4 extended MMBT lane %i
+After=mmbt-gemma4-power-logger.service
+Wants=mmbt-gemma4-power-logger.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/michael/bench-gemma4-31b-q4
+EnvironmentFile=/home/michael/bench-gemma4-31b-q4/tooling/deployments/gemma4-31b-q4-tower2/extended-lane%i.env
+ExecStart=/usr/bin/python3 /home/michael/bench-gemma4-31b-q4/tooling/run_gemma4_extended_suites.py
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=default.target

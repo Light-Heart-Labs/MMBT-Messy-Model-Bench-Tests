@@ -15,13 +15,16 @@ while true; do
       --write-run-artifacts --output "$REPORT" >>"$SIDELOG" 2>&1 || true
   fi
 
-  while IFS= read -r summary; do
-    run_dir=${summary%/summary.json}
-    [[ -f "$run_dir/workspace_final.tar.gz" ]] || continue
+  while IFS= read -r run_dir; do
+    [[ -f "$run_dir/receipt.json" && -f "$run_dir/transcript.jsonl" ]] || continue
+    if [[ -f "$run_dir/summary.json" && ! -f "$run_dir/workspace_final.tar.gz" ]]; then
+      continue
+    fi
     [[ -f "$run_dir/cost.json" ]] && continue
     python3 "$ROOT/tooling/scripts/extract_cost.py" "$run_dir" >>"$SIDELOG" 2>&1 || true
-  done < <(find "$LOGS" -mindepth 2 -maxdepth 2 -type f -name summary.json \
-           -path '*gemma4-31b-q4*' | sort)
+  done < <(find "$LOGS" -mindepth 2 -maxdepth 2 -type f \
+           \( -name summary.json -o -name label.json \) \
+           -path '*gemma4-31b-q4*' -printf '%h\n' | sort -u)
 
   sleep 60
 done

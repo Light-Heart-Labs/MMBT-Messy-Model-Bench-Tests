@@ -47,7 +47,7 @@ NOTIFY_SH = HOME / "dream-fleet-test" / "lib" / "notify.sh"
 
 HEARTBEAT_FRESH_SECS = 120
 SUBSTANCE_CHECK_SECS = 300
-_last_substance_check = 0.0
+_last_substance_check: dict[str, float] = {}
 
 TASKS = ["p1_bugfix","p1_testwrite","p1_refactor","p2_extract","p2_ci",
          "p2_hallucination","p2_triage","p3_doc","p3_business","p3_market",
@@ -207,6 +207,59 @@ def container_running(name: str) -> bool:
 def configured_ports(cfg: dict) -> list[int]:
     ports = cfg.get("lane_ports") or [cfg["port"]]
     return list(dict.fromkeys(int(port) for port in ports))
+
+
+def active_harnesses_by_port() -> dict[int, dict]:
+    """Return exact live harness PID/run mappings for each endpoint lane."""
+    active = {}
+    for proc_dir in Path("/proc").glob("[0-9]*"):
+        try:
+            argv = [
+                part.decode(errors="replace")
+                for part in (proc_dir / "cmdline").read_bytes().split(b"\0")
+                if part
+            ]
+            harness_index = next(
+                index for index, arg in enumerate(argv)
+                if Path(arg).name == "harness.py"
+            )
+            port_index = argv.index("--port")
+            run_name = argv[harness_index + 1]
+            port = int(argv[port_index + 1])
+        except (OSError, StopIteration, ValueError, IndexError):
+            continue
+        active[port] = {"pid": int(proc_dir.name), "cell": run_name}
+    return active
+
+
+def slot_progress_signature(payload) -> tuple:
+    """Extract active prompt/decode progress from llama.cpp's /slots payload."""
+    if not isinstance(payload, list):
+        return ()
+    processing = []
+    for slot in payload:
+        if not isinstance(slot, dict) or not slot.get("is_processing"):
+            continue
+        next_token = slot.get("next_token") or []
+        token_state = next_token[0] if next_token and isinstance(next_token[0], dict) else {}
+        processing.append((
+            slot.get("id"),
+            slot.get("id_task"),
+            slot.get("n_prompt_tokens_processed"),
+            token_state.get("n_decoded"),
+            token_state.get("n_remain"),
+        ))
+    return tuple(sorted(processing, key=lambda row: (str(row[0]), str(row[1]))))
+
+
+def endpoint_slot_progress(port: int) -> tuple:
+    result = sh(["curl", "-fsS", "--max-time", "5", f"http://127.0.0.1:{port}/slots"])
+    if result.returncode != 0:
+        return ()
+    try:
+        return slot_progress_signature(json.loads(result.stdout))
+    except json.JSONDecodeError:
+        return ()
 
 
 def configured_services(cfg: dict) -> list[str]:
@@ -436,8 +489,39 @@ def kill_stuck(cell: str):
     sh(["docker", "rm", "-f", f"bench-sandbox-{cell}"])
 
 
+def active_substance_targets(cfg) -> list[dict]:
+    """Return every live lane's exact run/transcript/PID for substance checks."""
+    targets = []
+    active = active_harnesses_by_port()
+    for port in configured_ports(cfg):
+        harness = active.get(port)
+        if not harness:
+            continue
+        transcript = LOGS / harness["cell"] / "transcript.jsonl"
+        if transcript.exists():
+            targets.append({
+                "port": port,
+                "cell": harness["cell"],
+                "pid": harness["pid"],
+                "transcript": transcript,
+            })
+    if targets:
+        return targets
+    # Preserve the historical single-lane fallback for non-Linux/dev contexts
+    # where procfs attribution is unavailable.
+    transcript, _ = newest_transcript(cfg)
+    if transcript and transcript.exists():
+        return [{
+            "port": int(cfg["port"]),
+            "cell": transcript.parent.name,
+            "pid": None,
+            "transcript": transcript,
+        }]
+    return []
+
+
 def check_current_substance(cfg):
-    """Run the published five-minute substance monitor on the active cell.
+    """Run the published five-minute substance monitor on every active lane.
 
     Scroll loops are terminated by exact harness PID and receive the canonical
     explicit failure label.  Runaway-generation signals are logged for endpoint
@@ -445,40 +529,44 @@ def check_current_substance(cfg):
     """
     global _last_substance_check
     now = time.time()
-    if now - _last_substance_check < SUBSTANCE_CHECK_SECS:
-        return
-    _last_substance_check = now
-    tp, _ = newest_transcript(cfg)
-    if not tp or not tp.exists():
-        return
-    cell = tp.parent.name
-    result = sh(["python3", str(SCRIPTS / "check_substance.py"), str(tp)])
-    with open(STATE_DIR / f"substance-{cell}.log", "a") as f:
-        f.write(f"\n[{time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}] rc={result.returncode}\n")
-        f.write(result.stdout or "")
-        f.write(result.stderr or "")
-    if result.returncode == 1:
-        pids = sh(["pgrep", "-f", f"harness.py {cell} "]).stdout.split()
-        if not pids:
-            log(f"SUBSTANCE: scroll-loop detected for {cell}, but exact harness PID was absent")
-            return
-        log(f"SUBSTANCE: scroll-loop detected for {cell}; SIGTERM exact PID(s) {','.join(pids)}")
-        for pid in pids:
-            sh(["kill", "-TERM", pid])
-        label = {
-            "primary": "identical-call-loop",
-            "sub_labels": ["scroll-loop"],
-            "notes": (
-                "Operator-SIGTERM per the documented >=30 identical digit-stripped "
-                "tool-command substance rule; see the preserved transcript and monitor log."
-            ),
-            "labeler": "operator-monitoring-supervisor",
-            "labeled_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        }
-        (tp.parent / "label.json").write_text(json.dumps(label, indent=2) + "\n")
-        sh(["docker", "rm", "-f", f"bench-sandbox-{cell}"])
-    elif result.returncode == 2:
-        log(f"SUBSTANCE: runaway-generation suspected for {cell}; endpoint_up={endpoint_up(cfg['port'])}")
+    for target in active_substance_targets(cfg):
+        cell = target["cell"]
+        if now - _last_substance_check.get(cell, 0.0) < SUBSTANCE_CHECK_SECS:
+            continue
+        _last_substance_check[cell] = now
+        transcript = target["transcript"]
+        result = sh(["python3", str(SCRIPTS / "check_substance.py"), str(transcript)])
+        with open(STATE_DIR / f"substance-{cell}.log", "a") as f:
+            f.write(f"\n[{time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}] rc={result.returncode}\n")
+            f.write(result.stdout or "")
+            f.write(result.stderr or "")
+        if result.returncode == 1:
+            pid = target["pid"]
+            pids = [str(pid)] if pid is not None else \
+                sh(["pgrep", "-f", f"harness.py {cell} "]).stdout.split()
+            if not pids:
+                log(f"SUBSTANCE: scroll-loop detected for {cell}, but exact harness PID was absent")
+                continue
+            log(f"SUBSTANCE: scroll-loop detected for {cell}; SIGTERM exact PID(s) {','.join(pids)}")
+            for exact_pid in pids:
+                sh(["kill", "-TERM", exact_pid])
+            label = {
+                "primary": "identical-call-loop",
+                "sub_labels": ["scroll-loop"],
+                "notes": (
+                    "Operator-SIGTERM per the documented >=30 identical digit-stripped "
+                    "tool-command substance rule; see the preserved transcript and monitor log."
+                ),
+                "labeler": "operator-monitoring-supervisor",
+                "labeled_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            }
+            (transcript.parent / "label.json").write_text(json.dumps(label, indent=2) + "\n")
+            sh(["docker", "rm", "-f", f"bench-sandbox-{cell}"])
+        elif result.returncode == 2:
+            log(
+                f"SUBSTANCE: runaway-generation suspected for {cell}; "
+                f"endpoint_up={endpoint_up(target['port'])}"
+            )
 
 
 # --- recent cells + fails ---------------------------------------------------
@@ -794,6 +882,10 @@ def run_arm_with_supervision(cfg, arm, target, started_at):
             procs.append((lane_index, port, proc))
 
         last_endpoint_ok = {port: time.time() for port in ports}
+        lane_progress = {
+            port: {"cell": None, "signal": None, "last_progress": time.time()}
+            for port in ports
+        }
         while any(proc.poll() is None for _, _, proc in procs):
             time.sleep(30)
             write_heartbeat()
@@ -807,9 +899,36 @@ def run_arm_with_supervision(cfg, arm, target, started_at):
                     log(f"watchdog: endpoint lane {port} down >90s — restarting runtime")
                     ensure_endpoint(cfg)
                     last_endpoint_ok[port] = time.time()
-            cur = current_cell_info(cfg)
-            if cur["cell"] and cur["frozen_secs"] and cur["frozen_secs"] > cfg["stuck_secs"]:
-                kill_stuck(cur["cell"])
+            # Transcript mtimes do not advance while urllib waits for a
+            # non-streamed response. Watch each replica independently and count
+            # live llama.cpp slot-token movement as progress so native-context
+            # generations are not mistaken for hung harnesses.
+            now = time.time()
+            active = active_harnesses_by_port()
+            for port in ports:
+                harness = active.get(port)
+                watch = lane_progress[port]
+                if not harness:
+                    watch.update(cell=None, signal=None, last_progress=now)
+                    continue
+                cell = harness["cell"]
+                transcript = LOGS / cell / "transcript.jsonl"
+                try:
+                    transcript_mtime_ns = transcript.stat().st_mtime_ns
+                except OSError:
+                    transcript_mtime_ns = None
+                signal = (cell, transcript_mtime_ns, endpoint_slot_progress(port))
+                if watch["cell"] != cell or watch["signal"] != signal:
+                    watch.update(cell=cell, signal=signal, last_progress=now)
+                    continue
+                frozen_secs = int(now - watch["last_progress"])
+                if frozen_secs > cfg["stuck_secs"]:
+                    log(
+                        f"STUCK: lane port {port} cell {cell} showed no transcript "
+                        f"or server-slot progress for {frozen_secs}s"
+                    )
+                    kill_stuck(cell)
+                    watch.update(cell=None, signal=None, last_progress=now)
         lane_results = {port: proc.returncode for _, port, proc in procs}
         log(f"run_microbench {label} lane exit codes={lane_results}")
     finally:

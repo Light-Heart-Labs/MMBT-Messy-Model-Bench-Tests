@@ -107,6 +107,15 @@ The frozen PR-number set SHA-256 is
 Current and historical task hashes are recorded in
 `tooling/gemma4-31b-q4-extended-matrix.json`.
 
+The single-PR prompt still calls PR #1057 “open,” but the PR merged before the
+DeepSeek and Gemma campaigns. `tooling/gemma4-single-pr-subject-pin.json`
+anchors the unchanged task to the exact subject audited by all three DeepSeek
+replicates: base `309e9cd0`, head `e5ceb43e`, squash contribution `1678f194`,
+and the four original PR commits. Each Gemma artifact must identify and
+reconcile those refs. Current `main` is optional context, not a replacement
+subject; auditing a different diff is a model failure, while a proven inability
+to fetch an immutable ref is preserved as infrastructure-invalid.
+
 ## Attempt preservation and validity
 
 Every attempt receives a unique run name and remains in the campaign ledger.

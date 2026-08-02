@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-02T02:17:59.511743+00:00",
+  "source": {
+    "path": "/home/michael/gemma4-campaign-state/topology/replica-gpu1-q8-s4-concurrency-20260801T234354Z/summary.json",
+    "bytes": 35730,
+    "sha256": "98f977520b227f03a1abd720cfc21f6178f6c9b3a2ef4279ae9b85e2b77f9906"
+  },
+  "operating_point": {
+    "parallel_slots": 4,
+    "simultaneous_requests": 8,
+    "waves": 2
+  },
+  "first_wave": {
+    "requests": 4,
+    "median_wall_s": 9.108222,
+    "median_wall_minus_server_work_s": 2.117381
+  },
+  "queued_second_wave": {
+    "requests": 4,
+    "median_wall_s": 18.183445,
+    "median_wall_minus_server_work_s": 11.209493
+  },
+  "derived": {
+    "second_wave_wall_penalty_s": 9.075223,
+    "estimated_queue_wait_delta_s": 9.092112,
+    "aggregate_decode_tokens_per_second_wall": 112.61659474507437
+  },
+  "requests": [
+    {
+      "request_index": 0,
+      "wall_s": 9.108004,
+      "server_reported_prompt_plus_decode_s": 7.009431,
+      "wall_minus_server_reported_work_s": 2.098573,
+      "tokens_evaluated": 1025,
+      "tokens_predicted": 256
+    },
+    {
+      "request_index": 1,
+      "wall_s": 9.107791,
+      "server_reported_prompt_plus_decode_s": 7.040805,
+      "wall_minus_server_reported_work_s": 2.066986,
+      "tokens_evaluated": 1025,
+      "tokens_predicted": 256
+    },
+    {
+      "request_index": 2,
+      "wall_s": 18.183528,
+      "server_reported_prompt_plus_decode_s": 6.990353,
+      "wall_minus_server_reported_work_s": 11.193175,
+      "tokens_evaluated": 1025,
+      "tokens_predicted": 256
+    },
+    {
+      "request_index": 3,
+      "wall_s": 9.108829,
+      "server_reported_prompt_plus_decode_s": 6.972641,
+      "wall_minus_server_reported_work_s": 2.136188,
+      "tokens_evaluated": 1025,
+      "tokens_predicted": 256
+    },
+    {
+      "request_index": 4,
+      "wall_s": 9.10844,
+      "server_reported_prompt_plus_decode_s": 6.931966,
+      "wall_minus_server_reported_work_s": 2.176474,
+      "tokens_evaluated": 1025,
+      "tokens_predicted": 256
+    },
+    {
+      "request_index": 5,
+      "wall_s": 18.182898,
+      "server_reported_prompt_plus_decode_s": 7.026039,
+      "wall_minus_server_reported_work_s": 11.156859,
+      "tokens_evaluated": 1025,
+      "tokens_predicted": 256
+    },
+    {
+      "request_index": 6,
+      "wall_s": 18.183917,
+      "server_reported_prompt_plus_decode_s": 6.958106,
+      "wall_minus_server_reported_work_s": 11.225811,
+      "tokens_evaluated": 1025,
+      "tokens_predicted": 256
+    },
+    {
+      "request_index": 7,
+      "wall_s": 18.183362,
+      "server_reported_prompt_plus_decode_s": 6.921437,
+      "wall_minus_server_reported_work_s": 11.261925,
+      "tokens_evaluated": 1025,
+      "tokens_predicted": 256
+    }
+  ],
+  "methodology": "The client released all requests together. With four server slots and eight requests, the four shortest walls are the first service wave and the four longest are the queued wave. estimated_queue_wait_delta_s subtracts each response's llama.cpp-reported prompt+decode work from client wall time, then differences the wave medians. It includes scheduler/HTTP overhead and is an estimate, not a direct server-side queue timestamp."
+}

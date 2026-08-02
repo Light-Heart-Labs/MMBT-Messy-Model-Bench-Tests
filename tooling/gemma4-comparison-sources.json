@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "source_repository_commit": "0adec7c5e9a91ef19b0f1385e9d9d2b589fee45c",
+  "purpose": "Pin the exact published evidence used for the post-campaign Gemma comparison before Gemma grades are known.",
+  "source_documents": [
+    {
+      "path": "SCORECARD.md",
+      "sha256": "50d4a8b23addb1ceb32ff7d36c91be99e4a470a495d9a5d1f4bb18337526be30"
+    },
+    {
+      "path": "benchmarks/microbench-2026-04-28/bug-fixing/Qwen3.6-27B-AWQ/receipt.json",
+      "sha256": "99e0e1b780f11452ccf7294f1a510a0154840699077a1c415cee36d79c8cb91c"
+    },
+    {
+      "path": "benchmarks/microbench-2026-04-28/bug-fixing/Qwen3-Coder-Next-AWQ/receipt.json",
+      "sha256": "fe36925f249b6162e494dceb7848e4cf124609e95233e3ddb5afc281dc4a9540"
+    },
+    {
+      "path": "benchmarks/dreamserver-1-pr-audit/Qwen3.6-35B-A3B-AWQ/receipt.json",
+      "sha256": "b488efbd3859ef73275fd1cfd97bbb4130e1f7bd34d2ad6c95843c498cfba0ec"
+    },
+    {
+      "path": "benchmarks/dreamserver-1-pr-audit/Qwen3.6-35B-A3B-AWQ/README.md",
+      "sha256": "7ba4c41b603ddec3858eb4663ea8c0ea989b21aeeaac72eefb08c3a3f511c325"
+    },
+    {
+      "path": "benchmarks/wallstreet-intern-test/Qwen3.6-35B-A3B-AWQ/README.md",
+      "sha256": "dae02dff30ef07ce47a045e7503deacc05f1459cd012867ecf70e4053565d153"
+    },
+    {
+      "path": "benchmarks/deepseek-v4-flash-0731/canonical-regrade-audit.json",
+      "sha256": "ea9330029d725458c70d7efac2f298d6bb0f31198a759880d03b9e079de842b4"
+    },
+    {
+      "path": "benchmarks/deepseek-v4-flash-0731/DEEPSEEK_V4_FLASH_0731_VERIFIED_RESULTS.md",
+      "sha256": "efb686161b6f6a4e481d0bca864a74e37b38e0e89700867de9346de6920aa517"
+    },
+    {
+      "path": "benchmarks/deepseek-v4-flash-0731/qwen397-corrected-score-overlay.json",
+      "sha256": "ae0f65248ed74f8fcbd5d01093720cb4e65c8d2da2c278d7460870e55a309e0f"
+    },
+    {
+      "path": "hardware-tests/qwen3.5-397b-vs-step3.7-flash-2026-05-29/findings-n10.md",
+      "sha256": "58a98ffd94d6401bbb38c05cbe895ca9ac6974f2ea6af2dc23633b4136d697f2"
+    },
+    {
+      "path": "hardware-tests/qwen3.5-397b-vs-step3.7-flash-2026-05-29/manifest.json",
+      "sha256": "eb9ecbb63304868facba58a2eea5b146a807afe077881836ce393c152d36a772"
+    },
+    {
+      "path": "benchmarks/microbench-phase-b-2026-05-02/findings.md",
+      "sha256": "69ba6c4b5dd6a6f961f053fb7d6a1aea64e464d20442acab66828b8f13c73e42"
+    }
+  ],
+  "comparators": [
+    {
+      "id": "qwen3.6-27b-awq",
+      "display_name": "Qwen3.6-27B-AWQ",
+      "canonical": {
+        "cohort": "12 families x N=3",
+        "raw_passes": 20,
+        "total": 36
+      },
+      "operating_point": {
+        "engine": "vLLM",
+        "quantization": "AWQ 4-bit",
+        "context_tokens": 262144,
+        "temperature": 0.3,
+        "historical_per_response_ceiling": 180000
+      }
+    },
+    {
+      "id": "qwen3-coder-next-awq",
+      "display_name": "Qwen3-Coder-Next-AWQ",
+      "canonical": {
+        "cohort": "12 families x N=3",
+        "raw_passes": 20,
+        "total": 36
+      },
+      "operating_point": {
+        "engine": "vLLM",
+        "quantization": "AWQ 4-bit",
+        "context_tokens": 262144,
+        "temperature": 0.3,
+        "historical_per_response_ceiling": 180000
+      }
+    },
+    {
+      "id": "qwen3.6-35b-a3b-awq",
+      "display_name": "Qwen3.6-35B-A3B-AWQ",
+      "canonical": null,
+      "available_evidence": "No complete comparable 12-family canonical cohort. The published single-PR run produced 0/13 required artifacts and the Wall Street arm produced no usable deliverable across three attempts. Report this as sparse extended-suite evidence, not a canonical pass-rate rank.",
+      "operating_point": {
+        "engine": "vLLM",
+        "quantization": "AWQ 4-bit",
+        "context_tokens": 262144,
+        "temperature": 0.3,
+        "historical_per_response_ceiling": 180000
+      }
+    },
+    {
+      "id": "qwen3.5-397b-a17b-q3-nothink",
+      "display_name": "Qwen3.5-397B-A17B UD-Q3_K_XL (no-think)",
+      "canonical": {
+        "cohort": "12 families x N=10",
+        "raw_passes": 82,
+        "corrected_passes": 92,
+        "total": 120
+      },
+      "operating_point": {
+        "engine": "llama.cpp",
+        "quantization": "UD-Q3_K_XL",
+        "context_tokens": 131072,
+        "temperature": 0.3,
+        "reasoning_mode": "no-think",
+        "gpu_power_limit_w": 600
+      }
+    },
+    {
+      "id": "deepseek-v4-flash-0731",
+      "display_name": "DeepSeek V4 Flash 0731",
+      "canonical": {
+        "cohort": "12 families x N=3",
+        "raw_passes": 23,
+        "corrected_passes": 35,
+        "total": 36
+      },
+      "operating_point": {
+        "engine": "vLLM",
+        "quantization": "FP8",
+        "context_tokens": 1048576,
+        "temperature": 1.0,
+        "top_p": 0.95,
+        "gpu_power_limit_w": 500
+      }
+    }
+  ],
+  "comparison_rules": [
+    "Raw and corrected results are separate columns; never replace historical raw scores silently.",
+    "Use Gemma N=3 for directional comparison with historical N=3 cohorts and Gemma N=10 for variance-aware comparison with Qwen3.5-397B N=10.",
+    "Do not rank Qwen3.6-35B-A3B on the canonical matrix because no complete comparable cohort exists.",
+    "Show engine, quantization, sampling, context, output-ceiling, power-cap, date, and grader differences next to aggregate rates.",
+    "A cross-model rate is not a global SOTA claim and does not erase task-level or extended-suite failure modes."
+  ]
+}

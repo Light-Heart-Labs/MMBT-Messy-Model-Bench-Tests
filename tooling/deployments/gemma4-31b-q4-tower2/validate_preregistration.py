@@ -66,12 +66,35 @@ require(topology["sampling"] == sampling, "topology sampling drift")
 require(microbench["canonical_n"] == extended["replicates"] == 3, "canonical N mismatch")
 require(microbench["variance_expansion_n"] == 10, "variance expansion N drift")
 
+extended_protocol = ROOT / extended["substantive_audit_protocol"]
+require(extended_protocol.is_file(), "missing extended substantive audit protocol")
+require(
+    sha256(extended_protocol) == extended["substantive_audit_protocol_sha256"],
+    "extended substantive audit protocol hash drift",
+)
+
 for suite in extended["suites"]:
     task = ROOT / suite["task"]
     require(task.is_file(), f"missing task: {task}")
     require(sha256(task) == suite["current_task_sha256"], f"task hash drift: {suite['id']}")
     require(suite["max_output_tokens_cap"] == context, f"artificial output cap: {suite['id']}")
     require(all(suite[key] == value for key, value in sampling.items()), f"suite sampling drift: {suite['id']}")
+    if suite.get("subject_pin"):
+        subject_pin = ROOT / suite["subject_pin"]
+        require(subject_pin.is_file(), f"missing subject pin: {suite['id']}")
+        require(
+            sha256(subject_pin) == suite["subject_pin_sha256"],
+            f"subject pin hash drift: {suite['id']}",
+        )
+        pinned = load(subject_pin)
+        pinned_shas = {
+            pinned["base_sha"], pinned["head_sha"], pinned["squash_merge_sha"],
+            *pinned["pr_commit_shas"],
+        }
+        require(
+            set(suite["required_subject_shas"]).issubset(pinned_shas),
+            f"required subject refs drift: {suite['id']}",
+        )
 
 fixture = next(suite for suite in extended["suites"] if suite["id"] == "dreamserver-75-pr-audit")
 pr_set = Path(fixture["input_path"]) / "canonical-prs.txt"

@@ -74,15 +74,71 @@ def load_rows(path: Path) -> tuple[list[dict], dict[float, dict[str, dict]]]:
     return rows, by_time
 
 
-def load_window(run_dir: Path) -> tuple[float, float, float] | None:
+def transcript_bounds(run_dir: Path) -> tuple[float, float] | None:
+    timestamps = []
+    try:
+        for line in (run_dir / "transcript.jsonl").read_text().splitlines():
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            if row.get("t"):
+                timestamps.append(parse_time(row["t"]))
+    except (OSError, TypeError, ValueError, json.JSONDecodeError):
+        return None
+    return (min(timestamps), max(timestamps)) if timestamps else None
+
+
+def load_window(run_dir: Path) -> tuple[float, float, float, str] | None:
     try:
         summary = json.loads((run_dir / "summary.json").read_text())
         start = parse_time(summary["started_at"])
         end = parse_time(summary["ended_at"])
         wall = float(summary["elapsed_s"])
-        return (start, end, wall) if end > start and wall > 0 else None
+        return (start, end, wall, "summary.json") if end > start and wall > 0 else None
     except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
+        pass
+
+    label = None
+    receipt = None
+    try:
+        label = json.loads((run_dir / "label.json").read_text())
+    except (OSError, TypeError, ValueError, json.JSONDecodeError):
+        pass
+    if not isinstance(label, dict) or not label.get("primary"):
         return None
+    try:
+        receipt = json.loads((run_dir / "receipt.json").read_text())
+    except (OSError, TypeError, ValueError, json.JSONDecodeError):
+        pass
+    bounds = transcript_bounds(run_dir)
+
+    start = None
+    start_source = None
+    if isinstance(receipt, dict) and receipt.get("captured_at"):
+        try:
+            start = parse_time(receipt["captured_at"])
+            start_source = "receipt.json:captured_at"
+        except (TypeError, ValueError):
+            pass
+    if start is None and bounds:
+        start = bounds[0]
+        start_source = "transcript.jsonl:first_t"
+
+    end = None
+    end_source = None
+    if label.get("labeled_at"):
+        try:
+            end = parse_time(label["labeled_at"])
+            end_source = "label.json:labeled_at"
+        except (TypeError, ValueError):
+            pass
+    if end is None and bounds:
+        end = bounds[1]
+        end_source = "transcript.jsonl:last_t"
+
+    if start is None or end is None or end <= start:
+        return None
+    return start, end, end - start, f"{start_source}..{end_source}"
 
 
 def integrate(samples: list[dict], key: str, end: float, max_gap: float) -> tuple[float, float]:
@@ -119,7 +175,7 @@ def analyze(csv_path: Path, logs_dirs: list[Path], cap_per_gpu: float,
         window = load_window(run_dir) if run_dir else None
         if not window:
             continue
-        start, end, wall = window
+        start, end, wall, window_source = window
         samples = sorted((row for row in all_samples if start <= row["ts"] <= end), key=lambda row: row["ts"])
         if not samples:
             continue
@@ -163,9 +219,10 @@ def analyze(csv_path: Path, logs_dirs: list[Path], cap_per_gpu: float,
                 "paired_host_samples": paired,
                 "first_sample": datetime.fromtimestamp(samples[0]["ts"], timezone.utc).isoformat(),
                 "last_sample": datetime.fromtimestamp(samples[-1]["ts"], timezone.utc).isoformat(),
-                "summary_started_at": datetime.fromtimestamp(start, timezone.utc).isoformat(),
-                "summary_ended_at": datetime.fromtimestamp(end, timezone.utc).isoformat(),
-                "summary_wall_s": rounded(wall, 1),
+                "window_source": window_source,
+                "window_started_at": datetime.fromtimestamp(start, timezone.utc).isoformat(),
+                "window_ended_at": datetime.fromtimestamp(end, timezone.utc).isoformat(),
+                "window_wall_s": rounded(wall, 1),
                 "integrated_coverage_s": rounded(covered, 1),
                 "coverage_fraction_of_wall": rounded(min(1.0, covered / wall), 4),
                 "max_accepted_gap_s": max_gap
@@ -222,7 +279,7 @@ def main() -> None:
     if args.write_run_artifacts:
         for cell, document in report.items():
             run_dir = find_run(cell, logs_dirs)
-            if run_dir and (run_dir / "summary.json").exists():
+            if run_dir and ((run_dir / "summary.json").exists() or (run_dir / "label.json").exists()):
                 target = run_dir / "gpu_telemetry.json"
                 temporary = target.with_suffix(".tmp")
                 temporary.write_text(json.dumps(document, indent=2) + "\n")

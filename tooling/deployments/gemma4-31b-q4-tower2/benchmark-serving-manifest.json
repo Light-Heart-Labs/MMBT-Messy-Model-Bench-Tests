@@ -42,11 +42,23 @@
     "top_k": 64,
     "max_model_len": 262144,
     "max_output_tokens_cap": 262144,
+    "server_read_write_timeout_seconds": 14400,
     "prompt_growth_reserve_tokens": 12000,
     "context_safety_tokens": 2048,
     "minimum_estimated_prompt_tokens": 8000,
     "minimum_request_max_tokens": 2048
   },
+  "amendments": [
+    {
+      "effective_at": "2026-08-02T02:12:03Z",
+      "field": "benchmark_operating_point.server_read_write_timeout_seconds",
+      "previous_value": 3600,
+      "current_value": 14400,
+      "reason": "the prior transport timeout cancelled a live native-envelope request below 262144 tokens",
+      "incident": "canonical-refactor-timeout-incident-20260802.json",
+      "quality_controls_changed": false
+    }
+  ],
   "telemetry": {
     "interval_seconds": 5,
     "raw_csv": "/home/michael/gemma4-campaign-state/telemetry/gemma4-31b-q4-gpu.csv",

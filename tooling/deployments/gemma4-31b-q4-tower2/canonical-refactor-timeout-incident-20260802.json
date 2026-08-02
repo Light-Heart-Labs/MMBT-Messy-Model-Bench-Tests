@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "campaign": "gemma4-31b-q4-mmbt",
+  "classified_at": "2026-08-02T02:12:03Z",
+  "classification": "infrastructure-invalid canonical attempt with valid operational model-control evidence",
+  "run_name": "p1_refactor_gemma4-31b-q4_v3",
+  "score_independence": "classified and preserved before campaign grading because the server cancelled at its configured transport timeout",
+  "attempt": {
+    "started_at": "2026-08-02T01:05:37.203845Z",
+    "ended_at": "2026-08-02T02:08:59.029658Z",
+    "elapsed_s": 3801.8,
+    "iterations": 46,
+    "summary_finish_reason": "api_error: timed out",
+    "summary_completion_tokens_excluding_cancelled_call": 10283,
+    "summary_prompt_tokens": 489088,
+    "final_server_task_id": 80497,
+    "final_call_started_at": "2026-08-02T01:08:59Z",
+    "final_call_cancelled_at": "2026-08-02T02:08:59Z",
+    "configured_server_timeout_s": 3600,
+    "server_decoded_tokens_at_cancel": 133606,
+    "server_slot_total_tokens_at_cancel": 151966,
+    "server_truncated": false
+  },
+  "validity_reason": {
+    "infrastructure_defect": "llama.cpp cancelled the live request at exactly the configured 3600-second read/write timeout while the slot was still decoding below the 262144-token native context/output boundary",
+    "quality_treatment": "the timeout-truncated attempt is not a canonical model-quality outcome and must be replaced without consulting its grade",
+    "operational_treatment": "the model's continued generation after completing the requested repository changes remains evidence of weak termination discipline"
+  },
+  "preservation": {
+    "git_visible_path": "logs/_invalid/p1_refactor_gemma4-31b-q4_v3-server-timeout-20260802T020859Z",
+    "external_root": "/home/michael/gemma4-campaign-state/canonical-invalid/p1_refactor_gemma4-31b-q4_v3-server-timeout-20260802T020859Z",
+    "files": {
+      "cost.json": "c5d1062f477758436ba0c3baf32df97fbe4e30df09c831bde470ccf938fce7f7",
+      "gpu_telemetry.json": "4f717a0e9d7298401c41e1799f772186a03a25bdf21bee93b30425cab3b31494",
+      "grade.json": "7f69334378ac3187de489eb74ad81c8245267d1a5711612b94879f297e758bcf",
+      "receipt.json": "58b9ee02a9c9cd03829a91d8f2f4d6d5eedf064f1c96206bc6c4b38522c4bfd8",
+      "summary.json": "0445d7ff95e0fbfbbc06d21cb3fdcccf8a741249ea294dda3f136a3ea4ed2b56",
+      "transcript.jsonl": "e887af90ea26038d3d8aadf22998eaa443eeb78eaa59d204bc7fcc741124e00e",
+      "workspace_final.tar.gz": "90a1b1918640b2a496b66ed5fbaf8649eb5902aa2e4e36c1f6b4debc71c720bc",
+      "server-task-80497.log": "ce70ea512597a14e8262e1300989243f1ca6bdfeee04a000a6a2cd69da4d8a45"
+    }
+  },
+  "correction": {
+    "server_read_write_timeout_s": 14400,
+    "changed_control": "transport timeout only",
+    "unchanged_controls": [
+      "model and projector bytes",
+      "llama.cpp binary",
+      "one-GPU full-offload topology",
+      "Q8 KV cache and four slots",
+      "262144-token per-slot context",
+      "262144-token benchmark output ceiling",
+      "temperature 1.0, top_p 0.95, top_k 64",
+      "500 W GPU cap",
+      "task prompt and fixture",
+      "canonical run name"
+    ],
+    "replacement_policy": "preserve the invalid attempt, remove only its active canonical copy after the N=3 supervisor stops, and rerun the exact cell before grading/audit acceptance"
+  },
+  "post_classification_grade": {
+    "verdict": "PASS",
+    "treatment": "preserved with the invalid attempt but excluded; the infrastructure classification and replacement decision were recorded before this grade existed"
+  }
+}

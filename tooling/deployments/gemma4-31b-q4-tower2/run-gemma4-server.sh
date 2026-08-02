@@ -32,12 +32,18 @@ THREADS_BATCH="${GEMMA_THREADS_BATCH:-24}"
 THREADS_HTTP="${GEMMA_THREADS_HTTP:-16}"
 CACHE_REUSE="${GEMMA_CACHE_REUSE:-256}"
 KV_UNIFIED="${GEMMA_KV_UNIFIED:-0}"
+HTTP_TIMEOUT="${GEMMA_HTTP_TIMEOUT:-14400}"
 
 NATIVE_CONTEXT=262144
 required_ctx=$((PARALLEL * NATIVE_CONTEXT))
 if (( CTX_SIZE < required_ctx )); then
   printf 'Refusing GEMMA_CTX_SIZE=%s with GEMMA_PARALLEL=%s: each slot must retain the full %s-token native context.\n' \
     "$CTX_SIZE" "$PARALLEL" "$NATIVE_CONTEXT" >&2
+  exit 64
+fi
+if ! [[ "$HTTP_TIMEOUT" =~ ^[1-9][0-9]*$ ]] || (( HTTP_TIMEOUT < 14400 )); then
+  printf 'Refusing GEMMA_HTTP_TIMEOUT=%s: native-context benchmark serving requires at least 14400 seconds.\n' \
+    "$HTTP_TIMEOUT" >&2
   exit 64
 fi
 
@@ -66,7 +72,7 @@ cmd=(
   --threads "$THREADS"
   --threads-batch "$THREADS_BATCH"
   --threads-http "$THREADS_HTTP"
-  --timeout 3600
+  --timeout "$HTTP_TIMEOUT"
   --cont-batching
   --cache-prompt
   --cache-reuse "$CACHE_REUSE"
