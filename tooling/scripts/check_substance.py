@@ -45,6 +45,26 @@ def digit_strip(s: str) -> str:
     return re.sub(r"\d+", "#", s)
 
 
+def command_template(entry: dict) -> str:
+    """Return a stable template for valid and malformed tool commands.
+
+    Tool arguments are model output and therefore untrusted.  Preserve a
+    malformed value as a type-qualified template so repeated malformed calls
+    can still trip the loop detector without crashing the supervisor.
+    """
+    args = entry.get("args") or {}
+    if not isinstance(args, dict):
+        return f"<invalid-args:{type(args).__name__}>"
+    command = args.get("command", "") or ""
+    if not isinstance(command, str):
+        try:
+            rendered = json.dumps(command, sort_keys=True, separators=(",", ":"))
+        except (TypeError, ValueError):
+            rendered = repr(command)
+        return f"<invalid-command:{type(command).__name__}:{rendered}>"[:300]
+    return digit_strip(command)[:300]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("transcript", help="Path to transcript.jsonl")
@@ -91,8 +111,7 @@ def main() -> int:
         return 0
 
     window = tool_calls[-args.window:]
-    templates = [digit_strip((e.get("args") or {}).get("command", "") or "")[:300]
-                 for e in window]
+    templates = [command_template(entry) for entry in window]
     unique = len(set(templates))
 
     streak = 1

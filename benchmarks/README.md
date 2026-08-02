@@ -10,6 +10,7 @@ deliverable. Hardware throughput and buyer-value questions live in
 
 | If you want | Read first |
 |---|---|
+| Gemma 4 31B Q4 complete campaign and Qwen3.6-27B comparison | [`gemma4-31b-q4/README.md`](gemma4-31b-q4/README.md) |
 | DeepSeek V4 Flash 0731 complete campaign | [`deepseek-v4-flash-0731/README.md`](deepseek-v4-flash-0731/README.md) |
 | Current model-selection synthesis | [`../COMPARISON.md`](../COMPARISON.md) |
 | Single-table benchmark summary | [`../SCORECARD.md`](../SCORECARD.md) |
@@ -20,6 +21,7 @@ deliverable. Hardware throughput and buyer-value questions live in
 
 | Folder | Primary question | Best first file |
 |---|---|---|
+| [`gemma4-31b-q4`](gemma4-31b-q4/) | How does the official Gemma 4 31B QAT Q4 perform at native 256K across bounded, artifact, and marathon tasks, especially versus Qwen3.6-27B? | [`gemma4-31b-q4/README.md`](gemma4-31b-q4/README.md) |
 | [`deepseek-v4-flash-0731`](deepseek-v4-flash-0731/) | How does the fully optimized DeepSeek deployment perform across the canonical, extended, artifact-quality, and full-context marathon suites? | [`deepseek-v4-flash-0731/README.md`](deepseek-v4-flash-0731/README.md) |
 | [`dreamserver-75-pr-audit`](dreamserver-75-pr-audit/) | Can the model complete a long-horizon 75-PR maintainer audit at all? | [`dreamserver-75-pr-audit/README.md`](dreamserver-75-pr-audit/README.md) |
 | [`dreamserver-1-pr-audit`](dreamserver-1-pr-audit/) | What is the floor task for local PR-audit competence? | [`dreamserver-1-pr-audit/README.md`](dreamserver-1-pr-audit/README.md) |
@@ -58,3 +60,8 @@ hashes, run classifications, and reproduction tooling live in git. Multi-megabyt
 workspace archives and the 137 MB terminal-run archive remain outside git under
 the large-artifact policy; their byte counts and SHA-256 identities are recorded
 in the published audits.
+
+The Gemma entry uses the same lean-audit policy. Its scorecards, grader
+manifests, correction overlays, evidence audits, and compact 75-PR audits live
+in git. Full workspace archives, rendered decks, and workbook inspection trees
+remain external; the published audits bind them by byte count and SHA-256.

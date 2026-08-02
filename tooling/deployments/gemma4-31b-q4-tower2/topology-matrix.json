@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "campaign": "gemma4-31b-q4-tower2-topology-bakeoff",
+  "mandatory_per_sequence_context_tokens": 262144,
+  "gpu_power_limit_w_each": 500,
+  "sampling": {"temperature": 1.0, "top_p": 0.95, "top_k": 64},
+  "candidates": [
+    {
+      "id": "single-gpu0",
+      "devices": [0],
+      "instances": 1,
+      "split_mode": "none",
+      "initial_parallel_slots": 1
+    },
+    {
+      "id": "dual-layer-1to1",
+      "devices": [0, 1],
+      "instances": 1,
+      "split_mode": "layer",
+      "tensor_split": [1, 1],
+      "initial_parallel_slots": 1
+    },
+    {
+      "id": "dual-row-1to1",
+      "devices": [0, 1],
+      "instances": 1,
+      "split_mode": "row",
+      "tensor_split": [1, 1],
+      "initial_parallel_slots": 1
+    },
+    {
+      "id": "dual-independent-replicas",
+      "devices": [0, 1],
+      "instances": 2,
+      "split_mode": "none",
+      "initial_parallel_slots_per_instance": 1,
+      "parallel_slots_search_per_instance": [1, 2, 4, 6],
+      "context_pool_tokens_search_per_instance": [262144, 524288, 1048576, 1572864]
+    }
+  ],
+  "workloads": [
+    "chat_format_and_native_tool_call_contract",
+    "uncached_prefill_1k_32k_128k_250k",
+    "decode_256_and_2048_tokens",
+    "aggregate_concurrency_1_2_4_8",
+    "queue_and_backpressure",
+    "prefix_cache_reuse",
+    "near_256k_start_middle_end_recall",
+    "restart_recovery_and_postrestart_repeat",
+    "sanctuary_and_pixel_pre_post_cutover"
+  ],
+  "execution_policy": {
+    "topology_bakeoff": "Run one candidate at a time in an isolated measurement window so GPU, power, latency, and throughput results remain comparable.",
+    "post_selection_campaign": "When the selected topology exposes two independent replicas, partition run IDs deterministically across GPU0 and GPU1 and execute both lanes concurrently.",
+    "lane_artifacts": "Keep endpoint, GPU index, process identity, timings, telemetry, outputs, grades, and retry history attributable to each run and lane.",
+    "shared_state": "Use disjoint run directories and atomic result publication; do not allow simultaneous workers to claim the same run ID."
+  },
+  "selection_rule": [
+    "Reject any candidate that changes the pinned model/template/sampling, cannot expose a full 262144-token sequence, fails tool-call or recall gates, OOMs, or is unstable across restart.",
+    "Among passing candidates, maximize aggregate concurrency-8 decode throughput.",
+    "If candidates are within 10 percent at concurrency 8, prefer lower median single-request end-to-end latency and faster 128K uncached prefill.",
+    "If still tied, prefer lower combined power, fewer cross-GPU dependencies, and simpler restart/failover behavior."
+  ],
+  "append_only_amendments": [
+    {
+      "timestamp": "2026-08-01T23:44:00Z",
+      "phase": "serving optimization before any canonical or extended MMBT quality run",
+      "change": "Extend independent-replica slot search from [1,2,4] to [1,2,4,6] and add a 1572864-token context pool.",
+      "rationale": "The measured four-slot Q8 candidate used 64789 MiB of 97887 MiB while preserving four hard 262144-token slots. The measured incremental Q8 KV cost indicates six slots should remain within VRAM with a material safety margin and better satisfy the user's full-utilization objective.",
+      "anti_cherry_pick_note": "This amendment responds only to serving memory and throughput evidence. No canonical or extended MMBT model-quality outcome had been run or observed. All earlier topology attempts remain preserved."
+    }
+  ]
+}

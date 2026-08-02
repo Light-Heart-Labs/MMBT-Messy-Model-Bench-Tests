@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "preset": "gemma4-31b-q4",
+  "engine": "external",
+  "model": "Gemma-4-31B-it-QAT-Q4_0",
+  "port": 8000,
+  "lane_ports": [8000, 8001],
+  "max_model_len": 262144,
+  "benchmark_max_output_tokens_cap": 262144,
+  "benchmark_temperature": 1.0,
+  "benchmark_top_p": 0.95,
+  "benchmark_top_k": 64,
+  "services": [
+    "mmbt-gemma4@replica-gpu0-q8-s4.service",
+    "mmbt-gemma4@replica-gpu1-q8-s4.service"
+  ],
+  "launcher": "/home/michael/bench-gemma4-31b-q4/tooling/deployments/gemma4-31b-q4-tower2/ensure-gemma4-winner.sh",
+  "serving_manifest": "/home/michael/bench-gemma4-31b-q4/tooling/deployments/gemma4-31b-q4-tower2/benchmark-serving-manifest.json",
+  "arms": [
+    {
+      "label": "gemma4-31b-q4",
+      "thinking": ""
+    }
+  ],
+  "canonical_n": 3,
+  "variance_expansion_n": 10,
+  "variance_expansion_scope": "all_12_families",
+  "stuck_secs": 1200,
+  "endpoint_grace_secs": 300
+}

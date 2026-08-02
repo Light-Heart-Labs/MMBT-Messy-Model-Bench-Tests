@@ -7,6 +7,7 @@ import argparse, json, os, subprocess, sys, time, hashlib, uuid
 from datetime import datetime, timezone
 from pathlib import Path
 import urllib.request, urllib.error
+from urllib.parse import urlparse
 
 SANDBOX = "bench-sandbox-run"  # default; overridden per-run in main() so parallel runs can coexist
 IMAGE = "bench-sandbox:latest"
@@ -63,11 +64,84 @@ def docker_inspect(name, fmt=None):
     return p.stdout.strip() if p.returncode == 0 else None
 
 
+def _redact_argv(argv):
+    """Return process arguments without accidentally persisting credentials."""
+    redacted = []
+    hide_next = False
+    secret_flags = {"--api-key", "--api-key-file", "--token", "--auth-token"}
+    for arg in argv:
+        if hide_next:
+            redacted.append("<redacted>")
+            hide_next = False
+            continue
+        lowered = arg.lower()
+        if lowered in secret_flags:
+            redacted.append(arg)
+            hide_next = True
+        elif any(lowered.startswith(f"{flag}=") for flag in secret_flags):
+            redacted.append(arg.split("=", 1)[0] + "=<redacted>")
+        else:
+            redacted.append(arg)
+    return redacted
+
+
+def _host_server_processes(api_url):
+    """Capture host-native llama-server provenance for the request endpoint."""
+    port = urlparse(api_url).port
+    processes = []
+    proc_root = Path("/proc")
+    if not proc_root.exists():
+        return processes
+    for entry in proc_root.iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            argv = (entry / "cmdline").read_bytes().split(b"\0")
+            argv = [part.decode("utf-8", "replace") for part in argv if part]
+        except (OSError, PermissionError):
+            continue
+        if not argv or not any("llama-server" in part for part in argv):
+            continue
+        port_matches = any(
+            arg == str(port) and i > 0 and argv[i - 1] in ("--port", "-p")
+            for i, arg in enumerate(argv)
+        ) or any(arg == f"--port={port}" for arg in argv)
+        if not port_matches:
+            continue
+        exe_path = None
+        exe_sha256 = None
+        try:
+            exe_path = str((entry / "exe").resolve(strict=True))
+            exe_sha256 = file_sha256(exe_path)
+        except (OSError, PermissionError):
+            pass
+        processes.append({
+            "pid": int(entry.name),
+            "exe": exe_path,
+            "exe_sha256": exe_sha256,
+            "argv": _redact_argv(argv),
+        })
+    return processes
+
+
+def _endpoint_models(api_url):
+    models_url = api_url.rsplit("/chat/completions", 1)[0] + "/models"
+    try:
+        with urllib.request.urlopen(models_url, timeout=10) as response:
+            return {
+                "url": models_url,
+                "http_status": response.status,
+                "payload": json.loads(response.read().decode("utf-8")),
+            }
+    except Exception as exc:
+        return {"url": models_url, "error": f"{type(exc).__name__}: {exc}"}
+
+
 def record_environment(run_name, model, api_url, task_file, log_dir, *,
                        sandbox_runtime=None, temperature=0.0, stuck_threshold=30,
                        max_iters=10000, reasoning_effort=None, enable_thinking=None,
                        max_model_len=262144, max_output_tokens_cap=180000,
-                       top_p=None, top_k=None):
+                       top_p=None, top_k=None, serving_manifest=None):
     """Capture everything needed to reproduce the run. Written before the loop starts.
 
     sandbox_runtime: dict of per-run sandbox flags (gh_token_set, docker_socket,
@@ -111,6 +185,27 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
             "image": IMAGE,
         },
     }
+
+    # The benchmark may use a host-native systemd service rather than a Docker
+    # inference container. Record the immutable deployment manifest, live model
+    # identity, and exact host process/binary serving this endpoint.
+    receipt["serving"] = {
+        "manifest": None,
+        "endpoint_models": _endpoint_models(api_url),
+        "host_processes": _host_server_processes(api_url),
+    }
+    if serving_manifest:
+        manifest_path = Path(serving_manifest).resolve()
+        manifest = {
+            "path": str(manifest_path),
+            "sha256": file_sha256(manifest_path),
+            "byte_size": manifest_path.stat().st_size,
+        }
+        try:
+            manifest["payload"] = json.loads(manifest_path.read_text())
+        except (OSError, json.JSONDecodeError) as exc:
+            manifest["read_error"] = f"{type(exc).__name__}: {exc}"
+        receipt["serving"]["manifest"] = manifest
 
     # Best-effort: identify running vLLM containers either by the historical
     # ``vllm-*`` naming convention or by the exact served model name in the
@@ -212,9 +307,13 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
         "top_p": top_p,
         "top_k": top_k,
         "max_tokens_strategy": (
-            f"min({max_output_tokens_cap}, max_model_len - "
-            "last_prompt_tokens - 14000), floor 2048"
+            f"min({max_output_tokens_cap}, max(2048, max_model_len - "
+            "max(last_prompt_tokens + 12000, 8000) - 2048))"
         ),
+        "prompt_growth_reserve_tokens": 12000,
+        "minimum_estimated_prompt_tokens": 8000,
+        "context_safety_tokens": 2048,
+        "minimum_request_max_tokens": 2048,
         "max_model_len": max_model_len,
         "max_output_tokens_cap": max_output_tokens_cap,
         "stream": False,
@@ -479,7 +578,9 @@ def validate_done(require_files, require_git_tag):
     File requirements are matched as bare filenames against `find /workspace
     -maxdepth 2 -name <name>` so the agent's choice of audit-repo location
     (e.g. /workspace/ vs /workspace/audit-repo/ vs /workspace/audit-pr-1057/)
-    doesn't matter. Same for the git-tag check."""
+    doesn't matter. The git check accepts only a clean candidate repository
+    whose HEAD has an annotated tag, so a pre-existing tag in an input clone
+    cannot satisfy the completion gate."""
     missing = []
     for fname in (require_files or []):
         # Strip leading slashes so we always match by basename pattern; the
@@ -489,17 +590,24 @@ def validate_done(require_files, require_git_tag):
         if not r['stdout'].strip():
             missing.append(fname)
     if require_git_tag:
-        # Find any git repo under /workspace with at least one annotated tag.
+        # Find a clean git repo under /workspace with an annotated tag at HEAD.
         # /workspace itself, /workspace/*/, and /workspace/*/*/ — covers nested
         # audit repos like /workspace/dreamserver-audit/.
         cmd = (
             "for d in /workspace /workspace/*/ /workspace/*/*/; do "
-            "  [ -d \"$d/.git\" ] && (cd \"$d\" && git tag -l 2>/dev/null | grep -q . && echo TAG_FOUND && break); "
+            "  [ -d \"$d/.git\" ] || continue; "
+            "  git -C \"$d\" diff --quiet 2>/dev/null || continue; "
+            "  git -C \"$d\" diff --cached --quiet 2>/dev/null || continue; "
+            "  [ -z \"$(git -C \"$d\" ls-files --others --exclude-standard 2>/dev/null)\" ] || continue; "
+            "  for t in $(git -C \"$d\" tag --points-at HEAD 2>/dev/null); do "
+            "    [ \"$(git -C \"$d\" cat-file -t \"refs/tags/$t\" 2>/dev/null)\" = tag ] "
+            "      && echo TAG_FOUND && break 2; "
+            "  done; "
             "done"
         )
         r = docker_exec(cmd, timeout=15)
         if "TAG_FOUND" not in r['stdout']:
-            missing.append("(no annotated git tag in any workspace repo)")
+            missing.append("(no clean workspace repo with an annotated tag at HEAD)")
     if missing:
         return (
             "DONE_REJECTED: Required artifacts missing — task spec demands these before completion: "
@@ -510,10 +618,34 @@ def validate_done(require_files, require_git_tag):
 
 
 def execute_tool(name, args, log_dir, require_files=None, require_git_tag=False):
+    # Tool schemas declare these fields required, but a model can still emit a
+    # syntactically valid call that omits one. That must become an observable
+    # tool error the model can repair, never a harness exception that destroys
+    # the benchmark attempt.
+    if not isinstance(args, dict):
+        return f"TOOL_ERROR: {name} arguments must be a JSON object"
+    required = {
+        "bash": ("command",),
+        "write_file": ("path", "content"),
+        "read_file": ("path",),
+    }
+    missing = [key for key in required.get(name, ()) if key not in args]
+    if missing:
+        return f"TOOL_ERROR: {name} missing required argument(s): {', '.join(missing)}"
+
     if name == "bash":
-        cmd = args.get("command", "")
+        cmd = args["command"]
+        if not isinstance(cmd, str) or not cmd:
+            return "TOOL_ERROR: bash argument 'command' must be a non-empty string"
         workdir = args.get("workdir") or "/workspace"
-        timeout = int(args.get("timeout_s") or 300)
+        if not isinstance(workdir, str):
+            return "TOOL_ERROR: bash argument 'workdir' must be a string"
+        try:
+            timeout = int(args.get("timeout_s") or 300)
+        except (TypeError, ValueError):
+            return "TOOL_ERROR: bash argument 'timeout_s' must be a positive integer"
+        if timeout <= 0:
+            return "TOOL_ERROR: bash argument 'timeout_s' must be a positive integer"
         r = docker_exec(cmd, workdir=workdir, timeout=timeout)
         body = f"rc={r['rc']}  duration={r['duration_s']}s\n--- stdout ---\n{r['stdout']}"
         if r['stderr']:
@@ -523,9 +655,13 @@ def execute_tool(name, args, log_dir, require_files=None, require_git_tag=False)
         return body
     elif name == "write_file":
         path = args["path"]
+        content = args["content"]
+        if not isinstance(path, str) or not path:
+            return "TOOL_ERROR: write_file argument 'path' must be a non-empty string"
+        if not isinstance(content, str):
+            return "TOOL_ERROR: write_file argument 'content' must be a string"
         if not path.startswith("/"):
             path = "/workspace/" + path
-        content = args["content"]
         # Stage via tempfile on host, docker cp into sandbox (handles binary/special chars cleanly)
         tmp = Path(log_dir) / f".write_{uuid.uuid4().hex}.tmp"
         tmp.write_text(content, encoding="utf-8")
@@ -540,6 +676,8 @@ def execute_tool(name, args, log_dir, require_files=None, require_git_tag=False)
         return f"wrote {size} bytes to {path}"
     elif name == "read_file":
         path = args["path"]
+        if not isinstance(path, str) or not path:
+            return "TOOL_ERROR: read_file argument 'path' must be a non-empty string"
         if not path.startswith("/"):
             path = "/workspace/" + path
         r = docker_exec(f"head -c 200000 {path!r}", timeout=10)
@@ -794,7 +932,7 @@ def main():
                          "every request and recorded in the receipt. Leave unset for other models.")
     ap.add_argument("--max-model-len", type=int, default=262144,
                     help="The endpoint's context window, used to size each request's max_tokens "
-                         "(max_tokens = min(180000, max_model_len - prompt - safety)). Default 262144 "
+                         "(max_tokens = min(output cap, remaining estimated context)). Default 262144 "
                          "matches the vLLM models benched so far. Set to the served --ctx-size for "
                          "models hosted with a smaller window (e.g. 131072 for the 397B GGUF on llama.cpp) "
                          "so requests don't exceed the context and 400.")
@@ -802,6 +940,9 @@ def main():
                     help="Hard cap for each request's max_tokens. Default 180000 matches the "
                          "current PR-audit and microbench harness. Use 64000 to reproduce the "
                          "historical investment-memo/board harness operating point.")
+    ap.add_argument("--serving-manifest", default=None,
+                    help="Path to the immutable deployment manifest for the live inference "
+                         "endpoint. Its path, hash, size, and JSON payload are captured in receipt.json.")
     ap.add_argument("--temperature", type=float, default=0.0,
                     help="Sampling temperature sent on every request. Default 0.0 (deterministic). "
                          "At temp=0 with seed=42, models can fall into fixed-point loops on long-horizon "
@@ -960,6 +1101,7 @@ def main():
         max_output_tokens_cap=args.max_output_tokens_cap,
         top_p=args.top_p,
         top_k=args.top_k,
+        serving_manifest=args.serving_manifest,
     )
     print(f"receipt -> {log_dir / 'receipt.json'}  (vllm containers logged: {len(receipt['vllm']['containers'])})")
 

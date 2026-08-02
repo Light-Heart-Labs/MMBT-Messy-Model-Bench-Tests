@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "campaign": "gemma4-31b-q4-mmbt",
+  "detected_at": "2026-08-02T02:01:00Z",
+  "classification": "production-runaway-generation",
+  "scope": "extended operational reliability evidence; not part of the canonical MMBT quality score",
+  "agent": "pixel",
+  "source": {
+    "job_id": "e761638a-e72e-4234-a324-93107adcb83b",
+    "job_description": "Initiative check-in (6h)",
+    "task_id": "887c3aca-c065-4515-8818-d0e89517af7a",
+    "session_id": "887d0e23-96d9-4c0b-a14c-392e91ed0155",
+    "server_task_id": 144620,
+    "model": "Gemma-4-31B-it-QAT-Q4_0",
+    "endpoint_port": 8001
+  },
+  "observation": {
+    "task_started_at": "2026-08-02T01:20:00.020Z",
+    "model_call_started_at": "2026-08-02T01:21:01Z",
+    "cancelled_at": "2026-08-02T02:01:38.705Z",
+    "task_duration_s": 2498.685,
+    "approximate_model_call_duration_s": 2437,
+    "decoded_tokens_at_cancel": 81753,
+    "slot_total_tokens_at_cancel": 101091,
+    "configured_max_output_tokens": 238108,
+    "average_decode_tokens_per_s": 33.58,
+    "persisted_assistant_turn": false,
+    "condition": "the production request streamed continuously for approximately 40 minutes and remained far below the configured native-context output ceiling",
+    "attribution": "real production request with model-control failure; not benchmark residue, queue contamination, or an infrastructure timeout"
+  },
+  "operator_action": {
+    "command": "/home/michael/.npm-global/bin/openclaw tasks cancel 887c3aca-c065-4515-8818-d0e89517af7a",
+    "result": "cancelled",
+    "ended_at": "2026-08-02T02:01:38.705Z",
+    "error": "Cancelled by operator",
+    "effect": "the GPU 1 slot became idle immediately and board power fell from approximately 500 W to approximately 110 W"
+  },
+  "recovery": {
+    "checked_at": "2026-08-02T02:02:14Z",
+    "session_id": "7136b04a-1932-42e8-a50b-cb7c6dac80bf",
+    "marker": "MMBT_PIXEL_RUNAWAY_RECOVERY_20260802T020214Z",
+    "status": "ok",
+    "summary": "completed",
+    "wall_s": 16.1,
+    "model_fetch_s": 4.062,
+    "finish_reason": "stop",
+    "output_tokens": 105,
+    "context_window": 262144,
+    "aborted_last_run": false
+  },
+  "external_evidence": {
+    "root": "/home/michael/gemma4-campaign-state/production-incidents/pixel-initiative-runaway-20260802T012101Z",
+    "privacy": "metadata-only bundle; user content redacted",
+    "files": {
+      "gateway-session.log": "5f40f1a9e79876ddc5f8f477fe7a6d065d8312e5bb738618939955647e0bca4b",
+      "recovery-session.json": "229c779edc8d226f3f344f7d2005bced89a65265163c1340811328183f60175f",
+      "server-task.log": "245e52ccb50e72055908f3679ddfa97cf5a7d3b88663355c8b636e507bff4551",
+      "session-metadata.json": "b857df09849c241daef64e6c192ffba4c5567501d23690b858e92f7d79293a42",
+      "task.json": "138629757d4b14686f8258004db76342e098ae49d726cd709dbad17f2dbf6c57"
+    }
+  },
+  "interpretation": {
+    "quality_scoring": "do not count this event as a canonical task failure",
+    "operational_finding": "native-context serving needs explicit production stop governance because a coherent request can consume tens of thousands of tokens without reaching a natural stop",
+    "campaign_follow_up": "retain the full safe model envelope for benchmark fairness while documenting and testing production-specific output and cancellation controls"
+  }
+}

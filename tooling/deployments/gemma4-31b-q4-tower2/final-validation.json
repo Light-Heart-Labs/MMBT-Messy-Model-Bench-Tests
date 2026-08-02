@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-08-02T00:05:39Z",
+  "scope": "serving topology and production integration; this is not the final MMBT campaign result",
+  "status": "serving_validated",
+  "winner": {
+    "topology": "dual-independent-replicas",
+    "selection_reason": "Best quality-preserving aggregate throughput with independent failure domains, native context per slot, stable restart behavior, and no cross-GPU dependency.",
+    "instances": [
+      {
+        "physical_gpu": 0,
+        "endpoint": "http://127.0.0.1:8000/v1",
+        "service": "mmbt-gemma4@replica-gpu0-q8-s4.service",
+        "production_agent": "Sanctuary"
+      },
+      {
+        "physical_gpu": 1,
+        "endpoint": "http://127.0.0.1:8001/v1",
+        "service": "mmbt-gemma4@replica-gpu1-q8-s4.service",
+        "production_agent": "Pixel"
+      }
+    ],
+    "per_instance": {
+      "model": "Gemma-4-31B-it-QAT-Q4_0",
+      "slots": 4,
+      "context_pool_tokens": 1048576,
+      "context_tokens_per_slot": 262144,
+      "kv_unified": false,
+      "cache_type_k": "q8_0",
+      "cache_type_v": "q8_0",
+      "gpu_layers": "all",
+      "split_mode": "none",
+      "flash_attention": true,
+      "multimodal_projector": true,
+      "steady_vram_mib": 64789,
+      "vram_headroom_mib": 33098,
+      "gpu_power_limit_w": 500,
+      "enabled_at_boot": true
+    }
+  },
+  "runtime": {
+    "kind": "llama.cpp-current-source",
+    "commit": "11924d4c17abc27383376a1ac6a24fa3e36c1c0c",
+    "version": 10223,
+    "llama_server_sha256": "200b403b5735418ff1f6da0cea1938e413e11869ae362e8044a12b0df04622fc",
+    "cuda": "13.1.115",
+    "cuda_architecture": "120a-real",
+    "nccl": "2.29.7-private-runtime",
+    "runtime_build_has_embedded_nccl_runpath": true,
+    "cache_reuse_note": "llama.cpp disables cache_reuse when the multimodal projector is loaded; this is logged and not hidden."
+  },
+  "topology_results": {
+    "single_gpu_f16_one_slot": {
+      "steady_vram_mib": 40337,
+      "prefill_tokens_per_second": {
+        "1024": 1565.4088924388461,
+        "32768": 2830.1683910895604,
+        "131072": 1483.8109873875555,
+        "250000": 945.7353381742734
+      },
+      "decode_tokens_per_second": {
+        "1024": 70.28992948492308,
+        "32768": 62.066820265883585,
+        "131072": 47.26540986218625,
+        "250000": 36.69319756850233
+      },
+      "concurrency_8_aggregate_decode_tps": 48.04099537091844
+    },
+    "single_gpu_f16_two_slots": {
+      "steady_vram_mib": 62101,
+      "hard_context_tokens_per_slot": 262144,
+      "concurrency_8_aggregate_decode_tps": 68.03549794679058
+    },
+    "single_gpu_q8_four_slots": {
+      "steady_vram_mib": 64789,
+      "hard_context_tokens_per_slot": 262144,
+      "concurrency_4_aggregate_decode_tps": 128.4227371181164,
+      "concurrency_8_replicates_tps": [
+        112.61659474507437,
+        129.7601716359008,
+        123.99151098153261
+      ],
+      "concurrency_8_mean_tps": 122.12275912083594,
+      "concurrency_8_median_tps": 123.99151098153261
+    },
+    "single_gpu_q8_six_slots_append_only_extension": {
+      "steady_vram_mib": 87833,
+      "hard_context_tokens_per_slot": 262144,
+      "concurrency_6_aggregate_decode_tps": 136.91836422803846,
+      "concurrency_8_replicates_tps": [
+        103.49956096453603,
+        122.87712597047079,
+        124.37803366674967
+      ],
+      "concurrency_8_mean_tps": 116.9182402005855,
+      "concurrency_8_median_tps": 122.87712597047079,
+      "selection_note": "Within the 10 percent tie band but slower at the preregistered concurrency-8 point, with 23044 MiB less headroom than four slots."
+    },
+    "two_gpu_independent_four_slot_replicas": {
+      "total_concurrency": 8,
+      "lane0_aggregate_decode_tps": 143.72858299108827,
+      "lane1_aggregate_decode_tps": 146.5506168778769,
+      "combined_aggregate_decode_tps": 290.2791998689652,
+      "passed": true
+    }
+  },
+  "quality_and_operational_gates": {
+    "q8_near_native_recall": {
+      "prompt_tokens": 245016,
+      "completion_tokens": 331,
+      "total_tokens": 245347,
+      "start_marker": true,
+      "middle_marker": true,
+      "end_marker": true,
+      "finish_reason": "stop",
+      "passed": true
+    },
+    "postrestart_contract_gpu0": {
+      "chat": true,
+      "tool_call": true,
+      "tool_followup": true,
+      "passed": true
+    },
+    "postrestart_contract_gpu1": {
+      "chat": true,
+      "tool_call": true,
+      "tool_followup": true,
+      "passed": true
+    },
+    "cold_service_restart": {
+      "gpu0_endpoint": true,
+      "gpu1_endpoint": true,
+      "passed": true
+    },
+    "production_routing": {
+      "sanctuary_provider": "tower",
+      "sanctuary_endpoint": "http://127.0.0.1:8000/v1",
+      "pixel_provider": "tower1",
+      "pixel_endpoint": "http://127.0.0.1:8001/v1",
+      "sanctuary_marker_pass": true,
+      "pixel_marker_pass": true,
+      "live_openclaw_config_sha256": "e81e856ec5c9a7bb20532ca479c24c7fa78caa6ce7222982df7ebd95929e6c25",
+      "passed": true
+    }
+  },
+  "rejected_candidates": {
+    "dual_layer_1to1": {
+      "classification": "valid topology failure; not quality preserving",
+      "evidence": [
+        "Deterministic ordinary chat returned corrupted unused-token markers instead of the requested marker.",
+        "Deterministic required tool call returned HTTP 500: output did not match peg-gemma4 format.",
+        "A full-envelope OpenClaw retry produced more than 4754 tokens for a one-marker response and was cancelled as operationally runaway."
+      ],
+      "passed": false
+    },
+    "dual_row_1to1": {
+      "classification": "objectively pre-inference invalid/unsupported on this runtime and PCIe topology",
+      "error": "device CUDA0 does not support split buffers",
+      "model_was_evaluated": false,
+      "passed": false
+    },
+    "health_probe_128_token_attempt": {
+      "classification": "infrastructure-invalid probe retained in evidence",
+      "reason": "The probe imposed max_tokens=128 and the server stopped exactly at 128 with OpenClaw stopReason=length. The harness was corrected to a 262144-token ceiling and unique sessions before valid health checks."
+    }
+  },
+  "external_evidence": [
+    {"path": "/home/michael/gemma4-campaign-state/topology/single-gpu1-f16-s1-fullctx-20260801T233216Z/summary.json", "sha256": "66bbe34b6a3172a5c8f889821136f4061774ee5f47afcce91e77e445a5fe8fd4"},
+    {"path": "/home/michael/gemma4-campaign-state/topology/replica-gpu1-f16-s2-concurrency-20260801T234153Z/summary.json", "sha256": "6393eb21966ee00b909d9e1fd96276040b40fa2c2bf01ae165cddb5cd3e158f1"},
+    {"path": "/home/michael/gemma4-campaign-state/topology/replica-gpu1-q8-s4-concurrency-20260801T234354Z/summary.json", "sha256": "98f977520b227f03a1abd720cfc21f6178f6c9b3a2ef4279ae9b85e2b77f9906"},
+    {"path": "/home/michael/gemma4-campaign-state/topology/replica-gpu1-q8-s4-c8-r2-20260801T235333Z/summary.json", "sha256": "a4f77f8c36752ac83aeb7186dc516ad00615204b550b4ee399aa1b1b20dd28eb"},
+    {"path": "/home/michael/gemma4-campaign-state/topology/replica-gpu1-q8-s4-c8-r3-20260801T235350Z/summary.json", "sha256": "94391b12860e28f49c4b466144626a486c9eaed401e8c4d96e1b4b28f1b738ca"},
+    {"path": "/home/michael/gemma4-campaign-state/topology/replica-gpu1-q8-s6-concurrency-20260801T235025Z/summary.json", "sha256": "7edd9664f979f726d92ec31bf943a5ed1629710d4d2e7a507b4ffd9c5ccdf111"},
+    {"path": "/home/michael/gemma4-campaign-state/topology/replica-gpu1-q8-s6-c8-r2-20260801T235214Z/summary.json", "sha256": "e92485614733d79e52b6a721aba2c3ba8662d01d40f2fe46f99653a24d0f06a4"},
+    {"path": "/home/michael/gemma4-campaign-state/topology/replica-gpu1-q8-s6-c8-r3-20260801T235236Z/summary.json", "sha256": "282314c14edaf21b8ecc6e30e4c9806393036168ce7cd9489c06912cacd81637"},
+    {"path": "/home/michael/gemma4-campaign-state/topology/dual-replica-q8-s4-c4-20260802T000125Z/summary.json", "sha256": "d2b81569b27872996cb3918e5585beaa9cd7ff9ec74c6b5731a1b2bd23f2079a"},
+    {"path": "/home/michael/gemma4-campaign-state/recall/replica-gpu1-q8-s4-20260801T234503Z/summary.json", "sha256": "f03fc416496c743bd2901a29a23ffc57e14c15b535da15bd19110c17deab797f"},
+    {"path": "/home/michael/gemma4-campaign-state/contracts/dual-layer-1to1-seed424242-20260801T235856Z/summary.json", "sha256": "4534ceaeb22e79b35c344594674ed46e606e477d718089bdc5e8ed9c8a7ef842"},
+    {"path": "/home/michael/gemma4-campaign-state/contracts/winner-gpu0-postrestart-20260802T000218Z/summary.json", "sha256": "ea1eb74e318830092804f2d8432e20af641f2260d398cfa8c8f3a743d32b01cc"},
+    {"path": "/home/michael/gemma4-campaign-state/contracts/winner-gpu1-postrestart-20260802T000218Z/summary.json", "sha256": "bf49d5b619ec0d8e981f2327ad10efc97dc0f79dc3edc4ece0c6c90644f7455d"},
+    {"path": "/home/michael/gemma4-campaign-state/health/gemma-dual-provider-routing-20260802T000514Z/SHA256SUMS", "sha256": "ea5595dac02256abffb81fc0bc53e5407ff694d5dddb7d88f5916ce1d968e0e4"},
+    {"path": "/home/michael/gemma4-campaign-state/health/gemma-winner-postrestart-20260802T000229Z/SHA256SUMS", "sha256": "1c8f697e5757a037822cdb563b8f6f73a1e5bed41d9b524dd48dc19c86d1cc98"},
+    {"path": "/home/michael/gemma4-campaign-state/serving-final-evidence/dual-layer.journal.log", "sha256": "d3e166bf2de796c58b187b3651b2f289cccd10faf2f3913c16f09f1a36076743"},
+    {"path": "/home/michael/gemma4-campaign-state/serving-final-evidence/dual-row.journal.log", "sha256": "02f20ac33f1a0bebc27a16d45306494d32985a0486e60e64b3b98b304d097297"},
+    {"path": "/home/michael/gemma4-campaign-state/serving-final-evidence/dual-provider-routing.log", "sha256": "5e755a232f49388aaf086841c8a12f986f4ec9eb42a23dbf2cb9f69f972f69cf"}
+  ],
+  "production_restore": {
+    "required_after_campaign": true,
+    "manifest": "production-restore.json",
+    "deepseek_launcher_sha256": "4fca6a4a478f0876a1e6d7241dd87a3c9574bd970f29943bb3696993d4bfe25d",
+    "pre_campaign_openclaw_sha256": "79f2872821d68f76a2c42cb8f3972ae494b380a4d0d058fba405dbcc5e489c7f",
+    "status": "completed_and_validated",
+    "validated_at": "2026-08-02T07:06:18Z",
+    "evidence_directory": "/home/michael/gemma4-campaign-state/production-restore/20260802T070054Z",
+    "deepseek": {
+      "served_model": "DeepSeek-V4-Flash-0731",
+      "max_model_len": 1048576,
+      "health_http_status": 200,
+      "image_digest": "sha256:48518e91cf87dd0c0483c76ff86e81dfc0f46de7e364b46f7a82c481ce08188f",
+      "container_restart_policy": "unless-stopped",
+      "container_restart_count": 0,
+      "container_oom_killed": false,
+      "gpu_power_limits_w": [500, 500]
+    },
+    "openclaw": {
+      "restored_config_sha256": "79f2872821d68f76a2c42cb8f3972ae494b380a4d0d058fba405dbcc5e489c7f",
+      "restored_config_mode": "600",
+      "gateway_active": true,
+      "sanctuary_portal_healthy": true,
+      "pixel_portal_healthy": true
+    },
+    "fresh_agent_tool_checks": {
+      "sanctuary": {
+        "status": "ok",
+        "provider": "tower",
+        "model": "DeepSeek-V4-Flash-0731",
+        "context_tokens": 1048576,
+        "fallback_used": false,
+        "tool": "exec",
+        "tool_command": "printf SANCTUARY_OK",
+        "tool_result": "SANCTUARY_OK",
+        "final_text": "SANCTUARY_OK",
+        "result_sha256": "e52e459db9165e488fddf799e32304f4066a3392810f87ea885604d206e5f8a9",
+        "session_trace_sha256": "e8e6af4f8dfab6ce19acdd0df1e95658415b4f94a6c39639b738d750df1491e9"
+      },
+      "pixel": {
+        "status": "ok",
+        "provider": "tower",
+        "model": "DeepSeek-V4-Flash-0731",
+        "context_tokens": 1048576,
+        "fallback_used": false,
+        "tool": "exec",
+        "tool_command": "printf PIXEL_OK",
+        "tool_result": "PIXEL_OK",
+        "final_text": "PIXEL_OK",
+        "result_sha256": "4099f3faf1effcad60c8a2afae04636b9930afe4eac6c1e380f0491229183647",
+        "session_trace_sha256": "e55d69c95581e9c7ef4b679a1005d3c69f56235207edea9e4c9f6af0922fec8a"
+      }
+    },
+    "campaign_cleanup": {
+      "gemma_serving_services_running": 0,
+      "gemma_serving_containers_running": 0,
+      "campaign_sandbox_containers_stopped_not_deleted": 96
+    },
+    "invalid_validation_attempts_retained": {
+      "count": 2,
+      "classification": "harness_invalid_before_model_invocation",
+      "reason": "SSH retokenized a multiword --message argument; the replacement checks used --message-file and fresh session IDs."
+    }
+  }
+}

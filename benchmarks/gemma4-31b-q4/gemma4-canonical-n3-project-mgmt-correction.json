@@ -1,0 +1,520 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-02T03:06:03.021824+00:00",
+  "campaign": "gemma4-31b-q4-mmbt",
+  "target_n": 3,
+  "scope": "p3_pm legacy lexical false negatives only",
+  "policy": "immutable grade.json files remain raw evidence; this overlay changes no run artifact or raw verdict",
+  "correction_script": {
+    "path": "/home/michael/bench-gemma4-31b-q4/tooling/correct_gemma4_project_mgmt_grades.py",
+    "sha256": "84db7554665fbecae264c059839be16f9bc0cf3e5870c3d7b34c5c8c2f16be74"
+  },
+  "raw_grader": {
+    "path": "/home/michael/bench-gemma4-31b-q4/tooling/graders/phase3_project_mgmt_grade.py",
+    "sha256": "e1c3a9190e6d19cffd76734c8c922450b22d674bd5fd2db052fef31f91777bca"
+  },
+  "rules": {
+    "R2": {
+      "description": "Maevia GA-to-private-beta pushback is expressed without one contiguous legacy keyword",
+      "patterns": [
+        "\\bmaevia\\b.{0,240}\\b(?:push(?:ed)?[ -]?back|fallout|promis(?:e|ed)\\s+ga|private[ -]?beta)\\b"
+      ]
+    },
+    "R3": {
+      "description": "legal/private-beta contract delay uses an equivalent non-contracted phrase",
+      "patterns": [
+        "\\blegal\\b.{0,200}\\b(?:has\\s+not|not\\s+yet\\s+responded|sign[ -]?off|approval|unresponsive|silent|delay|contract)\\b"
+      ]
+    },
+    "D3_mobile": {
+      "description": "web-responsive V1 and native V2 uses a hyphen the legacy keyword omits",
+      "patterns": [
+        "\\bweb[ -]?responsive\\b.{0,160}\\bnative\\b.{0,100}\\bv2\\b"
+      ]
+    },
+    "D4_option_b": {
+      "description": "private beta followed by the selected-customer count is Option B",
+      "patterns": [
+        "\\bprivate[ -]?beta\\b.{0,120}\\b(?:3\\s*[-\u2013]\\s*5|selected\\s+customers?)\\b"
+      ]
+    }
+  },
+  "aggregate": {
+    "cells": 3,
+    "raw_passes": 0,
+    "corrected_passes": 3,
+    "verdict_changes": 3
+  },
+  "cells": [
+    {
+      "run_name": "p3_pm_gemma4-31b-q4_v1",
+      "raw_grade_sha256": "eade149c12512150ebb28d5a446c6dc1037e0ded24a3ed5e83d65d87aba47bc4",
+      "workspace_archive_sha256": "eb622a02fddb70c3aee43f652123e59640282815e55b230d70874175a61fcf08",
+      "status_report_sha256": "3c6f102bd297b6e8eaaeb15e0b1e67cadc359f09d01c3fd7b0f35005161ca48f",
+      "raw_verdict": "FAIL",
+      "corrected_verdict": "PASS",
+      "changes": [
+        {
+          "item": "R2",
+          "category": "risks",
+          "reason": "Maevia GA-to-private-beta pushback is expressed without one contiguous legacy keyword",
+          "pattern": "\\bmaevia\\b.{0,240}\\b(?:push(?:ed)?[ -]?back|fallout|promis(?:e|ed)\\s+ga|private[ -]?beta)\\b"
+        },
+        {
+          "item": "R3",
+          "category": "risks",
+          "reason": "legal/private-beta contract delay uses an equivalent non-contracted phrase",
+          "pattern": "\\blegal\\b.{0,200}\\b(?:has\\s+not|not\\s+yet\\s+responded|sign[ -]?off|approval|unresponsive|silent|delay|contract)\\b"
+        },
+        {
+          "item": "D3_mobile",
+          "category": "decisions",
+          "reason": "web-responsive V1 and native V2 uses a hyphen the legacy keyword omits",
+          "pattern": "\\bweb[ -]?responsive\\b.{0,160}\\bnative\\b.{0,100}\\bv2\\b"
+        },
+        {
+          "item": "D4_option_b",
+          "category": "decisions",
+          "reason": "private beta followed by the selected-customer count is Option B",
+          "pattern": "\\bprivate[ -]?beta\\b.{0,120}\\b(?:3\\s*[-\u2013]\\s*5|selected\\s+customers?)\\b"
+        }
+      ],
+      "corrected_grade": {
+        "task": "project_mgmt",
+        "verdict": "PASS",
+        "scores": {
+          "workstream_recall": "6/6",
+          "risk_recall": "4/6",
+          "decision_recall": "4/4",
+          "milestone_recall": "4/5",
+          "sections_present": [
+            "workstream",
+            "risk",
+            "decision",
+            "milestone"
+          ],
+          "word_count": 321
+        },
+        "thresholds": {
+          "min_workstreams": 4,
+          "min_risks": 3,
+          "min_decisions": 3,
+          "min_milestones": 3,
+          "max_word_count": 700
+        },
+        "details": {
+          "workstreams": {
+            "WS1": {
+              "matched": true,
+              "keyword": "query layer"
+            },
+            "WS2": {
+              "matched": true,
+              "keyword": "dashboard refresh"
+            },
+            "WS3": {
+              "matched": true,
+              "keyword": "40-panel"
+            },
+            "WS4": {
+              "matched": true,
+              "keyword": "access control"
+            },
+            "WS5": {
+              "matched": true,
+              "keyword": "maevia"
+            },
+            "WS6": {
+              "matched": true,
+              "keyword": "legal"
+            }
+          },
+          "risks": {
+            "R1": {
+              "matched": false,
+              "keyword": null
+            },
+            "R2": {
+              "matched": true,
+              "keyword": "correction-overlay-semantic-equivalent"
+            },
+            "R3": {
+              "matched": true,
+              "keyword": "correction-overlay-semantic-equivalent"
+            },
+            "R4": {
+              "matched": true,
+              "keyword": "40-panel"
+            },
+            "R5": {
+              "matched": true,
+              "keyword": "custom branding"
+            },
+            "R6": {
+              "matched": false,
+              "keyword": null
+            }
+          },
+          "decisions": {
+            "D1_branding": {
+              "matched": true,
+              "keyword": "branding deferred"
+            },
+            "D2_panel_limit": {
+              "matched": true,
+              "keyword": "40-panel"
+            },
+            "D3_mobile": {
+              "matched": true,
+              "keyword": "correction-overlay-semantic-equivalent"
+            },
+            "D4_option_b": {
+              "matched": true,
+              "keyword": "correction-overlay-semantic-equivalent"
+            }
+          },
+          "milestones": {
+            "M1": {
+              "matched": true,
+              "keyword": "mid-may"
+            },
+            "M2": {
+              "matched": true,
+              "keyword": "mid-may"
+            },
+            "M3": {
+              "matched": false,
+              "keyword": null
+            },
+            "M4": {
+              "matched": true,
+              "keyword": "v1.1"
+            },
+            "M5": {
+              "matched": true,
+              "keyword": "deferred"
+            }
+          }
+        },
+        "hand_rating_placeholders": {
+          "structure_quality_1to5": null,
+          "fabrication_count": null,
+          "owner_accuracy_0to6": null,
+          "rater_notes": null
+        }
+      }
+    },
+    {
+      "run_name": "p3_pm_gemma4-31b-q4_v2",
+      "raw_grade_sha256": "5e98c1230f111ddb4d1a15ae7063c80590fbee19b72661c4b56e9c94f0b12352",
+      "workspace_archive_sha256": "6190888ab5900349d69d7d443477eb162cb5174acc340c36c5489a95b9a591c8",
+      "status_report_sha256": "57d5b455eb57566d5d616c0371fb5818e6fe643f1262799089be12f4b45e6588",
+      "raw_verdict": "FAIL",
+      "corrected_verdict": "PASS",
+      "changes": [
+        {
+          "item": "R2",
+          "category": "risks",
+          "reason": "Maevia GA-to-private-beta pushback is expressed without one contiguous legacy keyword",
+          "pattern": "\\bmaevia\\b.{0,240}\\b(?:push(?:ed)?[ -]?back|fallout|promis(?:e|ed)\\s+ga|private[ -]?beta)\\b"
+        },
+        {
+          "item": "R3",
+          "category": "risks",
+          "reason": "legal/private-beta contract delay uses an equivalent non-contracted phrase",
+          "pattern": "\\blegal\\b.{0,200}\\b(?:has\\s+not|not\\s+yet\\s+responded|sign[ -]?off|approval|unresponsive|silent|delay|contract)\\b"
+        },
+        {
+          "item": "D4_option_b",
+          "category": "decisions",
+          "reason": "private beta followed by the selected-customer count is Option B",
+          "pattern": "\\bprivate[ -]?beta\\b.{0,120}\\b(?:3\\s*[-\u2013]\\s*5|selected\\s+customers?)\\b"
+        }
+      ],
+      "corrected_grade": {
+        "task": "project_mgmt",
+        "verdict": "PASS",
+        "scores": {
+          "workstream_recall": "6/6",
+          "risk_recall": "4/6",
+          "decision_recall": "4/4",
+          "milestone_recall": "5/5",
+          "sections_present": [
+            "workstream",
+            "risk",
+            "decision",
+            "milestone"
+          ],
+          "word_count": 313
+        },
+        "thresholds": {
+          "min_workstreams": 4,
+          "min_risks": 3,
+          "min_decisions": 3,
+          "min_milestones": 3,
+          "max_word_count": 700
+        },
+        "details": {
+          "workstreams": {
+            "WS1": {
+              "matched": true,
+              "keyword": "query layer"
+            },
+            "WS2": {
+              "matched": true,
+              "keyword": "mobile-responsive"
+            },
+            "WS3": {
+              "matched": true,
+              "keyword": "40-panel"
+            },
+            "WS4": {
+              "matched": true,
+              "keyword": "access-control"
+            },
+            "WS5": {
+              "matched": true,
+              "keyword": "maevia"
+            },
+            "WS6": {
+              "matched": true,
+              "keyword": "legal"
+            }
+          },
+          "risks": {
+            "R1": {
+              "matched": false,
+              "keyword": null
+            },
+            "R2": {
+              "matched": true,
+              "keyword": "correction-overlay-semantic-equivalent"
+            },
+            "R3": {
+              "matched": true,
+              "keyword": "correction-overlay-semantic-equivalent"
+            },
+            "R4": {
+              "matched": true,
+              "keyword": "40-panel"
+            },
+            "R5": {
+              "matched": true,
+              "keyword": "custom branding"
+            },
+            "R6": {
+              "matched": false,
+              "keyword": null
+            }
+          },
+          "decisions": {
+            "D1_branding": {
+              "matched": true,
+              "keyword": "cut custom branding"
+            },
+            "D2_panel_limit": {
+              "matched": true,
+              "keyword": "40-panel"
+            },
+            "D3_mobile": {
+              "matched": true,
+              "keyword": "mobile responsive"
+            },
+            "D4_option_b": {
+              "matched": true,
+              "keyword": "correction-overlay-semantic-equivalent"
+            }
+          },
+          "milestones": {
+            "M1": {
+              "matched": true,
+              "keyword": "mid-may"
+            },
+            "M2": {
+              "matched": true,
+              "keyword": "mid-may"
+            },
+            "M3": {
+              "matched": true,
+              "keyword": "mid-july"
+            },
+            "M4": {
+              "matched": true,
+              "keyword": "v1.1"
+            },
+            "M5": {
+              "matched": true,
+              "keyword": "deferred"
+            }
+          }
+        },
+        "hand_rating_placeholders": {
+          "structure_quality_1to5": null,
+          "fabrication_count": null,
+          "owner_accuracy_0to6": null,
+          "rater_notes": null
+        }
+      }
+    },
+    {
+      "run_name": "p3_pm_gemma4-31b-q4_v3",
+      "raw_grade_sha256": "be7951b5c0b3770b9ee61e8f3bd5042dfc0fa486d2be1086b97314e4a8976ca3",
+      "workspace_archive_sha256": "fac5112297764b16bb742a38fcecc8617524ef13ebe869170e049842e63a4645",
+      "status_report_sha256": "1df31af7e0ef549e4a2db3fdae74f8aba184c79d530d810baae0c09215dac7b3",
+      "raw_verdict": "FAIL",
+      "corrected_verdict": "PASS",
+      "changes": [
+        {
+          "item": "R2",
+          "category": "risks",
+          "reason": "Maevia GA-to-private-beta pushback is expressed without one contiguous legacy keyword",
+          "pattern": "\\bmaevia\\b.{0,240}\\b(?:push(?:ed)?[ -]?back|fallout|promis(?:e|ed)\\s+ga|private[ -]?beta)\\b"
+        },
+        {
+          "item": "R3",
+          "category": "risks",
+          "reason": "legal/private-beta contract delay uses an equivalent non-contracted phrase",
+          "pattern": "\\blegal\\b.{0,200}\\b(?:has\\s+not|not\\s+yet\\s+responded|sign[ -]?off|approval|unresponsive|silent|delay|contract)\\b"
+        },
+        {
+          "item": "D3_mobile",
+          "category": "decisions",
+          "reason": "web-responsive V1 and native V2 uses a hyphen the legacy keyword omits",
+          "pattern": "\\bweb[ -]?responsive\\b.{0,160}\\bnative\\b.{0,100}\\bv2\\b"
+        },
+        {
+          "item": "D4_option_b",
+          "category": "decisions",
+          "reason": "private beta followed by the selected-customer count is Option B",
+          "pattern": "\\bprivate[ -]?beta\\b.{0,120}\\b(?:3\\s*[-\u2013]\\s*5|selected\\s+customers?)\\b"
+        }
+      ],
+      "corrected_grade": {
+        "task": "project_mgmt",
+        "verdict": "PASS",
+        "scores": {
+          "workstream_recall": "6/6",
+          "risk_recall": "4/6",
+          "decision_recall": "4/4",
+          "milestone_recall": "4/5",
+          "sections_present": [
+            "workstream",
+            "risk",
+            "decision",
+            "milestone"
+          ],
+          "word_count": 303
+        },
+        "thresholds": {
+          "min_workstreams": 4,
+          "min_risks": 3,
+          "min_decisions": 3,
+          "min_milestones": 3,
+          "max_word_count": 700
+        },
+        "details": {
+          "workstreams": {
+            "WS1": {
+              "matched": true,
+              "keyword": "query-layer"
+            },
+            "WS2": {
+              "matched": true,
+              "keyword": "dashboard refresh"
+            },
+            "WS3": {
+              "matched": true,
+              "keyword": "architectural fix"
+            },
+            "WS4": {
+              "matched": true,
+              "keyword": "access control"
+            },
+            "WS5": {
+              "matched": true,
+              "keyword": "maevia"
+            },
+            "WS6": {
+              "matched": true,
+              "keyword": "legal"
+            }
+          },
+          "risks": {
+            "R1": {
+              "matched": false,
+              "keyword": null
+            },
+            "R2": {
+              "matched": true,
+              "keyword": "correction-overlay-semantic-equivalent"
+            },
+            "R3": {
+              "matched": true,
+              "keyword": "correction-overlay-semantic-equivalent"
+            },
+            "R4": {
+              "matched": true,
+              "keyword": "40-panel"
+            },
+            "R5": {
+              "matched": true,
+              "keyword": "custom-branding"
+            },
+            "R6": {
+              "matched": false,
+              "keyword": null
+            }
+          },
+          "decisions": {
+            "D1_branding": {
+              "matched": true,
+              "keyword": "branding cut"
+            },
+            "D2_panel_limit": {
+              "matched": true,
+              "keyword": "40-panel"
+            },
+            "D3_mobile": {
+              "matched": true,
+              "keyword": "correction-overlay-semantic-equivalent"
+            },
+            "D4_option_b": {
+              "matched": true,
+              "keyword": "correction-overlay-semantic-equivalent"
+            }
+          },
+          "milestones": {
+            "M1": {
+              "matched": true,
+              "keyword": "mid-may"
+            },
+            "M2": {
+              "matched": true,
+              "keyword": "mid-may"
+            },
+            "M3": {
+              "matched": false,
+              "keyword": null
+            },
+            "M4": {
+              "matched": true,
+              "keyword": "v1.1"
+            },
+            "M5": {
+              "matched": true,
+              "keyword": "deferred"
+            }
+          }
+        },
+        "hand_rating_placeholders": {
+          "structure_quality_1to5": null,
+          "fabrication_count": null,
+          "owner_accuracy_0to6": null,
+          "rater_notes": null
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "passed": true
+}

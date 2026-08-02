@@ -1,0 +1,2323 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-02T03:05:53.534835+00:00",
+  "root": "/home/michael/bench-gemma4-31b-q4",
+  "label": "gemma4-31b-q4",
+  "target_n": 3,
+  "expected_runs": 36,
+  "audited_runs": 36,
+  "passed": true,
+  "errors": [],
+  "warnings": [
+    "p1_bugfix_gemma4-31b-q4_v1: pre-telemetry valid attempt; supplemental telemetry required",
+    "p1_bugfix_gemma4-31b-q4_v2: pre-telemetry valid attempt; supplemental telemetry required",
+    "p2_hallucination_gemma4-31b-q4_v3: telemetry coverage below 80%: 0.7716"
+  ],
+  "raw_telemetry": {
+    "path": "/home/michael/gemma4-campaign-state/telemetry/snapshots/canonical-n3-plus-supplement.csv",
+    "bytes": 330168,
+    "lines": 3393,
+    "sha256_at_audit_time": "bd637547ff5ea9a2b6cb68ce8a203b13712f3b16bf708f2bb10badae962ef328"
+  },
+  "runs": [
+    {
+      "run_name": "p1_bugfix_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "7a1938178dbdde521151e1b1d392fec32d55434c",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 708.7,
+      "iterations": 80,
+      "completion_tokens": 18475,
+      "prompt_tokens_cumulative": 1583932,
+      "model_turns": 80,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": null,
+      "files": {
+        "receipt.json": {
+          "bytes": 8170,
+          "sha256": "b2a2b09a244b2461fa4f21616139b6d892c2f300e8a25b4155b5d0df03e318f7"
+        },
+        "transcript.jsonl": {
+          "bytes": 77185,
+          "sha256": "72bb0d5cf9474eb1c2851c13001ec8f699ecb587a842962e6ad74328fad657b1"
+        },
+        "summary.json": {
+          "bytes": 1313,
+          "sha256": "b97ae41ff92d952c9bbbef50b5534efa2498edb98b6d7d05de89271df613f1d5"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 28932897,
+          "sha256": "4bc1a9558a52c9fb68a3fb2ad1e5748a30de4315f80d6dbcad109cdcfae24a76"
+        },
+        "cost.json": {
+          "bytes": 1242,
+          "sha256": "aac1c08a5f940f83536e8dc0e66fd34662b89bd4ba17938de29a976d9d8a8748"
+        },
+        "grade.json": {
+          "bytes": 467,
+          "sha256": "8ef51f6f2d9457eb209c41700017a65b6f13674d9251e4c8b02352a7ad89a4aa"
+        }
+      }
+    },
+    {
+      "run_name": "p1_bugfix_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "7a1938178dbdde521151e1b1d392fec32d55434c",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 639.5,
+      "iterations": 58,
+      "completion_tokens": 14733,
+      "prompt_tokens_cumulative": 984362,
+      "model_turns": 58,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": null,
+      "files": {
+        "receipt.json": {
+          "bytes": 8170,
+          "sha256": "e1afd7f0706ff36f0395a9404de1df3c5875c2d95725d2da24a94f0f2ae0c1a6"
+        },
+        "transcript.jsonl": {
+          "bytes": 52146,
+          "sha256": "f6731ff3cdd0af7fab869e689f3b6ded47de098838dc90a2859859e5c15018ba"
+        },
+        "summary.json": {
+          "bytes": 1999,
+          "sha256": "576e3927a4e9cf68341324837d68a22d637570306554f829561e1c9298869609"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 28949571,
+          "sha256": "841879c97462eda9cc1612eedc24ee8611eb3656efdda9ee880fea24497d5b57"
+        },
+        "cost.json": {
+          "bytes": 1240,
+          "sha256": "cd746dc74c66ffa830be960b7be0d7ef66a7c70c6390f3350b8ca15e695c7423"
+        },
+        "grade.json": {
+          "bytes": 468,
+          "sha256": "8c1caead3b6ffa35ac77aefd6150cc3bc5513596a7f125c9e024d34226cdfe3f"
+        }
+      }
+    },
+    {
+      "run_name": "p1_bugfix_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 623.7,
+      "iterations": 62,
+      "completion_tokens": 14968,
+      "prompt_tokens_cumulative": 1161167,
+      "model_turns": 62,
+      "length_finishes": 0,
+      "grade_verdict": "FAIL",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9941,
+        "mean_power_w": 249.36,
+        "mean_sm_util_pct": 44.38,
+        "max_temp_c": 76.0,
+        "cpu_package_mean_power_w": 133.84
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8953,
+          "sha256": "d3a7789767428adc34242dc59125578e4d4445a2ddc5a99b2e78d52718b127c3"
+        },
+        "transcript.jsonl": {
+          "bytes": 55242,
+          "sha256": "a2f6e8cec02de3d745fc9894e4051ca328417a0b6edac6966ec9edfd1a8a8766"
+        },
+        "summary.json": {
+          "bytes": 1514,
+          "sha256": "9850feb80175867ba25c84877acf3f08d16524b568e2119cfab241bf34c746e7"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 28953180,
+          "sha256": "f07b17077a855af54375939b7c7c65fd0a613a18659456d2f493f4ec7a50fac3"
+        },
+        "cost.json": {
+          "bytes": 1242,
+          "sha256": "6d408865f3a1d7aafbaf662eeec0e46bc32ef3baf889a20be018b84c4ec834a4"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2450,
+          "sha256": "8db210ac88e35367989709f1bcdb813f856de6bfd241eca5b175bdfcd26a9b3d"
+        },
+        "grade.json": {
+          "bytes": 468,
+          "sha256": "10243cc2a1b0f2c8df720128ec698608433a7b5176a9ffe716efd29205815667"
+        }
+      }
+    },
+    {
+      "run_name": "p1_testwrite_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 523.6,
+      "iterations": 49,
+      "completion_tokens": 25223,
+      "prompt_tokens_cumulative": 1273638,
+      "model_turns": 49,
+      "length_finishes": 0,
+      "grade_verdict": "FAIL",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9836,
+        "mean_power_w": 481.16,
+        "mean_sm_util_pct": 91.31,
+        "max_temp_c": 81.0,
+        "cpu_package_mean_power_w": 133.28
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8955,
+          "sha256": "982dcf5a0e4637072a83ce0a400bea7422122b943e97ce3e9f4f5d091fab143c"
+        },
+        "transcript.jsonl": {
+          "bytes": 57036,
+          "sha256": "48fed858bc6c18f032a8e1f89230547b425815156e1afb29af37ddebe63a51bc"
+        },
+        "summary.json": {
+          "bytes": 1479,
+          "sha256": "0a9dbf647408093d6503dd606d3725eb6778b66a04c69c51ab8531ac3fcba653"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 149484,
+          "sha256": "a522588ef84bec7cf9edf8da1c090f858fbab32d75c6fa5bfa27c28107172a2a"
+        },
+        "cost.json": {
+          "bytes": 1242,
+          "sha256": "034e404e054f1a8a705a4626c2df9372efd9503a5d7c3f25b98851efae7a13fe"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2410,
+          "sha256": "e83b81526a96ab743abb1b3589532651c202f9d2686b44f3cbde702cdb2907b7"
+        },
+        "grade.json": {
+          "bytes": 1155,
+          "sha256": "73b7129ab31845b98ef25c4e1501e5367510c8b7fbda84357be4bb3294bbd2f3"
+        }
+      }
+    },
+    {
+      "run_name": "p1_testwrite_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 388.8,
+      "iterations": 48,
+      "completion_tokens": 18809,
+      "prompt_tokens_cumulative": 1029851,
+      "model_turns": 48,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9902,
+        "mean_power_w": 479.04,
+        "mean_sm_util_pct": 89.65,
+        "max_temp_c": 78.0,
+        "cpu_package_mean_power_w": 136.92
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8958,
+          "sha256": "a88c0da0f29cdfa068f246f94cc94779032defc619e0042bf024aa5fddba632c"
+        },
+        "transcript.jsonl": {
+          "bytes": 55995,
+          "sha256": "e29b8ec4f36990ccb224af8f215b357e02c5b9d29e4c544cef96d84717e69116"
+        },
+        "summary.json": {
+          "bytes": 679,
+          "sha256": "3ea94ce4164c4c8bdbebf903d38495718e251b94140b9d18aeba137736609520"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 138148,
+          "sha256": "ed2052b32ae52b5832aebc625413764854230bbe23611d931d735874219ab03d"
+        },
+        "cost.json": {
+          "bytes": 1240,
+          "sha256": "881968bad40e6940fd25b639c3f4f10b759e11b440176941eea76146e05cf9b6"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2449,
+          "sha256": "c4bce59813eea97fb8558046580fa2dc2526847c5f66a63dde285758cafdbad5"
+        },
+        "grade.json": {
+          "bytes": 341,
+          "sha256": "42c1da43e1c31be25775668d65010e502b8383356f35bfd846be7b583f7e153e"
+        }
+      }
+    },
+    {
+      "run_name": "p1_testwrite_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 399.9,
+      "iterations": 42,
+      "completion_tokens": 19900,
+      "prompt_tokens_cumulative": 825275,
+      "model_turns": 42,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9877,
+        "mean_power_w": 468.52,
+        "mean_sm_util_pct": 91.96,
+        "max_temp_c": 86.0,
+        "cpu_package_mean_power_w": 136.84
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8958,
+          "sha256": "057d735baa76ae75cab8aae2d06c0c10d73a4adcd9dc49790be911cc83eeec94"
+        },
+        "transcript.jsonl": {
+          "bytes": 50956,
+          "sha256": "fb8be270e1fb754d0585a92189259eb5a9e14426abe9983ac3c155621dbe5600"
+        },
+        "summary.json": {
+          "bytes": 1158,
+          "sha256": "da9c949bb86558868d75aa50347057cf3f65510b908d1b5be4ac309e593d21b0"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 140677,
+          "sha256": "f7e3e9cd2be319d6df53da86252e78481fecf0cc597e4b43efdafbf83d0ce07c"
+        },
+        "cost.json": {
+          "bytes": 1241,
+          "sha256": "ba4db6fb45cc046dc3487fcc5ce45b00feae0406373ef7360e73951565a4bdc1"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2449,
+          "sha256": "9281dd0ce4fd2d380117e959ce61d2baecbf1998709a91770e198e8bcda2e8fb"
+        },
+        "grade.json": {
+          "bytes": 341,
+          "sha256": "b99e9530499f12935a79df989d2f182b0917530a4b3be44b95eaa26e7f2d2c33"
+        }
+      }
+    },
+    {
+      "run_name": "p1_refactor_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 186.2,
+      "iterations": 35,
+      "completion_tokens": 9779,
+      "prompt_tokens_cumulative": 351967,
+      "model_turns": 35,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9667,
+        "mean_power_w": 465.36,
+        "mean_sm_util_pct": 85.35,
+        "max_temp_c": 78.0,
+        "cpu_package_mean_power_w": 137.0
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8956,
+          "sha256": "c898eedb4993578fca466cb12e19f45091ab32aec824d1ba8bce1e2e72641454"
+        },
+        "transcript.jsonl": {
+          "bytes": 25468,
+          "sha256": "945b7feb6c271ad743d914462ba601146de308ce04b3c22696a9938e35467918"
+        },
+        "summary.json": {
+          "bytes": 783,
+          "sha256": "fd3a64637a800835a7f5d09dec5d6f1f2bb82aabfa540481a9af9727d745e1b1"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 74100,
+          "sha256": "bd8d0ac1c21d887b949eb9d97fe36673933f5fe012fb8bad4657a59873722816"
+        },
+        "cost.json": {
+          "bytes": 1240,
+          "sha256": "66f111f744443b50626b3050b4775796a6471a968811ca4d439f739bd2059384"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2447,
+          "sha256": "4bae1b27dab4e67c47c0a07de21b37bf4bfc954ba9a966e0bf3cef89922cfa11"
+        },
+        "grade.json": {
+          "bytes": 510,
+          "sha256": "7f69334378ac3187de489eb74ad81c8245267d1a5711612b94879f297e758bcf"
+        }
+      }
+    },
+    {
+      "run_name": "p1_refactor_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 211.5,
+      "iterations": 41,
+      "completion_tokens": 11126,
+      "prompt_tokens_cumulative": 508191,
+      "model_turns": 41,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9693,
+        "mean_power_w": 459.06,
+        "mean_sm_util_pct": 89.05,
+        "max_temp_c": 84.0,
+        "cpu_package_mean_power_w": 137.01
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8956,
+          "sha256": "a8c89f90890e9acacec48b8c73ede92286ffd047bdc5d52a7bace17a18d6930b"
+        },
+        "transcript.jsonl": {
+          "bytes": 26507,
+          "sha256": "aa1d445c65f35cdba5254bc3c5de40eea9b75df89e5552bacc7bc9b94f8d7855"
+        },
+        "summary.json": {
+          "bytes": 730,
+          "sha256": "6a11f94056186ebdb47360977f854063250f81ac92ea572868fd747efd5daf38"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 75807,
+          "sha256": "49cee0476af144ba1185102887ffedd0141488e34acdff629800bef941cec037"
+        },
+        "cost.json": {
+          "bytes": 1242,
+          "sha256": "eee7bd5e349aab1f394356abc6c67b8ec8b09d442367a7afd0ab1af554a802ef"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2448,
+          "sha256": "8f05e2f6b887eacecae0187c3a54a053d0bb3acb6fe01cb67d080baac077a574"
+        },
+        "grade.json": {
+          "bytes": 510,
+          "sha256": "7f69334378ac3187de489eb74ad81c8245267d1a5711612b94879f297e758bcf"
+        }
+      }
+    },
+    {
+      "run_name": "p1_refactor_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "1a4a954715bf7b228a2d5496fa87547318be6ba8",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 198.2,
+      "iterations": 40,
+      "completion_tokens": 10797,
+      "prompt_tokens_cumulative": 399232,
+      "model_turns": 40,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9586,
+        "mean_power_w": 471.53,
+        "mean_sm_util_pct": 87.9,
+        "max_temp_c": 71.0,
+        "cpu_package_mean_power_w": 112.13
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9512,
+          "sha256": "d8b8de86c6abb82b39c59fd2ed56571dc1c05e4c1cf2214fce1a54803bb20dca"
+        },
+        "transcript.jsonl": {
+          "bytes": 26550,
+          "sha256": "5ac6ee6b8399781a2394c9e663e4ac0c0850655b6ccb4d80d8ad307e6b62d3ab"
+        },
+        "summary.json": {
+          "bytes": 893,
+          "sha256": "e22036d8e57d95f93243ae7cd3f22cfc271686c8134c715dfc44b7459410fe61"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 66503,
+          "sha256": "427d4a3a2eaef5eb3ed46b025996fdbc51fce966e234f63855e4542984c3bd1e"
+        },
+        "cost.json": {
+          "bytes": 1241,
+          "sha256": "b296c66ff2312ad59757460488b509e23770bf1e6d79e3bee11d7a11110770cf"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2400,
+          "sha256": "f6e6a834c58ed8e87854468ea3292129e98077bfc5b7155062a30fa570b2eddb"
+        },
+        "grade.json": {
+          "bytes": 510,
+          "sha256": "7f69334378ac3187de489eb74ad81c8245267d1a5711612b94879f297e758bcf"
+        }
+      }
+    },
+    {
+      "run_name": "p2_extract_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 76.4,
+      "iterations": 6,
+      "completion_tokens": 4449,
+      "prompt_tokens_cumulative": 22299,
+      "model_turns": 6,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9162,
+        "mean_power_w": 460.29,
+        "mean_sm_util_pct": 91.33,
+        "max_temp_c": 83.0,
+        "cpu_package_mean_power_w": 136.95
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8954,
+          "sha256": "f4c6d7cec85a2b5e5b05cbfeeb2311e06b0c9392ec9ef3e3623963981c780b31"
+        },
+        "transcript.jsonl": {
+          "bytes": 4462,
+          "sha256": "32ca9ee6cf929cd5d153e7f4d7e52d4dd120dc9e99a780b706f7ffeacc2de67c"
+        },
+        "summary.json": {
+          "bytes": 530,
+          "sha256": "c5e97fda27f744cb1368b05e5a6faa3a166ee12264d47bc8e96759fcfb48e251"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 11518,
+          "sha256": "65b92ede9b5f084ca706d4b201f5861fdd4c15d04e7211b5369607b5b9e4013a"
+        },
+        "cost.json": {
+          "bytes": 1233,
+          "sha256": "e18fb448f9dcea19dadcac89dce493e73b58e678e779bfadf9fd77285b890fda"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2445,
+          "sha256": "b8c84f438fc2203f7c8d77ec0ba90cadde556c01c18bea511ddfc930ac2fe357"
+        },
+        "grade.json": {
+          "bytes": 3204,
+          "sha256": "b6bc97fc6e03c0b85c34d7e6b5aa1ffcfdf128e953247bc7569f9417170aa2b8"
+        }
+      }
+    },
+    {
+      "run_name": "p2_extract_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 72.6,
+      "iterations": 6,
+      "completion_tokens": 4449,
+      "prompt_tokens_cumulative": 22299,
+      "model_turns": 6,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.8953,
+        "mean_power_w": 493.67,
+        "mean_sm_util_pct": 90.86,
+        "max_temp_c": 75.0,
+        "cpu_package_mean_power_w": 113.55
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8952,
+          "sha256": "ce495248feeffe85113c7293821946f22107710355182b97cabc340902bf20e9"
+        },
+        "transcript.jsonl": {
+          "bytes": 4461,
+          "sha256": "d3ecc25456ffc3638644f9ae4b60e1e7dcc53b77d3d30d85097d89bafc5c9bff"
+        },
+        "summary.json": {
+          "bytes": 530,
+          "sha256": "06fbc403a3d9e561ea45f9bed30c58fd7f7c9dc8ba46c7c0e9fa798255f6a633"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 11519,
+          "sha256": "f9eecea3446b9e0c0306a8fce7d0e79eb3fab3f5d33c27a44dfed5009b05fa2d"
+        },
+        "cost.json": {
+          "bytes": 1233,
+          "sha256": "b7eaa3addf58279ba31c7eddbed435dd33430501fc64b3e745c2398b292bf976"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2398,
+          "sha256": "ee106709da076e2ad1f97940ae43645bcc7f47fbd3a8df728565a08d35205e7e"
+        },
+        "grade.json": {
+          "bytes": 3204,
+          "sha256": "b6bc97fc6e03c0b85c34d7e6b5aa1ffcfdf128e953247bc7569f9417170aa2b8"
+        }
+      }
+    },
+    {
+      "run_name": "p2_extract_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 73.9,
+      "iterations": 6,
+      "completion_tokens": 4449,
+      "prompt_tokens_cumulative": 22299,
+      "model_turns": 6,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.8796,
+        "mean_power_w": 489.97,
+        "mean_sm_util_pct": 97.5,
+        "max_temp_c": 83.0,
+        "cpu_package_mean_power_w": 136.83
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8954,
+          "sha256": "48090475a70a17e3285430ffb43d146eac293b9e056705af2ef36e9eb795d0e3"
+        },
+        "transcript.jsonl": {
+          "bytes": 4461,
+          "sha256": "f4f8cd64f8bd2c10501cedad1365accd1846bc0a0e9c1f346d922c10c5664646"
+        },
+        "summary.json": {
+          "bytes": 530,
+          "sha256": "05ae675a95053a282a2ec46decbd7dadc3433d5a663a298a82472d91daae96b5"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 11512,
+          "sha256": "6f39c6c22c3cfa9114f079a566bf355f9c5d9123a6e33b836d24729c059bd962"
+        },
+        "cost.json": {
+          "bytes": 1233,
+          "sha256": "0521bb3ebf24dcb019320cb7f8e968a73b0affbe8e9948cdd793a0cdc6e3f1be"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2400,
+          "sha256": "d994fdb5e28fe41a221ee2acb88f3f6995f5f53cdcfd122ea6e9f345f2855bf8"
+        },
+        "grade.json": {
+          "bytes": 3204,
+          "sha256": "b6bc97fc6e03c0b85c34d7e6b5aa1ffcfdf128e953247bc7569f9417170aa2b8"
+        }
+      }
+    },
+    {
+      "run_name": "p2_ci_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 88.5,
+      "iterations": 29,
+      "completion_tokens": 4141,
+      "prompt_tokens_cumulative": 234185,
+      "model_turns": 29,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.904,
+        "mean_power_w": 440.07,
+        "mean_sm_util_pct": 69.35,
+        "max_temp_c": 76.0,
+        "cpu_package_mean_power_w": 113.04
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8947,
+          "sha256": "1bfeb5c41370bb8e9c06a9cf1442b5475f7433baae1432b55df02397a601c3f3"
+        },
+        "transcript.jsonl": {
+          "bytes": 18156,
+          "sha256": "c37e909e7d44dd910771a1a082a0dce0c783b13c2ddb90c6263078cf44397a15"
+        },
+        "summary.json": {
+          "bytes": 854,
+          "sha256": "9e8f9cf9e8c965bb749bf17dcedcd8c6a9df7ded2bbb4d03b0644d36f103a361"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 42534,
+          "sha256": "462800e2a5ba5abc66790efa44478c855dc72d785877714df198208cbd052176"
+        },
+        "cost.json": {
+          "bytes": 1230,
+          "sha256": "60c46c1767609b23a08dceae3efa29b18b8aba6147e48b1e67fb42515c13cbc7"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2391,
+          "sha256": "cde7c49411e541739642838f93aeabf561dcdf8d006aad272c1e8e924a889c0e"
+        },
+        "grade.json": {
+          "bytes": 482,
+          "sha256": "69e86f389fb98ab93705abc5fd07431d5a9730ba5b0214d67cccdc8eeb154ba6"
+        }
+      }
+    },
+    {
+      "run_name": "p2_ci_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 94.5,
+      "iterations": 29,
+      "completion_tokens": 4551,
+      "prompt_tokens_cumulative": 230536,
+      "model_turns": 29,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.8995,
+        "mean_power_w": 427.5,
+        "mean_sm_util_pct": 81.5,
+        "max_temp_c": 84.0,
+        "cpu_package_mean_power_w": 136.99
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8949,
+          "sha256": "330300d0460fb67ce69d65b17ba1fabf6127921d0d430f14efbb628bd95e441f"
+        },
+        "transcript.jsonl": {
+          "bytes": 18370,
+          "sha256": "3399f7f3cd0183e8e9f3be341cfdc9a8f90874139fce4bd9777c8ecac5bec873"
+        },
+        "summary.json": {
+          "bytes": 929,
+          "sha256": "a4a1834961b6e83966b444c41f381cb804e7d4b50ecfd0362aece86fd902195e"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 48425,
+          "sha256": "157aed82ecac3ad44166bc2b54c8d7cc12cda6cd7afa5663ee71c9fa71fac791"
+        },
+        "cost.json": {
+          "bytes": 1230,
+          "sha256": "e9c8def56e3794c5f7e4506bdc9e1b09b1dba23f55c0f0836e72e3d38afd5317"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2396,
+          "sha256": "1f20117fd246a72b61518b6fa137fe375c71d2855e5af3a42dac7db71a9c1b77"
+        },
+        "grade.json": {
+          "bytes": 482,
+          "sha256": "eae0f41e05a5ce0e1a370e295ccb33bfd10b26e892ff34e286253904640fd666"
+        }
+      }
+    },
+    {
+      "run_name": "p2_ci_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 80.3,
+      "iterations": 21,
+      "completion_tokens": 3754,
+      "prompt_tokens_cumulative": 162381,
+      "model_turns": 21,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.934,
+        "mean_power_w": 435.34,
+        "mean_sm_util_pct": 79.44,
+        "max_temp_c": 72.0,
+        "cpu_package_mean_power_w": 112.97
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8947,
+          "sha256": "de8c9045350678be58207876eebbfa395ab86d5e5ad7b19676f11c12b711e3b1"
+        },
+        "transcript.jsonl": {
+          "bytes": 14266,
+          "sha256": "1ad6dd78d4c1f09b610922e47b0d78686957cd2bad6071994ae6e2a484428350"
+        },
+        "summary.json": {
+          "bytes": 881,
+          "sha256": "3ec5f398e260ad00d3ee87b7c5b6d40905369999b640150c306f2eb42b7a9612"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 40255,
+          "sha256": "e2f34ad318240ff88eedc621842a08ba6715ff4eb33629f3e942637c0848dc86"
+        },
+        "cost.json": {
+          "bytes": 1230,
+          "sha256": "ce7c5a844032037bb5de24b724dcaa6c97ce6caa2cbf5c0e5481602ed615241d"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2391,
+          "sha256": "182a21c9e60bd0d47fcb6847c5d850647055d44642c2407b432bdd3477bfe845"
+        },
+        "grade.json": {
+          "bytes": 482,
+          "sha256": "1cdcddf815967c7395bceb0d8ac5b955294d82d5d932594f553e43f22ab4234d"
+        }
+      }
+    },
+    {
+      "run_name": "p2_hallucination_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 115.6,
+      "iterations": 16,
+      "completion_tokens": 6454,
+      "prompt_tokens_cumulative": 121925,
+      "model_turns": 16,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9516,
+        "mean_power_w": 488.6,
+        "mean_sm_util_pct": 91.83,
+        "max_temp_c": 83.0,
+        "cpu_package_mean_power_w": 136.58
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8966,
+          "sha256": "000d8b774edf30dac9b4fe688ef6ed94bffddb1196edda77469269ecf806b602"
+        },
+        "transcript.jsonl": {
+          "bytes": 9410,
+          "sha256": "769746a886657bd6a339d0b376a9405b5d877fcc770da5c1b28d8ffb09cbf142"
+        },
+        "summary.json": {
+          "bytes": 489,
+          "sha256": "9922fd7d5dcb5739be2ca233f2ada76172b5beff1cf37779d874f87963e3d677"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 11352,
+          "sha256": "b4de9834bc4281d8823e8aeadcb633e13e672640604304733e1b096aa58dab57"
+        },
+        "cost.json": {
+          "bytes": 1245,
+          "sha256": "c13344093961e064a51b8a6550ab1464debb87e2a1989056e8b65b09cb9ae939"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2409,
+          "sha256": "93b43cae80fc001d4ccb7f85cb106a365ef48f72c32736645c44e7a17bd38a5c"
+        },
+        "grade.json": {
+          "bytes": 3586,
+          "sha256": "80910919c9e64a98ef035d0e5da409c4b26fc67de0ad65bcf63df6b4012393e6"
+        }
+      }
+    },
+    {
+      "run_name": "p2_hallucination_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 114.1,
+      "iterations": 17,
+      "completion_tokens": 6154,
+      "prompt_tokens_cumulative": 128689,
+      "model_turns": 17,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9202,
+        "mean_power_w": 481.27,
+        "mean_sm_util_pct": 93.09,
+        "max_temp_c": 74.0,
+        "cpu_package_mean_power_w": 113.31
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8964,
+          "sha256": "2cbada4e3d3fadf359becdf5da4b9b866f6d51d025453f642c23faadd5879e27"
+        },
+        "transcript.jsonl": {
+          "bytes": 10566,
+          "sha256": "eafdf5cd5b4d9b307e1d51724bc1b042e2970ead94e6eed757d8e6de8edd4c66"
+        },
+        "summary.json": {
+          "bytes": 442,
+          "sha256": "42545f2faeccbd3c3c5af74e4640c9da4e2454ed0a38ac1f3e81ba6392299d7e"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 11814,
+          "sha256": "00ae973a8d6e9f1e567870e7403d1bf605bf3e82a70bdef609287d640946daf5"
+        },
+        "cost.json": {
+          "bytes": 1244,
+          "sha256": "00fd00be3788b4948ddfc27c49d81d176eb0de734f3d872df545c37054021e58"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2407,
+          "sha256": "be3f0c5d9aca73c4051fdc6b880a0dd9bb37bccc971301d20c01e666e0cc9e48"
+        },
+        "grade.json": {
+          "bytes": 3892,
+          "sha256": "2553e9edff94d4bf1cc8fda5c170ae25201bd4baa261fc4ab14d5754dbc11bed"
+        }
+      }
+    },
+    {
+      "run_name": "p2_hallucination_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "model_stopped",
+      "elapsed_s": 32.4,
+      "iterations": 9,
+      "completion_tokens": 1494,
+      "prompt_tokens_cumulative": 43015,
+      "model_turns": 9,
+      "length_finishes": 0,
+      "grade_verdict": "MISSING_OUTPUT",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.7716,
+        "mean_power_w": 417.97,
+        "mean_sm_util_pct": 83.33,
+        "max_temp_c": 83.0,
+        "cpu_package_mean_power_w": 137.12
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8966,
+          "sha256": "c588242987936d1cc91253b8dfe727b4567ee3df212b10b0cc3de0097010adce"
+        },
+        "transcript.jsonl": {
+          "bytes": 3643,
+          "sha256": "7096baadd99ee25917c930c0ef99ed2746e11fe4d85142197ebc2a05c12e8f03"
+        },
+        "summary.json": {
+          "bytes": 346,
+          "sha256": "c3a15b3d9a9d02fd77292f80fc985d594c28eb5b848e1a57a496243816a89111"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 10689,
+          "sha256": "cb4a3526503a052dac2aaaa769c353fca88417571ed16dfbefd9d3ab09e0d4aa"
+        },
+        "cost.json": {
+          "bytes": 1239,
+          "sha256": "5954c2443675b7879dac302d9089518852403f8a613775af1d9ba61dd772b4f8"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2400,
+          "sha256": "e4a260f5b5fe1973664034384e06173c381fb9b15bd6d022a27f76c98709e2ad"
+        },
+        "grade.json": {
+          "bytes": 153,
+          "sha256": "e4f8b9da1c7aba632e47e0a97771274c35662e1f1e2920b050928e498df8692a"
+        }
+      }
+    },
+    {
+      "run_name": "p2_triage_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 108.0,
+      "iterations": 8,
+      "completion_tokens": 6211,
+      "prompt_tokens_cumulative": 57359,
+      "model_turns": 8,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9259,
+        "mean_power_w": 470.89,
+        "mean_sm_util_pct": 85.81,
+        "max_temp_c": 75.0,
+        "cpu_package_mean_power_w": 113.07
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8943,
+          "sha256": "667b801d0ba40236fb24011fe328c17b62ebee20c2ced924cb7751ed61e5ec29"
+        },
+        "transcript.jsonl": {
+          "bytes": 10882,
+          "sha256": "98d8dfa0c742dadeb2ed12650b13f0e6b6c28aeb81de737f908ee1bd9c02ad15"
+        },
+        "summary.json": {
+          "bytes": 600,
+          "sha256": "7a5d63bcd45effd15282edde7eef5d2319c72c0d0f89aa0306c3399913d34102"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 12714,
+          "sha256": "9614fb670dc01897da49271da079012b43d8b729af22be864ffe61f18724b321"
+        },
+        "cost.json": {
+          "bytes": 1233,
+          "sha256": "0d26ca75ca0e7cdf0d11ef36a3ef7aeed7a270c08a247a2a203b02b3c3a1db0a"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2395,
+          "sha256": "a3fb3239f9459cb8e4f81d218623bd7e590961a509f2cffd5a18e1de1cf1f51c"
+        },
+        "grade.json": {
+          "bytes": 2250,
+          "sha256": "dbe6f269c365da51b85a5053d621051e8877fc7a7642fcc441c97f6c7653b5f5"
+        }
+      }
+    },
+    {
+      "run_name": "p2_triage_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 125.5,
+      "iterations": 7,
+      "completion_tokens": 7489,
+      "prompt_tokens_cumulative": 52650,
+      "model_turns": 7,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9562,
+        "mean_power_w": 499.84,
+        "mean_sm_util_pct": 97.36,
+        "max_temp_c": 84.0,
+        "cpu_package_mean_power_w": 136.63
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8945,
+          "sha256": "0288e87079edfe2244a331754506643c233790a8cd98d5dc40707a11c9a19f68"
+        },
+        "transcript.jsonl": {
+          "bytes": 10908,
+          "sha256": "bf08f200f4260bf44aff76dcea291177648d68dd8ebf33a8aa7d874ef862408f"
+        },
+        "summary.json": {
+          "bytes": 659,
+          "sha256": "217354a083ead3542f13afd8380ca186fa28041cc8cc6726b8127a737c1c00bb"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 12920,
+          "sha256": "3349fae04f9709e12ab95b4559a5d6568b7ba017c582733187b344025d7148d9"
+        },
+        "cost.json": {
+          "bytes": 1233,
+          "sha256": "3e4975f2694ec3f49d6c712fa9ee2063143dacc684bc0a9d5d40b939e0a3f85e"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2400,
+          "sha256": "7bbe3f407ab9b9d7c620ee5730059d3fb51a04e0228488c2495ea8ee714c5d46"
+        },
+        "grade.json": {
+          "bytes": 2159,
+          "sha256": "c14e218d16bc8ba2bfb56fd8577d0f8539d628d0366f9340f7d2f60f17c91290"
+        }
+      }
+    },
+    {
+      "run_name": "p2_triage_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 128.3,
+      "iterations": 7,
+      "completion_tokens": 7493,
+      "prompt_tokens_cumulative": 52729,
+      "model_turns": 7,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9353,
+        "mean_power_w": 489.85,
+        "mean_sm_util_pct": 91.68,
+        "max_temp_c": 75.0,
+        "cpu_package_mean_power_w": 113.07
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8943,
+          "sha256": "cb906fe8c74989a3a0844c92838f901effd382d84db056815fa34d4cb808ca10"
+        },
+        "transcript.jsonl": {
+          "bytes": 10654,
+          "sha256": "79b135973c3285e556806fcb26738fca7a775f02550338d4a61af085a06c9ade"
+        },
+        "summary.json": {
+          "bytes": 644,
+          "sha256": "80f55c1f0a23af5a58a6d67552818f1af54ef24f223a46063e6c144ff0286d25"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 12802,
+          "sha256": "92ab6a3283af89a091f8329811a9b05d781fd3dee3ee0985946fe5657048cf95"
+        },
+        "cost.json": {
+          "bytes": 1234,
+          "sha256": "bd2fb5a02e7a3758b62c82d542de7c5cb4bf7a074b0c91381378c1b9eee5e63e"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2399,
+          "sha256": "b5ce4aca228b743be558bb095669f32abb6d7bd9d47c4303464681ee93d3a63e"
+        },
+        "grade.json": {
+          "bytes": 1914,
+          "sha256": "8b145bdcbc912d2f546ce33b90d11fe348c69829b205abe91d6513b83ba9daef"
+        }
+      }
+    },
+    {
+      "run_name": "p3_doc_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 121.8,
+      "iterations": 8,
+      "completion_tokens": 7296,
+      "prompt_tokens_cumulative": 51659,
+      "model_turns": 8,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9442,
+        "mean_power_w": 488.83,
+        "mean_sm_util_pct": 96.71,
+        "max_temp_c": 84.0,
+        "cpu_package_mean_power_w": 136.91
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8956,
+          "sha256": "e82000d2c622ccbd80272cb91a940f666af73f187dcfd791bcf0eaba5f2e1dd0"
+        },
+        "transcript.jsonl": {
+          "bytes": 14483,
+          "sha256": "57e17b5eb071b15b2e3d1959f41f9823b94ae0166874adaf01c4a60962afaa39"
+        },
+        "summary.json": {
+          "bytes": 723,
+          "sha256": "d2180a1ba15cba18e03d8f52b3595c30954f050f376df3b2106c2b99689937f5"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 15602,
+          "sha256": "764bc3a872dd39c331ae67d35d1c5c9c26758f47668eac413222bfad50a7b355"
+        },
+        "cost.json": {
+          "bytes": 1231,
+          "sha256": "b975a39a92cec1d99ccf68599a8edf7900d37e269eaa73d100a5ab38b9ff5eb9"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2397,
+          "sha256": "f2747d5acd70ac8236f7e933300496baf220548e84141c142e1599ce409e5fb3"
+        },
+        "grade.json": {
+          "bytes": 2357,
+          "sha256": "addcd3cfc419649494adf40c60fd2385ec3b403f91e07f3423695aac6fd5c0dc"
+        }
+      }
+    },
+    {
+      "run_name": "p3_doc_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 123.8,
+      "iterations": 8,
+      "completion_tokens": 7296,
+      "prompt_tokens_cumulative": 51659,
+      "model_turns": 8,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9693,
+        "mean_power_w": 480.4,
+        "mean_sm_util_pct": 92.72,
+        "max_temp_c": 78.0,
+        "cpu_package_mean_power_w": 113.16
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8954,
+          "sha256": "2d59a5d6e6bf429d767447461c521914274a8a45763a062dea250be8a7b5a5ec"
+        },
+        "transcript.jsonl": {
+          "bytes": 14484,
+          "sha256": "d6a6a9795bbd69d388ab0f058bef562338055664d578af964c95f99a3eb4a667"
+        },
+        "summary.json": {
+          "bytes": 723,
+          "sha256": "ce4d10ebe26c6b5612292822982dcb69116f6864744f166d2c388be997cc43b5"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 15594,
+          "sha256": "cc19c24bdd130e1aaa7b2aec944779f0cff243f0eef1b465e0b647243c144d34"
+        },
+        "cost.json": {
+          "bytes": 1231,
+          "sha256": "bbf0a3b4f8f96c6a97f15d4030e96f6b44d07d270d97b7610485e09d0f0be90e"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2396,
+          "sha256": "ed567400b60c4e212b96157e552d2672320aafb3ff299950f8811c55fd56ebc7"
+        },
+        "grade.json": {
+          "bytes": 2357,
+          "sha256": "addcd3cfc419649494adf40c60fd2385ec3b403f91e07f3423695aac6fd5c0dc"
+        }
+      }
+    },
+    {
+      "run_name": "p3_doc_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 113.3,
+      "iterations": 10,
+      "completion_tokens": 6632,
+      "prompt_tokens_cumulative": 67272,
+      "model_turns": 10,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9709,
+        "mean_power_w": 469.09,
+        "mean_sm_util_pct": 89.09,
+        "max_temp_c": 83.0,
+        "cpu_package_mean_power_w": 137.02
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8956,
+          "sha256": "4ecf36adec39b7279a65e69a7404cfc30a8da6a0e4318004718259f4af1364f3"
+        },
+        "transcript.jsonl": {
+          "bytes": 16781,
+          "sha256": "a8a0b48977fadcb65aaa23a894d973153560173ccf590b3486f64f60fcfcffe2"
+        },
+        "summary.json": {
+          "bytes": 747,
+          "sha256": "167d8934c09ec91e3e926ca9499379b34c0b1f6538f6c565eafc01641c42e073"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 16341,
+          "sha256": "fdd57249f4f12c782da3dbb6af706d34983697efabbc32c500c8f0af27c0fad5"
+        },
+        "cost.json": {
+          "bytes": 1231,
+          "sha256": "d41d93bd17e42e69cc0100bee0bafa79c063b61e7ce6e41d77b1caf2664e72e3"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2401,
+          "sha256": "b81ad3d434787af21bca5223f71fbcbaaa96a3b4bf643b2f63b6978fe34babef"
+        },
+        "grade.json": {
+          "bytes": 2360,
+          "sha256": "a1e32ee1296ef6f8f122b96d91586e2fbd3df7e2ff1f5aea3b13c97c6cb2bdd8"
+        }
+      }
+    },
+    {
+      "run_name": "p3_business_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 94.2,
+      "iterations": 9,
+      "completion_tokens": 5487,
+      "prompt_tokens_cumulative": 43691,
+      "model_turns": 9,
+      "length_finishes": 0,
+      "grade_verdict": "FAIL",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9554,
+        "mean_power_w": 458.24,
+        "mean_sm_util_pct": 78.84,
+        "max_temp_c": 77.0,
+        "cpu_package_mean_power_w": 112.85
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8959,
+          "sha256": "ffcb5af2fb2c4b8fa8cc26fc21c02c64cb905c1f267f576775bbfaee95408fc2"
+        },
+        "transcript.jsonl": {
+          "bytes": 16635,
+          "sha256": "224abc79829aa387ea42f89a7e76e1349021dc086196fbcd7f7446794ae12cc8"
+        },
+        "summary.json": {
+          "bytes": 956,
+          "sha256": "ea4c6d11864bda3ae075daffecc0989616185dacec6e981fa94c434e643aa988"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 15908,
+          "sha256": "1217b662e553531a731c4cfe9596bae3d1ccbc80752dd7ac12c76da894d65d90"
+        },
+        "cost.json": {
+          "bytes": 1234,
+          "sha256": "04e7b3f606e02679842522ae4eeb0ccd3d4b61f87f41e8eee7b38d1bf98e6bcc"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2399,
+          "sha256": "cff9ffadb62632691ccbb74aa0b83ae059b51f205405f6ab30890d1589abcc6e"
+        },
+        "grade.json": {
+          "bytes": 3866,
+          "sha256": "3c85cb074672401082ba6adecc5f454e5124b81323f35fc312a8458bba0ab815"
+        }
+      }
+    },
+    {
+      "run_name": "p3_business_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 80.9,
+      "iterations": 9,
+      "completion_tokens": 4742,
+      "prompt_tokens_cumulative": 37120,
+      "model_turns": 9,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9271,
+        "mean_power_w": 495.91,
+        "mean_sm_util_pct": 95.5,
+        "max_temp_c": 83.0,
+        "cpu_package_mean_power_w": 137.15
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8961,
+          "sha256": "6b54b92c8c0396ffbfbb5ed2f8907b802e3fe4d2e218cb9c888c9fe80f9b3f08"
+        },
+        "transcript.jsonl": {
+          "bytes": 16134,
+          "sha256": "75a2f519c54888667c21ad3e3b021569ae835ad81fd233e100f56c1713549b45"
+        },
+        "summary.json": {
+          "bytes": 853,
+          "sha256": "3142c3c654573d7bed6174124196fbce6facfb39fae3fbf95fda122e731f626c"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 15801,
+          "sha256": "7a319197444df2e8d1b271a7ef4091fb663cf67241f120057cf084fddf1aaeb0"
+        },
+        "cost.json": {
+          "bytes": 1234,
+          "sha256": "ca67bd0d05b32d34219d90fa1100d5963baf1dd028d1b618f9d460e27329bcfb"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2399,
+          "sha256": "5c38965d3ed993c1c268eac6091a90a141477416d43088f5ae20d0e2057e2681"
+        },
+        "grade.json": {
+          "bytes": 3873,
+          "sha256": "13358399cce26683f59886f1cfc577330fd90233e4065a9af249f51edd05c4ab"
+        }
+      }
+    },
+    {
+      "run_name": "p3_business_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 79.7,
+      "iterations": 9,
+      "completion_tokens": 4742,
+      "prompt_tokens_cumulative": 37120,
+      "model_turns": 9,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.941,
+        "mean_power_w": 486.72,
+        "mean_sm_util_pct": 93.75,
+        "max_temp_c": 74.0,
+        "cpu_package_mean_power_w": 112.93
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8959,
+          "sha256": "06fb3e91e1166b84c55cf7a70f66876735c67cf8e32d2e664bdd0bb45a26d035"
+        },
+        "transcript.jsonl": {
+          "bytes": 16133,
+          "sha256": "e1cab5771101129766dc6ec65ae6d633df275d7a54929e1a3da8cf4d579e1571"
+        },
+        "summary.json": {
+          "bytes": 853,
+          "sha256": "31fd9a8af67581a1a48bebb0450619fb80d03229cdf321ba55560a4421a54afd"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 15805,
+          "sha256": "8abb097c9a0a7bfbd30f59b051be46e5907e13d1c85c9d2c5769a520dc532886"
+        },
+        "cost.json": {
+          "bytes": 1234,
+          "sha256": "3cf0e3376dc28702234453ff8f4e5aeafebe87de47c33d5985e4bc4fabaf63a0"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2396,
+          "sha256": "e177609ba7af6e1f34e365f2fc3f17ea6c34ecc9c94e80f6a865f0d515b898d9"
+        },
+        "grade.json": {
+          "bytes": 3873,
+          "sha256": "13358399cce26683f59886f1cfc577330fd90233e4065a9af249f51edd05c4ab"
+        }
+      }
+    },
+    {
+      "run_name": "p3_market_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 257.4,
+      "iterations": 16,
+      "completion_tokens": 8071,
+      "prompt_tokens_cumulative": 387754,
+      "model_turns": 16,
+      "length_finishes": 0,
+      "grade_verdict": "STRUCTURAL_PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9713,
+        "mean_power_w": 495.65,
+        "mean_sm_util_pct": 96.29,
+        "max_temp_c": 85.0,
+        "cpu_package_mean_power_w": 136.75
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8928,
+          "sha256": "02bb435a5b4fdf5ce444c727c2aab9dc982c3820eb7c8ce22ae0aea7d06e9e67"
+        },
+        "transcript.jsonl": {
+          "bytes": 22003,
+          "sha256": "f2f2cd2453d41f8c6c8dca98034f64ef3c90cd8d0ce1d6e0ff256a43f2b1fc4b"
+        },
+        "summary.json": {
+          "bytes": 747,
+          "sha256": "903cf4fde70a72420d9f5a24d98a9bc7512675e5e9bd1c498b5f4066af5cff60"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 264891,
+          "sha256": "961f9f5fed7d5aca0767339337210745112837366ca5c413405cb20dfdf7fd4f"
+        },
+        "cost.json": {
+          "bytes": 1236,
+          "sha256": "640a00660e7718909fe2dc2eff09af048db6f6d20efae3b74af8a50565bc6fbe"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2402,
+          "sha256": "4917b69f7d65423ca4014280e3bf2895fc7801c2df9c179cc4900bd65316f1c4"
+        },
+        "grade.json": {
+          "bytes": 991,
+          "sha256": "ec7f817b56a4a6ab2128042d09466fdcdf5b77eaf246ea588cbb987a0865d5fa"
+        }
+      }
+    },
+    {
+      "run_name": "p3_market_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 194.1,
+      "iterations": 20,
+      "completion_tokens": 9028,
+      "prompt_tokens_cumulative": 442437,
+      "model_turns": 20,
+      "length_finishes": 0,
+      "grade_verdict": "STRUCTURAL_PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9531,
+        "mean_power_w": 485.18,
+        "mean_sm_util_pct": 93.97,
+        "max_temp_c": 75.0,
+        "cpu_package_mean_power_w": 112.49
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8926,
+          "sha256": "723d063398588013f7b6052082026114bf29dec559f48dd1eb1e904a1f06ff2e"
+        },
+        "transcript.jsonl": {
+          "bytes": 23827,
+          "sha256": "98c92be6cf1e6313be373078a28ab44174526e368a03f53ef5580c75917e6f4e"
+        },
+        "summary.json": {
+          "bytes": 687,
+          "sha256": "5e5ccb999a51bb167d790eacd190e63c6384a465cb7bb2bdc7337fccde0858df"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 264699,
+          "sha256": "18d375a961d52e800e0bc7a2445f3a61e29e08236b503731f971a08b6c179d15"
+        },
+        "cost.json": {
+          "bytes": 1235,
+          "sha256": "9a0175ff5a729a9a190b9930f3690f1ac68398e2deb8ec6f64820172c4936d85"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2398,
+          "sha256": "a189bbe833bd814fca08e0dec893993e892b63be121d4a029b2d45b0a7925ea1"
+        },
+        "grade.json": {
+          "bytes": 991,
+          "sha256": "7a993d6b3110622d5558f7d78f2ebb57044bb1bdf2b0e9f52585b7fdcf81dddc"
+        }
+      }
+    },
+    {
+      "run_name": "p3_market_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 322.0,
+      "iterations": 15,
+      "completion_tokens": 8059,
+      "prompt_tokens_cumulative": 271715,
+      "model_turns": 15,
+      "length_finishes": 0,
+      "grade_verdict": "STRUCTURAL_PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9783,
+        "mean_power_w": 489.71,
+        "mean_sm_util_pct": 92.86,
+        "max_temp_c": 86.0,
+        "cpu_package_mean_power_w": 137.66
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8928,
+          "sha256": "46c0620b93bcdda525541bfd2c4dfb39ea289d92e44059663e740426c2278697"
+        },
+        "transcript.jsonl": {
+          "bytes": 21639,
+          "sha256": "28283464e8685547b97fd7307796460573417109ae9ddaf10cf4cbe1ae6060d3"
+        },
+        "summary.json": {
+          "bytes": 783,
+          "sha256": "7d159cccc3186adc8b392d9fcb3653164f567c12bb90844c0629604d66de0a1a"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 277200,
+          "sha256": "576a9c8abf100141ecb229b88b7807074aa42e0bdf2dbe9974dfcc9cfea4e980"
+        },
+        "cost.json": {
+          "bytes": 1237,
+          "sha256": "cbaa088ac34943052570e107ff00db849be27af9f0da3a2d16e6704231925ece"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2404,
+          "sha256": "7407f92bc939fe9971ddab57be058867e4914c0d23bf36610fbe46f0872ab44d"
+        },
+        "grade.json": {
+          "bytes": 990,
+          "sha256": "5d1bcb2c532b0323a5acdb93607cd0a957b6254f0dc687a6751be84f10ba86b2"
+        }
+      }
+    },
+    {
+      "run_name": "p3_writing_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 93.0,
+      "iterations": 13,
+      "completion_tokens": 5089,
+      "prompt_tokens_cumulative": 72407,
+      "model_turns": 13,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.914,
+        "mean_power_w": 460.49,
+        "mean_sm_util_pct": 86.0,
+        "max_temp_c": 73.0,
+        "cpu_package_mean_power_w": 112.85
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8962,
+          "sha256": "20d5e7d994199823fab97c326232441ca9bd5569ef11a972c402dc7d54589daa"
+        },
+        "transcript.jsonl": {
+          "bytes": 15990,
+          "sha256": "404e7626e52a4928a4881eb7be832152ced40aaa01fdc3f1eaf8816a4071fa64"
+        },
+        "summary.json": {
+          "bytes": 677,
+          "sha256": "15b672068f5fa802a679f4bea758c2a91c44cb3c664c2b3d3beb8b19b487e469"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 15514,
+          "sha256": "f87a925d16003bb1d84da8c39b4491b168c6b8ba612ff6fd878ddf7e56cbd37c"
+        },
+        "cost.json": {
+          "bytes": 1234,
+          "sha256": "3eae502e939914b0b6add91645d27f74ea3ff1db347bdddc9be820eff8b73841"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2396,
+          "sha256": "4e5ad939c642f1ee1d6b0837d0561b856e3e8d3f90100a2b7ca575be1676ab70"
+        },
+        "grade.json": {
+          "bytes": 2879,
+          "sha256": "4d52cac7e70665c17a000630f5e703deb8c2dd7fa09b140e58cd916809855594"
+        }
+      }
+    },
+    {
+      "run_name": "p3_writing_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 191.8,
+      "iterations": 11,
+      "completion_tokens": 4336,
+      "prompt_tokens_cumulative": 58205,
+      "model_turns": 11,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9645,
+        "mean_power_w": 482.8,
+        "mean_sm_util_pct": 87.37,
+        "max_temp_c": 87.0,
+        "cpu_package_mean_power_w": 138.28
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8964,
+          "sha256": "344295433cc7e8dfc413953057888c378ae8a2a8e95d408bdd6e1186fe503a42"
+        },
+        "transcript.jsonl": {
+          "bytes": 11867,
+          "sha256": "9d5ca60adf16166a00054ac7e38ecadd7c220127d625ee7b7accb47537e7d600"
+        },
+        "summary.json": {
+          "bytes": 1072,
+          "sha256": "25db8e039e0d70de15743604f8da5ca48a646708e5636b23777ff9d4d594e992"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 13886,
+          "sha256": "e5da165c568e1e684254c5d7996c5654318e377afbead4859b05b741f945b5e1"
+        },
+        "cost.json": {
+          "bytes": 1236,
+          "sha256": "ccfd5b41afd661d08ef93058d0a09e94569bdb2c31f991637462b4265748964c"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2405,
+          "sha256": "2c020c94e033061b39df41bb589f113e699322cb58466ebf294b79f178d61ba3"
+        },
+        "grade.json": {
+          "bytes": 2879,
+          "sha256": "d5b96fa97f5173b2c03372286d3f1337cdad83a2d8433953285d8c1b96d080de"
+        }
+      }
+    },
+    {
+      "run_name": "p3_writing_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 73.7,
+      "iterations": 11,
+      "completion_tokens": 4250,
+      "prompt_tokens_cumulative": 58290,
+      "model_turns": 11,
+      "length_finishes": 0,
+      "grade_verdict": "PASS",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9498,
+        "mean_power_w": 441.34,
+        "mean_sm_util_pct": 79.0,
+        "max_temp_c": 77.0,
+        "cpu_package_mean_power_w": 113.07
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8962,
+          "sha256": "0d34b93613273625c8093145f3bcdc4de4cf88758f864c1c758e10e1faf504e7"
+        },
+        "transcript.jsonl": {
+          "bytes": 11561,
+          "sha256": "098a161c5fb99762e3df7f4cb8c490549ddc2435f33ffb7887eeed19aece747f"
+        },
+        "summary.json": {
+          "bytes": 522,
+          "sha256": "5b1be637be95a148bb4ad11662deeddb74543a11a845653f7de3bfff000a72ac"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 13991,
+          "sha256": "b612618510b43d4fb1793ecef2149ebd0da6c21685d10b742045429243d9bad5"
+        },
+        "cost.json": {
+          "bytes": 1234,
+          "sha256": "dbd969a5548e2a9b59d0e081c28c181c18cab45e22d190de562d8ecbfdfa70a7"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2395,
+          "sha256": "4a9fac128bb5cc8f62b10f059d590312317ebf7d4f8e1444bef9a9af28d1b25b"
+        },
+        "grade.json": {
+          "bytes": 2876,
+          "sha256": "5554d7976a5268e573cd20176244ba7db50716c7dc7dad7df89386f9fc269564"
+        }
+      }
+    },
+    {
+      "run_name": "p3_pm_gemma4-31b-q4_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 183.9,
+      "iterations": 7,
+      "completion_tokens": 3786,
+      "prompt_tokens_cumulative": 28755,
+      "model_turns": 7,
+      "length_finishes": 0,
+      "grade_verdict": "FAIL",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9788,
+        "mean_power_w": 484.17,
+        "mean_sm_util_pct": 90.46,
+        "max_temp_c": 86.0,
+        "cpu_package_mean_power_w": 138.49
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8953,
+          "sha256": "bf5b124d1fcf516f129d94fe8f22407461230499307ab01a24e0013f6de68136"
+        },
+        "transcript.jsonl": {
+          "bytes": 7558,
+          "sha256": "d3291b6c0e20bef9bd143b9bc1d6e1c7f41e81c90ad1d867aad5a0cdc77a5e64"
+        },
+        "summary.json": {
+          "bytes": 694,
+          "sha256": "83681b6cad2097056abf0f0bcd8bd63642670e1e9959c6c5cf1de1ff099c7369"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 12841,
+          "sha256": "eb622a02fddb70c3aee43f652123e59640282815e55b230d70874175a61fcf08"
+        },
+        "cost.json": {
+          "bytes": 1230,
+          "sha256": "4e6c26bf109501788f45951c8b086b0af788ec68ffbbc420b63a17b0167077db"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2402,
+          "sha256": "6d8a6172614487d154a0260381351b5244d0076f298eca9a7f877097217a07ea"
+        },
+        "grade.json": {
+          "bytes": 2404,
+          "sha256": "eade149c12512150ebb28d5a446c6dc1037e0ded24a3ed5e83d65d87aba47bc4"
+        }
+      }
+    },
+    {
+      "run_name": "p3_pm_gemma4-31b-q4_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 72.2,
+      "iterations": 7,
+      "completion_tokens": 4145,
+      "prompt_tokens_cumulative": 29617,
+      "model_turns": 7,
+      "length_finishes": 0,
+      "grade_verdict": "FAIL",
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9695,
+        "mean_power_w": 472.88,
+        "mean_sm_util_pct": 90.27,
+        "max_temp_c": 76.0,
+        "cpu_package_mean_power_w": 132.69
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8951,
+          "sha256": "7975d3f2ebd6af42d6a203790f662b61c46f3d41a6c7497971305b7e830c8481"
+        },
+        "transcript.jsonl": {
+          "bytes": 8573,
+          "sha256": "aaaa90cd1dd4cc1ccdb2241a17c9d721400672f226be72fdce168a7a7d2339de"
+        },
+        "summary.json": {
+          "bytes": 754,
+          "sha256": "598cb8b9ee1c2b73a0f4e8728259609efe1b0f460331ab883920a660e7d1b7ff"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 13139,
+          "sha256": "6190888ab5900349d69d7d443477eb162cb5174acc340c36c5489a95b9a591c8"
+        },
+        "cost.json": {
+          "bytes": 1226,
+          "sha256": "95639c64f720d0ba360c8bf67a7e46bbc821a72c11105f96b653a0632742bb21"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2395,
+          "sha256": "5126fc789f682ea5d3be582131d3b6d4ca5376ae177fb48827eb21c33833188f"
+        },
+        "grade.json": {
+          "bytes": 2425,
+          "sha256": "5e98c1230f111ddb4d1a15ae7063c80590fbee19b72661c4b56e9c94f0b12352"
+        }
+      }
+    },
+    {
+      "run_name": "p3_pm_gemma4-31b-q4_v3",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c4a5470607344412b1a3a9e0cdaec3902807d7c4",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 172.3,
+      "iterations": 6,
+      "completion_tokens": 3386,
+      "prompt_tokens_cumulative": 25278,
+      "model_turns": 6,
+      "length_finishes": 0,
+      "grade_verdict": "FAIL",
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9867,
+        "mean_power_w": 478.32,
+        "mean_sm_util_pct": 93.23,
+        "max_temp_c": 86.0,
+        "cpu_package_mean_power_w": 138.81
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8953,
+          "sha256": "ced44d9abe5553e3d7b62f0bf8c0fb2137ec214ed8e567bb0e5b8a3854f891e5"
+        },
+        "transcript.jsonl": {
+          "bytes": 7311,
+          "sha256": "b130ac807c1b2622b54e3e4eb30dd1d0fef1c25db3328b185ed18f360a17fe89"
+        },
+        "summary.json": {
+          "bytes": 708,
+          "sha256": "20c8f932f6c38489911471d600d9236cc122deca72f731831bc09cbe2fb2b4e8"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 12920,
+          "sha256": "fac5112297764b16bb742a38fcecc8617524ef13ebe869170e049842e63a4645"
+        },
+        "cost.json": {
+          "bytes": 1231,
+          "sha256": "ed09867309f941998fbb60813dcee241c4b31cd8dc8960ccb41d02a20787ca1b"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2403,
+          "sha256": "5ade9d5dba7dfa09feed864c81af1a0e92071e16eca52dee641f3660cd735c6a"
+        },
+        "grade.json": {
+          "bytes": 2408,
+          "sha256": "be7951b5c0b3770b9ee61e8f3bd5042dfc0fa486d2be1086b97314e4a8976ca3"
+        }
+      }
+    }
+  ],
+  "pretelemetry_supplements": [
+    {
+      "run_name": "p1_bugfix_gemma4-31b-q4-telemetry-supplement_v1",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c7d0ee9bbd287716a5ef11a077ec3d89652ce25d",
+      "endpoint": "http://127.0.0.1:8000/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 779.5,
+      "iterations": 68,
+      "completion_tokens": 22980,
+      "prompt_tokens_cumulative": 1360791,
+      "model_turns": 68,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "0"
+        ],
+        "coverage": 0.9942,
+        "mean_power_w": 297.76,
+        "mean_sm_util_pct": 51.88,
+        "max_temp_c": 74.0,
+        "cpu_package_mean_power_w": 128.3
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9533,
+          "sha256": "160325870cc3b91505bfb372a0cf7f9950a3b51089e197b2b3696c5a6ede0da8"
+        },
+        "transcript.jsonl": {
+          "bytes": 85245,
+          "sha256": "3de94b54b395a925cf7702c72e72331f86d3c412c662ab7ca925f436d8cca64d"
+        },
+        "summary.json": {
+          "bytes": 2148,
+          "sha256": "ee4ec82f91cbade39cc9229f272ec83dee9389dba31fabde2fcddf33edf3fc23"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 28950277,
+          "sha256": "ecb5307e3a8b2441b72e576298a3b84cfc304e1bf6e476ddbe1714fb48261f07"
+        },
+        "cost.json": {
+          "bytes": 1265,
+          "sha256": "0b2b4c671701cc39ec343389a954b83904e95a3899ea18106f3798a8c5b4d9a0"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2447,
+          "sha256": "5c16a3a10acd802272b831194a319a84ab346812c4aac63a2e055c378412398c"
+        }
+      },
+      "supplements_run": "p1_bugfix_gemma4-31b-q4_v1"
+    },
+    {
+      "run_name": "p1_bugfix_gemma4-31b-q4-telemetry-supplement_v2",
+      "outcome_kind": "completed-workspace",
+      "terminal_label": null,
+      "harness_git_sha": "c7d0ee9bbd287716a5ef11a077ec3d89652ce25d",
+      "endpoint": "http://127.0.0.1:8001/v1/chat/completions",
+      "finish_reason": "done_signal",
+      "elapsed_s": 1031.5,
+      "iterations": 78,
+      "completion_tokens": 19891,
+      "prompt_tokens_cumulative": 1730028,
+      "model_turns": 78,
+      "length_finishes": 0,
+      "grade_verdict": null,
+      "telemetry": {
+        "gpu": [
+          "1"
+        ],
+        "coverage": 0.9937,
+        "mean_power_w": 194.22,
+        "mean_sm_util_pct": 34.09,
+        "max_temp_c": 74.0,
+        "cpu_package_mean_power_w": 124.95
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 9533,
+          "sha256": "fe67b13b061d11ba2b790bbcee3e3a3b7658a67a1ab1bf7167b9a695c9339ff0"
+        },
+        "transcript.jsonl": {
+          "bytes": 77337,
+          "sha256": "809d769786b89a1edc29607dee67707f0308116ea12594690dd327c4823e4883"
+        },
+        "summary.json": {
+          "bytes": 1570,
+          "sha256": "a55b9bd46dcefd0dd85a0b2c5fb12f27b48cbfbf37979707c8f20cc3fa86ab31"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 28961325,
+          "sha256": "ab7b933a6113f17198c275ffc0300c81cc8795f2f7264d2665a2f17a90b0fb4d"
+        },
+        "cost.json": {
+          "bytes": 1265,
+          "sha256": "4070249f078c72dfd93083d59d1511adb16ac2647e2dd50557594b071699b6e6"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2492,
+          "sha256": "f58db836c68505993e74abba511ff238af517e35e06f3ce598b4c09f76e98f10"
+        }
+      },
+      "supplements_run": "p1_bugfix_gemma4-31b-q4_v2"
+    }
+  ],
+  "invalid_attempt_classifications": {
+    "path": "/home/michael/bench-gemma4-31b-q4/tooling/deployments/gemma4-31b-q4-tower2/invalid-attempt-classifications.json",
+    "bytes": 6601,
+    "sha256": "09b45db2328ed1520f5491e37897a4cc031d66a9a1187b938977dfc872840176"
+  },
+  "preserved_invalid_attempts": [
+    {
+      "attempt": "p1_bugfix_gemma4-31b-q4_v3_retry-20260802T003822Z-dea60926",
+      "classification": {
+        "source_run": "p1_bugfix_gemma4-31b-q4_v3",
+        "classification": "infrastructure-invalid",
+        "reason_code": "operator-interrupted-companion-after-harness-dispatch-defect",
+        "incident_document": "canonical-harness-incident-20260802.json",
+        "classified_before_grade": true,
+        "affirmative_evidence": [
+          "the companion lane raised the recorded KeyError in the shared defective harness",
+          "the supervisor was stopped immediately to prevent further evaluation under that harness"
+        ],
+        "expected_files": {
+          "receipt.json": "0a571fa5aaefacb15833eb56d63969d45b69f7e66b7622ec309ddf52ff1be4b5",
+          "transcript.jsonl": "7c9fa7c58e4ea36ab46938b690785b4a699b98d38c7f934d1aed083d87fd3163"
+        },
+        "replacement": {
+          "required": true,
+          "canonical_run": "p1_bugfix_gemma4-31b-q4_v3",
+          "status": "completed"
+        }
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8174,
+          "sha256": "0a571fa5aaefacb15833eb56d63969d45b69f7e66b7622ec309ddf52ff1be4b5"
+        },
+        "transcript.jsonl": {
+          "bytes": 1866,
+          "sha256": "7c9fa7c58e4ea36ab46938b690785b4a699b98d38c7f934d1aed083d87fd3163"
+        }
+      }
+    },
+    {
+      "attempt": "p1_bugfix_gemma4-31b-q4_v3_retry-20260802T004533Z-64195329",
+      "classification": {
+        "source_run": "p1_bugfix_gemma4-31b-q4_v3",
+        "classification": "infrastructure-invalid",
+        "reason_code": "operator-interrupted-before-required-telemetry-gate",
+        "incident_document": "canonical-telemetry-gate-incident-20260802.json",
+        "classified_before_grade": true,
+        "affirmative_evidence": [
+          "the retry began before per-run sidecar attribution was proven",
+          "the supervisor stopped before the attempt completed"
+        ],
+        "expected_files": {
+          "receipt.json": "c70a93f7255d8d4ef84311ed17187d84050c5e4faf4dbfd2768550e6773e760c",
+          "transcript.jsonl": "a07274f29bc3b36fe8c3259af0a8a4d53d1b7f8f6256e44dfc43c90b2b5ba7b2"
+        },
+        "replacement": {
+          "required": true,
+          "canonical_run": "p1_bugfix_gemma4-31b-q4_v3",
+          "status": "completed"
+        }
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8170,
+          "sha256": "c70a93f7255d8d4ef84311ed17187d84050c5e4faf4dbfd2768550e6773e760c"
+        },
+        "transcript.jsonl": {
+          "bytes": 1852,
+          "sha256": "a07274f29bc3b36fe8c3259af0a8a4d53d1b7f8f6256e44dfc43c90b2b5ba7b2"
+        }
+      }
+    },
+    {
+      "attempt": "p1_refactor_gemma4-31b-q4_v3-server-timeout-20260802T020859Z",
+      "classification": {
+        "source_run": "p1_refactor_gemma4-31b-q4_v3",
+        "classification": "infrastructure-invalid",
+        "reason_code": "server-transport-timeout-below-native-envelope",
+        "incident_document": "canonical-refactor-timeout-incident-20260802.json",
+        "classified_before_grade": true,
+        "affirmative_evidence": [
+          "server task 80497 was cancelled exactly 3600 seconds after launch",
+          "the slot had decoded 133606 tokens, reported truncated=false, and remained below its 262144-token context boundary"
+        ],
+        "expected_files": {
+          "cost.json": "c5d1062f477758436ba0c3baf32df97fbe4e30df09c831bde470ccf938fce7f7",
+          "gpu_telemetry.json": "4f717a0e9d7298401c41e1799f772186a03a25bdf21bee93b30425cab3b31494",
+          "gpu_telemetry.reanalyzed-fdcc2496.json": "51eff413ad7a1a01bc6116a52e31ac3c39a1f844bf0aa0f0e09d9a0731392801",
+          "grade.json": "7f69334378ac3187de489eb74ad81c8245267d1a5711612b94879f297e758bcf",
+          "receipt.json": "58b9ee02a9c9cd03829a91d8f2f4d6d5eedf064f1c96206bc6c4b38522c4bfd8",
+          "summary.json": "0445d7ff95e0fbfbbc06d21cb3fdcccf8a741249ea294dda3f136a3ea4ed2b56",
+          "transcript.jsonl": "e887af90ea26038d3d8aadf22998eaa443eeb78eaa59d204bc7fcc741124e00e",
+          "workspace_final.tar.gz": "90a1b1918640b2a496b66ed5fbaf8649eb5902aa2e4e36c1f6b4debc71c720bc"
+        },
+        "replacement": {
+          "required": true,
+          "canonical_run": "p1_refactor_gemma4-31b-q4_v3",
+          "status": "completed",
+          "receipt_sha256": "d8b8de86c6abb82b39c59fd2ed56571dc1c05e4c1cf2214fce1a54803bb20dca",
+          "summary_sha256": "e22036d8e57d95f93243ae7cd3f22cfc271686c8134c715dfc44b7459410fe61",
+          "server_timeout_seconds": 14400,
+          "finish_reason": "done_signal"
+        }
+      },
+      "files": {
+        "cost.json": {
+          "bytes": 1241,
+          "sha256": "c5d1062f477758436ba0c3baf32df97fbe4e30df09c831bde470ccf938fce7f7"
+        },
+        "gpu_telemetry.json": {
+          "bytes": 2939,
+          "sha256": "4f717a0e9d7298401c41e1799f772186a03a25bdf21bee93b30425cab3b31494"
+        },
+        "gpu_telemetry.reanalyzed-fdcc2496.json": {
+          "bytes": 2973,
+          "sha256": "51eff413ad7a1a01bc6116a52e31ac3c39a1f844bf0aa0f0e09d9a0731392801"
+        },
+        "grade.json": {
+          "bytes": 510,
+          "sha256": "7f69334378ac3187de489eb74ad81c8245267d1a5711612b94879f297e758bcf"
+        },
+        "receipt.json": {
+          "bytes": 8956,
+          "sha256": "58b9ee02a9c9cd03829a91d8f2f4d6d5eedf064f1c96206bc6c4b38522c4bfd8"
+        },
+        "summary.json": {
+          "bytes": 321,
+          "sha256": "0445d7ff95e0fbfbbc06d21cb3fdcccf8a741249ea294dda3f136a3ea4ed2b56"
+        },
+        "transcript.jsonl": {
+          "bytes": 30545,
+          "sha256": "e887af90ea26038d3d8aadf22998eaa443eeb78eaa59d204bc7fcc741124e00e"
+        },
+        "workspace_final.tar.gz": {
+          "bytes": 67984,
+          "sha256": "90a1b1918640b2a496b66ed5fbaf8649eb5902aa2e4e36c1f6b4debc71c720bc"
+        }
+      }
+    },
+    {
+      "attempt": "p1_testwrite_gemma4-31b-q4_v1_retry-20260802T003822Z-8061c2b0",
+      "classification": {
+        "source_run": "p1_testwrite_gemma4-31b-q4_v1",
+        "classification": "infrastructure-invalid",
+        "reason_code": "harness-dispatch-keyerror-required-tool-argument",
+        "incident_document": "canonical-harness-incident-20260802.json",
+        "classified_before_grade": true,
+        "affirmative_evidence": [
+          "a syntactically valid tool call omitted path",
+          "the harness raised KeyError instead of returning a recoverable tool error"
+        ],
+        "expected_files": {
+          "receipt.json": "92313dc9d6070ad4fba78fb89a4d043281e17d0e5fb2203e0bdc660c551669e4",
+          "transcript.jsonl": "ca8b0f10985799cbd7511a4ce32d6b51939f6d6f32139719cb41b9c52d18aeb4"
+        },
+        "replacement": {
+          "required": true,
+          "canonical_run": "p1_testwrite_gemma4-31b-q4_v1",
+          "status": "completed"
+        }
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8176,
+          "sha256": "92313dc9d6070ad4fba78fb89a4d043281e17d0e5fb2203e0bdc660c551669e4"
+        },
+        "transcript.jsonl": {
+          "bytes": 9815,
+          "sha256": "ca8b0f10985799cbd7511a4ce32d6b51939f6d6f32139719cb41b9c52d18aeb4"
+        }
+      }
+    },
+    {
+      "attempt": "p1_testwrite_gemma4-31b-q4_v1_retry-20260802T004533Z-09111a0e",
+      "classification": {
+        "source_run": "p1_testwrite_gemma4-31b-q4_v1",
+        "classification": "infrastructure-invalid",
+        "reason_code": "operator-interrupted-before-required-telemetry-gate",
+        "incident_document": "canonical-telemetry-gate-incident-20260802.json",
+        "classified_before_grade": true,
+        "affirmative_evidence": [
+          "the retry began before per-run sidecar attribution was proven",
+          "the supervisor stopped before the attempt completed"
+        ],
+        "expected_files": {
+          "receipt.json": "e163856856b1a8323e4b881d00a43f0a4361ad00f8d5e800acb3a6d435d259a5",
+          "transcript.jsonl": "e0efc1aebe693ac92e2a78354316059e5332e761979bdbee220a42019e0367f3"
+        },
+        "replacement": {
+          "required": true,
+          "canonical_run": "p1_testwrite_gemma4-31b-q4_v1",
+          "status": "completed"
+        }
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8172,
+          "sha256": "e163856856b1a8323e4b881d00a43f0a4361ad00f8d5e800acb3a6d435d259a5"
+        },
+        "transcript.jsonl": {
+          "bytes": 14568,
+          "sha256": "e0efc1aebe693ac92e2a78354316059e5332e761979bdbee220a42019e0367f3"
+        }
+      }
+    },
+    {
+      "attempt": "p1_testwrite_gemma4-31b-q4_v3_retry-20260802T005418Z-ff262c4a",
+      "classification": {
+        "source_run": "p1_testwrite_gemma4-31b-q4_v3",
+        "classification": "infrastructure-invalid",
+        "reason_code": "operator-interrupted-companion-after-harness-dispatch-defect",
+        "incident_document": "canonical-harness-incident-20260802.json",
+        "classified_before_grade": true,
+        "affirmative_evidence": [
+          "the attempt was active under the same defective harness",
+          "the supervisor stopped before completion and the attempt was preserved without a grade"
+        ],
+        "expected_files": {
+          "receipt.json": "326934f8660018bdd081c3740222199dc6d5851d011489012ae93166c51440eb",
+          "transcript.jsonl": "63717381ad72db6d006a97dc24a1da14a557a92542826be3d92c264968556661"
+        },
+        "replacement": {
+          "required": true,
+          "canonical_run": "p1_testwrite_gemma4-31b-q4_v3",
+          "status": "completed"
+        }
+      },
+      "files": {
+        "receipt.json": {
+          "bytes": 8175,
+          "sha256": "326934f8660018bdd081c3740222199dc6d5851d011489012ae93166c51440eb"
+        },
+        "transcript.jsonl": {
+          "bytes": 6114,
+          "sha256": "63717381ad72db6d006a97dc24a1da14a557a92542826be3d92c264968556661"
+        }
+      }
+    }
+  ]
+}

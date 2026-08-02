@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "campaign": "gemma4-31b-q4-mmbt",
+  "policy": "Every excluded attempt must have affirmative infrastructure evidence, be classified without consulting a score, remain hash-preserved, and receive an exact canonical replacement.",
+  "attempts": {
+    "p1_bugfix_gemma4-31b-q4_v3_retry-20260802T003822Z-dea60926": {
+      "source_run": "p1_bugfix_gemma4-31b-q4_v3",
+      "classification": "infrastructure-invalid",
+      "reason_code": "operator-interrupted-companion-after-harness-dispatch-defect",
+      "incident_document": "canonical-harness-incident-20260802.json",
+      "classified_before_grade": true,
+      "affirmative_evidence": [
+        "the companion lane raised the recorded KeyError in the shared defective harness",
+        "the supervisor was stopped immediately to prevent further evaluation under that harness"
+      ],
+      "expected_files": {
+        "receipt.json": "0a571fa5aaefacb15833eb56d63969d45b69f7e66b7622ec309ddf52ff1be4b5",
+        "transcript.jsonl": "7c9fa7c58e4ea36ab46938b690785b4a699b98d38c7f934d1aed083d87fd3163"
+      },
+      "replacement": {"required": true, "canonical_run": "p1_bugfix_gemma4-31b-q4_v3", "status": "completed"}
+    },
+    "p1_testwrite_gemma4-31b-q4_v1_retry-20260802T003822Z-8061c2b0": {
+      "source_run": "p1_testwrite_gemma4-31b-q4_v1",
+      "classification": "infrastructure-invalid",
+      "reason_code": "harness-dispatch-keyerror-required-tool-argument",
+      "incident_document": "canonical-harness-incident-20260802.json",
+      "classified_before_grade": true,
+      "affirmative_evidence": [
+        "a syntactically valid tool call omitted path",
+        "the harness raised KeyError instead of returning a recoverable tool error"
+      ],
+      "expected_files": {
+        "receipt.json": "92313dc9d6070ad4fba78fb89a4d043281e17d0e5fb2203e0bdc660c551669e4",
+        "transcript.jsonl": "ca8b0f10985799cbd7511a4ce32d6b51939f6d6f32139719cb41b9c52d18aeb4"
+      },
+      "replacement": {"required": true, "canonical_run": "p1_testwrite_gemma4-31b-q4_v1", "status": "completed"}
+    },
+    "p1_testwrite_gemma4-31b-q4_v3_retry-20260802T005418Z-ff262c4a": {
+      "source_run": "p1_testwrite_gemma4-31b-q4_v3",
+      "classification": "infrastructure-invalid",
+      "reason_code": "operator-interrupted-companion-after-harness-dispatch-defect",
+      "incident_document": "canonical-harness-incident-20260802.json",
+      "classified_before_grade": true,
+      "affirmative_evidence": [
+        "the attempt was active under the same defective harness",
+        "the supervisor stopped before completion and the attempt was preserved without a grade"
+      ],
+      "expected_files": {
+        "receipt.json": "326934f8660018bdd081c3740222199dc6d5851d011489012ae93166c51440eb",
+        "transcript.jsonl": "63717381ad72db6d006a97dc24a1da14a557a92542826be3d92c264968556661"
+      },
+      "replacement": {"required": true, "canonical_run": "p1_testwrite_gemma4-31b-q4_v3", "status": "completed"}
+    },
+    "p1_bugfix_gemma4-31b-q4_v3_retry-20260802T004533Z-64195329": {
+      "source_run": "p1_bugfix_gemma4-31b-q4_v3",
+      "classification": "infrastructure-invalid",
+      "reason_code": "operator-interrupted-before-required-telemetry-gate",
+      "incident_document": "canonical-telemetry-gate-incident-20260802.json",
+      "classified_before_grade": true,
+      "affirmative_evidence": [
+        "the retry began before per-run sidecar attribution was proven",
+        "the supervisor stopped before the attempt completed"
+      ],
+      "expected_files": {
+        "receipt.json": "c70a93f7255d8d4ef84311ed17187d84050c5e4faf4dbfd2768550e6773e760c",
+        "transcript.jsonl": "a07274f29bc3b36fe8c3259af0a8a4d53d1b7f8f6256e44dfc43c90b2b5ba7b2"
+      },
+      "replacement": {"required": true, "canonical_run": "p1_bugfix_gemma4-31b-q4_v3", "status": "completed"}
+    },
+    "p1_testwrite_gemma4-31b-q4_v1_retry-20260802T004533Z-09111a0e": {
+      "source_run": "p1_testwrite_gemma4-31b-q4_v1",
+      "classification": "infrastructure-invalid",
+      "reason_code": "operator-interrupted-before-required-telemetry-gate",
+      "incident_document": "canonical-telemetry-gate-incident-20260802.json",
+      "classified_before_grade": true,
+      "affirmative_evidence": [
+        "the retry began before per-run sidecar attribution was proven",
+        "the supervisor stopped before the attempt completed"
+      ],
+      "expected_files": {
+        "receipt.json": "e163856856b1a8323e4b881d00a43f0a4361ad00f8d5e800acb3a6d435d259a5",
+        "transcript.jsonl": "e0efc1aebe693ac92e2a78354316059e5332e761979bdbee220a42019e0367f3"
+      },
+      "replacement": {"required": true, "canonical_run": "p1_testwrite_gemma4-31b-q4_v1", "status": "completed"}
+    },
+    "p1_refactor_gemma4-31b-q4_v3-server-timeout-20260802T020859Z": {
+      "source_run": "p1_refactor_gemma4-31b-q4_v3",
+      "classification": "infrastructure-invalid",
+      "reason_code": "server-transport-timeout-below-native-envelope",
+      "incident_document": "canonical-refactor-timeout-incident-20260802.json",
+      "classified_before_grade": true,
+      "affirmative_evidence": [
+        "server task 80497 was cancelled exactly 3600 seconds after launch",
+        "the slot had decoded 133606 tokens, reported truncated=false, and remained below its 262144-token context boundary"
+      ],
+      "expected_files": {
+        "cost.json": "c5d1062f477758436ba0c3baf32df97fbe4e30df09c831bde470ccf938fce7f7",
+        "gpu_telemetry.json": "4f717a0e9d7298401c41e1799f772186a03a25bdf21bee93b30425cab3b31494",
+        "gpu_telemetry.reanalyzed-fdcc2496.json": "51eff413ad7a1a01bc6116a52e31ac3c39a1f844bf0aa0f0e09d9a0731392801",
+        "grade.json": "7f69334378ac3187de489eb74ad81c8245267d1a5711612b94879f297e758bcf",
+        "receipt.json": "58b9ee02a9c9cd03829a91d8f2f4d6d5eedf064f1c96206bc6c4b38522c4bfd8",
+        "summary.json": "0445d7ff95e0fbfbbc06d21cb3fdcccf8a741249ea294dda3f136a3ea4ed2b56",
+        "transcript.jsonl": "e887af90ea26038d3d8aadf22998eaa443eeb78eaa59d204bc7fcc741124e00e",
+        "workspace_final.tar.gz": "90a1b1918640b2a496b66ed5fbaf8649eb5902aa2e4e36c1f6b4debc71c720bc"
+      },
+      "replacement": {
+        "required": true,
+        "canonical_run": "p1_refactor_gemma4-31b-q4_v3",
+        "status": "completed",
+        "receipt_sha256": "d8b8de86c6abb82b39c59fd2ed56571dc1c05e4c1cf2214fce1a54803bb20dca",
+        "summary_sha256": "e22036d8e57d95f93243ae7cd3f22cfc271686c8134c715dfc44b7459410fe61",
+        "server_timeout_seconds": 14400,
+        "finish_reason": "done_signal"
+      }
+    }
+  }
+}

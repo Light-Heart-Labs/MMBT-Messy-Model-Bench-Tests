@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "campaign": "gemma4-31b-q4-mmbt",
+  "detected_at": "2026-08-02T00:45:33Z",
+  "classification": "infrastructure-invalid attempts interrupted to enforce the preregistered telemetry gate",
+  "condition": "the restarted canonical lanes began before per-run sidecar attribution was proven for every new cell",
+  "operator_action": {
+    "action": "stopped the supervisor before either active retry completed",
+    "score_independence": "the attempts were interrupted and classified before grading",
+    "preserved_attempts": [
+      "p1_bugfix_gemma4-31b-q4_v3_retry-20260802T004533Z-64195329",
+      "p1_testwrite_gemma4-31b-q4_v1_retry-20260802T004533Z-09111a0e"
+    ],
+    "replacement_policy": "rerun both exact canonical cells only after the telemetry writer and sidecar gate passed"
+  },
+  "completed_pretelemetry_cells": {
+    "runs": [
+      "p1_bugfix_gemma4-31b-q4_v1",
+      "p1_bugfix_gemma4-31b-q4_v2"
+    ],
+    "treatment": "retain their original quality outcomes and map them to separately labeled, idle-start supplemental telemetry observations"
+  },
+  "external_state": {
+    "root": "/home/michael/gemma4-campaign-state/autopilot-state-telemetry-gate-20260802T004533Z",
+    "files": {
+      "autopilot.log": "b7f30ab45440710a2b372dd042b1643c4c9ae55b047881fd3a3ee34f202855c4",
+      "run-gemma4-31b-q4-lane0-port8000.log": "94b8d3c640618a53b38b7d606dd5be03a413afebec6eac04d07d6898ae5c0b92",
+      "run-gemma4-31b-q4-lane1-port8001.log": "9ea8dba0c7b30bea97dce427f4828cc22355745b33bd761115eea151f75073cf",
+      "status.json": "c88dca145c48cb28dee1c2a68574022d75a5d35a2d3395b2c02502cefc7b1156"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "campaign": "gemma4-31b-q4-mmbt",
+  "captured_at": "2026-08-01",
+  "source_repository": "google/gemma-4-31B-it-qat-q4_0-gguf",
+  "source_revision": "59dde24573e7e61570dba08b18a2e1fe246955ed",
+  "base_model": "google/gemma-4-31B-it-qat-q4_0-unquantized",
+  "served_name": "Gemma-4-31B-it-QAT-Q4_0",
+  "model": {
+    "path": "/mnt/bulk/models/google-gemma-4-31B-it-QAT-Q4_0-GGUF/gemma-4-31B_q4_0-it.gguf",
+    "bytes": 17651001568,
+    "sha256": "179cfb99212709597eae5929112cfca677e1bbf566178b479ae1da0c4772874b"
+  },
+  "multimodal_projector": {
+    "path": "/mnt/bulk/models/google-gemma-4-31B-it-QAT-Q4_0-GGUF/gemma-4-31B-it-mmproj.gguf",
+    "bytes": 1200726368,
+    "sha256": "6bd60bdb958548b4093196d38744b0f2290c12503a3fddd7486bffa9c5eb07a4"
+  },
+  "model_card": {
+    "parameters": 30700000000,
+    "architecture": "dense",
+    "quantization": "QAT Q4_0 GGUF",
+    "native_context_tokens": 262144,
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": 64,
+    "modalities": ["text", "image"]
+  },
+  "tower2": {
+    "gpus": "2x NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+    "gpu_memory_mib_each": 97887,
+    "gpu_power_limit_w_each": 500,
+    "mmbt_base_commit": "dcd9431d82168a17f039de084dce1a46ce3cc01a"
+  },
+  "runtime_candidates": [
+    {
+      "kind": "llama.cpp-current-source",
+      "commit": "11924d4c17abc27383376a1ac6a24fa3e36c1c0c",
+      "version": 10223,
+      "status": "built_pending_model_validation",
+      "source_path": "/home/michael/llama.cpp-gemma4-11924d4",
+      "build_path": "/home/michael/llama.cpp-gemma4-11924d4/build-cuda-tower2",
+      "toolchain": {
+        "host_compiler": "GNU 13.3.0",
+        "cuda": "13.1.115",
+        "cuda_architectures": "120a-real",
+        "build_type": "Release",
+        "cuda_flash_attention": true,
+        "cuda_graphs": true,
+        "nccl_requested": true,
+        "nccl_found": true,
+        "nccl_version": "2.29.7",
+        "nccl_root": "/home/michael/llama.cpp-gemma4-runtime-deps/nccl",
+        "nccl_header_sha256": "fc9720fe6d8b45a62775a2f9d13c43ed6e88b0e01fd771081d6f665e6df94bfb",
+        "nccl_library_sha256": "aa957cdfb91b516eae0d54a28e9ee5db52730d02e0ab45580efc3c19a68327a4"
+      },
+      "binaries": {
+        "llama-server": "200b403b5735418ff1f6da0cea1938e413e11869ae362e8044a12b0df04622fc",
+        "llama-cli": "53186d087d962fd22d5c575351e8c95d40b8ab01aeb4a3c351f93897c8970e3d",
+        "llama-bench": "0cdacab3ebecec7e0d9811b66b81401a9b0ffd7c5027b6df8cc43179133e1a47"
+      },
+      "notes": [
+        "Built natively for Blackwell sm_120a from the pinned source commit.",
+        "NCCL 2.29.7 was copied from the pinned production DeepSeek image into an isolated runtime-dependency directory and linked through an embedded RUNPATH; no system package was changed.",
+        "Independent single-GPU replicas do not depend on NCCL, but the private NCCL runtime removes a known handicap from split-GPU candidates."
+      ]
+    },
+    {
+      "kind": "llama.cpp-container-fallback",
+      "image": "ghcr.io/ggml-org/llama.cpp@sha256:9b17daa3579c05543a0e7c87f3af92f05434b9f3d1608b45ae9ec855130eb8ac",
+      "build": 9641,
+      "status": "predates_qat_upload_revalidate_before_use"
+    }
+  ]
+}

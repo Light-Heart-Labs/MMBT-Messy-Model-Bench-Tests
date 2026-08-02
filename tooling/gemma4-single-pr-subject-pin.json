@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-08-02T01:26:00Z",
+  "repository_at_capture": "Osmantic/ODS",
+  "legacy_repository_url_in_task": "https://github.com/Light-Heart-Labs/DreamServer",
+  "pull_request": 1057,
+  "task_text_claims_open": true,
+  "observed_state": "closed",
+  "merged": true,
+  "merged_at": "2026-05-10T15:25:34Z",
+  "title": "fix(host-agent): runtime hygiene — narrow pull, surface failures, normalize bind volumes",
+  "author": "yasinBursali",
+  "base_ref": "main",
+  "base_sha": "309e9cd0ad5d572ab9313eb577ec30a3e8524752",
+  "head_ref": "fix/host-agent-runtime-hygiene",
+  "head_sha": "e5ceb43ea0f9c3939a154fb42e6649b828eca878",
+  "squash_merge_sha": "1678f19404c54f8588eceabfb21c3f4ce812b483",
+  "pr_commit_shas": [
+    "e4e83fedfee36c651afc6af7f3dba9851fa5dc96",
+    "488f5b48f02946ff31ce3f342566d2a1a9687201",
+    "ff20aadf067905b89c9c781cb5ee7ea0532551d5",
+    "ab148dee598635644b759f87abb3f594918276b6",
+    "e5ceb43ea0f9c3939a154fb42e6649b828eca878"
+  ],
+  "api_diff_sha256_at_capture": "a9738afb716ee746313da36d973df74e6ed1ebd58c8508a40a02beffc0e2d676",
+  "api_diff_at_capture_note": "The post-merge API diff contains only the surviving 168-line test contribution. The full review subject includes the pinned PR commits and merge-history reconciliation above.",
+  "deepseek_comparator_archives": [
+    {
+      "run": "n1_deepseek-v4-flash-0731_v1",
+      "workspace_archive_sha256": "622d2cb56c583d20c7a8a39ff7f02825098bc6c1eff6ae35fdbcd34d44557506"
+    },
+    {
+      "run": "n1_deepseek-v4-flash-0731_v2",
+      "workspace_archive_sha256": "4a1aa42dbcab8d69487a801a366c91631257766ce2d8662d5e9ab18d73caebbc"
+    },
+    {
+      "run": "n1_deepseek-v4-flash-0731_v3",
+      "workspace_archive_sha256": "2c3bc2a85065eae416f852f6f3132de95bda1b688bf3856cead3c62b463eaf92"
+    }
+  ],
+  "comparability_policy": [
+    "Keep the original one-PR task text unchanged.",
+    "Treat the stale word 'open' as task metadata drift, not as permission to substitute another PR.",
+    "Every Gemma audit must identify and reconcile the pinned head, base, squash merge, and original PR commits.",
+    "Current main may be used as additional context but may not replace the immutable PR subject.",
+    "A run that cannot obtain the pinned refs because of a proven upstream or network failure is infrastructure-invalid and preserved; a run that obtains them but audits the wrong subject is a model-quality failure."
+  ]
+}

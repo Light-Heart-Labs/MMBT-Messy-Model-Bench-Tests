@@ -47,7 +47,7 @@ NOTIFY_SH = HOME / "dream-fleet-test" / "lib" / "notify.sh"
 
 HEARTBEAT_FRESH_SECS = 120
 SUBSTANCE_CHECK_SECS = 300
-_last_substance_check = 0.0
+_last_substance_check: dict[str, float] = {}
 
 TASKS = ["p1_bugfix","p1_testwrite","p1_refactor","p2_extract","p2_ci",
          "p2_hallucination","p2_triage","p3_doc","p3_business","p3_market",
@@ -198,33 +198,116 @@ def endpoint_up(port: int) -> bool:
 
 
 def container_running(name: str) -> bool:
+    if not name:
+        return False
     r = sh(["docker", "ps", "--format", "{{.Names}}"])
     return name in r.stdout.split()
+
+
+def configured_ports(cfg: dict) -> list[int]:
+    ports = cfg.get("lane_ports") or [cfg["port"]]
+    return list(dict.fromkeys(int(port) for port in ports))
+
+
+def active_harnesses_by_port() -> dict[int, dict]:
+    """Return exact live harness PID/run mappings for each endpoint lane."""
+    active = {}
+    for proc_dir in Path("/proc").glob("[0-9]*"):
+        try:
+            argv = [
+                part.decode(errors="replace")
+                for part in (proc_dir / "cmdline").read_bytes().split(b"\0")
+                if part
+            ]
+            harness_index = next(
+                index for index, arg in enumerate(argv)
+                if Path(arg).name == "harness.py"
+            )
+            port_index = argv.index("--port")
+            run_name = argv[harness_index + 1]
+            port = int(argv[port_index + 1])
+        except (OSError, StopIteration, ValueError, IndexError):
+            continue
+        active[port] = {"pid": int(proc_dir.name), "cell": run_name}
+    return active
+
+
+def slot_progress_signature(payload) -> tuple:
+    """Extract active prompt/decode progress from llama.cpp's /slots payload."""
+    if not isinstance(payload, list):
+        return ()
+    processing = []
+    for slot in payload:
+        if not isinstance(slot, dict) or not slot.get("is_processing"):
+            continue
+        next_token = slot.get("next_token") or []
+        token_state = next_token[0] if next_token and isinstance(next_token[0], dict) else {}
+        processing.append((
+            slot.get("id"),
+            slot.get("id_task"),
+            slot.get("n_prompt_tokens_processed"),
+            token_state.get("n_decoded"),
+            token_state.get("n_remain"),
+        ))
+    return tuple(sorted(processing, key=lambda row: (str(row[0]), str(row[1]))))
+
+
+def endpoint_slot_progress(port: int) -> tuple:
+    result = sh(["curl", "-fsS", "--max-time", "5", f"http://127.0.0.1:{port}/slots"])
+    if result.returncode != 0:
+        return ()
+    try:
+        return slot_progress_signature(json.loads(result.stdout))
+    except json.JSONDecodeError:
+        return ()
+
+
+def configured_services(cfg: dict) -> list[str]:
+    return [str(service) for service in (cfg.get("services") or [])]
+
+
+def service_running(name: str) -> bool:
+    return sh(["systemctl", "--user", "is-active", "--quiet", name]).returncode == 0
+
+
+def runtime_running(cfg: dict) -> bool:
+    services = configured_services(cfg)
+    if services:
+        return all(service_running(service) for service in services)
+    return container_running(cfg.get("container"))
 
 
 def ensure_endpoint(cfg: dict) -> bool:
     engine = cfg.get("engine", "llamacpp")
     if engine == "external":
-        port, name = cfg["port"], cfg["container"]
-        if endpoint_up(port):
+        ports = configured_ports(cfg)
+        name = cfg.get("container") or ", ".join(configured_services(cfg)) or "external runtime"
+        if all(endpoint_up(port) for port in ports):
             return True
         launcher = cfg.get("launcher")
         if not launcher:
             raise ValueError("external engine config requires a launcher")
-        log(f"endpoint down — invoking external launcher {launcher}")
-        notify("bench: endpoint restart", f"{name} down — invoking {launcher}", 0)
-        sh(["bash", launcher])
-        for _ in range(cfg["endpoint_grace_secs"] // 5):
-            if endpoint_up(port):
-                log("endpoint back up")
+        missing = [port for port in ports if not endpoint_up(port)]
+        log(f"endpoint lane(s) {missing} down — invoking external launcher {launcher}")
+        notify("bench: endpoint restart", f"{name} lane(s) {missing} down — invoking {launcher}", 0)
+        launched = sh(["bash", launcher])
+        if launched.returncode != 0:
+            detail = (launched.stderr or launched.stdout).strip()[-800:]
+            log(f"ERROR: external launcher failed rc={launched.returncode}: {detail}")
+            notify("bench: endpoint FAILED", f"{name} launcher failed rc={launched.returncode}", 1)
+            return False
+        for _ in range(max(1, cfg["endpoint_grace_secs"] // 5)):
+            if all(endpoint_up(port) for port in ports):
+                log(f"all endpoint lanes back up: {ports}")
                 return True
-            if not container_running(name):
-                log("ERROR: external endpoint container died during load")
+            if not runtime_running(cfg):
+                log("ERROR: external inference runtime died during load")
                 notify("bench: endpoint FAILED", f"{name} died during model load", 1)
                 return False
             time.sleep(5)
-        log("ERROR: external endpoint did not come up within grace period")
-        notify("bench: endpoint FAILED", f"{name} did not load within grace period", 1)
+        missing = [port for port in ports if not endpoint_up(port)]
+        log(f"ERROR: external endpoint lane(s) {missing} did not come up within grace period")
+        notify("bench: endpoint FAILED", f"{name} lane(s) {missing} did not load within grace period", 1)
         return False
     if engine != "llamacpp":
         note = cfg.get("_notimplemented", f"engine '{engine}' has no launcher")
@@ -406,8 +489,39 @@ def kill_stuck(cell: str):
     sh(["docker", "rm", "-f", f"bench-sandbox-{cell}"])
 
 
+def active_substance_targets(cfg) -> list[dict]:
+    """Return every live lane's exact run/transcript/PID for substance checks."""
+    targets = []
+    active = active_harnesses_by_port()
+    for port in configured_ports(cfg):
+        harness = active.get(port)
+        if not harness:
+            continue
+        transcript = LOGS / harness["cell"] / "transcript.jsonl"
+        if transcript.exists():
+            targets.append({
+                "port": port,
+                "cell": harness["cell"],
+                "pid": harness["pid"],
+                "transcript": transcript,
+            })
+    if targets:
+        return targets
+    # Preserve the historical single-lane fallback for non-Linux/dev contexts
+    # where procfs attribution is unavailable.
+    transcript, _ = newest_transcript(cfg)
+    if transcript and transcript.exists():
+        return [{
+            "port": int(cfg["port"]),
+            "cell": transcript.parent.name,
+            "pid": None,
+            "transcript": transcript,
+        }]
+    return []
+
+
 def check_current_substance(cfg):
-    """Run the published five-minute substance monitor on the active cell.
+    """Run the published five-minute substance monitor on every active lane.
 
     Scroll loops are terminated by exact harness PID and receive the canonical
     explicit failure label.  Runaway-generation signals are logged for endpoint
@@ -415,40 +529,44 @@ def check_current_substance(cfg):
     """
     global _last_substance_check
     now = time.time()
-    if now - _last_substance_check < SUBSTANCE_CHECK_SECS:
-        return
-    _last_substance_check = now
-    tp, _ = newest_transcript(cfg)
-    if not tp or not tp.exists():
-        return
-    cell = tp.parent.name
-    result = sh(["python3", str(SCRIPTS / "check_substance.py"), str(tp)])
-    with open(STATE_DIR / f"substance-{cell}.log", "a") as f:
-        f.write(f"\n[{time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}] rc={result.returncode}\n")
-        f.write(result.stdout or "")
-        f.write(result.stderr or "")
-    if result.returncode == 1:
-        pids = sh(["pgrep", "-f", f"harness.py {cell} "]).stdout.split()
-        if not pids:
-            log(f"SUBSTANCE: scroll-loop detected for {cell}, but exact harness PID was absent")
-            return
-        log(f"SUBSTANCE: scroll-loop detected for {cell}; SIGTERM exact PID(s) {','.join(pids)}")
-        for pid in pids:
-            sh(["kill", "-TERM", pid])
-        label = {
-            "primary": "identical-call-loop",
-            "sub_labels": ["scroll-loop"],
-            "notes": (
-                "Operator-SIGTERM per the documented >=30 identical digit-stripped "
-                "tool-command substance rule; see the preserved transcript and monitor log."
-            ),
-            "labeler": "operator-monitoring-supervisor",
-            "labeled_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        }
-        (tp.parent / "label.json").write_text(json.dumps(label, indent=2) + "\n")
-        sh(["docker", "rm", "-f", f"bench-sandbox-{cell}"])
-    elif result.returncode == 2:
-        log(f"SUBSTANCE: runaway-generation suspected for {cell}; endpoint_up={endpoint_up(cfg['port'])}")
+    for target in active_substance_targets(cfg):
+        cell = target["cell"]
+        if now - _last_substance_check.get(cell, 0.0) < SUBSTANCE_CHECK_SECS:
+            continue
+        _last_substance_check[cell] = now
+        transcript = target["transcript"]
+        result = sh(["python3", str(SCRIPTS / "check_substance.py"), str(transcript)])
+        with open(STATE_DIR / f"substance-{cell}.log", "a") as f:
+            f.write(f"\n[{time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}] rc={result.returncode}\n")
+            f.write(result.stdout or "")
+            f.write(result.stderr or "")
+        if result.returncode == 1:
+            pid = target["pid"]
+            pids = [str(pid)] if pid is not None else \
+                sh(["pgrep", "-f", f"harness.py {cell} "]).stdout.split()
+            if not pids:
+                log(f"SUBSTANCE: scroll-loop detected for {cell}, but exact harness PID was absent")
+                continue
+            log(f"SUBSTANCE: scroll-loop detected for {cell}; SIGTERM exact PID(s) {','.join(pids)}")
+            for exact_pid in pids:
+                sh(["kill", "-TERM", exact_pid])
+            label = {
+                "primary": "identical-call-loop",
+                "sub_labels": ["scroll-loop"],
+                "notes": (
+                    "Operator-SIGTERM per the documented >=30 identical digit-stripped "
+                    "tool-command substance rule; see the preserved transcript and monitor log."
+                ),
+                "labeler": "operator-monitoring-supervisor",
+                "labeled_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            }
+            (transcript.parent / "label.json").write_text(json.dumps(label, indent=2) + "\n")
+            sh(["docker", "rm", "-f", f"bench-sandbox-{cell}"])
+        elif result.returncode == 2:
+            log(
+                f"SUBSTANCE: runaway-generation suspected for {cell}; "
+                f"endpoint_up={endpoint_up(target['port'])}"
+            )
 
 
 # --- recent cells + fails ---------------------------------------------------
@@ -540,12 +658,15 @@ def write_status(cfg, target, phase, arms_done, started_at=None):
         eta_secs = int(statistics.median(all_walls) * rem)
     recent, fails = recent_cells_and_fails(cfg)
     now = time.time()
+    lane_endpoint_status = {
+        str(port): endpoint_up(port) for port in configured_ports(cfg)
+    }
     status = {
         # ---- original keys (unchanged) ----
         "updated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "target_n": target, "phase": phase,
-        "endpoint_up": endpoint_up(cfg["port"]),
-        "container_up": container_running(cfg["container"]),
+        "endpoint_up": all(lane_endpoint_status.values()),
+        "container_up": runtime_running(cfg),
         "grand_done": grand_done, "grand_total": grand_total,
         "pct": round(100 * grand_done / grand_total, 1) if grand_total else 0,
         "current": cur, "arms": arms, "arms_done": arms_done, "tasks": TASKS,
@@ -558,6 +679,8 @@ def write_status(cfg, target, phase, arms_done, started_at=None):
         "preset": cfg.get("preset"),       # addition A: which preset is driving
         "model": cfg.get("model"),
         "engine": cfg.get("engine", "llamacpp"),
+        "lane_endpoints": lane_endpoint_status,
+        "runtime_up": runtime_running(cfg),
     }
     STATUS.write_text(json.dumps(status, indent=2))
     return status
@@ -704,36 +827,113 @@ def publish_scorecard(cfg, target, final_status):
         log(f"publish: git step failed (non-fatal): {e}")
 
 
+def benchmark_environment(cfg, base_env=None):
+    """Return the child environment carrying a model's pinned sampling point.
+
+    ``run_microbench.sh`` intentionally keeps historical defaults, so model-card
+    campaigns must pass their explicit overrides through the supervisor.  Keep
+    this in a testable helper: a config field that is only written to a receipt
+    or README but not sent to the harness is a methodology failure.
+    """
+    run_env = dict(os.environ if base_env is None else base_env)
+    sampling_env = {
+        "benchmark_temperature": "BENCH_TEMP",
+        "benchmark_top_p": "BENCH_TOP_P",
+        "benchmark_top_k": "BENCH_TOP_K",
+        "benchmark_max_output_tokens_cap": "BENCH_MAX_OUTPUT_TOKENS_CAP",
+        "serving_manifest": "BENCH_SERVING_MANIFEST",
+    }
+    for config_key, env_key in sampling_env.items():
+        value = cfg.get(config_key)
+        if value is not None:
+            run_env[env_key] = str(value)
+        else:
+            run_env.pop(env_key, None)
+    return run_env
+
+
 def run_arm_with_supervision(cfg, arm, target, started_at):
-    """Spawn run_microbench for one arm; watchdog endpoint + stuck cells until it exits."""
+    """Shard one arm deterministically across configured replica endpoints."""
     label, thinking = arm["label"], arm["thinking"]
     ids = sh("docker ps -aq --filter name=bench-sandbox-").stdout.split()
     if ids:
         sh(["docker", "rm", "-f", *ids])
     sh(f"sudo rm -rf {TOOLING}/workspace/*{label}_v* 2>/dev/null")
-    log(f"RUN arm {label} (thinking={thinking}) target N={target}")
-    proc = subprocess.Popen(
-        ["bash", str(SCRIPTS / "run_microbench.sh"), cfg["model"], str(cfg["port"]),
-         label, str(target), "", thinking, str(cfg["max_model_len"])],
-        stdout=open(STATE_DIR / f"run-{label}.log", "a"), stderr=subprocess.STDOUT)
-    last_endpoint_ok = time.time()
-    while proc.poll() is None:
-        time.sleep(30)
-        write_heartbeat()
-        write_status(cfg, target, f"run:{label}", [], started_at)
-        check_harness_anomaly(cfg)                            # addition C
-        check_current_substance(cfg)
-        if not endpoint_up(cfg["port"]):
-            if time.time() - last_endpoint_ok > 90:
-                log("watchdog: endpoint down >90s — restarting")
-                ensure_endpoint(cfg)
-                last_endpoint_ok = time.time()
-        else:
-            last_endpoint_ok = time.time()
-        cur = current_cell_info(cfg)
-        if cur["cell"] and cur["frozen_secs"] and cur["frozen_secs"] > cfg["stuck_secs"]:
-            kill_stuck(cur["cell"])
-    log(f"run_microbench {label} exited rc={proc.returncode}")
+    ports = configured_ports(cfg)
+    lane_count = len(ports)
+    log(f"RUN arm {label} (thinking={thinking}) target N={target} lanes={ports}")
+    procs = []
+    handles = []
+    try:
+        for lane_index, port in enumerate(ports):
+            run_env = benchmark_environment(cfg)
+            run_env["BENCH_LANE_INDEX"] = str(lane_index)
+            run_env["BENCH_LANE_COUNT"] = str(lane_count)
+            log_path = STATE_DIR / (
+                f"run-{label}.log" if lane_count == 1
+                else f"run-{label}-lane{lane_index}-port{port}.log"
+            )
+            handle = open(log_path, "a")
+            handles.append(handle)
+            proc = subprocess.Popen(
+                ["bash", str(SCRIPTS / "run_microbench.sh"), cfg["model"], str(port),
+                 label, str(target), "", thinking, str(cfg["max_model_len"])],
+                stdout=handle, stderr=subprocess.STDOUT, env=run_env)
+            procs.append((lane_index, port, proc))
+
+        last_endpoint_ok = {port: time.time() for port in ports}
+        lane_progress = {
+            port: {"cell": None, "signal": None, "last_progress": time.time()}
+            for port in ports
+        }
+        while any(proc.poll() is None for _, _, proc in procs):
+            time.sleep(30)
+            write_heartbeat()
+            write_status(cfg, target, f"run:{label}", [], started_at)
+            check_harness_anomaly(cfg)                        # addition C
+            check_current_substance(cfg)
+            for port in ports:
+                if endpoint_up(port):
+                    last_endpoint_ok[port] = time.time()
+                elif time.time() - last_endpoint_ok[port] > 90:
+                    log(f"watchdog: endpoint lane {port} down >90s — restarting runtime")
+                    ensure_endpoint(cfg)
+                    last_endpoint_ok[port] = time.time()
+            # Transcript mtimes do not advance while urllib waits for a
+            # non-streamed response. Watch each replica independently and count
+            # live llama.cpp slot-token movement as progress so native-context
+            # generations are not mistaken for hung harnesses.
+            now = time.time()
+            active = active_harnesses_by_port()
+            for port in ports:
+                harness = active.get(port)
+                watch = lane_progress[port]
+                if not harness:
+                    watch.update(cell=None, signal=None, last_progress=now)
+                    continue
+                cell = harness["cell"]
+                transcript = LOGS / cell / "transcript.jsonl"
+                try:
+                    transcript_mtime_ns = transcript.stat().st_mtime_ns
+                except OSError:
+                    transcript_mtime_ns = None
+                signal = (cell, transcript_mtime_ns, endpoint_slot_progress(port))
+                if watch["cell"] != cell or watch["signal"] != signal:
+                    watch.update(cell=cell, signal=signal, last_progress=now)
+                    continue
+                frozen_secs = int(now - watch["last_progress"])
+                if frozen_secs > cfg["stuck_secs"]:
+                    log(
+                        f"STUCK: lane port {port} cell {cell} showed no transcript "
+                        f"or server-slot progress for {frozen_secs}s"
+                    )
+                    kill_stuck(cell)
+                    watch.update(cell=None, signal=None, last_progress=now)
+        lane_results = {port: proc.returncode for _, port, proc in procs}
+        log(f"run_microbench {label} lane exit codes={lane_results}")
+    finally:
+        for handle in handles:
+            handle.close()
     sh(f"sudo rm -rf /tmp/grade_*{label}_v* 2>/dev/null")
     g = sh(["bash", str(SCRIPTS / "grade_microbench.sh"), label])
     (STATE_DIR / f"grade-{label}.log").write_text(g.stdout + g.stderr)

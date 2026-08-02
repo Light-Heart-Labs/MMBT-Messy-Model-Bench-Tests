@@ -1,0 +1,20 @@
+[Unit]
+Description=MMBT Gemma 4 31B Q4 server (%i)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/michael/bench-gemma4-31b-q4
+EnvironmentFile=/home/michael/bench-gemma4-31b-q4/tooling/deployments/gemma4-31b-q4-tower2/topologies/%i.env
+ExecStart=/home/michael/bench-gemma4-31b-q4/tooling/deployments/gemma4-31b-q4-tower2/run-gemma4-server.sh
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=900
+TimeoutStopSec=180
+KillSignal=SIGINT
+LimitMEMLOCK=infinity
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=default.target

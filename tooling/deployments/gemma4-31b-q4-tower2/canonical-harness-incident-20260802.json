@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "detected_at": "2026-08-02T00:33:40Z",
+  "campaign": "gemma4-31b-q4-mmbt",
+  "classification": "harness-invalid attempt requiring preserved replacement",
+  "trigger_attempt": "p1_testwrite_gemma4-31b-q4_v1",
+  "trigger_evidence": {
+    "harness_commit": "7a1938178dbdde521151e1b1d392fec32d55434c",
+    "exception": "KeyError: 'path'",
+    "condition": "a syntactically valid tool call omitted the required path argument",
+    "effect": "the harness exited nonzero instead of returning a tool error and allowing model recovery",
+    "receipt_sha256": "92313dc9d6070ad4fba78fb89a4d043281e17d0e5fb2203e0bdc660c551669e4",
+    "transcript_sha256": "ca8b0f10985799cbd7511a4ce32d6b51939f6d6f32139719cb41b9c52d18aeb4",
+    "lane_log_sha256": "7e2176880f46874af26b1308ba5b5ac0d3d34b9c6adde5bd819111d211c3497b",
+    "supervisor_log_sha256": "e4db2a98b5cd9a14cb0c37d64a1144fb878114d7d5ae95439714db8b06adb51e"
+  },
+  "operator_action": {
+    "action": "stopped the two-lane canonical supervisor immediately after detection",
+    "reason": "prevent additional cells from being evaluated under the defective error path",
+    "completed_valid_cells_retained": [
+      "p1_bugfix_gemma4-31b-q4_v1",
+      "p1_bugfix_gemma4-31b-q4_v2"
+    ],
+    "incomplete_attempts_to_preserve_and_replace": [
+      "p1_bugfix_gemma4-31b-q4_v3",
+      "p1_testwrite_gemma4-31b-q4_v1",
+      "p1_testwrite_gemma4-31b-q4_v3"
+    ]
+  },
+  "correction": {
+    "scope": "validate required tool arguments and malformed types before dispatch",
+    "new_behavior": "return deterministic TOOL_ERROR text to the model; continue the same attempt",
+    "completed_cell_equivalence": "retained completed cells never encountered this error path, so their prompts, inference, tools, termination, and artifacts are unaffected",
+    "anti_cherry_pick": "replacement is determined solely by completeness and the recorded harness exception, before any affected cell was graded"
+  }
+}
