@@ -10,8 +10,8 @@
   "benchmark_seed": 42,
   "benchmark_sandbox_gpus": "none",
   "services": [
-    "mmbt-qwen38-tower1-tunnel.service",
-    "mmbt-qwen38-tower3-tunnel.service"
+    "dream-fleet-tunnel-tower1.service",
+    "dream-fleet-tunnel-tower3.service"
   ],
   "launcher": "/home/michael/mmbt-qwen38-eaaa8ca/tooling/deployments/qwen3.8-27b-q4-fleet/ensure-qwen38-lanes.sh",
   "serving_manifest": "/home/michael/mmbt-qwen38-eaaa8ca/tooling/deployments/qwen3.8-27b-q4-fleet/benchmark-serving-manifest.json",
