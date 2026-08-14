@@ -827,7 +827,7 @@ def publish_scorecard(cfg, target, final_status):
         log(f"publish: git step failed (non-fatal): {e}")
 
 
-def benchmark_environment(cfg, base_env=None):
+def benchmark_environment(cfg, base_env=None, arm=None):
     """Return the child environment carrying a model's pinned sampling point.
 
     ``run_microbench.sh`` intentionally keeps historical defaults, so model-card
@@ -840,13 +840,20 @@ def benchmark_environment(cfg, base_env=None):
         "benchmark_temperature": "BENCH_TEMP",
         "benchmark_top_p": "BENCH_TOP_P",
         "benchmark_top_k": "BENCH_TOP_K",
+        "benchmark_min_p": "BENCH_MIN_P",
+        "benchmark_presence_penalty": "BENCH_PRESENCE_PENALTY",
+        "benchmark_repeat_penalty": "BENCH_REPEAT_PENALTY",
+        "benchmark_seed": "BENCH_SEED",
         "benchmark_max_output_tokens_cap": "BENCH_MAX_OUTPUT_TOKENS_CAP",
+        "benchmark_sandbox_gpus": "BENCH_SANDBOX_GPUS",
+        "preserve_thinking": "BENCH_PRESERVE_THINKING",
+        "reasoning_effort_location": "BENCH_REASONING_EFFORT_LOCATION",
         "serving_manifest": "BENCH_SERVING_MANIFEST",
     }
     for config_key, env_key in sampling_env.items():
-        value = cfg.get(config_key)
+        value = arm.get(config_key, cfg.get(config_key)) if arm else cfg.get(config_key)
         if value is not None:
-            run_env[env_key] = str(value)
+            run_env[env_key] = str(value).lower() if isinstance(value, bool) else str(value)
         else:
             run_env.pop(env_key, None)
     return run_env
@@ -866,7 +873,7 @@ def run_arm_with_supervision(cfg, arm, target, started_at):
     handles = []
     try:
         for lane_index, port in enumerate(ports):
-            run_env = benchmark_environment(cfg)
+            run_env = benchmark_environment(cfg, arm=arm)
             run_env["BENCH_LANE_INDEX"] = str(lane_index)
             run_env["BENCH_LANE_COUNT"] = str(lane_count)
             log_path = STATE_DIR / (
@@ -877,7 +884,8 @@ def run_arm_with_supervision(cfg, arm, target, started_at):
             handles.append(handle)
             proc = subprocess.Popen(
                 ["bash", str(SCRIPTS / "run_microbench.sh"), cfg["model"], str(port),
-                 label, str(target), "", thinking, str(cfg["max_model_len"])],
+                 label, str(target), str(arm.get("reasoning_effort", "")),
+                 thinking, str(cfg["max_model_len"])],
                 stdout=handle, stderr=subprocess.STDOUT, env=run_env)
             procs.append((lane_index, port, proc))
 
