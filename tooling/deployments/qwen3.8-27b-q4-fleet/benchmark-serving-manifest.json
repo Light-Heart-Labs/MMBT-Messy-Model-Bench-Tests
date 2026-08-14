@@ -158,12 +158,18 @@
   },
   "telemetry": {
     "required_cadence_seconds": 5,
+    "service": "dream-fleet-mmbt-qwen38-power.service",
+    "service_source": "tooling/deployments/qwen3.8-27b-q4-fleet/dream-fleet-mmbt-qwen38-power.service",
+    "service_sha256": "b961bd76aeaa00242b7027710a8670e171ec53d69ab25cdc8df11a9379bd4fc6",
+    "logger_source": "tooling/deployments/qwen3.8-27b-q4-fleet/mmbt-qwen38-power-logger.sh",
+    "logger_sha256": "28088b2fede1ef70baba5382b6a11e4a0a8808a945bba1c223892a46422d794e",
+    "raw_path_per_worker": "/home/<worker>/.local/state/dream-fleet/mmbt/qwen38-27b-q4-n20/power.csv",
     "required_fields": [
       "timestamp", "host", "gpu_uuid", "power.draw", "power.limit",
       "temperature.gpu", "memory.used", "memory.total", "utilization.gpu",
       "clocks.current.graphics"
     ],
-    "note": "Telemetry services and final raw paths must be frozen before canonical N=3."
+    "note": "The same pinned 5-second logger runs independently on Tower1 and Tower3 for canonical N=3 and N=20 expansion."
   },
   "prepared_artifacts": [
     {
@@ -177,6 +183,14 @@
     {
       "path": "tooling/deployments/qwen3.8-27b-q4-fleet/README.md",
       "sha256": "dd6514d0557167d0d03f46535d422d5341d07d0520829caf71ea4c75898773eb"
+    },
+    {
+      "path": "tooling/deployments/qwen3.8-27b-q4-fleet/mmbt-qwen38-power-logger.sh",
+      "sha256": "28088b2fede1ef70baba5382b6a11e4a0a8808a945bba1c223892a46422d794e"
+    },
+    {
+      "path": "tooling/deployments/qwen3.8-27b-q4-fleet/dream-fleet-mmbt-qwen38-power.service",
+      "sha256": "b961bd76aeaa00242b7027710a8670e171ec53d69ab25cdc8df11a9379bd4fc6"
     }
   ]
 }
