@@ -8,9 +8,10 @@
     "compatibility_commit": "8701ccb9847ca2437220dacae03773eef0b20736",
     "config": "tooling/qwen3.8-27b-q4-t1-t3-mmbt.json",
     "config_sha256": "1b784f482797513359a6ee59b15b8a61a58109bb2ad5fa4d7f2aff319edf343a",
-    "autopilot_sha256": "ee6f10065904efc8d261bcf86fe890b5979e7ebf9587f82cc1f121ec5f7de412",
+    "autopilot_sha256": "1395a85daa2669df161041f60b5446814aea2b49a8afa8e94971e15588e58870",
     "harness_sha256": "fdbc1584074f36d9500fd2e16d4e0953f4bb28d40e0cdd540a425eed485f4805",
-    "run_microbench_sha256": "a0bb5b67428c2d5d2697994891d489bfd848e42669153e1711b4255a1731b34d"
+    "run_microbench_sha256": "a0bb5b67428c2d5d2697994891d489bfd848e42669153e1711b4255a1731b34d",
+    "grade_microbench_sha256": "49a1e6458e223740e924974ef33e383854fbbce3e2a28057be3633865c9e0862"
   },
   "model": {
     "served_alias": "Qwen3.8-27B-UD-Q4_K_XL",
@@ -171,7 +172,7 @@
     },
     {
       "path": "tooling/deployments/qwen3.8-27b-q4-fleet/validate_campaign_deployment.py",
-      "sha256": "14844f396938046103661730b22ed2b6434b4d6d3e46b1340575d8b215b8b9c3"
+      "sha256": "a44daff1ffa65cc5da96ae00a5768e35617b5042a577c45499c6860d6ec6d382"
     },
     {
       "path": "tooling/deployments/qwen3.8-27b-q4-fleet/README.md",

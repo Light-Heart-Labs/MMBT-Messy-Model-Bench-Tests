@@ -28,6 +28,7 @@ added. The original --target-n / --config / --max-passes / --once all behave as 
 """
 from __future__ import annotations
 import argparse, json, os, signal, statistics, subprocess, sys, time
+import re
 from pathlib import Path
 
 HOME = Path(os.path.expanduser("~"))
@@ -44,6 +45,7 @@ LOG = STATE_DIR / "autopilot.log"
 HEARTBEAT = STATE_DIR / "heartbeat.json"
 SCORECARD = STATE_DIR / "scorecard.md"           # addition B
 NOTIFY_SH = HOME / "dream-fleet-test" / "lib" / "notify.sh"
+CLEANUP_IMAGE = "sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662"
 
 HEARTBEAT_FRESH_SECS = 120
 SUBSTANCE_CHECK_SECS = 300
@@ -150,6 +152,26 @@ def log(msg: str):
 
 def sh(cmd, **kw):
     return subprocess.run(cmd, shell=isinstance(cmd, str), capture_output=True, text=True, **kw)
+
+
+def cleanup_pattern(parent: Path, pattern: str) -> None:
+    """Remove root-owned benchmark scratch through a pinned, networkless helper."""
+    allowed_parents = {Path("/tmp").resolve(), (TOOLING / "workspace").resolve()}
+    resolved_parent = parent.resolve()
+    if resolved_parent not in allowed_parents:
+        raise RuntimeError(f"cleanup parent is not approved: {resolved_parent}")
+    if not re.fullmatch(r"[A-Za-z0-9._*-]{1,160}", pattern) or "/" in pattern or ".." in pattern:
+        raise RuntimeError("cleanup pattern is unsafe")
+    result = sh([
+        "docker", "run", "--rm", "--network", "none", "--read-only",
+        "-e", f"CLEANUP_PATTERN={pattern}",
+        "-v", f"{resolved_parent}:/cleanup:rw",
+        CLEANUP_IMAGE,
+        "sh", "-c",
+        'find /cleanup -mindepth 1 -maxdepth 1 -name "$CLEANUP_PATTERN" -exec rm -rf -- {} \\;',
+    ])
+    if result.returncode != 0:
+        raise RuntimeError(f"root-owned scratch cleanup failed: {result.stderr.strip()[:300]}")
 
 
 # --- pushover ---------------------------------------------------------------
@@ -865,7 +887,7 @@ def run_arm_with_supervision(cfg, arm, target, started_at):
     ids = sh("docker ps -aq --filter name=bench-sandbox-").stdout.split()
     if ids:
         sh(["docker", "rm", "-f", *ids])
-    sh(f"sudo rm -rf {TOOLING}/workspace/*{label}_v* 2>/dev/null")
+    cleanup_pattern(TOOLING / "workspace", f"*{label}_v*")
     ports = configured_ports(cfg)
     lane_count = len(ports)
     log(f"RUN arm {label} (thinking={thinking}) target N={target} lanes={ports}")
@@ -942,7 +964,7 @@ def run_arm_with_supervision(cfg, arm, target, started_at):
     finally:
         for handle in handles:
             handle.close()
-    sh(f"sudo rm -rf /tmp/grade_*{label}_v* 2>/dev/null")
+    cleanup_pattern(Path("/tmp"), f"grade_*{label}_v*")
     g = sh(["bash", str(SCRIPTS / "grade_microbench.sh"), label])
     (STATE_DIR / f"grade-{label}.log").write_text(g.stdout + g.stderr)
     s = sh(["bash", str(SCRIPTS / "summarize.sh"), label])

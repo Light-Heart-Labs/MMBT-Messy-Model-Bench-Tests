@@ -89,6 +89,7 @@ def validate(manifest_path: Path = DEFAULT_MANIFEST, repo: Path = REPO) -> list[
         "autopilot_sha256": "tooling/bench_autopilot.py",
         "harness_sha256": "tooling/harness.py",
         "run_microbench_sha256": "tooling/scripts/run_microbench.sh",
+        "grade_microbench_sha256": "tooling/scripts/grade_microbench.sh",
     }
     for key, relative in campaign_files.items():
         path = repo / relative
