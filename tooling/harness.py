@@ -386,14 +386,28 @@ def record_environment(run_name, model, api_url, task_file, log_dir, *,
     return receipt
 
 
+WORKSPACE_HASH_COMMAND = (
+    "find /workspace "
+    "\\( -path '*/.git/objects' -o -path '*/__pycache__' "
+    "-o -path '*/.pytest_cache' \\) -prune -o "
+    "-type f ! -name '*.pyc' ! -name '*.pyo' "
+    "! -name '.coverage' ! -name '.coverage.*' -print0 2>/dev/null "
+    "| sort -z | xargs -0 -r sha1sum 2>/dev/null "
+    "| sha1sum | awk '{print $1}'"
+)
+
+
 def workspace_state_hash():
-    """Hash of workspace file contents (skipping .git/objects for speed).
-    Detects: file writes, file mods, file deletes, new commits (refs change)."""
-    cmd = (
-        "find /workspace -path '*/.git/objects' -prune -o -type f -print 2>/dev/null "
-        "| sort | xargs -r sha1sum 2>/dev/null | sha1sum | awk '{print $1}'"
-    )
-    p = subprocess.run(["docker", "exec", SANDBOX, "bash", "-c", cmd],
+    """Hash meaningful workspace state while ignoring test-runtime churn.
+
+    Python bytecode, pytest's cache, and coverage databases are execution
+    byproducts rather than model-authored progress.  Including them lets an
+    otherwise read-only pytest loop reset the no-progress detector forever.
+    Git metadata other than object storage and all ordinary source/artifact
+    files remain covered, so edits, deletes, untracked deliverables, refs, and
+    commits still advance the state hash.
+    """
+    p = subprocess.run(["docker", "exec", SANDBOX, "bash", "-c", WORKSPACE_HASH_COMMAND],
                        capture_output=True, text=True, timeout=30)
     return p.stdout.strip()
 

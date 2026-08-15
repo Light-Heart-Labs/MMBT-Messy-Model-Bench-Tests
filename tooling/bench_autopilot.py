@@ -380,7 +380,7 @@ def cell_done(run_name: str) -> bool:
     # final workspace archive because SIGTERM bypasses harness teardown.
     try:
         label = json.loads((d / "label.json").read_text())
-        return (label.get("primary") == "identical-call-loop"
+        return (label.get("primary") in {"identical-call-loop", "stuck-in-research"}
                 and (d / "receipt.json").exists()
                 and (d / "transcript.jsonl").exists())
     except Exception:

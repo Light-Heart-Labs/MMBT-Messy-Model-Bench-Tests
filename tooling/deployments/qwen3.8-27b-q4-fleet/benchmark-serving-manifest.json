@@ -8,8 +8,8 @@
     "compatibility_commit": "8701ccb9847ca2437220dacae03773eef0b20736",
     "config": "tooling/qwen3.8-27b-q4-t1-t3-mmbt.json",
     "config_sha256": "f39903e988e064e909c9b6e2bce3ecda9938f5c3e02538cd1b513cce0992880f",
-    "autopilot_sha256": "a43181ae279a7e0b101c37761f88db3c3f20498eb6f6564e291f906dc78d41fc",
-    "harness_sha256": "fdbc1584074f36d9500fd2e16d4e0953f4bb28d40e0cdd540a425eed485f4805",
+    "autopilot_sha256": "b5ed5df96fdcefa70580e214b6c9566eb8b5422185c2a400fe17019a68a2573b",
+    "harness_sha256": "b6656a23737ef89e32b9ce419fcc83d6f268704e0158fab9175402674011f9aa",
     "run_microbench_sha256": "a0bb5b67428c2d5d2697994891d489bfd848e42669153e1711b4255a1731b34d",
     "grade_microbench_sha256": "49a1e6458e223740e924974ef33e383854fbbce3e2a28057be3633865c9e0862"
   },
@@ -159,7 +159,16 @@
       "inference_or_idle_stuck_seconds": 1200,
       "pending_tool_stuck_seconds": 3900,
       "basis": "The harness permits a documented 3600-second call and owns in-container timeout cleanup; pending tool execution cannot be inferred from transcript mtime or inference-slot movement.",
-      "excluded_receipt": "logs/p1_bugfix_qwen38-27b-udq4xl-nothink_v2/label.json"
+      "excluded_receipt": "logs/p1_bugfix_qwen38-27b-udq4xl-nothink_v2/label.json",
+      "workspace_progress_excludes": [
+        ".git/objects",
+        "__pycache__",
+        ".pytest_cache",
+        "*.pyc",
+        "*.pyo",
+        ".coverage",
+        ".coverage.*"
+      ]
     }
   },
   "telemetry": {

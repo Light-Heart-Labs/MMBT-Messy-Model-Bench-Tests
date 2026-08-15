@@ -57,3 +57,37 @@ def test_bad_or_missing_transcript_fails_closed_to_base_limit(tmp_path):
         1200,
         "inference-or-idle",
     )
+
+
+def test_operator_stopped_research_loop_is_terminal_with_evidence(tmp_path):
+    old_logs = MODULE.LOGS
+    try:
+        MODULE.LOGS = tmp_path
+        run = tmp_path / "p1_testwrite_model_v1"
+        run.mkdir()
+        (run / "receipt.json").write_text("{}\n", encoding="utf-8")
+        (run / "transcript.jsonl").write_text("{}\n", encoding="utf-8")
+        (run / "label.json").write_text(
+            json.dumps({"primary": "stuck-in-research"}) + "\n",
+            encoding="utf-8",
+        )
+        assert MODULE.cell_done(run.name)
+    finally:
+        MODULE.LOGS = old_logs
+
+
+def test_unapproved_operator_label_is_not_terminal(tmp_path):
+    old_logs = MODULE.LOGS
+    try:
+        MODULE.LOGS = tmp_path
+        run = tmp_path / "p1_testwrite_model_v1"
+        run.mkdir()
+        (run / "receipt.json").write_text("{}\n", encoding="utf-8")
+        (run / "transcript.jsonl").write_text("{}\n", encoding="utf-8")
+        (run / "label.json").write_text(
+            json.dumps({"primary": "harness-fault"}) + "\n",
+            encoding="utf-8",
+        )
+        assert not MODULE.cell_done(run.name)
+    finally:
+        MODULE.LOGS = old_logs
