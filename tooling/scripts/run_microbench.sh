@@ -222,34 +222,51 @@ for entry in "${TASKS[@]}"; do
       continue
     fi
 
-    # Build flag set
-    INPUT_FLAG=""
-    [ -n "$input_dir" ] && INPUT_FLAG="--input-mount $input_dir"
+  # Build flag set
+  INPUT_FLAG=""
+  [ -n "$input_dir" ] && INPUT_FLAG="--input-mount $input_dir"
 
-    echo "[$DONE/$TOTAL_RUNS] $run_name  (started $(date +%H:%M:%S))"
-    if python3 "$TOOLING/harness.py" \
-      "$run_name" \
-      "$TOOLING/tasks/$task_file" \
+  # p1_testwrite requires stricter instructions to force real workspace edits.
+  SYSTEM_FLAG=()
+  STUCK_THRESHOLD=500
+  case "$task_short" in
+    p1_testwrite)
+      SYSTEM_FLAG=(--system "$TOOLING/prompts/p1_testwrite_system.md")
+      REQUIRE_FILES=(--require-files "CHANGELOG.md,decisions.md,research.md")
+      STUCK_THRESHOLD=250
+      # p1_testwrite gets a strict schema to avoid discovery-only loops.
+      ;;
+    *)
+      REQUIRE_FILES=()
+      ;;
+  esac
+
+  echo "[$DONE/$TOTAL_RUNS] $run_name  (started $(date +%H:%M:%S))"
+  if python3 "$TOOLING/harness.py" \
+    "$run_name" \
+    "$TOOLING/tasks/$task_file" \
       --model "$MODEL" \
       --port "$PORT" \
       --temperature "$TEMP" \
       "${TOPP_FLAG[@]}" \
       "${TOPK_FLAG[@]}" \
-      "${MINP_FLAG[@]}" \
-      "${PRESENCE_FLAG[@]}" \
-      "${REPEAT_FLAG[@]}" \
-      "${SEED_FLAG[@]}" \
-      --stuck-threshold 500 \
-      $REASONING_FLAG \
-      "${REASONING_LOCATION_FLAG[@]}" \
-      $THINKING_FLAG \
-      "${PRESERVE_THINKING_FLAG[@]}" \
-      $MAXLEN_FLAG \
-      $MAX_OUTPUT_TOKENS_CAP_FLAG \
-      $SERVING_MANIFEST_FLAG \
-      $INPUT_FLAG \
-      --docker-socket \
-      "${SANDBOX_GPU_FLAG[@]}" 2>&1 | tail -3
+    "${MINP_FLAG[@]}" \
+    "${PRESENCE_FLAG[@]}" \
+    "${REPEAT_FLAG[@]}" \
+    "${SEED_FLAG[@]}" \
+    --stuck-threshold "$STUCK_THRESHOLD" \
+    $REASONING_FLAG \
+    "${REASONING_LOCATION_FLAG[@]}" \
+    $THINKING_FLAG \
+    "${PRESERVE_THINKING_FLAG[@]}" \
+    $MAXLEN_FLAG \
+    $MAX_OUTPUT_TOKENS_CAP_FLAG \
+    $SERVING_MANIFEST_FLAG \
+    "${SYSTEM_FLAG[@]}" \
+    "${REQUIRE_FILES[@]}" \
+    $INPUT_FLAG \
+    --docker-socket \
+    "${SANDBOX_GPU_FLAG[@]}" 2>&1 | tail -3
     then
       :
     else
