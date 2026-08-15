@@ -47,5 +47,6 @@
   "variance_expansion_n": 20,
   "variance_expansion_scope": "all_12_families",
   "stuck_secs": 1200,
+  "tool_stuck_secs": 3900,
   "endpoint_grace_secs": 600
 }

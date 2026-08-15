@@ -81,6 +81,12 @@ DEFAULT_CONFIG = {
     "arms": [{"label": "397b-nothink", "thinking": "off"},
              {"label": "397b-think",   "thinking": "on"}],
     "stuck_secs": 1200,        # transcript frozen this long = truly hung (kill it)
+    # A transcript is intentionally quiet while the harness waits for a bash
+    # tool.  The harness owns that command's timeout and adds a 15 s Docker
+    # cleanup guard, so the supervisor must not apply the shorter inference
+    # watchdog to this phase.  3,900 s covers the documented 3,600 s ceiling
+    # plus teardown/jitter while still bounding a genuinely wedged harness.
+    "tool_stuck_secs": 3900,
     "endpoint_grace_secs": 180 # endpoint must load within this on (re)launch
 }
 
@@ -496,6 +502,40 @@ def current_cell_info(cfg=None):
     except Exception:
         pass
     return {"cell": tp.parent.name, "iter": it, "frozen_secs": int(time.time() - mt)}
+
+
+def _last_transcript_row(transcript: Path):
+    """Return the newest JSONL object without rereading a potentially huge log."""
+    try:
+        with transcript.open("rb") as handle:
+            handle.seek(0, os.SEEK_END)
+            size = handle.tell()
+            handle.seek(max(0, size - 65536))
+            tail = handle.read().decode("utf-8", errors="replace")
+        for line in reversed(tail.splitlines()):
+            if line.strip():
+                row = json.loads(line)
+                return row if isinstance(row, dict) else None
+    except (OSError, json.JSONDecodeError):
+        pass
+    return None
+
+
+def watchdog_stuck_policy(cfg: dict, transcript: Path):
+    """Return ``(limit_seconds, phase)`` for the active harness phase.
+
+    Model rows ending in ``tool_calls`` precede tool execution; the matching
+    tool row is written only after that command exits.  During that interval
+    neither transcript mtime nor inference-slot counters move.  Applying the
+    normal 1,200 s inference watchdog there can therefore kill a valid command
+    whose harness timeout is 1,800 or 3,600 s.
+    """
+    inference_limit = int(cfg["stuck_secs"])
+    row = _last_transcript_row(transcript)
+    if row and row.get("type") == "model" and row.get("finish_reason") == "tool_calls":
+        tool_limit = int(cfg.get("tool_stuck_secs", 3900))
+        return max(inference_limit, tool_limit), "pending-tool"
+    return inference_limit, "inference-or-idle"
 
 
 def kill_stuck(cell: str):
@@ -952,10 +992,12 @@ def run_arm_with_supervision(cfg, arm, target, started_at):
                     watch.update(cell=cell, signal=signal, last_progress=now)
                     continue
                 frozen_secs = int(now - watch["last_progress"])
-                if frozen_secs > cfg["stuck_secs"]:
+                stuck_limit, phase = watchdog_stuck_policy(cfg, transcript)
+                if frozen_secs > stuck_limit:
                     log(
                         f"STUCK: lane port {port} cell {cell} showed no transcript "
-                        f"or server-slot progress for {frozen_secs}s"
+                        f"or server-slot progress for {frozen_secs}s "
+                        f"(phase={phase}, limit={stuck_limit}s)"
                     )
                     kill_stuck(cell)
                     watch.update(cell=None, signal=None, last_progress=now)
