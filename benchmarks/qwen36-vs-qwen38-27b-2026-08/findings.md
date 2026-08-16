@@ -42,6 +42,7 @@
 | Correction overlay | [`overlay/`](overlay/) — 165 per-cell records + manifest, digest `e332cd2c78ad94fe264aed7d31e6c64f5273cd9598f889dc1a8fac539e971351` |
 | Full statistical tables | [`results-tables.md`](results-tables.md) (rendered from [`results.json`](results.json)) |
 | Grader-defect report | [`grader-defects.md`](grader-defects.md) |
+| Methodology audit (locked/varies, bias list B1-B11) | [`AUDIT.md`](AUDIT.md) |
 
 Every number in this entry derives from the frozen CSV and the immutable run artifacts —
 never from a live re-scan. Model, quantization and sampler identity come from each run's
