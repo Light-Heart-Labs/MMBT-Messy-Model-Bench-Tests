@@ -924,7 +924,9 @@ def benchmark_environment(cfg, base_env=None, arm=None):
 def run_arm_with_supervision(cfg, arm, target, started_at):
     """Shard one arm deterministically across configured replica endpoints."""
     label, thinking = arm["label"], arm["thinking"]
-    ids = sh("docker ps -aq --filter name=bench-sandbox-").stdout.split()
+    # Scope to THIS arm only. A global wipe kills concurrent campaigns' live cells
+    # mid-run; harness.py names sandboxes per-cell so parallel runs can coexist.
+    ids = sh(f"docker ps -aq --filter name=bench-sandbox-.*{label}").stdout.split()
     if ids:
         sh(["docker", "rm", "-f", *ids])
     cleanup_pattern(TOOLING / "workspace", f"*{label}_v*")
