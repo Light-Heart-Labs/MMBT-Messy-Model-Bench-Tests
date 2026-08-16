@@ -1,3 +1,23 @@
+> [!IMPORTANT]
+> **EXPLORATORY — notice added 2026-08-16 per the corrective protocol, section 9. No number
+> below has been altered; this notice is prepended only.**
+>
+> 1. **Arm mislabel (V36 vendor no-think).** The arm labelled "3.6 vendor no-think" ran
+>    Qwen3.6-27B at its **thinking** sampler (T1.0 / top_p 0.95 / presence_penalty 0) with
+>    thinking disabled — off-spec per the pinned Qwen3.6-27B card (rev `6a9e13bd`, README
+>    L637: official non-thinking is T0.7 / top_p 0.80 / top_k 20 / min_p 0 / pp 1.5 / rp 1,
+>    identical to Qwen3.8-27B). The "vendor vs vendor" no-think contrast in this entry is
+>    therefore mode/sampler-confounded, and this corpus contains **no cell of Qwen3.6
+>    non-thinking at its official sampler**.
+> 2. **Cell-level Fisher exact values in this entry are descriptive only.** They treat cells
+>    as independent and are anti-conservative under family/seed clustering; they are not
+>    confirmatory inference.
+> 3. **This 802-cell freeze is exploratory evidence.** It feeds no confirmatory claim. The
+>    confirmatory design, arms, fixed N, and analysis plan are preregistered at
+>    [`../qwen36-vs-qwen38-corrective-2026-08/PREREGISTRATION.md`](../qwen36-vs-qwen38-corrective-2026-08/PREREGISTRATION.md);
+>    the pinned-card sampler evidence is recorded at
+>    [`../qwen36-vs-qwen38-corrective-2026-08/protocol/CARD-EVIDENCE.md`](../qwen36-vs-qwen38-corrective-2026-08/protocol/CARD-EVIDENCE.md).
+
 # 2026-08 — Qwen3.6-27B vs Qwen3.8-27B (UD-Q4_K_XL) across 12 task families
 
 > Head-to-head of Qwen3.6-27B and Qwen3.8-27B, both at Unsloth UD-Q4_K_XL, on the 12-family

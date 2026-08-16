@@ -172,6 +172,31 @@ TASKS=(
   "p3_pm|task_project_mgmt.md|tooling/inputs/phase3_project_mgmt"
 )
 
+# Optional corrective-campaign filter: run only the named task families.
+# BENCH_TASK_ONLY is a comma-separated allowlist of task_short names
+# (e.g. "p2_extract" or "p1_bugfix,p3_pm"). Unset/empty runs all families —
+# historical behavior unchanged. Unknown names fail fast.
+if [ -n "${BENCH_TASK_ONLY:-}" ]; then
+  IFS=',' read -ra BENCH_TASK_WANT <<< "$BENCH_TASK_ONLY"
+  for w in "${BENCH_TASK_WANT[@]}"; do
+    found=0
+    for entry in "${TASKS[@]}"; do
+      [ "${entry%%|*}" = "$w" ] && found=1
+    done
+    if [ "$found" != "1" ]; then
+      echo "ERROR: BENCH_TASK_ONLY names unknown task family: $w" >&2
+      exit 2
+    fi
+  done
+  FILTERED_TASKS=()
+  for entry in "${TASKS[@]}"; do
+    for w in "${BENCH_TASK_WANT[@]}"; do
+      [ "${entry%%|*}" = "$w" ] && FILTERED_TASKS+=("$entry")
+    done
+  done
+  TASKS=("${FILTERED_TASKS[@]}")
+fi
+
 TOTAL_RUNS=$(( ${#TASKS[@]} * N ))
 if (( LANE_INDEX < TOTAL_RUNS )); then
   ASSIGNED_RUNS=$(( (TOTAL_RUNS - 1 - LANE_INDEX) / LANE_COUNT + 1 ))
@@ -214,10 +239,14 @@ for entry in "${TASKS[@]}"; do
     if [ -f "logs/${run_name}/receipt.json" ] && \
        [ -f "logs/${run_name}/transcript.jsonl" ] && \
        [ -f "logs/${run_name}/label.json" ] && \
-       python3 -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1])).get("primary") == "identical-call-loop" else 1)' \
+       python3 -c 'import json,sys
+lab = json.load(open(sys.argv[1]))
+p = lab.get("primary")
+terminal = p == "identical-call-loop" or (lab.get("automated") is True and p in ("loop-run30", "timeout"))
+sys.exit(0 if terminal else 1)' \
          "logs/${run_name}/label.json"
     then
-      echo "[$DONE/$TOTAL_RUNS] SKIP $run_name (operator-labeled terminal pathology)"
+      echo "[$DONE/$TOTAL_RUNS] SKIP $run_name (terminal-labeled pathology)"
       SKIPPED=$((SKIPPED + 1))
       continue
     fi

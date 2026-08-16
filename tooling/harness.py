@@ -1100,6 +1100,12 @@ def main():
                     help="Pass-through to `docker run --gpus`. Example: 'all', 'device=0', "
                          "'\"device=0,1\"'. Required for PRs the agent needs to test on real GPUs. "
                          "Beware: the sandbox shares GPUs with the vLLM container hosting the model.")
+    ap.add_argument("--sandbox-network", default="bridge",
+                    help="Docker network for the sandbox container (default: bridge). "
+                         "For offline task families (e.g. p3_market frozen fixtures), pass an "
+                         "--internal docker network so the agent has no live-web access while the "
+                         "fixture-server container on that network stays reachable. "
+                         "See tooling/fixtures/README.md.")
     args = ap.parse_args()
     enable_thinking = None if args.thinking is None else (args.thinking == "on")
     preserve_thinking = None if args.preserve_thinking is None else (args.preserve_thinking == "on")
@@ -1171,7 +1177,7 @@ def main():
                 break
         docker_run += ["-v", f"{input_mount}:/input/repo:ro"]
         print(f"input mount: {input_src} → /input/repo (read-only via {input_mount})")
-    docker_run += ["--network", "bridge", IMAGE]
+    docker_run += ["--network", args.sandbox_network, IMAGE]
     subprocess.run(docker_run, check=True, capture_output=True)
     # Init git inside the sandbox; pre-allow safe.directory so agent doesn't have to
     docker_exec(
@@ -1197,6 +1203,7 @@ def main():
             "gh_token_set": bool(gh_token),
             "docker_socket": bool(args.docker_socket),
             "gpus": args.gpus,
+            "sandbox_network": args.sandbox_network,
             "input_mount": args.input_mount,
             "require_files": require_files,
             "require_git_tag": bool(args.require_git_tag),

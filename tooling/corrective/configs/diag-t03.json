@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "arm": "diag-t03",
+  "role": "exploratory",
+  "protocol_ref": "PREREGISTRATION.md section 2 (diagnostic, EXPLICITLY off-spec for both models — exploratory only, three seeds)",
+  "_sampler_provenance": "Diagnostic continuity arm at the historical cross-model bench point T0.3/top_p0.8/top_k20/min_p0/pp0/rp1, thinking off. Off-spec for both models by design; feeds no confirmatory claim.",
+  "thinking": "off",
+  "sampler": {
+    "benchmark_temperature": 0.3,
+    "benchmark_top_p": 0.8,
+    "benchmark_top_k": 20,
+    "benchmark_min_p": 0.0,
+    "benchmark_presence_penalty": 0.0,
+    "benchmark_repeat_penalty": 1.0
+  },
+  "seeds": [101, 211, 307],
+  "families": [
+    "p1_bugfix", "p1_testwrite", "p1_refactor",
+    "p2_extract", "p2_ci", "p2_hallucination", "p2_triage",
+    "p3_doc", "p3_business", "p3_market", "p3_writing", "p3_pm"
+  ],
+  "models": {
+    "q38": {
+      "alias": "Qwen3.8-27B-UD-Q4_K_XL",
+      "label": "q38-diag-t03-nothink",
+      "preserve_thinking": true,
+      "reasoning_effort": null,
+      "reasoning_effort_location": null
+    },
+    "q36": {
+      "alias": "Qwen3.6-27B-UD-Q4_K_XL",
+      "label": "q36-diag-t03-nothink",
+      "preserve_thinking": null,
+      "reasoning_effort": null,
+      "reasoning_effort_location": null
+    }
+  },
+  "host_plan": {
+    "phase_a": {
+      "seeds": [101, 211, 307],
+      "q38": {"tower": "tower1", "port": 18101},
+      "q36": {"tower": "tower3", "port": 18103}
+    }
+  },
+  "drain": {
+    "tower": "tower1",
+    "forbidden_containers": ["ods-llama-server"]
+  },
+  "quant": "UD-Q4_K_XL",
+  "image_reference": "dream-fleet/llama.cpp@sha256:0c8dc7c0954fe5e1d75118a4f880f17252f62d1d01e24716b172afe9fafd85a1",
+  "max_model_len": 262144,
+  "benchmark_max_output_tokens_cap": 262144,
+  "benchmark_sandbox_gpus": "none",
+  "wall_clock_ceiling_secs": 10800,
+  "loop_threshold": 30,
+  "power_cap_w": 500
+}
