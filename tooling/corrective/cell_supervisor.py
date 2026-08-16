@@ -81,6 +81,18 @@ def build_env(cfg, model, seed, family):
     env["BENCH_SEED"] = str(seed)
     env["BENCH_TASK_ONLY"] = family
     env["BENCH_SANDBOX_GPUS"] = str(cfg.get("benchmark_sandbox_gpus", "none"))
+    # Preregistered brief + network wiring: every corrective cell runs the v2
+    # brief where one exists (PREREGISTRATION.md section 8 — the grader v2
+    # fixes are brief-coupled), and p3_market runs on the internal offline
+    # fixture network so the sandbox has no live-web route while the frozen
+    # mirror at 172.29.0.2:8377 stays reachable (section 3;
+    # tooling/fixtures/README.md step 3). All other families keep the
+    # default bridge network.
+    env["BENCH_TASK_BRIEFS"] = "v2"
+    if family == "p3_market":
+        env["BENCH_SANDBOX_NETWORK"] = "mmbt-p3-offline"
+    else:
+        env.pop("BENCH_SANDBOX_NETWORK", None)
     env["BENCH_MAX_OUTPUT_TOKENS_CAP"] = str(cfg.get("benchmark_max_output_tokens_cap", 262144))
     if model.get("preserve_thinking") is not None:
         env["BENCH_PRESERVE_THINKING"] = "true" if model["preserve_thinking"] else "false"

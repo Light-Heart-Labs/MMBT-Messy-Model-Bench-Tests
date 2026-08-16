@@ -116,6 +116,24 @@ case "${BENCH_SANDBOX_GPUS:-all}" in
   *) SANDBOX_GPU_FLAG=(--gpus "$BENCH_SANDBOX_GPUS") ;;
 esac
 
+# Sandbox docker network override (offline task families, e.g. the p3_market
+# frozen fixtures of the corrective study — tooling/fixtures/README.md step 3).
+# Unset/empty = harness default (bridge): historical behavior unchanged.
+SANDBOX_NETWORK_FLAG=()
+[ -n "${BENCH_SANDBOX_NETWORK:-}" ] && SANDBOX_NETWORK_FLAG=(--sandbox-network "$BENCH_SANDBOX_NETWORK")
+
+# Task-brief version selection (corrective study, PREREGISTRATION.md section 8:
+# the v2 grader fixes are brief-coupled; tooling/fixtures/README.md: the v2
+# p3_market brief targets the offline fixture mirror). BENCH_TASK_BRIEFS=v2
+# selects tooling/tasks/v2/<task_file> for families that ship a v2 brief;
+# families without one keep the v1 brief. Unset/empty/v1 = historical v1
+# behavior, byte-identical. The path actually used is recorded per cell in
+# receipt.json.task.{path,sha256}.
+case "${BENCH_TASK_BRIEFS:-v1}" in
+  v1|v2) ;;
+  *) echo "ERROR: invalid BENCH_TASK_BRIEFS=${BENCH_TASK_BRIEFS} (want v1|v2)" >&2; exit 2 ;;
+esac
+
 # Guard: run names + the idempotent skip check are keyed by LABEL only. If an
 # effort is set but not encoded in the label, a later effort would reuse the same
 # run names and be skipped as "already complete". Fail fast instead.
@@ -270,10 +288,15 @@ sys.exit(0 if terminal else 1)' \
       ;;
   esac
 
-  echo "[$DONE/$TOTAL_RUNS] $run_name  (started $(date +%H:%M:%S))"
+  TASK_PATH="$TOOLING/tasks/$task_file"
+  if [ "${BENCH_TASK_BRIEFS:-v1}" = "v2" ] && [ -f "$TOOLING/tasks/v2/$task_file" ]; then
+    TASK_PATH="$TOOLING/tasks/v2/$task_file"
+  fi
+
+  echo "[$DONE/$TOTAL_RUNS] $run_name  (started $(date +%H:%M:%S), brief $TASK_PATH)"
   if python3 "$TOOLING/harness.py" \
     "$run_name" \
-    "$TOOLING/tasks/$task_file" \
+    "$TASK_PATH" \
       --model "$MODEL" \
       --port "$PORT" \
       --temperature "$TEMP" \
@@ -295,6 +318,7 @@ sys.exit(0 if terminal else 1)' \
     "${REQUIRE_FILES[@]}" \
     $INPUT_FLAG \
     --docker-socket \
+    "${SANDBOX_NETWORK_FLAG[@]}" \
     "${SANDBOX_GPU_FLAG[@]}" 2>&1 | tail -3
     then
       :

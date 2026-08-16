@@ -58,5 +58,6 @@
   "benchmark_sandbox_gpus": "none",
   "wall_clock_ceiling_secs": 10800,
   "loop_threshold": 30,
-  "power_cap_w": 500
+  "power_cap_w": 500,
+  "serving_manifest": "/home/michael/mmbt-qwen38-eaaa8ca/tooling/deployments/qwen-corrective/phase_a.json"
 }
