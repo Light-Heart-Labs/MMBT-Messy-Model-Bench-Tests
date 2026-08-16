@@ -78,7 +78,11 @@ def expected_cells(cfg):
                     "phase": phase,
                     "planned_host": plan[model_key]["tower"],
                     "planned_port": plan[model_key]["port"],
-                    "quant": cfg.get("quant"),
+                    # Model-level quant (quant pilot) falls back to the
+                    # arm-level quant of the single-quant arms
+                    # (default-preserving: no model carries "quant" in
+                    # those configs).
+                    "quant": model.get("quant", cfg.get("quant")),
                 }
 
 

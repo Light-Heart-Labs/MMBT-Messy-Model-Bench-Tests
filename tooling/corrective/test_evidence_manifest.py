@@ -56,6 +56,15 @@ class TestGrid(unittest.TestCase):
         self.assertIn("p2_extract_q38-official-nothink-s101_v1", names)
         self.assertIn("p3_pm_q36-official-nothink-s601_v1", names)
 
+    def test_model_level_quant_overrides_arm_quant(self):
+        # quant pilot: per-model quant; absent model key falls back to
+        # the arm-level value (default-preserving for existing configs).
+        cfg = json.loads(json.dumps(CFG))
+        cfg["models"]["q38"]["quant"] = "Q8_0"
+        quants = {c["model_key"]: c["quant"] for c in em.expected_cells(cfg)}
+        self.assertEqual(quants["q38"], "Q8_0")
+        self.assertEqual(quants["q36"], "UD-Q4_K_XL")
+
 
 class TestBalance(unittest.TestCase):
     def run_check(self, rows, cfg=CFG):
