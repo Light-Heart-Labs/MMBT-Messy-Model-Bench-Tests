@@ -1,0 +1,76 @@
+{
+  "_doc": "Per-family expected deliverable artifacts for the deterministic delivery validator (PREREGISTRATION.md section 4: existence/schema, not quality). Derived firsthand from the required-structure / concrete-deliverables sections of tooling/tasks/*.md at this checkout. Spec forms: {path,kind} exact root-relative path in workspace_final.tar.gz; {basename,kind} non-empty file anywhere in the tree; {anyof:[...]} first match wins. Kinds: file|md (non-empty), json (parses), dir (exists, non-empty).",
+  "_doc_freeze_fix": "Preregistration-freeze correction (2026-08-16, before any corrective cell runs): artifacts the briefs explicitly mark optional are NOT delivery-gated, since gating them would misclassify brief-compliant deliveries as non-delivered. Removed on that basis: p2_extract notes.md + decisions/ (brief: you may also produce), p2_hallucination notes.md + decisions/ (brief structure marks both optional), p2_triage README.md + decisions/ (brief: you may produce), p3_doc research/dead-ends.md (brief: optional), p3_pm decisions/ (brief: Optional). Entries listed in a brief required-structure block without an optional marker remain gated. Under-requirement is left as-is (lenient symmetric across models): e.g. p2_ci pyproject.toml, p1_bugfix benchmarks/ + decisions/ + research/notes/ are brief-required but not gated here.",
+  "p1_bugfix": [
+    {"path": "audit/triage.md", "kind": "md"},
+    {"path": "audit/before-after.md", "kind": "md"},
+    {"path": "CHANGELOG.md", "kind": "md"},
+    {"path": "README.md", "kind": "md"},
+    {"path": "logalyzer", "kind": "dir"},
+    {"path": "tests", "kind": "dir"},
+    {"path": "architecture", "kind": "dir"},
+    {"path": "research/dead-ends.md", "kind": "md"},
+    {"path": "research/questions.md", "kind": "md"}
+  ],
+  "p1_testwrite": [
+    {"path": "tests", "kind": "dir"},
+    {"path": "logalyzer", "kind": "dir"},
+    {"basename": "CHANGELOG.md", "kind": "md"},
+    {"anyof": [{"path": "decisions", "kind": "dir"}, {"basename": "decisions.md", "kind": "md"}]},
+    {"anyof": [{"path": "research", "kind": "dir"}, {"basename": "research.md", "kind": "md"}]}
+  ],
+  "p1_refactor": [
+    {"path": "logalyzer/output", "kind": "dir"},
+    {"path": "tests", "kind": "dir"},
+    {"path": "decisions", "kind": "dir"},
+    {"path": "CHANGELOG.md", "kind": "md"},
+    {"path": "research/dead-ends.md", "kind": "md"},
+    {"path": "research/questions.md", "kind": "md"}
+  ],
+  "p2_extract": [
+    {"path": "extraction_results.json", "kind": "json"}
+  ],
+  "p2_ci": [
+    {"path": "diagnosis.md", "kind": "md"},
+    {"path": "CHANGELOG.md", "kind": "md"},
+    {"path": "decisions", "kind": "dir"},
+    {"path": "src/discountkit", "kind": "dir"},
+    {"path": "tests", "kind": "dir"}
+  ],
+  "p2_hallucination": [
+    {"path": "triage.json", "kind": "json"}
+  ],
+  "p2_triage": [
+    {"path": "triage_results.json", "kind": "json"}
+  ],
+  "p3_doc": [
+    {"path": "brief.md", "kind": "md"},
+    {"path": "key-facts.md", "kind": "md"},
+    {"path": "research/notes.md", "kind": "md"},
+    {"path": "decisions", "kind": "dir"}
+  ],
+  "p3_business": [
+    {"path": "memo.md", "kind": "md"},
+    {"path": "asks.md", "kind": "md"},
+    {"path": "concerns.md", "kind": "md"},
+    {"path": "decisions", "kind": "dir"}
+  ],
+  "p3_market": [
+    {"path": "comparison.md", "kind": "md"},
+    {"path": "recommendation.md", "kind": "md"},
+    {"path": "sources.md", "kind": "md"},
+    {"path": "research/notes.md", "kind": "md"},
+    {"path": "decisions", "kind": "dir"}
+  ],
+  "p3_writing": [
+    {"path": "ceo_brief.md", "kind": "md"},
+    {"path": "customer_email.md", "kind": "md"},
+    {"path": "legal_summary.md", "kind": "md"},
+    {"path": "research/notes.md", "kind": "md"},
+    {"path": "decisions", "kind": "dir"}
+  ],
+  "p3_pm": [
+    {"path": "status_report.md", "kind": "md"},
+    {"path": "research/notes.md", "kind": "md"}
+  ]
+}

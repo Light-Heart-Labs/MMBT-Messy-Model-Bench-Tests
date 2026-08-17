@@ -1,0 +1,2402 @@
+
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="cleartype" content="on">
+    
+
+<script>
+  (function(h,o,u,n,d) {
+    h=h[d]=h[d]||{q:[],onReady:function(c){h.q.push(c)}}
+    d=o.createElement(u);d.async=1;d.src=n
+    n=o.getElementsByTagName(u)[0];n.parentNode.insertBefore(d,n)
+  })(window,document,'script','https://www.datadoghq-browser-agent.com/us1/v5/datadog-rum.js','DD_RUM')
+  window.DD_RUM.onReady(function() {
+    window.DD_RUM.init({
+      clientToken: 'pubb3fd2b6112b42ffa9d095053424dcf65',
+      applicationId: '4ae507f9-af2b-400c-82f8-ed4c45b91fca',
+      site: 'datadoghq.com',
+      service: 'lastpass.com-landing',
+      env: 'prod',
+      version: '1.0.0',
+      sessionSampleRate: 5,
+      sessionReplaySampleRate: 0,
+      trackUserInteractions: true,
+      trackResources: true,
+      trackLongTasks: true,
+      defaultPrivacyLevel: 'mask-user-input',
+    });
+  })
+</script><link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet"/>
+<script>
+window.gcashDown = false;
+window._LPabtestCode = true;
+</script>
+<script type="text/javascript">
+function getCouponQueryStringParameter(name) {
+    name = name.replace(/[[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
+
+function getCouponCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var cookieArray = decodedCookie.split(';');
+    for (var i = 0; i < cookieArray.length; i++) {
+        var cookie = cookieArray[i];
+        while (cookie.charAt(0) == ' ') {
+            cookie = cookie.substring(1);
+        }
+        if (cookie.indexOf(name) == 0) {
+            return cookie.substring(name.length, cookie.length);
+        }
+    }
+    return null;
+}
+
+function removeCookie(cname, domain) {
+    document.cookie = cname + '=; expires=Mon, 24 Jan 1970 00:00:00 UTC' + (domain ? ';domain=' + domain + ';path=/' : '');
+}
+
+function   setCouponCookie(cname, cvalue, exdays, domain, samesite, secure = true) {
+    var d = new Date(), expires;
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    if (exdays.constructor == Number) {
+      expires = exdays === Infinity ? '; expires=Sun, 8 Dec 1970 23:59:59 GMT' : 'expires=' + d.toUTCString();
+    }
+    document.cookie = cname + '=' + cvalue + ';' + expires +(domain ? ';domain=' + domain + ';path=/' : ';path=/') + ';SameSite=' + samesite + ';' + (secure ? 'Secure;' : '');
+  }
+
+// Check if the query string contains 'cp' and no coupon cookie
+const pathRegex = /^\/[a-z]{2}\/(select-business-plan|select-business-plan-offer|select-personal-plan|select-personal-plan-offer)|\/(select-business-plan|select-business-plan-offer|select-personal-plan|select-personal-plan-offer)$/i;
+
+if (!pathRegex.test(window.location.pathname)) {
+ //if (getCouponCookie('cp_code') === null && getCouponQueryStringParameter('cp') === null) { //add
+ if (getCouponCookie('cp_code') ===  'LP2026-02-30W-A' && getCouponQueryStringParameter('cp') === null) { //remove
+   setCouponCookie('cp_code', 'LP2026-02-30W-A', -20, '');
+}
+}
+window.addEventListener('load', () => {
+if(window.location.pathname !== '/') {     Array.from(document.querySelectorAll('h1')).forEach((headerElement) => { 
+      if(headerElement !== null) { 
+        headerElement.style.opacity = 1}
+      }) }
+})
+setTimeout(() => {
+    Array.from(document.querySelectorAll('h1')).forEach((headerElement) => { 
+      if(headerElement !== null) { 
+        headerElement.style.opacity = 1}
+      })
+  }, 8000);
+
+
+</script>
+    
+
+
+
+<script>
+    var akcc = 'US';
+    var akreg = 'PA';
+</script>
+
+
+    <script>
+        window.googleMapsAutoComplete = true;
+    </script>
+        <script>
+            window.gtagTransportUrl = 'https://web-analytics.lastpass.com'
+        </script>
+        <script>
+            window.gtagStandardUrl = 'https://www.googletagmanager.com/gtm.js'
+        </script>
+<script type="text/javascript">
+    window.useAleroApiJSON=true
+</script>
+
+
+        <script type="text/javascript">
+        window.cdpScriptUrl = 'https://static.lputil.com/lpassets/aiq/lastpass-prod.js'
+        </script>
+    <script type="text/javascript">
+        window.chatbot = {
+            isChatActivated: true,
+            cdnPath: '/lpassets/drift/index.html'
+        };
+    </script>
+        <script type="text/javascript">
+       window.survey = {cdnPath:'/lpassets/getfeedback/v2/index.html'}
+        </script>
+
+
+
+<script type="text/javascript">
+
+    window.LPFeatureFlags =
+    {
+        "enableZoomInfoEnrichApi": false
+    }
+
+</script>
+
+    
+    <script>window.resourceBaseUrl = '/dist/';</script>
+<link rel="preload" as="style" href="/assets/styles/styles.css?t=12052026204139">
+<link rel="stylesheet" type="text/css" href="/assets/styles/styles.css?t=12052026204139">
+<link rel="preload" as="style" href="/assets/form/static/css/main.css?t=12052026204139">
+<link rel="stylesheet" type="text/css" href="/assets/form/static/css/main.css?t=12052026204139">
+<script defer src="/assets/js/main.js?t=12052026204139"></script>
+<script defer src="/assets/form/static/js/index.bundle.js?t=12052026204139"></script>
+<script defer src="/assets/form/static/js/thirdparty.bundle.js?t=12052026204139"></script>
+<script defer src="https://static.lputil.com/lpassets/ab-test/tests.js?t=12052026204139"></script>
+
+
+<title>Transparent Security &amp; Customer Data Protection - LastPass </title>
+<meta name="description" content="LastPass pledges to protect our customers’ data, passwords, and vaults. We adhere to values of security, communication, and continuous improvements.&#160;&#160;" />
+<meta property="og:locale" content="en-US" />
+<meta property="og:url" content="https://www.lastpass.com/security" />
+<meta property="og:title" content="Transparent Security &amp; Customer Data Protection - LastPass " />
+<meta property="og:description" content="LastPass pledges to protect our customers’ data, passwords, and vaults. We adhere to values of security, communication, and continuous improvements.&#160;&#160;" />
+<meta property="og:image" content="https://www.lastpass.com/-/media/28cbf631b1954ed081a8979e2c46b6e4.png" />
+
+<link rel="canonical" href="https://www.lastpass.com/security" />
+
+    <link rel="shortcut icon" href="/-/media/43c6c6862a08410a8ef34ab46a3a750b.ico" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://www.youtube.com/player_api"></script>    
+</head>
+<body>
+    <script>function init() { const lazyImageArray = Array.prototype.slice.call(document.querySelectorAll('img[data-src]')); lazyImageArray.map(function(lazyImage) { let lazyImageSrc = lazyImage.dataset.src; lazyImage.src = lazyImageSrc; }); } window.onload = init;</script>
+    
+    
+    
+<header class="lp-header">
+	
+
+
+
+
+<nav class="nav" data-module="nav-client-side">
+    <a href="#MAINCONTENT" class="lp-button primary brand medium skip-to-content-button">
+        Skip to Content
+    </a>
+
+
+
+
+
+    <div class="nav utility-nav" style="background: #F5F6F6">
+        <div class="utility-nav-top-nav-wrap">
+            
+
+
+<div class="header-language-selector" data-module="header-language-selector">
+    <button type="button" class="header-language-selector__button" data-toggle="modal" data-target="#langmodal" id="lang-btn">
+        <span class="icon"></span><span class="lang-text">EN</span>
+    </button>
+    <ul class="header-language-selector__drop">
+            <li>
+                <a href="/security">
+                    English
+                </a>
+            </li>
+            <li>
+                <a href="/es/security">
+                    Espa&#241;ol
+                </a>
+            </li>
+            <li>
+                <a href="/de/security">
+                    Deutsch
+                </a>
+            </li>
+            <li>
+                <a href="/fr/security">
+                    Fran&#231;ais
+                </a>
+            </li>
+            <li>
+                <a href="/it/security">
+                    Italiano
+                </a>
+            </li>
+            <li>
+                <a href="/nl/security">
+                    Nederlands
+                </a>
+            </li>
+            <li>
+                <a href="/pt/security">
+                    Portugu&#234;s
+                </a>
+            </li>
+    </ul>
+</div>
+            <ul class="utility-nav-col">
+                                <li class="nav-item-wrap">
+<a href="https://blog.lastpass.com/" class="nav-item on-utility-nav" aria-label="Blog" >                        <span class="nav-item-copy">Blog</span>
+</a>                </li>
+                <li class="nav-item-wrap">
+                    <button class="nav-item  on-utility-nav  " aria-label="Resource Center" aria-controls=ResourceCenterDropdown aria-expanded="false">
+
+                        <span class="nav-item-copy">Resource Center</span>
+                        <span class="nav-item-chevrons">
+                            <div class="nav-item-chevrons__pseudo-element"></div>
+                        </span>
+                    </button>
+                    <div class="nav-submenu-3-col nav-submenu" id=ResourceCenterDropdown>
+                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+<a href="/resources/case-studies" class="nav-heading-link nav-heading-link" >                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Case studies</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/resources/webinars" class="nav-heading-link nav-heading-link" >                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Webinars</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/resources/business-demos/registration" class="nav-heading-link nav-heading-link" >                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Product demos</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/resources/events" class="nav-heading-link nav-heading-link" >                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Events</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a>                                            </div>
+
+                                                    <div class="nav-end-link-wrapper">
+<a href="/resources" class="lp-button tertiary positive small nav-tertiary-link" title="All resources" >All resources</a>                </div>
+
+                                </div>
+                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+<a href="/trust-center" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/7afd343f0230450f97897f44723ff515.svg?la=en&amp;hash=7218A1BF0D2AB971B888F88B156B98A2" alt="icon_functional_trust-center-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Trust Center</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="https://compliance.lastpass.com/" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/7a226bee88ba433288a210d2efc7c0bc.svg?la=en&amp;hash=590BC2B4ED8C91DE919FE10CD89C84E8" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Compliance Center</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/security" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/4720d7adc6294ec0bad4417328ad10c8.svg?la=en&amp;hash=671BDE1426F9C8821A0D7436256379B2" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Security architecture</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/university" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/07bb195cb30d463db05550dda2f65a7e.svg?la=en&amp;hash=6ACC87A029CAC91D5E5512617C78F93E" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">LastPass University</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a>                                            </div>
+
+                                    
+                                </div>
+                                <div class="nav-submenu-column nav-submenu-column-type-highlight">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+                                            </div>
+
+                                    <a href="/resources/business-demos/registration" class="nav-highlight-link nav-highlight-link--featured" style="" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/afdb972bf4404ab28258a27bacad17e1.png?la=en&amp;h=120&amp;w=120&amp;hash=C657EFBA02575730CE48F5F95072E250" class="nav-highlight-link-image nav-highlight-link-image--featured" alt="illustration_navigation-highlighted_business-demo-2x-png" /></div>
+                    <div class="nav-highlight-link-col">
+                                <span class="nav-highlight-link-subheading">Product demos</span>
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">On-demand LastPass Business demos</div>
+
+                    </div>
+                </div>
+</a><a href="https://info.lastpass.com/threat-reports" class="nav-highlight-link nav-highlight-link--featured" style="" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/c4173af74ce44144a5fad12bbdae317c.png?la=en&amp;h=120&amp;w=120&amp;hash=F3C81722CBDBE8E6F2167B18DF45A3CB" class="nav-highlight-link-image nav-highlight-link-image--featured" alt="illustration_navigation-highlighted_time-report-2x-png" /></div>
+                    <div class="nav-highlight-link-col">
+                                <span class="nav-highlight-link-subheading">Report</span>
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">Stay ahead with the latest threat intel</div>
+
+                    </div>
+                </div>
+</a>
+                                </div>
+
+                    </div>
+                </li>
+                <li class="nav-item-wrap">
+                    <button class="nav-item  on-utility-nav  " aria-label="Support" aria-controls=SupportDropdown aria-expanded="false">
+
+                        <span class="nav-item-copy">Support</span>
+                        <span class="nav-item-chevrons">
+                            <div class="nav-item-chevrons__pseudo-element"></div>
+                        </span>
+                    </button>
+                    <div class="nav-submenu-2-col nav-submenu" id=SupportDropdown>
+                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                        <div class="nav-submenu-column-title">Help</div>
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+<a href="https://support.lastpass.com/s/" class="nav-heading-link nav-heading-link--has-description" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/366c223f99c14d02ac715269c5c16a8d.svg?la=en&amp;hash=DBF89646BE0808BEB02C2030A70E3892" alt="icon_functional_help-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Support Center</span>
+                                                                                                                                    </div>
+                                                                    <p class="nav-heading-link-description">Self-service library of resources and guides for all LastPass products.</p>
+                                                            </div>
+</a><a href="https://community.lastpass.com/" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/56a9151207424fb5be34189f8dde8853.svg?la=en&amp;hash=A681FA8E27E52D3A065D0C3728462C8E" alt="icon_functional_collaboration-discussion-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Community forum</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="https://status.lastpass.com/" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/f60adad1329c48de898249fa7a6c2383.svg?la=en&amp;hash=066FCD36A2FA670EF9A902B2EFE48E55" alt="icon_functional_product-status-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">System status</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a>                                            </div>
+
+                                    
+                                </div>
+                                <div class="nav-submenu-column nav-submenu-column-type-highlight">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+                                            </div>
+
+                                    <a href="https://support.lastpass.com/s/contact-us" class="nav-highlight-link nav-highlight-link--icon" style="background: #FFFFFF" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/6d8a85cdc02d4b12bf0e545b7b5331ad.svg?la=en&amp;hash=E5C8564B09EE7B7F50C2D543C65581C1" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="icon_functional_chats-brand-svg" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--red ">Talk to support</div>
+                                <p class="nav-highlight-link-description ">Personal support for all LastPass’ subscribed customers.</p>
+
+                    </div>
+                </div>
+</a><a href="https://lastpass.com/misc_download2.php" class="nav-highlight-link nav-highlight-link--illustrated" style="background: #FFFFFF" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/61bc0755bfb74ba98d7ab29055111fe2.png?la=en&amp;h=40&amp;w=432&amp;hash=B1CC6B69ED9C445BF3B9CB933160B790" class="nav-highlight-link-image nav-highlight-link-image--illustrated" alt="illustration_navigation-highlighted_all-devices-2x-png" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">Download LastPass apps</div>
+                                <p class="nav-highlight-link-description ">LastPass works across all devices.</p>
+
+                    </div>
+                </div>
+</a>
+                                </div>
+
+                    </div>
+                </li>
+                <li class="nav-item-wrap">
+                    <button class="nav-item  nav-item--icon" aria-label="Contact sales" aria-controls=ContactsalesDropdown aria-expanded="false">
+                            <span class="nav-item-icons">
+                                <img src='/static/media/lazy.png' data-src="/-/media/b511ffa58fe14333868f2bbb7b758d18.svg?la=en&amp;hash=97DF5A26D444021DB5261048F2B43AD4" alt="" />
+                                <img src='/static/media/lazy.png' data-src="/-/media/6d8a85cdc02d4b12bf0e545b7b5331ad.svg?la=en&amp;hash=E5C8564B09EE7B7F50C2D543C65581C1" alt="icon_functional_chats-brand-svg" />
+                            </span>
+
+                        <span class="nav-item-copy">Contact sales</span>
+                        <span class="nav-item-chevrons">
+                            <div class="nav-item-chevrons__pseudo-element"></div>
+                        </span>
+                    </button>
+                    <div class="nav-submenu-1-col nav-submenu item-visible-main" id=ContactsalesDropdown>
+                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+<a href="/contact-sales" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/355395c30a284becb81878bcee467769.svg?la=en&amp;hash=DC8ADAF30292F3B9D0557A629B4F57A1" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Submit sales inquiry</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/b511ffa58fe14333868f2bbb7b758d18.svg?la=en&amp;hash=97DF5A26D444021DB5261048F2B43AD4" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=drift-modal-open-button>
+                                                                    <span class="drift-modal-open-button">Chat with sales</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/resources/business-demo" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/3800e389a8fc4106b3ae01eb50f6720f.svg?la=en&amp;hash=BB753CE1AA82B17F5FA9942D77247522" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Request a demo</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/partner/partner-locator" class="nav-heading-link nav-heading-link" title="Find a partner" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/c2f36ac152e04ac59b23249d37992dec.svg?la=en&amp;hash=ABD67C1649FA36721C93910D7B5B070D" alt="icon_functional_group-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Find a partner</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a>                                            </div>
+
+                                    
+                                </div>
+
+                    </div>
+                </li>
+                <li class="nav-item-wrap">
+<a href="https://lastpass.com/?ac=1&amp;lpnorefresh=1" class="nav-item nav-item--icon" aria-label="Log in" >                            <span class="nav-item-icons">
+                                <img src='/static/media/lazy.png' data-src="/-/media/44e0a57a5d5b4e11bffe4221783458ca.svg?la=en&amp;hash=5C386191167D943CC712A0CF96502168" alt="icon_functional_nav-login-enabled-svg" />
+                                <img src='/static/media/lazy.png' data-src="/-/media/af802c3853684a7291e4c2c05da47f13.svg?la=en&amp;hash=C564E0C4FB7D9032577457CB74D3D715" alt="icon_functional_nav-login-hover-svg" />
+                            </span>
+                        <span class="nav-item-copy">Log in</span>
+</a>                </li>
+        <li class="nav-item-wrap">
+            
+
+
+<div class="header-language-selector" data-module="header-language-selector">
+    <button type="button" class="header-language-selector__button" data-toggle="modal" data-target="#langmodal" id="lang-btn">
+        <span class="icon"></span><span class="lang-text">EN</span>
+    </button>
+    <ul class="header-language-selector__drop">
+            <li>
+                <a href="/security">
+                    English
+                </a>
+            </li>
+            <li>
+                <a href="/es/security">
+                    Espa&#241;ol
+                </a>
+            </li>
+            <li>
+                <a href="/de/security">
+                    Deutsch
+                </a>
+            </li>
+            <li>
+                <a href="/fr/security">
+                    Fran&#231;ais
+                </a>
+            </li>
+            <li>
+                <a href="/it/security">
+                    Italiano
+                </a>
+            </li>
+            <li>
+                <a href="/nl/security">
+                    Nederlands
+                </a>
+            </li>
+            <li>
+                <a href="/pt/security">
+                    Portugu&#234;s
+                </a>
+            </li>
+    </ul>
+</div>
+        </li>
+
+            </ul>
+        </div>
+    </div>
+    <div class="nav-main" style="background: #FFFFFF">
+        <div class="nav-logo-wrap">
+<a href="/" class="lastpass-logo" data-gaeventcategory="navigation" aria-label="Go to the LastPass.com home page" data-gaeventaction="header_logo" >                <img src="/-/media/1f23da193f0447af82a4e0179342eed4.svg" aria-hidden="true" alt="logo_nav-refreshed_positive-svg" />
+</a>        </div>
+        <div class="nav-mobile-top-nav-wrap">
+<a href="https://lastpass.com/create-account.php" data-module="trial-modal-react" class="lp-button lp-button--red nav-item--mobile-download" data-trial-content="6bdc41f3-910e-4115-803e-c22686bb29dc" aria-label="Get LastPass Free" data-trial-form-type="Trial" data-modal-type="ChevyPremium" data-trial-type="business" >Try Free</a>
+            <button class="mobile-menu-toggle" aria-label="Navigation menu">
+                    <img src="/-/media/26f066959bca4cc9add4dbb206d2962e.svg" aria-label="Navigation menu" aria-pressed="true" alt="mobilemenutoggleopenff9dce33svg" />
+                    <img src="/-/media/fbc260615a2e4912a9eed2b7687b567c.svg" aria-label="Navigation menu" aria-pressed="false" alt="mobilemenutoggleopenff9dce33svg" />
+            </button>
+        </div>
+        <div data-component-name="Header" class="nav-main-items-wrap">
+            <ul class="nav-col nav-left">
+                            <li class="nav-item-wrap">
+                                    <button class="nav-item" aria-controls=WhyLastPassDropdown aria-expanded="false">
+                                        <span class="nav-item-copy">Why LastPass?</span>
+                                        <span class="nav-item-chevrons">
+                                            <div class="nav-item-chevrons__pseudo-element"></div>
+                                        </span>
+                                    </button>
+                                    <div class="nav-submenu-3-col nav-submenu" id=WhyLastPassDropdown>
+                                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                        <div class="nav-submenu-column-title">Overview</div>
+
+                                                            <div class="nav-submenu-heading-link-wrapper">
+<a href="/why-lastpass" class="nav-heading-link nav-heading-link--has-description" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Why LastPass?</span>
+
+                                                                                </div>
+                                                                                    <p class="nav-heading-link-description">Create and store secure passwords for yourself, your team or business.</p>
+                                                                            </div>
+</a><a href="/how-lastpass-works" class="nav-heading-link nav-heading-link--has-description" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">How LastPass works</span>
+
+                                                                                </div>
+                                                                                    <p class="nav-heading-link-description">Remember fewer passwords and log in faster with our browser extension.</p>
+                                                                            </div>
+</a><a href="/security" class="nav-heading-link nav-heading-link--has-description" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Security Architecture</span>
+
+                                                                                </div>
+                                                                                    <p class="nav-heading-link-description">LastPass zero-knowledge security model keeps your data private even from us.</p>
+                                                                            </div>
+</a><a href="/compare" class="nav-heading-link nav-heading-link--has-description" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Compare LastPass</span>
+
+                                                                                </div>
+                                                                                    <p class="nav-heading-link-description">Compare LastPass competitors, plans, and features in one place</p>
+                                                                            </div>
+</a>                                                            </div>
+
+
+                                                    
+                                                </div>
+                                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                        <div class="nav-submenu-column-title">Key Features</div>
+
+                                                            <div class="nav-submenu-heading-link-wrapper">
+<a href="/password-manager" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Password management</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/autofill" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Save and autofill</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/password-generator" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Password generator</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/password-sharing" class="nav-heading-link nav-heading-link" data-gaeventcategory="navigation" data-gaeventaction="header-business_mfa" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Password sharing</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/passkeys" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Passkeys</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/dark-web-monitoring" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Dark web monitoring</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/security-dashboard" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Security dashboard</span>
+
+                                                                                </div>
+                                                                            </div>
+</a>                                                            </div>
+
+
+                                                                    <div class="nav-end-link-wrapper">
+<a href="/features" class="lp-button tertiary positive small nav-tertiary-link" title="All features" >All features</a>                </div>
+
+                                                </div>
+                                                <div class="nav-submenu-column nav-submenu-column-type-highlight">
+
+                                                            <div class="nav-submenu-heading-link-wrapper">
+                                                            </div>
+
+
+                                                    <a href="/trial/premium" class="nav-highlight-link nav-highlight-link--icon" style="background: #F1F8F1" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/cd544eef7ab649589bb42639e3302d68.svg?la=en&amp;hash=BE9C4DAF11F0AF33C4F781050D5AEB35" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="icon_functional_lastpass-brand-svg" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--red ">Get Personal free</div>
+                                <p class="nav-highlight-link-description ">Free LastPass Premium trial, no credit card required.</p>
+
+                    </div>
+                </div>
+</a><a href="/trial/business" class="nav-highlight-link nav-highlight-link--icon" style="background: #F3F7FB" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/cd544eef7ab649589bb42639e3302d68.svg?la=en&amp;hash=BE9C4DAF11F0AF33C4F781050D5AEB35" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="icon_functional_lastpass-brand-svg" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--red ">Get Business free</div>
+                                <p class="nav-highlight-link-description ">Free LastPass Business trial, no credit card required.</p>
+
+                    </div>
+                </div>
+</a><a href="/contact-sales" class="nav-highlight-link nav-highlight-link--icon" style="background: #F3F7FB" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/b511ffa58fe14333868f2bbb7b758d18.svg?la=en&amp;hash=97DF5A26D444021DB5261048F2B43AD4" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">Contact sales</div>
+                                <p class="nav-highlight-link-description ">Let our experts help you find the right plan and successfully deploy LastPass.</p>
+
+                    </div>
+                </div>
+</a><a href="https://lastpass.com/misc_download2.php" class="nav-highlight-link nav-highlight-link--illustrated" style="background: rgb(249, 250, 251);" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/61bc0755bfb74ba98d7ab29055111fe2.png?la=en&amp;h=40&amp;w=432&amp;hash=B1CC6B69ED9C445BF3B9CB933160B790" class="nav-highlight-link-image nav-highlight-link-image--illustrated" alt="illustration_navigation-highlighted_all-devices-2x-png" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">Download LastPass apps</div>
+                                <p class="nav-highlight-link-description ">LastPass works across all devices.</p>
+
+                    </div>
+                </div>
+</a>
+                                                </div>
+
+                                    </div>
+
+                            </li>
+                            <li class="nav-item-wrap">
+                                    <button class="nav-item" aria-controls=PersonalDropdown aria-expanded="false">
+                                        <span class="nav-item-copy">Personal</span>
+                                        <span class="nav-item-chevrons">
+                                            <div class="nav-item-chevrons__pseudo-element"></div>
+                                        </span>
+                                    </button>
+                                    <div class="nav-submenu-3-col nav-submenu" id=PersonalDropdown>
+                                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                        <div class="nav-submenu-column-title">Personal Plans</div>
+
+                                                            <div class="nav-submenu-heading-link-wrapper">
+<a href="/products/premium-password-manager" class="nav-heading-link nav-heading-link--has-description" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Personal</span>
+                                                                                            <span class="nav-heading-link-tag nav-heading-link-tag--yellow"
+                                                                                                  
+                                                                                                  data-theme="1">-30% off</span>
+
+                                                                                </div>
+                                                                                    <p class="nav-heading-link-description">Sync passwords across all devices, monitor password health, data breaches and much more.</p>
+                                                                            </div>
+</a><a href="/products/family-password-manager" class="nav-heading-link nav-heading-link--has-description" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Families</span>
+                                                                                            <span class="nav-heading-link-tag nav-heading-link-tag--yellow"
+                                                                                                  
+                                                                                                  data-theme="1">-30% off</span>
+
+                                                                                </div>
+                                                                                    <p class="nav-heading-link-description">Premium password management for family or group of 6 people.</p>
+                                                                            </div>
+</a>                                                            </div>
+
+
+                                                                    <div class="nav-end-link-wrapper">
+<a href="/pricing" class="lp-button tertiary positive small nav-tertiary-link" title="Compare plans" >Compare plans</a>                </div>
+
+                                                </div>
+                                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                        <div class="nav-submenu-column-title">FOR INDIVIDUALS</div>
+
+                                                            <div class="nav-submenu-heading-link-wrapper">
+<a href="/features/password-vault" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Password vault</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/autofill" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Save & autofill</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/smart-scanner" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Mobile Smart Scanner</span>
+                                                                                            <span class="nav-heading-link-tag nav-heading-link-tag--inform"
+                                                                                                  
+                                                                                                  data-theme="1">New</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/passkeys" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Passkeys</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/device-sync" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Automatic device sync</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/emergency-access" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Emergency access</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/password-sharing/personal-password-sharing" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Personal password sharing</span>
+
+                                                                                </div>
+                                                                            </div>
+</a>                                                            </div>
+
+
+                                                                    <div class="nav-end-link-wrapper">
+<a href="/features" class="lp-button tertiary positive small nav-tertiary-link" title="All personal features" >All personal features</a>                </div>
+
+                                                </div>
+                                                <div class="nav-submenu-column nav-submenu-column-type-highlight">
+
+                                                            <div class="nav-submenu-heading-link-wrapper">
+                                                            </div>
+
+
+                                                    <a href="/trial/premium" class="nav-highlight-link nav-highlight-link--icon" style="background: #F1F8F1" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/cd544eef7ab649589bb42639e3302d68.svg?la=en&amp;hash=BE9C4DAF11F0AF33C4F781050D5AEB35" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="icon_functional_lastpass-brand-svg" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--red ">Get Personal free</div>
+                                <p class="nav-highlight-link-description ">30-day free LastPass Premium trial, no credit card required.</p>
+
+                    </div>
+                </div>
+</a><a href="https://lastpass.com/families/trial" class="nav-highlight-link nav-highlight-link--icon" style="background: #F1F8F1" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/cd544eef7ab649589bb42639e3302d68.svg?la=en&amp;hash=BE9C4DAF11F0AF33C4F781050D5AEB35" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="icon_functional_lastpass-brand-svg" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--red ">Get Families free</div>
+                                <p class="nav-highlight-link-description ">30-day free LastPass Families trial, no credit card required.</p>
+
+                    </div>
+                </div>
+</a><a href="/trial/free" class="nav-highlight-link nav-highlight-link--icon" style="background: #F1F8F1" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/cd544eef7ab649589bb42639e3302d68.svg?la=en&amp;hash=BE9C4DAF11F0AF33C4F781050D5AEB35" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="icon_functional_lastpass-brand-svg" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--red ">Get started with LastPass Free</div>
+                                <p class="nav-highlight-link-description ">Limited to 1 device type and basic password management features.</p>
+
+                    </div>
+                </div>
+</a>
+                                                </div>
+
+                                    </div>
+
+                            </li>
+                            <li class="nav-item-wrap">
+                                    <button class="nav-item" aria-controls=BusinessDropdown aria-expanded="false">
+                                        <span class="nav-item-copy">Business</span>
+                                        <span class="nav-item-chevrons">
+                                            <div class="nav-item-chevrons__pseudo-element"></div>
+                                        </span>
+                                    </button>
+                                    <div class="nav-submenu-4-col nav-submenu" id=BusinessDropdown>
+                                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                        <div class="nav-submenu-column-title">Business Plans</div>
+
+                                                            <div class="nav-submenu-heading-link-wrapper">
+<a href="/products/business" class="nav-heading-link nav-heading-link--has-description" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Business</span>
+
+                                                                                </div>
+                                                                                    <p class="nav-heading-link-description">Designed for businesses of all sizes, from small startups to enterprises.</p>
+                                                                            </div>
+</a><a href="/products/business-max" class="nav-heading-link nav-heading-link--has-description" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Business Max</span>
+
+                                                                                </div>
+                                                                                    <p class="nav-heading-link-description">Simplify secure access straight from the browser with more admin control.</p>
+                                                                            </div>
+</a><a href="/products/team-password-manager" class="nav-heading-link nav-heading-link--has-description" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Teams</span>
+
+                                                                                </div>
+                                                                                    <p class="nav-heading-link-description">For single teams just getting started with password management.</p>
+                                                                            </div>
+</a><a href="/partner/managed-service-provider" class="nav-heading-link nav-heading-link--has-description" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">MSP</span>
+
+                                                                                </div>
+                                                                                    <p class="nav-heading-link-description">Designed to keep your clients' credentials protected and private.</p>
+                                                                            </div>
+</a>                                                            </div>
+
+
+                                                                    <div class="nav-end-link-wrapper">
+<a href="/pricing" class="lp-button tertiary positive small nav-tertiary-link" title="Compare plans" >Compare plans</a>                </div>
+
+                                                </div>
+                                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                        <div class="nav-submenu-column-title">For admins</div>
+
+                                                            <div class="nav-submenu-heading-link-wrapper">
+<a href="/features/user-management" class="nav-heading-link nav-heading-link" data-gaeventcategory="navigation" data-gaeventaction="header-business_sso" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">User management</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/saas-monitoring" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">SaaS Monitoring</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/saas-protect" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">SaaS Protect</span>
+                                                                                            <span class="nav-heading-link-tag nav-heading-link-tag--inform"
+                                                                                                  
+                                                                                                  data-theme="1">New</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/solutions/secure-access" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Secure Access Essentials</span>
+                                                                                            <span class="nav-heading-link-tag nav-heading-link-tag--inform"
+                                                                                                  
+                                                                                                  data-theme="1">New</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/features/password-sharing/business-password-sharing" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Business sharing</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/products/multifactor-authentication" class="nav-heading-link nav-heading-link" data-gaeventcategory="navigation" data-gaeventaction="header-business_mfa" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Multifactor Authentication</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/solutions/integrations" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Integrations</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/products/sso" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Single Sign-on</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/solutions/identity" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Identity management</span>
+
+                                                                                </div>
+                                                                            </div>
+</a>                                                            </div>
+
+
+                                                                    <div class="nav-end-link-wrapper">
+<a href="/features" class="lp-button tertiary positive small nav-tertiary-link" title="All business features" >All business features</a>                </div>
+
+                                                </div>
+                                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                        <div class="nav-submenu-column-title">Solutions by role</div>
+
+                                                            <div class="nav-submenu-heading-link-wrapper">
+<a href="/roles/marketing" class="nav-heading-link nav-heading-link" data-gaeventcategory="navigation" data-gaeventaction="header-business_sso" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Marketing teams</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/roles/legal" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Legal teams</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/roles/human-resources" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">HR teams</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/roles/business-leaders" class="nav-heading-link nav-heading-link" data-gaeventcategory="navigation" data-gaeventaction="header-business_mfa" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Business leaders</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/roles/it-teams" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">IT admins</span>
+
+                                                                                </div>
+                                                                            </div>
+</a>                                                            </div>
+
+
+                                                                    <div class="nav-end-link-wrapper">
+<a href="/solutions" class="lp-button tertiary positive small nav-tertiary-link" title="All solutions by role" >All solutions by role</a>                </div>
+
+                                                </div>
+                                                <div class="nav-submenu-column nav-submenu-column-type-highlight">
+
+                                                            <div class="nav-submenu-heading-link-wrapper">
+                                                            </div>
+
+
+                                                    <a href="https://www.lastpass.com/trial/business?createacct=1" class="nav-highlight-link nav-highlight-link--icon" style="background: #F3F7FB" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/cd544eef7ab649589bb42639e3302d68.svg?la=en&amp;hash=BE9C4DAF11F0AF33C4F781050D5AEB35" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="icon_functional_lastpass-brand-svg" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--red ">Try Business free</div>
+                                <p class="nav-highlight-link-description ">Free LastPass Business trial, no credit card required.</p>
+
+                    </div>
+                </div>
+</a><a href="/resources/ebook/lastpass-and-the-essential-eight" class="nav-highlight-link nav-highlight-link--featured" style="background: #FFFFFF" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/c7075e7edd814388972cedf0cfbdc3a9.png?la=en&amp;h=120&amp;w=120&amp;hash=9FEB6B375DC800F455AF11AF6BB2BAD3" class="nav-highlight-link-image nav-highlight-link-image--featured" alt="illustration_navigation-highlighted_saas_monitoring-png" /></div>
+                    <div class="nav-highlight-link-col">
+                                <span class="nav-highlight-link-subheading">E-Book</span>
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">Explore how LastPass supports ASD Essential Eight compliance</div>
+
+                    </div>
+                </div>
+</a><a href="/company/newsroom" class="nav-highlight-link nav-highlight-link--featured" style="background: #FFFFFF" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/cac816137b964117b903f05dd807fa82.png?la=en&amp;h=120&amp;w=120&amp;hash=2BAE6474E274BD2F2DDC385BA6290426" class="nav-highlight-link-image nav-highlight-link-image--featured" alt="illustration_navigation-highlighted_saas-protect-2x-png" /></div>
+                    <div class="nav-highlight-link-col">
+                                <span class="nav-highlight-link-subheading">Product Update</span>
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">LastPass debuts Saas Protect to enhance admin controls</div>
+
+                    </div>
+                </div>
+</a>
+                                                </div>
+
+                                    </div>
+
+                            </li>
+                            <li class="nav-item-wrap">
+<a href="/pricing" class="nav-item" >                                    <span class="nav-item-copy">Pricing</span>
+</a>                            </li>
+                            <li class="nav-item-wrap">
+                                    <button class="nav-item" aria-controls=PartnersDropdown aria-expanded="false">
+                                        <span class="nav-item-copy">Partners</span>
+                                        <span class="nav-item-chevrons">
+                                            <div class="nav-item-chevrons__pseudo-element"></div>
+                                        </span>
+                                    </button>
+                                    <div class="nav-submenu-2-col nav-submenu" id=PartnersDropdown>
+                                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                        <div class="nav-submenu-column-title">LastPass Partner Program</div>
+
+                                                            <div class="nav-submenu-heading-link-wrapper">
+<a href="/partner" class="nav-heading-link nav-heading-link--has-description" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Partner program overview</span>
+
+                                                                                </div>
+                                                                                    <p class="nav-heading-link-description">Join the LastPass Partner Program to provide even more value to your customers.</p>
+                                                                            </div>
+</a><a href="/partner/managed-service-provider" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Managed Service Providers</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/partner/resellers" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Resellers</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="https://aws.amazon.com/marketplace/pp/prodview-kb2pfb4g3m6pc" class="nav-heading-link nav-heading-link" target="_blank" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Cloud marketplaces</span>
+
+                                                                                </div>
+                                                                            </div>
+</a><a href="/partner/technology-alliance-partners" class="nav-heading-link nav-heading-link" >                                                                            <div class="nav-heading-link-col">
+                                                                                <div class=nav-heading-link-heading>
+                                                                                    <span class="">Technology Alliance Partners</span>
+
+                                                                                </div>
+                                                                            </div>
+</a>                                                            </div>
+
+
+                                                                    <div class="nav-end-link-wrapper">
+<a href="https://partner.lastpass.com/login" class="lp-button tertiary positive small nav-tertiary-link" title="Partner Login" >Partner Login</a>                </div>
+
+                                                </div>
+                                                <div class="nav-submenu-column nav-submenu-column-type-highlight">
+
+                                                            <div class="nav-submenu-heading-link-wrapper">
+                                                            </div>
+
+
+                                                    <a href="/trial/msp" class="nav-highlight-link nav-highlight-link--icon" style="background: rgb(249, 250, 251);" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/cbec4962cb3b488193daba7ae60e20f1.svg?la=en&amp;hash=74BB8E30E68D5F25291C7863D1E9C913" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="icon_functional_lastpass-svg" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">Start MSP free trial</div>
+                                <p class="nav-highlight-link-description ">Grow new revenue streams by meeting customer's security needs.</p>
+
+                    </div>
+                </div>
+</a><a href="/partner/contact-partner-team" class="nav-highlight-link nav-highlight-link--icon" style="background: rgb(249, 250, 251);" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/30881b06cd26429da26fc492f83df7b7.svg?la=en&amp;hash=BB084617B81F5810D0E26C4B3943EAC8" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">Contact partner team</div>
+                                <p class="nav-highlight-link-description ">Looking for help or interested in becoming a LastPass partner? Get in touch with our partner team.</p>
+
+                    </div>
+                </div>
+</a><a href="/partner/partner-locator" class="nav-highlight-link nav-highlight-link--icon" style="background: rgb(249, 250, 251);" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/c07e4ade02924d6cb056eaaaeaae1343.svg?la=en&amp;hash=850CFC99D4269A6EFF9ACA0DB4D039AC" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="icon_functional_user-svg" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">Find a Partner</div>
+                                <p class="nav-highlight-link-description ">Connect with trusted LastPass Partners to support your security needs.</p>
+
+                    </div>
+                </div>
+</a>
+                                                </div>
+
+                                    </div>
+
+                            </li>
+
+            </ul>
+            <ul class="nav-col nav-right utility">
+                                <li class="nav-item-wrap">
+<a href="https://blog.lastpass.com/" class="nav-item on-utility-nav" aria-label="Blog" >                        <span class="nav-item-copy">Blog</span>
+</a>                </li>
+                <li class="nav-item-wrap">
+                    <button class="nav-item  on-utility-nav  " aria-label="Resource Center" aria-controls=ResourceCenterDropdown aria-expanded="false">
+
+                        <span class="nav-item-copy">Resource Center</span>
+                        <span class="nav-item-chevrons">
+                            <div class="nav-item-chevrons__pseudo-element"></div>
+                        </span>
+                    </button>
+                    <div class="nav-submenu-3-col nav-submenu" id=ResourceCenterDropdown>
+                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+<a href="/resources/case-studies" class="nav-heading-link nav-heading-link" >                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Case studies</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/resources/webinars" class="nav-heading-link nav-heading-link" >                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Webinars</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/resources/business-demos/registration" class="nav-heading-link nav-heading-link" >                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Product demos</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/resources/events" class="nav-heading-link nav-heading-link" >                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Events</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a>                                            </div>
+
+                                                    <div class="nav-end-link-wrapper">
+<a href="/resources" class="lp-button tertiary positive small nav-tertiary-link" title="All resources" >All resources</a>                </div>
+
+                                </div>
+                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+<a href="/trust-center" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/7afd343f0230450f97897f44723ff515.svg?la=en&amp;hash=7218A1BF0D2AB971B888F88B156B98A2" alt="icon_functional_trust-center-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Trust Center</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="https://compliance.lastpass.com/" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/7a226bee88ba433288a210d2efc7c0bc.svg?la=en&amp;hash=590BC2B4ED8C91DE919FE10CD89C84E8" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Compliance Center</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/security" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/4720d7adc6294ec0bad4417328ad10c8.svg?la=en&amp;hash=671BDE1426F9C8821A0D7436256379B2" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Security architecture</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/university" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/07bb195cb30d463db05550dda2f65a7e.svg?la=en&amp;hash=6ACC87A029CAC91D5E5512617C78F93E" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">LastPass University</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a>                                            </div>
+
+                                    
+                                </div>
+                                <div class="nav-submenu-column nav-submenu-column-type-highlight">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+                                            </div>
+
+                                    <a href="/resources/business-demos/registration" class="nav-highlight-link nav-highlight-link--featured" style="" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/afdb972bf4404ab28258a27bacad17e1.png?la=en&amp;h=120&amp;w=120&amp;hash=C657EFBA02575730CE48F5F95072E250" class="nav-highlight-link-image nav-highlight-link-image--featured" alt="illustration_navigation-highlighted_business-demo-2x-png" /></div>
+                    <div class="nav-highlight-link-col">
+                                <span class="nav-highlight-link-subheading">Product demos</span>
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">On-demand LastPass Business demos</div>
+
+                    </div>
+                </div>
+</a><a href="https://info.lastpass.com/threat-reports" class="nav-highlight-link nav-highlight-link--featured" style="" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/c4173af74ce44144a5fad12bbdae317c.png?la=en&amp;h=120&amp;w=120&amp;hash=F3C81722CBDBE8E6F2167B18DF45A3CB" class="nav-highlight-link-image nav-highlight-link-image--featured" alt="illustration_navigation-highlighted_time-report-2x-png" /></div>
+                    <div class="nav-highlight-link-col">
+                                <span class="nav-highlight-link-subheading">Report</span>
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">Stay ahead with the latest threat intel</div>
+
+                    </div>
+                </div>
+</a>
+                                </div>
+
+                    </div>
+                </li>
+                <li class="nav-item-wrap">
+                    <button class="nav-item  on-utility-nav  " aria-label="Support" aria-controls=SupportDropdown aria-expanded="false">
+
+                        <span class="nav-item-copy">Support</span>
+                        <span class="nav-item-chevrons">
+                            <div class="nav-item-chevrons__pseudo-element"></div>
+                        </span>
+                    </button>
+                    <div class="nav-submenu-2-col nav-submenu" id=SupportDropdown>
+                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                        <div class="nav-submenu-column-title">Help</div>
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+<a href="https://support.lastpass.com/s/" class="nav-heading-link nav-heading-link--has-description" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/366c223f99c14d02ac715269c5c16a8d.svg?la=en&amp;hash=DBF89646BE0808BEB02C2030A70E3892" alt="icon_functional_help-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Support Center</span>
+                                                                                                                                    </div>
+                                                                    <p class="nav-heading-link-description">Self-service library of resources and guides for all LastPass products.</p>
+                                                            </div>
+</a><a href="https://community.lastpass.com/" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/56a9151207424fb5be34189f8dde8853.svg?la=en&amp;hash=A681FA8E27E52D3A065D0C3728462C8E" alt="icon_functional_collaboration-discussion-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Community forum</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="https://status.lastpass.com/" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/f60adad1329c48de898249fa7a6c2383.svg?la=en&amp;hash=066FCD36A2FA670EF9A902B2EFE48E55" alt="icon_functional_product-status-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">System status</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a>                                            </div>
+
+                                    
+                                </div>
+                                <div class="nav-submenu-column nav-submenu-column-type-highlight">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+                                            </div>
+
+                                    <a href="https://support.lastpass.com/s/contact-us" class="nav-highlight-link nav-highlight-link--icon" style="background: #FFFFFF" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/6d8a85cdc02d4b12bf0e545b7b5331ad.svg?la=en&amp;hash=E5C8564B09EE7B7F50C2D543C65581C1" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="icon_functional_chats-brand-svg" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--red ">Talk to support</div>
+                                <p class="nav-highlight-link-description ">Personal support for all LastPass’ subscribed customers.</p>
+
+                    </div>
+                </div>
+</a><a href="https://lastpass.com/misc_download2.php" class="nav-highlight-link nav-highlight-link--illustrated" style="background: #FFFFFF" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/61bc0755bfb74ba98d7ab29055111fe2.png?la=en&amp;h=40&amp;w=432&amp;hash=B1CC6B69ED9C445BF3B9CB933160B790" class="nav-highlight-link-image nav-highlight-link-image--illustrated" alt="illustration_navigation-highlighted_all-devices-2x-png" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">Download LastPass apps</div>
+                                <p class="nav-highlight-link-description ">LastPass works across all devices.</p>
+
+                    </div>
+                </div>
+</a>
+                                </div>
+
+                    </div>
+                </li>
+                    <li class="nav-item-wrap nav-item-wrap--has-cta">
+<a href="https://www.lastpass.com/en/trial/business?createacct=1" data-module="trial-modal-react" class="lp-button lp-button--red on-utility-nav-try utility-button getlpfree" data-trial-content="6bdc41f3-910e-4115-803e-c22686bb29dc" data-trial-form-type="Trial" data-modal-type="ChevyPremium" data-trial-type="business" >                            <span class="nav-item-copy">Try free</span>
+</a>
+                    </li>
+                <li class="nav-item-wrap">
+                    <button class="nav-item  nav-item--icon" aria-label="Contact sales" aria-controls=ContactsalesDropdown aria-expanded="false">
+                            <span class="nav-item-icons">
+                                <img src='/static/media/lazy.png' data-src="/-/media/b511ffa58fe14333868f2bbb7b758d18.svg?la=en&amp;hash=97DF5A26D444021DB5261048F2B43AD4" alt="" />
+                                <img src='/static/media/lazy.png' data-src="/-/media/6d8a85cdc02d4b12bf0e545b7b5331ad.svg?la=en&amp;hash=E5C8564B09EE7B7F50C2D543C65581C1" alt="icon_functional_chats-brand-svg" />
+                            </span>
+
+                        <span class="nav-item-copy">Contact sales</span>
+                        <span class="nav-item-chevrons">
+                            <div class="nav-item-chevrons__pseudo-element"></div>
+                        </span>
+                    </button>
+                    <div class="nav-submenu-1-col nav-submenu item-visible-main" id=ContactsalesDropdown>
+                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+<a href="/contact-sales" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/355395c30a284becb81878bcee467769.svg?la=en&amp;hash=DC8ADAF30292F3B9D0557A629B4F57A1" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Submit sales inquiry</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/b511ffa58fe14333868f2bbb7b758d18.svg?la=en&amp;hash=97DF5A26D444021DB5261048F2B43AD4" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=drift-modal-open-button>
+                                                                    <span class="drift-modal-open-button">Chat with sales</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/resources/business-demo" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/3800e389a8fc4106b3ae01eb50f6720f.svg?la=en&amp;hash=BB753CE1AA82B17F5FA9942D77247522" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Request a demo</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/partner/partner-locator" class="nav-heading-link nav-heading-link" title="Find a partner" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/c2f36ac152e04ac59b23249d37992dec.svg?la=en&amp;hash=ABD67C1649FA36721C93910D7B5B070D" alt="icon_functional_group-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Find a partner</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a>                                            </div>
+
+                                    
+                                </div>
+
+                    </div>
+                </li>
+                <li class="nav-item-wrap">
+<a href="https://lastpass.com/?ac=1&amp;lpnorefresh=1" class="nav-item nav-item--icon" aria-label="Log in" >                            <span class="nav-item-icons">
+                                <img src='/static/media/lazy.png' data-src="/-/media/44e0a57a5d5b4e11bffe4221783458ca.svg?la=en&amp;hash=5C386191167D943CC712A0CF96502168" alt="icon_functional_nav-login-enabled-svg" />
+                                <img src='/static/media/lazy.png' data-src="/-/media/af802c3853684a7291e4c2c05da47f13.svg?la=en&amp;hash=C564E0C4FB7D9032577457CB74D3D715" alt="icon_functional_nav-login-hover-svg" />
+                            </span>
+                        <span class="nav-item-copy">Log in</span>
+</a>                </li>
+        <li class="nav-item-wrap">
+            
+
+
+<div class="header-language-selector" data-module="header-language-selector">
+    <button type="button" class="header-language-selector__button" data-toggle="modal" data-target="#langmodal" id="lang-btn">
+        <span class="icon"></span><span class="lang-text">EN</span>
+    </button>
+    <ul class="header-language-selector__drop">
+            <li>
+                <a href="/security">
+                    English
+                </a>
+            </li>
+            <li>
+                <a href="/es/security">
+                    Espa&#241;ol
+                </a>
+            </li>
+            <li>
+                <a href="/de/security">
+                    Deutsch
+                </a>
+            </li>
+            <li>
+                <a href="/fr/security">
+                    Fran&#231;ais
+                </a>
+            </li>
+            <li>
+                <a href="/it/security">
+                    Italiano
+                </a>
+            </li>
+            <li>
+                <a href="/nl/security">
+                    Nederlands
+                </a>
+            </li>
+            <li>
+                <a href="/pt/security">
+                    Portugu&#234;s
+                </a>
+            </li>
+    </ul>
+</div>
+        </li>
+
+            </ul>
+            <ul class="nav-col nav-right">
+                                <li class="nav-item-wrap">
+<a href="https://blog.lastpass.com/" class="nav-item on-utility-nav" aria-label="Blog" >                        <span class="nav-item-copy">Blog</span>
+</a>                </li>
+                <li class="nav-item-wrap">
+                    <button class="nav-item  on-utility-nav  " aria-label="Resource Center" aria-controls=ResourceCenterDropdown aria-expanded="false">
+
+                        <span class="nav-item-copy">Resource Center</span>
+                        <span class="nav-item-chevrons">
+                            <div class="nav-item-chevrons__pseudo-element"></div>
+                        </span>
+                    </button>
+                    <div class="nav-submenu-3-col nav-submenu" id=ResourceCenterDropdown>
+                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+<a href="/resources/case-studies" class="nav-heading-link nav-heading-link" >                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Case studies</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/resources/webinars" class="nav-heading-link nav-heading-link" >                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Webinars</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/resources/business-demos/registration" class="nav-heading-link nav-heading-link" >                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Product demos</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/resources/events" class="nav-heading-link nav-heading-link" >                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Events</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a>                                            </div>
+
+                                                    <div class="nav-end-link-wrapper">
+<a href="/resources" class="lp-button tertiary positive small nav-tertiary-link" title="All resources" >All resources</a>                </div>
+
+                                </div>
+                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+<a href="/trust-center" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/7afd343f0230450f97897f44723ff515.svg?la=en&amp;hash=7218A1BF0D2AB971B888F88B156B98A2" alt="icon_functional_trust-center-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Trust Center</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="https://compliance.lastpass.com/" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/7a226bee88ba433288a210d2efc7c0bc.svg?la=en&amp;hash=590BC2B4ED8C91DE919FE10CD89C84E8" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Compliance Center</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/security" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/4720d7adc6294ec0bad4417328ad10c8.svg?la=en&amp;hash=671BDE1426F9C8821A0D7436256379B2" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Security architecture</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/university" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/07bb195cb30d463db05550dda2f65a7e.svg?la=en&amp;hash=6ACC87A029CAC91D5E5512617C78F93E" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">LastPass University</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a>                                            </div>
+
+                                    
+                                </div>
+                                <div class="nav-submenu-column nav-submenu-column-type-highlight">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+                                            </div>
+
+                                    <a href="/resources/business-demos/registration" class="nav-highlight-link nav-highlight-link--featured" style="" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/afdb972bf4404ab28258a27bacad17e1.png?la=en&amp;h=120&amp;w=120&amp;hash=C657EFBA02575730CE48F5F95072E250" class="nav-highlight-link-image nav-highlight-link-image--featured" alt="illustration_navigation-highlighted_business-demo-2x-png" /></div>
+                    <div class="nav-highlight-link-col">
+                                <span class="nav-highlight-link-subheading">Product demos</span>
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">On-demand LastPass Business demos</div>
+
+                    </div>
+                </div>
+</a><a href="https://info.lastpass.com/threat-reports" class="nav-highlight-link nav-highlight-link--featured" style="" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/c4173af74ce44144a5fad12bbdae317c.png?la=en&amp;h=120&amp;w=120&amp;hash=F3C81722CBDBE8E6F2167B18DF45A3CB" class="nav-highlight-link-image nav-highlight-link-image--featured" alt="illustration_navigation-highlighted_time-report-2x-png" /></div>
+                    <div class="nav-highlight-link-col">
+                                <span class="nav-highlight-link-subheading">Report</span>
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">Stay ahead with the latest threat intel</div>
+
+                    </div>
+                </div>
+</a>
+                                </div>
+
+                    </div>
+                </li>
+                <li class="nav-item-wrap">
+                    <button class="nav-item  on-utility-nav  " aria-label="Support" aria-controls=SupportDropdown aria-expanded="false">
+
+                        <span class="nav-item-copy">Support</span>
+                        <span class="nav-item-chevrons">
+                            <div class="nav-item-chevrons__pseudo-element"></div>
+                        </span>
+                    </button>
+                    <div class="nav-submenu-2-col nav-submenu" id=SupportDropdown>
+                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                        <div class="nav-submenu-column-title">Help</div>
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+<a href="https://support.lastpass.com/s/" class="nav-heading-link nav-heading-link--has-description" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/366c223f99c14d02ac715269c5c16a8d.svg?la=en&amp;hash=DBF89646BE0808BEB02C2030A70E3892" alt="icon_functional_help-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Support Center</span>
+                                                                                                                                    </div>
+                                                                    <p class="nav-heading-link-description">Self-service library of resources and guides for all LastPass products.</p>
+                                                            </div>
+</a><a href="https://community.lastpass.com/" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/56a9151207424fb5be34189f8dde8853.svg?la=en&amp;hash=A681FA8E27E52D3A065D0C3728462C8E" alt="icon_functional_collaboration-discussion-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Community forum</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="https://status.lastpass.com/" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/f60adad1329c48de898249fa7a6c2383.svg?la=en&amp;hash=066FCD36A2FA670EF9A902B2EFE48E55" alt="icon_functional_product-status-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">System status</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a>                                            </div>
+
+                                    
+                                </div>
+                                <div class="nav-submenu-column nav-submenu-column-type-highlight">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+                                            </div>
+
+                                    <a href="https://support.lastpass.com/s/contact-us" class="nav-highlight-link nav-highlight-link--icon" style="background: #FFFFFF" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/6d8a85cdc02d4b12bf0e545b7b5331ad.svg?la=en&amp;hash=E5C8564B09EE7B7F50C2D543C65581C1" class="nav-highlight-link-image nav-highlight-link-image--icon" alt="icon_functional_chats-brand-svg" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--red ">Talk to support</div>
+                                <p class="nav-highlight-link-description ">Personal support for all LastPass’ subscribed customers.</p>
+
+                    </div>
+                </div>
+</a><a href="https://lastpass.com/misc_download2.php" class="nav-highlight-link nav-highlight-link--illustrated" style="background: #FFFFFF" >                <div class="nav-highlight-link-inner-wrap">
+                    <div class="nav-highlight-link-col"><img src='/static/media/lazy.png' data-src="/-/media/61bc0755bfb74ba98d7ab29055111fe2.png?la=en&amp;h=40&amp;w=432&amp;hash=B1CC6B69ED9C445BF3B9CB933160B790" class="nav-highlight-link-image nav-highlight-link-image--illustrated" alt="illustration_navigation-highlighted_all-devices-2x-png" /></div>
+                    <div class="nav-highlight-link-col">
+                                <div class="nav-highlight-link-heading nav-highlight-link-heading--black ">Download LastPass apps</div>
+                                <p class="nav-highlight-link-description ">LastPass works across all devices.</p>
+
+                    </div>
+                </div>
+</a>
+                                </div>
+
+                    </div>
+                </li>
+                    <li class="nav-item-wrap nav-item-wrap--has-cta">
+<a href="http://#" data-module="trial-modal-react" class="lp-button lp-button--red on-utility-nav-try right-button getlpfree on-utility-nav " data-trial-content="6bdc41f3-910e-4115-803e-c22686bb29dc" data-trial-form-type="Trial" data-modal-type="ChevyPremium" data-trial-type="business" >                            <span class="nav-item-copy">Get LastPass free</span>
+</a>
+                    </li>
+                <li class="nav-item-wrap">
+                    <button class="nav-item  nav-item--icon" aria-label="Contact sales" aria-controls=ContactsalesDropdown aria-expanded="false">
+                            <span class="nav-item-icons">
+                                <img src='/static/media/lazy.png' data-src="/-/media/b511ffa58fe14333868f2bbb7b758d18.svg?la=en&amp;hash=97DF5A26D444021DB5261048F2B43AD4" alt="" />
+                                <img src='/static/media/lazy.png' data-src="/-/media/6d8a85cdc02d4b12bf0e545b7b5331ad.svg?la=en&amp;hash=E5C8564B09EE7B7F50C2D543C65581C1" alt="icon_functional_chats-brand-svg" />
+                            </span>
+
+                        <span class="nav-item-copy">Contact sales</span>
+                        <span class="nav-item-chevrons">
+                            <div class="nav-item-chevrons__pseudo-element"></div>
+                        </span>
+                    </button>
+                    <div class="nav-submenu-1-col nav-submenu item-visible-main" id=ContactsalesDropdown>
+                                <div class="nav-submenu-column nav-submenu-column-type-default">
+                                                                                <div class="nav-submenu-heading-link-wrapper">
+<a href="/contact-sales" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/355395c30a284becb81878bcee467769.svg?la=en&amp;hash=DC8ADAF30292F3B9D0557A629B4F57A1" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Submit sales inquiry</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/b511ffa58fe14333868f2bbb7b758d18.svg?la=en&amp;hash=97DF5A26D444021DB5261048F2B43AD4" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=drift-modal-open-button>
+                                                                    <span class="drift-modal-open-button">Chat with sales</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/resources/business-demo" class="nav-heading-link nav-heading-link" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/3800e389a8fc4106b3ae01eb50f6720f.svg?la=en&amp;hash=BB753CE1AA82B17F5FA9942D77247522" alt="" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Request a demo</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a><a href="/partner/partner-locator" class="nav-heading-link nav-heading-link" title="Find a partner" >                                                                <div class="nav-heading-link-col"><img src='/static/media/lazy.png' data-src="/-/media/c2f36ac152e04ac59b23249d37992dec.svg?la=en&amp;hash=ABD67C1649FA36721C93910D7B5B070D" alt="icon_functional_group-svg" /></div>
+                                                            <div class="nav-heading-link-col">
+                                                                <div class=nav-heading-link-heading>
+                                                                    <span class="">Find a partner</span>
+                                                                                                                                    </div>
+                                                            </div>
+</a>                                            </div>
+
+                                    
+                                </div>
+
+                    </div>
+                </li>
+                <li class="nav-item-wrap">
+<a href="https://lastpass.com/?ac=1&amp;lpnorefresh=1" class="nav-item nav-item--icon" aria-label="Log in" >                            <span class="nav-item-icons">
+                                <img src='/static/media/lazy.png' data-src="/-/media/44e0a57a5d5b4e11bffe4221783458ca.svg?la=en&amp;hash=5C386191167D943CC712A0CF96502168" alt="icon_functional_nav-login-enabled-svg" />
+                                <img src='/static/media/lazy.png' data-src="/-/media/af802c3853684a7291e4c2c05da47f13.svg?la=en&amp;hash=C564E0C4FB7D9032577457CB74D3D715" alt="icon_functional_nav-login-hover-svg" />
+                            </span>
+                        <span class="nav-item-copy">Log in</span>
+</a>                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+
+
+
+    
+
+</header>
+<div id="MAINCONTENT"></div>
+
+<!-- TabNavigation -->
+        <section data-component-name="Navigation Menu" data-module="channel-nav" class="category-nav">
+            <div id="MobileChannelNav">
+                <div class="category-row">
+                    Trust Center
+                    <div class="mobile-header" id="MobileChannelNavDropdown">
+                                <span></span>
+                                <button>
+                                    <svg width="16"
+                                         height="16"
+                                         viewBox="0 0 12 12"
+                                         fill="none"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6.02445 3.50004C6.23337 3.49979 6.43229 3.58415 6.57037 3.73156L9.78703 6.69658C9.78703 6.69658 9.95969 6.87927 9.99738 7.13698C10.0257 7.33029 9.96012 7.57632 9.78703 7.7613C9.63143 7.92758 9.43902 7.98818 9.26839 7.97831C8.99613 7.96256 8.77035 7.79449 8.77035 7.79449L6.08381 5.42874C6.06882 5.41267 6.04718 5.39324 6.02445 5.39324C6.00171 5.39324 5.98007 5.41267 5.96509 5.42874L3.25632 7.7954C3.25632 7.7954 3.05131 7.97603 2.7869 7.99821C2.60884 8.01314 2.39365 7.93518 2.23447 7.7613C2.06759 7.57901 1.98101 7.3281 2.00664 7.13698C2.04176 6.87509 2.23447 6.69658 2.23447 6.69658L5.47758 3.73274C5.61589 3.58498 5.81508 3.50022 6.02445 3.50004Z"
+                                              fill="#25282D"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                </div>
+                <div class="category-links">
+<a href="/trust-center" class="" >Overview</a><a href="/security" class="selected" >Security</a><a href="http://compliance.lastpass.com/" class="" target="_blank" >Compliance</a><a href="/trust-center/privacy" class="" >Privacy</a><a href="/trust-center/resources" class="" >Resources</a>                </div>
+            </div>
+            <div class="category-links" id="DesktopChannelNav">
+                Trust Center
+                          <div>
+<a href="/trust-center" class="" >Overview</a><a href="/security" class="selected" >Security</a><a href="http://compliance.lastpass.com/" class="" target="_blank" >Compliance</a><a href="/trust-center/privacy" class="" >Privacy</a><a href="/trust-center/resources" class="" >Resources</a>                </div>
+            </div>
+            <div class="category-nav-shade"></div>
+        </section>
+
+                <div data-component-name="Top Promo Banner" class="top-banner top-banner--light   
+                 " data-countries="all" data-module="top-banner" data-link="/pricing" data-new-window="false" 
+                 data-gaeventcategory="" data-gaeventaction="" 
+                 data-always-show="True" data-startdate="7/8/2026 12:00:00 AM" data-enddate="8/24/2026 11:30:00 PM" data-timezone="America/New_York"
+                 data-campaign-name="lp_summer_promo_2026" data-audience="">
+                <div class="top-banner__background top-banner__background--red" style="background-color:#F2C765; background-image: url(); "></div>
+                <div class="top-banner__content">
+                    <span class="top-banner__content--small top-banner__content--dark"> Sign in to summer with 30% off LastPass</span>
+                                            <button class="lp-button primary negative medium">Get 30% off</button>
+                                    </div>
+            </div>
+
+    
+        <div data-component-name="Boilerplate Heavy Hero" class="lp-hero-heavy--new lp-hero-heavy--left lp-hero-heavy--no-image lp-hero-heavy--gradient-dark-gray " style="" data-theme="2">
+            <div class="lp-hero-heavy__content  lp-hero-heavy--padding-top-left-default lp-hero-heavy--padding-bottom-left-default " style="background: url(/-/media/113aaff2ffab40e090b6b01c362e8459.svg) no-repeat top center/cover">
+            <div class="grid">
+                <div class="grid__col small-screen-size grid__col--7 grid__col--left">
+
+                        <div class="heavy-eyebrow heavy-eyebrow--left" data-anim-type="0" data-anim-delay="0" data-anim-duration="0" data-anim="animate">
+                                                                <h3  class="heavy-eyebrow__text medium-eyebrow heavy-eyebrow__text--primary">Security</h3>
+                        </div>
+
+
+                    <div >
+                        <div data-module="hero-heavy" class="lp-headline">
+                                <h1>
+                                    Your Security Is Our Top Priority
+                                </h1>
+                        </div>
+                    </div>
+
+                    <div >
+                        <div class="lp-headline lp-headline--secondary">
+                            <p class="x-large">Security and privacy are ever evolving. So is LastPass.</p>
+                        </div>
+                    </div>
+
+                    
+
+
+
+
+
+
+
+
+                                    </div>
+            </div>
+            </div>
+        </div>
+
+
+
+
+    <div id="398eb6ed7fb843e194997abcc5dd08cf" data-component-name="Widget Collection"
+         class="lp-product-attributes lp-product-attributes__4col lp-product-attributes__enterprise-4 lp-product-attributes--4col half-bottom-padding half-top-padding"
+         data-theme=""
+         style=background-color:#F3F7FB>
+            <div class="lp-product-attributes-wrapper">
+
+        <div class="lp-product-attributes-row">
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/6853911c934a410dbcf5ea50128d45b4.svg?la=en&amp;hash=CB24BA32D6DCB7E4A8F1A021B3B323A2" alt="icon-s-light_illustrative_zero-knowledge-security-eye-svg" />
+                        <h3><a href="/security/zero-knowledge-security"data-gaeventcategory="learn-more" data-gaeventaction="top_zero-knowledge">Zero-knowledge model</a></h3>
+
+                    <p>Your data is kept secret, even from us. Only you can unlock your encrypted vault with your Master Password.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/d6cb2bddd2f04889a09b5ddaa6acebf5.svg?la=en&amp;hash=8CF802060725B25A6D27087A5B90F15D" alt="icon-s-light_illustrative_encryption-lock-svg" />
+                        <h3><a href="https://www.lastpass.com//-/media/175854c49fcb489baeaa87e78579e28f.pdf"data-gaeventcategory="learn-more" data-gaeventaction="top_security-measures">Top-tier security measures</a></h3>
+
+                    <p>LastPass uses AES-256 data encryption  plus PBKDF2 hashing with SHA-256 salting.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/7b2af8d06d21430d9e81f20bcbcc6823.svg?la=en&amp;hash=B80074BAC7276B81EEB94A99AA9B4143" alt="icon-s-light_illustrative_private-design-svg" />
+                        <h3><a href="trust-center/privacy"data-gaeventcategory="learn-more" data-gaeventaction="top_security-measures">Private by design</a></h3>
+
+                    <p>LastPass maintains a global data privacy program designed to protect the data of customers, users, and end-users.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/bc884cb4d94446be808ff7b4296a1dc0.svg?la=en&amp;hash=BD20FC172394BC5A5220333DE2F42419" alt="icon-s-light_illustrative_security-shield-svg" />
+                        <h3><a href="/security/how-we-secure-lastpass"data-gaeventcategory="learn-more" data-gaeventaction="top_how-secure-LastPass">How we secure LastPass</a></h3>
+
+                    <p>LastPass implements robust internal safeguards to reinforce our unwavering commitment to enterprise-grade security and trust.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/f17489970aa844ff9835b6fa00e694a9.svg?la=en&amp;hash=F1C23B25A476B162A169EB16953CEC57" alt="icon-s-light_illustrative_compliance-svg" />
+                        <h3><a href="/trust-center/compliance"data-gaeventcategory="learn-more" data-gaeventaction="top_security-measures">Industry-tested compliance</a></h3>
+
+                    <p>LastPass holds third-party security certifications like ISO 27001, SOC2 Type II, SOC3, BSI C5, TRUSTe, and more.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/bd35df0738754f4789f780af636189c9.svg?la=en&amp;hash=926FC41E50186E1C066A554EC0FEEC78" alt="icon-s-light_illustrative_audit-svg" />
+                        <h3><a href="/trust-center/resources"data-gaeventcategory="learn-more" data-gaeventaction="top_security-audits">Regular expert security audits</a></h3>
+
+                    <p>LastPass employs trusted, world-class security organizations to conduct routine audits and testing of the LastPass service and infrastructure.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/ca4ba7771fc943a4ad8207f555308af4.svg?la=en&amp;hash=0C516BCE0932D91EF00F66FFE44C28A8" alt="icon-s-light_illustrative_bug-svg" />
+                        <h3><a href="/trust-center/transparency/responsible-disclosure"data-gaeventcategory="learn-more" data-gaeventaction="top_bug-bounty">Bug bounty program</a></h3>
+
+                    <p>LastPass futureproofs its security measures by supporting a bug bounty program where white-hat hackers can submit found bugs and vulnerabilities.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/218654dd222f427dbd3be81710b3e089.svg?la=en&amp;hash=956DD262659DEDC3BC6483161AE3B7C8" alt="icon-s-light_illustrative_email-abuse-report-svg" />
+                        <h3><a href="/trust-center/security/responsible-disclosure"data-gaeventcategory="learn-more" data-gaeventaction="top_responsible-disclosure">Responsible disclosure</a></h3>
+
+                    <p>LastPass users have direct access to our security intelligence team to report and investigate potential vulnerabilities and attacks.</p>
+
+                </div>
+        </div>
+
+
+
+    </div>
+
+    </div>
+
+
+
+    <div id="26da0424ee124384b096529bcb620d95" data-component-name="Widget Collection"
+         class="lp-product-attributes lp-product-attributes__4col lp-product-attributes__enterprise-4 lp-product-attributes--4col  "
+         data-theme=""
+         >
+            <div class="lp-product-attributes-wrapper">
+            <section class="lp-intro lp-intro--small">
+                <h2>Proactive security features</h2>
+                <div class="lp-intro__copy">
+                    <h4></h4>
+                </div>
+            </section>
+
+        <div class="lp-product-attributes-row">
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/b849e549119d41399a3bc52fe36f1196.svg?la=en&amp;hash=0A75951BF419B61B67677D1C809ADF9B" alt="icon-s-light_illustrative_password-generator-svg" />
+                        <h3><a href="/seo/password-manager" data-gaeventcategory="learn-more" data-gaeventaction="content_password-generator">Password generator</a></h3>
+
+                    <p>Generate strong, unique passwords to protect all your accounts, new and old.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/079645ebeb814639a8eebee019c274f6.svg?la=en&amp;hash=47F192A8DEE6FB0835CF3621268F956C" alt="icon-s-light_illustrative_productivity-performance-gage-svg" />
+                        <h3><a href="/features/dark-web-monitoring" data-gaeventcategory="learn-more" data-gaeventaction="content_breach-monitoring">Data breach monitoring</a></h3>
+
+                    <p class="body">Automatically monitor and detect if your information has been exposed online.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/ad6ca7148d07489f8194bf32cdd29f50.svg?la=en&amp;hash=05B530A9C7025CEE03D2BE68417C3447" alt="icon-s-light_illustrative_admin-dashboard-svg" />
+                        <h3><a href="/features/security-dashboard" data-gaeventcategory="learn-more" data-gaeventaction="content_breach-monitoring">Security dashboard</a></h3>
+
+                    <p>Find and update weak and reused passwords from a single security hub.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/72412a7a67034193a994dd5a09376c1f.svg?la=en&amp;hash=9812BD45AFBE6BA0A50632D87AFC9CBF" alt="icon-s-light_illustrative_autofill-svg" />
+                        <h3><a href="/features/autofill" data-gaeventcategory="learn-more" data-gaeventaction="content_autofill">Save and autofill</a></h3>
+
+                    <p>Autofill credentials only on websites where the URL is a match.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/8efb819b112c4fa5a2cd87fa27f2be43.svg?la=en&amp;hash=73EB279B12435FA9F6DED42DCA82C73C" alt="icon-s-light_illustrative_passkeys-svg" />
+                        <h3><a href="/products/sso" data-gaeventcategory="learn-more" data-gaeventaction="content_sso">Single sign-on (SSO)</a></h3>
+
+                    <p>Improve security and the user experience with single sign-on for cloud, legacy, and on-site apps.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/bd0d2a3931134ea79668439e31b1ea40.svg?la=en&amp;hash=019C84B367CD95D4FED461580073C61F" alt="icon-s-light_illustrative_fingerprint-scan-security-svg" />
+                        <h3><a href="/products/multifactor-authentication" data-gaeventcategory="learn-more" data-gaeventaction="content_mfa">Multifactor authentication</a></h3>
+
+                    <p>Fortify all your accounts by adding extra layers of security prior to obtaining access.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/40a4ed36bff84bbea06195a7e83be186.svg?la=en&amp;hash=CD863E150FE2F823492C0EC1C399E219" alt="icon-s-light_illustrative_location-geo-fence-policy-svg" />
+                        <h3><a href="/solutions/integrations/adaptive-authentication" data-gaeventcategory="learn-more" data-gaeventaction="content_sso">Adaptive authentication</a></h3>
+
+                    <p>Secure endpoints and balance the user experience wth risk-based, dynamic contextual authentication.</p>
+
+                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/a3cd312d3c904eeea1acde79f384f1aa.svg?la=en&amp;hash=A9F16FB816B590161D56D55D37ACDD0A" alt="icon-s-light_illustrative_one-to-one-share-svg" />
+                        <h3><a href="/features/password-sharing" data-gaeventcategory="learn-more" data-gaeventaction="content_sso">Password sharing</a></h3>
+
+                    <p>Safely share passwords, files, and sensitive documents with friends, family, or team members. </p>
+
+                </div>
+        </div>
+
+
+
+    </div>
+
+    </div>
+
+
+
+<div id="afb386c74d114bb39c57b12dc29ccd44" data-component-name="_ResourceCards" class="lp-resource-cards  " data-module=resource-cards style="background-color: #F3F7FB" >
+
+            <section class="lp-intro lp-intro--small">
+
+
+                    <h2>Cybersecurity training and development</h2>
+
+            </section>
+
+
+
+
+        <div class="lp-resource__content--filtered" data-module="resource-filter">
+            <div class="lp-resource-cards__container">
+                <div class="lp-resource-cards__wrapper all-articles ">
+
+    <article data-component-name="Resource Card" class="lp-resource-card" data-url=https://blog.lastpass.com/category/lastpass-labs/ data-gaeventcategory="resource_learn-more" data-gaeventaction="content_featured-lastpasslabs-tc" data-topic="" data-type="ondemand"  >
+        <div>
+
+                <div class="lp-resource-card__header-image">
+                    <img src='/static/media/lazy.png' data-src="/-/media/78c8e58e11834e81a0f06c45f130d54e.svg?la=en&amp;hash=EC6BF6194F18C02CC70420E16031805E" alt="illustration_resource-card_lastpass-labs-svg" />
+                </div>
+
+        <div class="lp-resource-card__content-section">
+                <span>Blog</span>
+                                        <h3>LastPass Labs</h3>
+            
+                <p>Your hub for the latest cybersecurity intelligence.</p>
+            
+        </div>
+
+            <div class="lp-resource-card__cta-section">
+                <a href="https://blog.lastpass.com/category/lastpass-labs/" class="lp-button lp-button--tertiary lp-button--tertiary-blue lp-button--tertiary-icon-arrow" target="_blank" >Read recent posts</a>
+
+            </div>
+        </div>
+    </article>
+
+    <article data-component-name="Resource Card" class="lp-resource-card" data-url=https://admintraining.lastpass.com/ data-gaeventcategory="resource_learn-more" data-gaeventaction="content_featured-businessadmintraining" data-topic="" data-type="ondemand"  >
+        <div>
+
+                <div class="lp-resource-card__header-image">
+                    <img src='/static/media/lazy.png' data-src="/-/media/56a6ca83e85943088a348a9b1da7e38f.png?la=en&amp;h=400&amp;w=800&amp;hash=488937B53767DC598E94CC10ABB45682" alt="" />
+                </div>
+
+        <div class="lp-resource-card__content-section">
+                <span>Training</span>
+                                        <h3>Business admin training</h3>
+            
+                <p>Guidance to achieve a successful roll out and improve employee password management habits.</p>
+            
+        </div>
+
+            <div class="lp-resource-card__cta-section">
+                <a href="https://admintraining.lastpass.com/" class="lp-button lp-button--tertiary lp-button--tertiary-blue lp-button--tertiary-icon-arrow" target="_blank" >Start admin training</a>
+
+            </div>
+        </div>
+    </article>
+
+    <article data-component-name="Resource Card" class="lp-resource-card" data-url=https://usertraining.lastpass.com/ data-gaeventcategory="resource_learn-more" data-gaeventaction="content_featured-endusertraining" data-topic="" data-type="ondemand"  >
+        <div>
+
+                <div class="lp-resource-card__header-image">
+                    <img src='/static/media/lazy.png' data-src="/-/media/dda480e21beb44abaf04b7bc501ab1cb.png?la=en&amp;h=400&amp;w=800&amp;hash=E88E84CFAB863F962B0767CB92D1671C" alt="" />
+                </div>
+
+        <div class="lp-resource-card__content-section">
+                <span>Training</span>
+                                        <h3>End user training</h3>
+            
+                <p>Make the most of LastPass. Learn the ins and outs of your vault to fully protect your digital life.</p>
+            
+        </div>
+
+            <div class="lp-resource-card__cta-section">
+                <a href="https://usertraining.lastpass.com/" class="lp-button lp-button--tertiary lp-button--tertiary-blue lp-button--tertiary-icon-arrow" target="_blank" >Start user training</a>
+
+            </div>
+        </div>
+    </article>
+                </div>
+            </div>
+
+            <div class="lp-resource-cards__wrapper filtered-articles">
+                <div class="filtered-articles__no-results">
+                    <p></p>
+                    <a class="lp-button lp-button__white reset" data-gaeventcategory="resource-filter" data-gaeventaction="no-results_clear-filter">
+                        
+                    </a>
+                </div>
+            </div>
+
+        </div>
+</div>
+
+
+<section data-component-name="BoilerplateTrustSection" class="trust-section  " style='background-color:#FFFFFF;  '>
+                    <section class="lp-intro lp-intro--small">
+
+
+                            <h2>Built on a foundation of security expertise</h2>
+
+
+                    </section>
+                    <section class="statistic-cards">
+                                <div class="statistic-card statistic-card--textonly">
+                                    <h3>Millions</h3>
+                                    <p>Customers secure their passwords with LastPass</p>
+                                </div>
+                                <div class="statistic-card statistic-card--graphiconly">
+                                    <img src='/static/media/lazy.png' data-src="/-/media/bcb99f17958c42e896a00b40778795d1.png?la=en&amp;h=200&amp;w=178&amp;hash=C74CA52BC983772BD627F7D670672698" alt=" " />
+                                </div>
+                                <div class="statistic-card statistic-card--graphiconly">
+                                    <img src='/static/media/lazy.png' data-src="/-/media/1eda633e82ad4a358141b542bda62086.png?la=en&amp;h=200&amp;w=196&amp;hash=8968EFBD14DC00EDC282741E1723D297" alt="" />
+                                </div>
+                                <div class="statistic-card statistic-card--graphiconly">
+                                    <img src='/static/media/lazy.png' data-src="/-/media/c635650172d444b688d24949f5697907.png?la=en&amp;h=200&amp;w=178&amp;hash=531268C27B3A1203461C607BE5AFF62E" alt=" " />
+                                </div>
+                                <div class="statistic-card statistic-card--textonly">
+                                    <h3>100,000+</h3>
+                                    <p>Businesses choose LastPass</p>
+                                </div>
+                    </section>
+</section>
+
+    <div id="749dcc8bcad641cf96db266cb05c6b68" data-component-name="Widget Collection"
+         class="lp-product-attributes  lp-product-attributes--4col  "
+         data-theme=""
+         style=background-color:#F0F2FF>
+            <div class="lp-product-attributes-wrapper">
+
+        <div class="lp-product-attributes-row">
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/28f3688e93d34f3082651da66416831c.svg?la=en&amp;hash=46A963A3FE0B206C040D3DE7654E01D4" alt="icon-s-light_illustrative_trust-center-svg" />
+                        <h3>Trust Center</h3>
+
+                    <p>Your single source for the latest security, privacy, compliance, and system performance information.</p>
+
+<a href="/trust-center" class="lp-button lp-button--tertiary lp-button--tertiary-blue lp-button--tertiary-small lp-button--tertiary-icon-arrow" data-gaeventcategory="learn-more" data-gaeventaction="bottom_trust-center" >Visit Trust Center</a>                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/33161423aa8f410cb072cd63435acf42.svg?la=en&amp;hash=4CF2349868EC6964B069DF6553EFA88A" alt="icon-s-light_illustrative_zero-knowledge-security-eye-svg" />
+                        <h3>LastPass encryption model</h3>
+
+                    <p>Your data is kept secret, even from us. Learn how LastPass protects your data with a local-only encryption model.</p>
+
+<a href="/security/zero-knowledge-security" class="lp-button lp-button--tertiary lp-button--tertiary-blue lp-button--tertiary-small lp-button--tertiary-icon-arrow" data-gaeventcategory="bottom_encryption" data-gaeventaction="bottom_encryption" >Learn more about encryption</a>                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/8c6d38d4e8f748e7b5c46695691e3678.svg?la=en&amp;hash=DBBDC563B832034EB88EC4AC679CFF36" alt="iconslightillustrativeeducation2svg" />
+                        <h3>Cybersecurity terminology</h3>
+
+                    <p>Learn the basics of cybersecurity education and terms so you can prevent and respond to security incidents. </p>
+
+<a href="/security/what-is-a-cyberattack" class="lp-button lp-button--tertiary lp-button--tertiary-blue lp-button--tertiary-small lp-button--tertiary-icon-arrow" data-gaeventcategory="learn-more" data-gaeventaction="bottom_read-article" >Read the article</a>                </div>
+                <div class="lp-product-attribute">
+<img src='/static/media/lazy.png' data-src="/-/media/76ced02534e34266be195aa5dddf77d7.svg?la=en&amp;hash=A7CE8D75CD3ED8D7C7CE21653DB594E9" alt="icon-s-light_illustrative_secured-doc-compliance-svg" />
+                        <h3>Compliance Center</h3>
+
+                    <p>View the latest LastPass system statuses, certifications, privacy policies, and other security documentation.​</p>
+
+<a href="http://compliance.lastpass.com/" class="lp-button lp-button--tertiary lp-button--tertiary-blue lp-button--tertiary-small lp-button--tertiary-icon-arrow" data-gaeventcategory="learn-more" target="_blank" data-gaeventaction="bottom_resources" >Visit Compliance Center</a>                </div>
+        </div>
+
+
+
+    </div>
+
+    </div>
+
+
+    <div data-component-name="Page End Callout" class="lp-page-end   lp-page-end--gradient-dark-gray" style="" data-theme="2">
+        <div class="lp-page-end__content-wrapper" style="background: url(/-/media/5c88c63bfb704b1789146ba5a9bde6ff.svg) no-repeat top center/cover">
+        <div class="lp-page-end__content">
+
+            
+
+                <h2 >Stringent security meets global compliance. You get that and more with LastPass.</h2>
+            
+            
+
+
+
+
+                <div class="lp-button__container" >
+<a href="/trial/business?max=true" class="lp-button primary negative jumbo" >Start Business trial</a>                    <a href="/contact-sales" class="lp-button secondary negative jumbo" data-gaeventcategory="contact-sales-intent" data-gaeventaction="page-bottom_contact-sales" >Contact sales</a>
+                </div>
+
+            <span class="lp-cta" >
+                Free 14-day LastPass Business trial. No credit card required.
+            </span>
+
+        </div>
+        </div>
+    </div>
+
+<div data-theme="2"
+     style="" class="lp-separation-line lp-separation-line--full-bleed">
+    <hr />
+</div>
+    <footer>
+    
+
+<div data-component-name="Footer" class="footer-wrapper" data-module="footer">
+    <div class="footer-row">
+                <div class="footer-column">
+                        <h5 class="footer-menu-heading" tabindex="0">Products</h5>
+                        <ul class="footer-section">
+                                <li class="">
+                                    <a href="/" data-gaeventcategory="footer" data-gaeventaction="products-homepage" >Home Page</a>
+                                </li>
+                                <li class="">
+                                    <a href="/password-manager" data-gaeventcategory="footer" data-gaeventaction="products-password-manager" >What is a password manager?</a>
+                                </li>
+                                <li class="">
+                                    <a href="/why-lastpass" data-gaeventcategory="footer" data-gaeventaction="products-why-lastpass" >Why LastPass?</a>
+                                </li>
+                                <li class="">
+                                    <a href="/security/is-lastpass-secure" data-gaeventcategory="footer" data-gaeventaction="products-is-lastpass-secure" >How is LastPass secure?</a>
+                                </li>
+                                <li class="">
+                                    <a href="/how-lastpass-works" data-gaeventcategory="footer" data-gaeventaction="products-how-lastpass-works" >How LastPass works</a>
+                                </li>
+                                <li class="">
+                                    <a href="/pricing?tab=business" data-gaeventcategory="footer" data-gaeventaction="products-pricing" >Pricing</a>
+                                </li>
+                                <li class="">
+                                    <a href="/products/business" data-gaeventcategory="footer" data-gaeventaction="products-business" >For Business</a>
+                                </li>
+                                <li class="">
+                                    <a href="/products/team-password-manager" data-gaeventcategory="footer" data-gaeventaction="products-team-password-manager" >For Teams</a>
+                                </li>
+                                <li class="">
+                                    <a href="/products/family-password-manager" data-gaeventcategory="footer" data-gaeventaction="products-family-password-manager" >For Families</a>
+                                </li>
+                                <li class="">
+                                    <a href="/products/premium-password-manager" data-gaeventcategory="footer" data-gaeventaction="products-premium-password-manager" >For Individuals</a>
+                                </li>
+                                <li class="">
+                                    <a href="/partner/managed-service-provider" data-gaeventcategory="footer" data-gaeventaction="products-managed-service-provider" >For MSPs</a>
+                                </li>
+                                <li class="">
+                                    <a href="/compare" data-gaeventcategory="footer" data-gaeventaction="products-compare" >Compare LastPass</a>
+                                </li>
+                                <li class="">
+                                    <a href="/security" data-gaeventcategory="footer" data-gaeventaction="products-security" >Security Features</a>
+                                </li>
+                                <li class="">
+                                    <a href="/features" data-gaeventcategory="footer" data-gaeventaction="products-all-features" >All Features</a>
+                                </li>
+                        </ul>
+                </div>
+                <div class="footer-column">
+                        <h5 class="footer-menu-heading" tabindex="0">Solutions</h5>
+                        <ul class="footer-section">
+                                <li class="badge">
+                                    <a href="/features/saas-protect" data-gaeventcategory="footer" data-gaeventaction="solutions-saas-protect" >SaaS Protect</a>
+                                        <span class="badge-blue">New</span>
+                                </li>
+                                <li class="">
+                                    <a href="/features/password-sharing" data-gaeventcategory="footer" data-gaeventaction="solutions-password-sharing" >Password sharing</a>
+                                </li>
+                                <li class="">
+                                    <a href="/solutions/secure-access" data-gaeventcategory="footer" data-gaeventaction="solutions-secure-access" >Secure Access Essentials</a>
+                                </li>
+                                <li class="">
+                                    <a href="/solutions/authentication" data-gaeventcategory="footer" data-gaeventaction="solutions-authentication" >Authentication</a>
+                                </li>
+                                <li class="">
+                                    <a href="/solutions/integrations" data-gaeventcategory="footer" data-gaeventaction="solutions-integrations" >Integrations</a>
+                                </li>
+                                <li class="">
+                                    <a href="/solutions/enterprise-password-management" data-gaeventcategory="footer" data-gaeventaction="solutions-enterprise-password-management" >For enterprises</a>
+                                </li>
+                                <li class="">
+                                    <a href="/solutions/small-business-password-management" data-gaeventcategory="footer" data-gaeventaction="solutions-small-business-password-management" >For small businesses</a>
+                                </li>
+                                <li class="">
+                                    <a href="/roles/marketing" data-gaeventcategory="footer" data-gaeventaction="solutions-marketing" >For marketing teams</a>
+                                </li>
+                                <li class="">
+                                    <a href="/roles/legal" data-gaeventcategory="footer" data-gaeventaction="solutions-legal" >For legal teams</a>
+                                </li>
+                                <li class="">
+                                    <a href="/roles/human-resources" data-gaeventcategory="footer" data-gaeventaction="solutions-human-resources" >For HR teams</a>
+                                </li>
+                                <li class="">
+                                    <a href="/industry/financial-institutions" data-gaeventcategory="footer" data-gaeventaction="solutions-financial-institutions" >For Financial Services</a>
+                                </li>
+                                <li class="">
+                                    <a href="/industry/professional-services" data-gaeventcategory="footer" data-gaeventaction="solutions-professional-services" >For Professional Services</a>
+                                </li>
+                                <li class="">
+                                    <a href="/solutions/education" data-gaeventcategory="footer" data-gaeventaction="solutions-education" >For Education Institutions</a>
+                                </li>
+                                <li class="">
+                                    <a href="/solutions" data-gaeventcategory="footer" data-gaeventaction="solutions-solutions" >All Solutions</a>
+                                </li>
+                        </ul>
+                </div>
+                <div class="footer-column">
+                        <h5 class="footer-menu-heading" tabindex="0">Resources</h5>
+                        <ul class="footer-section">
+                                <li class="">
+                                    <a href="/resources" data-gaeventcategory="footer" data-gaeventaction="resources-resources" >Resource Center</a>
+                                </li>
+                                <li class="">
+                                    <a href="/resources/case-studies" data-gaeventcategory="footer" data-gaeventaction="resources-case-studies" >Case studies</a>
+                                </li>
+                                <li class="">
+                                    <a href="/resources/events" data-gaeventcategory="footer" data-gaeventaction="resources-events" >Events</a>
+                                </li>
+                                <li class="">
+                                    <a href="/resources/webinars" data-gaeventcategory="footer" data-gaeventaction="resources-webinars" >Webinars</a>
+                                </li>
+                                <li class="">
+                                    <a href="/resources/business-demos/registration" data-gaeventcategory="footer" data-gaeventaction="resources-business-demos-registration" >On-demand Demos</a>
+                                </li>
+                                <li class="">
+                                    <a href="/trust-center" data-gaeventcategory="footer" data-gaeventaction="resources-trust-center" >Trust Center</a>
+                                </li>
+                                <li class="">
+                                    <a href="/security/threat-intelligence-mitigation-escalation" data-gaeventcategory="footer" data-gaeventaction="resources-trust-center" >Threat Intel</a>
+                                </li>
+                                <li class="">
+                                    <a href="/trust-center/compliance" data-gaeventcategory="footer" data-gaeventaction="resources-compliance" >Compliance Center</a>
+                                </li>
+                                <li class="">
+                                    <a href="/university" data-gaeventcategory="footer" data-gaeventaction="resources-university" >LastPass University</a>
+                                </li>
+                                <li class="">
+                                    <a href="/features/password-generator" data-gaeventcategory="footer" data-gaeventaction="resources-password-generator" >Password Generator</a>
+                                </li>
+                                <li class="">
+                                    <a href="/features/username-generator" data-gaeventcategory="footer" data-gaeventaction="resources-username-generator" >Username Generator</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://lastpass.com/auth/" data-gaeventcategory="footer" data-gaeventaction="resources-authenticator" >LastPass Authenticator</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://blog.lastpass.com/categories/cybersecurity" data-gaeventcategory="footer" data-gaeventaction="resources-cybersecurity-posts" >Cybersecurity posts</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://blog.lastpass.com/" data-gaeventcategory="footer" data-gaeventaction="resources-blog" >All blog posts</a>
+                                </li>
+                        </ul>
+                </div>
+                <div class="footer-column">
+                        <h5 class="footer-menu-heading" tabindex="0">Support</h5>
+                        <ul class="footer-section">
+                                <li class="">
+                                    <a href="https://support.lastpass.com/" data-gaeventcategory="footer" target="_blank" data-gaeventaction="support-support-center" >Support Center</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://support.lastpass.com/s/document-item?bundleId=lastpass&amp;topicId=LastPass/reddit_lastpass.html" >Reddit community</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://community.lastpass.com/" data-gaeventcategory="footer" target="_blank" data-gaeventaction="support-community" >Community forum</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://status.lastpass.com/" data-gaeventcategory="footer" target="_blank" data-gaeventaction="support-service-status" >Service status</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://lastpass.com/my.php" data-gaeventcategory="footer" data-gaeventaction="support-my-account" >My account</a>
+                                </li>
+                                <li class="">
+                                    <a href="/trust-center/security/responsible-disclosure" data-gaeventcategory="footer" data-gaeventaction="support-responsible-disclosure" >Security vulnerability disclosure</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://lastpass.com/?ac=1&amp;lpnorefresh=1" data-gaeventcategory="footer" data-gaeventaction="support-vault-login" >Vault login</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://admin.lastpass.com/" data-gaeventcategory="footer" data-gaeventaction="support-admin-login" >Admin login</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://support.lastpass.com/s/contact-us" data-gaeventcategory="footer" target="_blank" data-gaeventaction="support-contact-us-support" >Contact support</a>
+                                </li>
+                        </ul>
+                        <h5 class="footer-menu-heading" tabindex="0">Get LastPass</h5>
+                        <ul class="footer-section">
+                                <li class="">
+                                    <a href="https://lastpass.com/create-account.php" data-gaeventcategory="footer" data-gaeventaction="get-lastpass-start-free-trial" >Start free trial</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://play.google.com/store/apps/details?id=com.lastpass.lpandroid" data-gaeventcategory="f" target="_blank" data-gaeventaction="get-lastpass-google-play-download" >Google Play download</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://apps.apple.com/us/app/lastpass-password-manager/id324613447" data-gaeventcategory="footer" target="_blank" data-gaeventaction="get-lastpass-app-store-download" >App Store download</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://lastpass.com/misc_download2.php" data-gaeventcategory="footer" data-gaeventaction="get-lastpass-browser-extensions" >Browser Extensions</a>
+                                </li>
+                        </ul>
+                </div>
+                <div class="footer-column">
+                        <h5 class="footer-menu-heading" tabindex="0">Company</h5>
+                        <ul class="footer-section">
+                                <li class="">
+                                    <a href="/company/about-us" data-gaeventcategory="footer" data-gaeventaction="company-about-us" >About Us</a>
+                                </li>
+                                <li class="badge">
+                                    <a href="/company/careers" data-gaeventcategory="footer" data-gaeventaction="company-careers" >Careers</a>
+                                        <span class="badge-green">We're hiring</span>
+                                </li>
+                                <li class="">
+                                    <a href="/company/leadership" data-gaeventcategory="footer" data-gaeventaction="company-leadership" >Leadership</a>
+                                </li>
+                                <li class="">
+                                    <a href="/company/newsroom" data-gaeventcategory="footer" data-gaeventaction="company-newsroom" >Newsroom</a>
+                                </li>
+                                <li class="">
+                                    <a href="/legal-center" data-gaeventcategory="footer" data-gaeventaction="company-legal-center" >Legal Center</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://compliance.lastpass.com/" data-gaeventcategory="footer" target="_blank" data-gaeventaction="company-compliance" >Compliance</a>
+                                </li>
+                                <li class="">
+                                    <a href="/contact-us" data-gaeventcategory="footer" title="Contact Us" data-gaeventaction="company-contact-us" >Contact Us</a>
+                                </li>
+                        </ul>
+                        <h5 class="footer-menu-heading" tabindex="0">Partners</h5>
+                        <ul class="footer-section">
+                                <li class="">
+                                    <a href="/partner" data-gaeventcategory="footer" data-gaeventaction="partners-partner" >Partner program overview</a>
+                                </li>
+                                <li class="">
+                                    <a href="/partner/managed-service-provider" data-gaeventcategory="footer" data-gaeventaction="partners-managed-service-provider" >MSP</a>
+                                </li>
+                                <li class="">
+                                    <a href="/partner/resellers" data-gaeventcategory="footer" data-gaeventaction="partners-reseller" >Resellers</a>
+                                </li>
+                                <li class="">
+                                    <a href="/partner/partner-locator" data-gaeventcategory="footer" title="Find a Partner" data-gaeventaction="partners-partner-locator" >Find a Partner</a>
+                                </li>
+                                <li class="">
+                                    <a href="https://partner.lastpass.com/login" data-gaeventcategory="footer" target="_blank" data-gaeventaction="partners-login" >Partner login</a>
+                                </li>
+                                <li class="">
+                                    <a href="/partner/affiliate" data-gaeventcategory="footer" data-gaeventaction="partners-affiliate" >Affiliate partners</a>
+                                </li>
+                        </ul>
+                </div>
+                <div class="footer-column">
+                    <h5 class="footer-menu-heading" tabindex="0">Contact Sales</h5>
+                    <div class="footer-section info">
+<p>See in action how LastPass can protect your business. <a href="https://www.lastpass.com/resources/business-demos">Request a demo</a> today.</p>
+<p>Want to use LastPass Business now? <a href="https://www.lastpass.com/trial/business">Start 14-day Free Trial</a></p>
+<p><a href="https://www.lastpass.com/contact-lp-sales#sales-chat" class="drift-modal-open-button">Chat</a> with sales experts</p>
+<a href="/contact-sales" class="lp-button secondary negative medium button-wide" >Contact Sales</a>                    </div>
+
+                        <h5 class="footer-menu-heading active hiddenOnMobile" tabindex="0" class="active">Install Extension</h5>
+                        <ul class="footer-section info">
+                            <a href="https://lastpass.com/misc_download2.php" class="lp-button lp-button--icon download medium negative button-wide" target="_blank" >Download</a>
+<img src='/static/media/lazy.png' data-src="/-/media/168955172ff64700b187061c87a26a7a.png?la=en&amp;h=20&amp;w=184&amp;hash=2F412C36DF281D8644045A28F32246EA" alt=" " />                        </ul>
+                </div>
+
+    </div>
+
+
+
+    
+<div class="footer-row connect">
+    <div class="footer-column social-media">
+                <ul class="footer-section">
+<a href="https://www.facebook.com/LastPass" target="_blank" ><img src='/static/media/lazy.png' data-src="/-/media/d634762b4a5d4fa0b40a1825fb62b61c.svg?la=en&amp;hash=1897AB12B0476D6DD1BA31FB3078439F" alt="icon_button_sm-facebook-negative-svg" /></a><a href="https://x.com/LastPass" target="_blank" ><img src='/static/media/lazy.png' data-src="/-/media/31743a100b0c4d478bcb1901cae4e422.svg?la=en&amp;hash=BA65D05A856F1FC7055C8C85791BCB90" alt="icon_button_sm-twitter-negative-svg" /></a><a href="https://www.instagram.com/lastpassofficial/" target="_blank" ><img src='/static/media/lazy.png' data-src="/-/media/72ff98fa437b4790aa0d17b3bb506c63.svg?la=en&amp;hash=0A8E87F40FE8ED38A418DEF4461CCD55" alt="icon_button_sm-instagram-negative-svg" /></a><a href="https://www.youtube.com/c/LastPass" target="_blank" ><img src='/static/media/lazy.png' data-src="/-/media/2d2c5d78d60e42acab3378edfd6fc97d.svg?la=en&amp;hash=5A76CF058E1F65499769CFE617051941" alt="icon_button_sm-youtube-negative-svg" /></a><a href="https://www.linkedin.com/companies/lastpass" target="_blank" ><img src='/static/media/lazy.png' data-src="/-/media/4d77cdb786104deea87fadc6a4fd6095.svg?la=en&amp;hash=D2A44105C3D02C8E4DB6CD863040CF6A" alt="icon_button_sm-linkedin-negative-svg" /></a><a href="https://www.reddit.com/r/LastPassOfficial/?rdt=44984" target="_blank" ><img src='/static/media/lazy.png' data-src="/-/media/c15d1e93af8745ac95eb4908565fe33e.svg?la=en&amp;hash=812794961C2BEAC780BB322497AC94B3" alt="icon_button_sm-reddit-negative-svg" /></a>                </ul>
+    </div>
+    <div class="footer-column trust">
+    </div>
+</div>
+</div>
+
+
+
+
+    <div class="footer-wrapper footer-simple">
+<div class="footer-row">
+    <div class="footer-column">
+        <ul class="footer-section">
+            <li>
+                <p>
+<a href="/legal-center/trademark" >&#169; 2026 LastPass US LP. All rights reserved.</a>                </p>
+            </li>
+                    <li>
+                        <a href="/legal-center/privacy-notice" data-gaeventcategory="footer" data-gaeventaction="LastPass PrivacyPolicy" >Privacy Notice</a>
+                    </li>
+                    <li>
+                        <a href="/legal-center/terms-of-service/business" data-gaeventcategory="footer" data-gaeventaction="LastPass Terms of Service" >Terms of Service</a>
+                    </li>
+                    <li>
+                        <a href="/legal-center/impressum" data-gaeventcategory="footer" data-gaeventaction="resources-imprint" >Imprint</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" class="cookie-preferences-anchor" data-gaeventcategory="footer" data-gaeventaction="resources-cookies" >Cookie Preferences</a>
+                    </li>
+                    <li>
+                        <a href="/legal-center/your-privacy-choices" class="privacy-choices-link" data-gaeventcategory="footer" data-gaeventaction="LastPass YourPrivacyPolicy" >Your Privacy Choices</a>
+                    </li>
+        </ul>
+    </div>
+    
+
+
+<div class="language-selector" data-module="pickLanguage">
+    <button type="button" class="language-selector__button" data-toggle="modal" data-target="#langmodal" id="lang-btn">
+        <span class="icon"></span><span class="lang-text">English</span>
+    </button>
+    <ul class="language-selector__drop">
+            <li>
+                <a href="/security">
+                    English
+                </a>
+            </li>
+            <li>
+                <a href="/es/security">
+                    Espa&#241;ol
+                </a>
+            </li>
+            <li>
+                <a href="/de/security">
+                    Deutsch
+                </a>
+            </li>
+            <li>
+                <a href="/fr/security">
+                    Fran&#231;ais
+                </a>
+            </li>
+            <li>
+                <a href="/it/security">
+                    Italiano
+                </a>
+            </li>
+            <li>
+                <a href="/nl/security">
+                    Nederlands
+                </a>
+            </li>
+            <li>
+                <a href="/pt/security">
+                    Portugu&#234;s
+                </a>
+            </li>
+    </ul>
+</div>
+</div>
+</div>
+</footer>
+    
+    
+    
+    <!-- Instance: pd1ldwk001FP4 -->
+<!-- Lang: en -->
+<!-- #1 Premium Support Tool at Your Fingertips -->
+<!-- Let there be sight. -->
+<input type="hidden" id="data-country" data-country-code="US" />
+
+    <script>
+        var akCIp = '100.14.1.221';
+    </script>
+
+    
+        <script>
+        var geolocationPhoneNumbers = {"LP_CONTACT_SALES":{"defaultPhone":"+1-888-621-0540","geolocatedPhones":[{"country":"AU","phone":"+61 1800 319 781"},{"country":"IN","phone":"000 800 050 3449"},{"country":"NZ","phone":"+64 (0) 800 234 343"},{"country":"SG","phone":"+65 800 492 2330"}]},"LP_CONTACT_SALES_NAVIGATION":{"defaultPhone":"+1-833-854-6520","geolocatedPhones":[{"country":"AU","phone":"1800 231 820"},{"country":"IN","phone":"000 800 050 3462"},{"country":"NZ","phone":"+64 (0) 800 369 513"},{"country":"SG","phone":"+65 800 492 2418"},{"country":"DE","phone":"0800 181 2837"},{"country":"IE","phone":"1800 851 218"},{"country":"NL","phone":"0800 022 3742"},{"country":"UK,GB","phone":"0800 069 8183"}]}};
+    </script>
+
+    
+
+
+<style>
+.unit-price-pre-discount {
+        text-decoration:line-through;
+        color: #6b7482;
+    }
+.cta-block--center .cta-block__info {
+    margin-top: 8px;
+}
+</style>
+
+
+<style>
+#app [class*="termsAndConditionsSection-module"].terms {
+  padding: 24px 8px 8px;
+  max-width: 490px;
+  margin: 0 auto;
+}
+</style>
+    
+
+<script>
+window._coupons = [{couponName: 'cp_code',couponCode: 'LP2026-07-30W-A',isDelete: false, exDays: 40},
+]
+window._couponsExcludedPages = ['select-business-plan',
+'select-business-plan-offer',
+'select-personal-plan',
+]</script>
+    
+
+
+
+    <div id="form-modal"></div>
+
+
+
+</body>
+</html>
