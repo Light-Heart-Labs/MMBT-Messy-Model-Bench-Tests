@@ -83,3 +83,52 @@ the amendment governs. Everything not listed is unchanged.
    difference; p-values exact)."
 4. The same exact-enumeration rule applies to every family-cluster randomization test in this
    study, including the quant pilot and, if triggered, the BF16 arm (Amendment 1a.4).
+
+---
+
+## Amendment 1c — CI enforcement status: what is gated NOW vs the Phase D `verify-study` gate (audit finding A3)
+
+1. **The present-tense claim, corrected.** Section 8 states that the row-level evidence
+   manifest and the deterministic artifact-delivery validator "ship with this commit and are
+   CI-enforced (`make verify-study`)." The artifacts do ship with this branch. The CI claim
+   was ahead of the wiring: **no `make verify-study` target exists yet** — there is no
+   Makefile on this branch — and no CI job reproduces the study ledger. This amendment
+   replaces that present-tense claim with the precise enforcement status below.
+
+2. **Enforced NOW, by `.github/workflows/verify-methodology.yml`** (added with this
+   amendment; runs on `push` and `pull_request` for the methodology paths — `tooling/**`,
+   this benchmark entry, `.gitattributes`, and the workflow itself). The gates are exactly:
+   - **Unit suites, all green:** every grader-v2 test (`tooling/graders/v2/tests/`), the
+     loop-terminator suite, the delivery-validator suite, and the evidence-manifest suite
+     (`tooling/corrective/test_{loop_terminator,delivery_validator,evidence_manifest}.py`),
+     with a floor asserting at least the 64 audited tests are collected (65 at the time of
+     this amendment).
+   - **Fixture-mirror determinism:** `serve_fixtures.py` is started in the runner and
+     `check_fixture_determinism.py` must pass twice against it (byte-identical double-fetch
+     of all 36 snapshots + catalog pages, sha256s matching `index.json`).
+   - **Syntax gates:** `python3 -m py_compile` over all tooling Python;
+     `bash -n` over all tooling shell.
+   - **Hermetic corrective dry-runs:** `dryrun_argv_capture.sh` and
+     `dryrun_v2_wiring_capture.sh` (fake-transport argv capture; each asserts its own
+     post-run worktree cleanliness). `dryrun_request_body.sh` is **not** run in CI — it
+     needs the campaign host's docker sandbox image — and stays a campaign-host preflight;
+     its exit-0 and cleanliness contract is asserted inside the script itself.
+   - **Hygiene:** `git diff --check` against the merge-base with `main` (under the
+     `.gitattributes` fixture-pin policy of this branch), plus a guard failing the build if
+     anything under `benchmarks/qwen36-vs-qwen38-27b-2026-08/` (the held exploratory results
+     entry) exists on this branch.
+
+3. **Deferred to Phase D (before any results PR merges).** The full `verify-study`
+   reproduction gate — regenerating the row-level evidence manifest from the completed
+   study ledger, running the delivery validator over every cell, and failing CI on any
+   mismatch — requires a completed campaign ledger and therefore lands in **Phase D**, wired
+   into CI **before the results PR merges**. Until then, evidence-manifest and
+   delivery-validator enforcement in CI is at unit-test level only (point 2), and no results
+   claim may cite `verify-study` as an already-operating gate.
+
+**Superseded/qualified sentences (listed by section):**
+- Section 8, final bullet: "**Row-level evidence manifest + deterministic
+  artifact-delivery validator** ship with this commit and are CI-enforced
+  (`make verify-study`)." — now reads per 1c.1–1c.3: they ship with this branch; CI
+  enforcement today is `verify-methodology.yml` at unit-test level; the full
+  `verify-study` reproduction gate is Phase D scope, in place before the results PR merges.
