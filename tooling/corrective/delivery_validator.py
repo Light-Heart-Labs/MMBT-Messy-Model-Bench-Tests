@@ -20,9 +20,19 @@ Classifications:
                          artifacts, ...)
   loop-terminated        label.json primary in {loop-run30, identical-call-loop}
   timeout                label.json primary == timeout
-  infra                  mechanical infrastructure failure: api_error finish,
-                         missing/empty transcript, or no terminal evidence at
-                         all -> quarantine + same-seed rerun (ledgered)
+  context-exhausted      api_error finish whose recorded transcript error is
+                         the serving engine's HTTP 400
+                         exceed_context_size_error AND the transcript has at
+                         least one model turn: the model's own prompt growth
+                         exhausted the serving context window. MODEL outcome
+                         (DEVIATIONS.md deviation 1) — terminal like a
+                         loop-label cell: delivery false, never quarantined,
+                         never rerun.
+  infra                  mechanical infrastructure failure: any other
+                         api_error finish (connection refused/reset, 5xx,
+                         timeout, empty response), missing/empty transcript,
+                         or no terminal evidence at all -> quarantine +
+                         same-seed rerun (ledgered)
 
 stdlib only.
 """
@@ -30,6 +40,7 @@ stdlib only.
 import argparse
 import io
 import json
+import re
 import sys
 import tarfile
 from pathlib import Path
@@ -42,6 +53,15 @@ KNOWN_FAMILIES = [
 
 LOOP_LABELS = ("loop-run30", "identical-call-loop")
 MAX_JSON_MEMBER_BYTES = 50 * 1024 * 1024
+
+# llama-server rejects a request whose prompt outgrew the serving window with
+# HTTP 400 {"error": {"type": "exceed_context_size_error", "message":
+# "request (N tokens) exceeds the available context size (M tokens), ..."}}.
+# Matched mechanically on either the error type string or the token-count
+# message so the classification survives message-wording drift.
+CONTEXT_EXHAUSTION_MARKER = "exceed_context_size"
+CONTEXT_EXHAUSTION_RE = re.compile(
+    r"request \(\d+ tokens?\) exceeds the (?:available )?context size \(\d+ tokens?\)")
 
 
 def family_from_run_name(run_name):
@@ -78,6 +98,42 @@ def transcript_model_events(transcript_path):
             if ev.get("type") == "model":
                 n += 1
     return n
+
+
+def transcript_last_error(transcript_path):
+    """Last type=="error" event dict; None if none or transcript missing."""
+    p = Path(transcript_path)
+    if not p.exists():
+        return None
+    last = None
+    with open(p, "r", encoding="utf-8", errors="replace") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                ev = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if ev.get("type") == "error":
+                last = ev
+    return last
+
+
+def error_is_context_exhaustion(error_event):
+    """True when a recorded api_error event is the serving engine's HTTP 400
+    exceed_context_size_error (the prompt outgrew the context window).
+
+    Context exhaustion through the model's own prompt growth is MODEL
+    behaviour, not an infrastructure failure (DEVIATIONS.md deviation 1):
+    quarantine is reserved for mechanically identified infrastructure
+    failures, so this must NOT classify as infra.
+    """
+    if not isinstance(error_event, dict):
+        return False
+    text = " ".join(str(error_event.get(k) or "") for k in ("error", "body"))
+    return (CONTEXT_EXHAUSTION_MARKER in text
+            or bool(CONTEXT_EXHAUSTION_RE.search(text)))
 
 
 class TarIndex:
@@ -244,8 +300,20 @@ def validate_cell(cell_dir, family=None, artifacts_spec=None):
     elif label_primary == "timeout":
         classification = "timeout"
     elif isinstance(finish_reason, str) and finish_reason.startswith("api_error"):
-        classification = "infra"
-        reasons.append(f"infra: {finish_reason}")
+        if model_events and error_is_context_exhaustion(
+                transcript_last_error(cell_dir / "transcript.jsonl")):
+            # Model outcome, terminal like a loop-label cell: delivery stays
+            # false, no quarantine, no rerun (DEVIATIONS.md deviation 1).
+            # A zero-model-turn context overflow is NOT this bucket: the
+            # prompt can only outgrow the window through model turns, so a
+            # first-request overflow is a config/infra problem and falls
+            # through to infra below.
+            classification = "context-exhausted"
+            reasons.append(
+                f"model: prompt growth exhausted the serving context window ({finish_reason})")
+        else:
+            classification = "infra"
+            reasons.append(f"infra: {finish_reason}")
     elif model_events is None or model_events == 0:
         classification = "infra"
         reasons.append("infra: transcript missing or has zero model turns")
