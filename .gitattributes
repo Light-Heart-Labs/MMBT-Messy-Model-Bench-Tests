@@ -35,3 +35,16 @@ power.csv    binary
 thermals.csv binary
 gpu-nvml-clock.csv binary
 *.gz         binary
+
+# Frozen offline fixture corpus for p3_market (binary/generated fixture policy).
+#
+# WHY: every byte under tooling/fixtures/p3_market/ is pinned by sha256 in
+# benchmarks/qwen36-vs-qwen38-corrective-2026-08/manifest/pins-2026-08-16.json
+# (key: fixtures_p3_market) and re-checked by the fixture determinism gate.
+# These are captured web snapshots: whitespace-hygiene checks (git diff --check
+# trailing-whitespace/CR scanning) and text/EOL transformation MUST NOT apply.
+# Any byte change must surface as a sha256 mismatch against the manifest, never
+# be normalized or "fixed" by git or lint tooling. Hash-preserving: -text means
+# no conversion in either direction, so checked-out bytes equal committed bytes
+# on every platform.
+tooling/fixtures/p3_market/** -diff -text

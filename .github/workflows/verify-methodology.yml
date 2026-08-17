@@ -1,0 +1,108 @@
+# verify-methodology: CI gates for the corrective-study methodology branch
+# (audit finding A3). This workflow enforces, NOW, exactly the gates listed in
+# benchmarks/qwen36-vs-qwen38-corrective-2026-08/PREREGISTRATION-AMENDMENT-1.md
+# Amendment 1c. The FULL `verify-study` reproduction gate (row-level evidence
+# manifest + delivery validation over the completed study ledger) is Phase D
+# scope and lands before any results PR merges.
+#
+# Corrective dry-run coverage (audit A4) - hermetic ones only:
+#   INCLUDED tooling/corrective/dryrun_argv_capture.sh
+#     fake-python3/fake-curl argv capture; no endpoint, no docker, no fleet
+#     host; leaves the checkout byte-clean (asserted by the script itself).
+#   INCLUDED tooling/corrective/dryrun_v2_wiring_capture.sh
+#     same technique for the v2-brief + sandbox-network wiring.
+#   EXCLUDED tooling/corrective/dryrun_request_body.sh
+#     drives the real harness sandbox: needs a docker socket, the locally
+#     built bench-sandbox:latest image (not published; built on the campaign
+#     host), and the alpine cleanup container, and it relocates evidence into
+#     a host evidence dir. Not runnable on a bare runner; it runs on the
+#     campaign host, and its exit-0 + worktree-cleanliness contract is
+#     asserted inside the script (A4a-c).
+
+name: verify-methodology
+
+on:
+  push:
+    paths:
+      - 'tooling/**'
+      - 'benchmarks/qwen36-vs-qwen38-corrective-2026-08/**'
+      - '.gitattributes'
+      - '.github/workflows/verify-methodology.yml'
+  pull_request:
+    paths:
+      - 'tooling/**'
+      - 'benchmarks/qwen36-vs-qwen38-corrective-2026-08/**'
+      - '.gitattributes'
+      - '.github/workflows/verify-methodology.yml'
+
+jobs:
+  verify-methodology:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pytest
+        run: python3 -m pip install --quiet pytest
+
+      - name: Grader v2 + terminator + validator + manifest suites (full set)
+        run: |
+          suite="tooling/graders/v2/tests
+          tooling/corrective/test_loop_terminator.py
+          tooling/corrective/test_delivery_validator.py
+          tooling/corrective/test_evidence_manifest.py"
+          # shellcheck disable=SC2086
+          python3 -m pytest -q $suite
+          n=$(python3 -m pytest --collect-only -q $suite | tail -1 | grep -oE '^[0-9]+')
+          echo "collected: $n tests"
+          if [ "${n:-0}" -lt 64 ]; then
+            echo "FAIL: the audited suite is >=64 tests; only $n collected"
+            exit 1
+          fi
+
+      - name: Fixture mirror determinism (local server, checked twice)
+        run: |
+          python3 tooling/fixtures/serve_fixtures.py --host 127.0.0.1 --port 8377 &
+          SRV=$!
+          up=0
+          for i in $(seq 1 40); do
+            if curl -sf http://127.0.0.1:8377/index.json >/dev/null; then up=1; break; fi
+            sleep 0.5
+          done
+          [ "$up" = "1" ] || { echo "FAIL: fixture server never came up"; exit 1; }
+          python3 tooling/fixtures/check_fixture_determinism.py --base-url http://127.0.0.1:8377
+          python3 tooling/fixtures/check_fixture_determinism.py --base-url http://127.0.0.1:8377
+          kill "$SRV"
+
+      - name: Syntax gates (py_compile + bash -n over all tooling)
+        run: |
+          find tooling -name '*.py' -not -path 'tooling/workspace/*' -print0 \
+            | xargs -0 python3 -m py_compile
+          echo "py_compile: OK"
+          find tooling -name '*.sh' -not -path 'tooling/workspace/*' -print0 \
+            | xargs -0 -n1 bash -n
+          echo "bash -n: OK"
+
+      - name: Hermetic corrective dry-runs (audit A4)
+        run: |
+          bash tooling/corrective/dryrun_argv_capture.sh
+          bash tooling/corrective/dryrun_v2_wiring_capture.sh
+
+      - name: Hygiene - git diff --check + no-results-entry guard
+        run: |
+          base=$(git merge-base origin/main HEAD)
+          echo "diff --check against merge-base $base"
+          git diff --check "$base"..HEAD
+          if [ -e benchmarks/qwen36-vs-qwen38-27b-2026-08 ] || \
+             [ -n "$(git ls-files benchmarks/qwen36-vs-qwen38-27b-2026-08)" ]; then
+            echo "FAIL: exploratory results entry benchmarks/qwen36-vs-qwen38-27b-2026-08/"
+            echo "      must not exist on the methodology branch (audit A1 separation)"
+            exit 1
+          fi
+          echo "OK: no exploratory results entry on this branch"

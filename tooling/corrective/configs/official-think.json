@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "arm": "official-think",
+  "role": "secondary-confirmatory-holm",
+  "protocol_ref": "PREREGISTRATION.md section 2 (secondary, Holm-adjusted) + section 1 verified sampler ground truth",
+  "_sampler_provenance": "Thinking official sampler, identical for both models: T1.0/top_p0.95/top_k20/min_p0/pp0/rp1 (both READMEs at pinned revisions). Qwen3.8: reasoning_effort=xhigh ONLY (top-level wire location per harness.py) with preserve_thinking=true; Qwen3.6: normal thinking, no reasoning_effort knob. The think/no-think contrast differs in sampler too and is labelled accordingly (section 6 claim-language contract).",
+  "thinking": "on",
+  "sampler": {
+    "benchmark_temperature": 1.0,
+    "benchmark_top_p": 0.95,
+    "benchmark_top_k": 20,
+    "benchmark_min_p": 0.0,
+    "benchmark_presence_penalty": 0.0,
+    "benchmark_repeat_penalty": 1.0
+  },
+  "seeds": [101, 211, 307, 401, 503, 601],
+  "families": [
+    "p1_bugfix", "p1_testwrite", "p1_refactor",
+    "p2_extract", "p2_ci", "p2_hallucination", "p2_triage",
+    "p3_doc", "p3_business", "p3_market", "p3_writing", "p3_pm"
+  ],
+  "models": {
+    "q38": {
+      "alias": "Qwen3.8-27B-UD-Q4_K_XL",
+      "label": "q38-official-think-xhigh",
+      "preserve_thinking": true,
+      "reasoning_effort": "xhigh",
+      "reasoning_effort_location": "top_level"
+    },
+    "q36": {
+      "alias": "Qwen3.6-27B-UD-Q4_K_XL",
+      "label": "q36-official-think",
+      "preserve_thinking": null,
+      "reasoning_effort": null,
+      "reasoning_effort_location": null
+    }
+  },
+  "host_plan": {
+    "phase_a": {
+      "seeds": [101, 211, 307],
+      "q38": {"tower": "tower1", "port": 18101},
+      "q36": {"tower": "tower3", "port": 18103}
+    },
+    "phase_b": {
+      "seeds": [401, 503, 601],
+      "q38": {"tower": "tower3", "port": 18103},
+      "q36": {"tower": "tower1", "port": 18101}
+    }
+  },
+  "drain": {
+    "tower": "tower1",
+    "forbidden_containers": ["ods-llama-server"]
+  },
+  "quant": "UD-Q4_K_XL",
+  "image_reference": "dream-fleet/llama.cpp@sha256:0c8dc7c0954fe5e1d75118a4f880f17252f62d1d01e24716b172afe9fafd85a1",
+  "max_model_len": 262144,
+  "benchmark_max_output_tokens_cap": 262144,
+  "benchmark_sandbox_gpus": "none",
+  "wall_clock_ceiling_secs": 10800,
+  "loop_threshold": 30,
+  "power_cap_w": 500,
+  "serving_manifest": "/home/michael/mmbt-qwen38-eaaa8ca/tooling/deployments/qwen-corrective/phase_a.json"
+}

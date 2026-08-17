@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "purpose": "PREREGISTRATION.md section 5 host inventory (GPU model/driver/power cap) for the corrective study",
+  "collected_at_utc": "2026-08-16T19:12:17Z",
+  "collection_command": "nvidia-smi --query-gpu=index,name,uuid,driver_version,vbios_version,power.limit,power.max_limit,memory.total,compute_cap --format=csv,noheader",
+  "collected_firsthand": true,
+  "hosts": {
+    "tower1": {
+      "role": "crossover serving lane (phase_a: Qwen3.8-27B behind tunnel 18101; phase_b: Qwen3.6-27B)",
+      "driver_version": "595.84",
+      "cuda_version": "13.2",
+      "gpus": [
+        {
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 5090",
+          "uuid": "GPU-6cbecbd9-9b89-e7b4-c8e7-2ac63f4dcc44",
+          "driver_version": "595.84",
+          "vbios_version": "98.02.2E.80.39",
+          "power_limit_w": 500.0,
+          "power_max_limit_w": 600.0,
+          "memory_total_mib": 32607,
+          "compute_cap": "12.0"
+        }
+      ]
+    },
+    "tower3": {
+      "role": "crossover serving lane (phase_a: Qwen3.6-27B behind tunnel 18103; phase_b: Qwen3.8-27B)",
+      "driver_version": "595.84",
+      "cuda_version": "13.2",
+      "gpus": [
+        {
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 5090",
+          "uuid": "GPU-e0311306-9389-a863-fc29-dfed7d0e97c3",
+          "driver_version": "595.84",
+          "vbios_version": "98.02.2E.80.39",
+          "power_limit_w": 500.0,
+          "power_max_limit_w": 600.0,
+          "memory_total_mib": 32607,
+          "compute_cap": "12.0"
+        }
+      ]
+    },
+    "tower2": {
+      "role": "coordinator (harness + sandboxes + fixture server); DSV4 serving host; quant-pilot window host (section 7)",
+      "driver_version": "595.58.03",
+      "cuda_version": "13.2",
+      "gpus": [
+        {
+          "index": 0,
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "uuid": "GPU-ff71102f-22f8-52bb-da93-2076a6531329",
+          "driver_version": "595.58.03",
+          "vbios_version": "98.02.81.00.07",
+          "power_limit_w": 500.0,
+          "power_max_limit_w": 600.0,
+          "memory_total_mib": 97887,
+          "compute_cap": "12.0"
+        },
+        {
+          "index": 1,
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "uuid": "GPU-fe3fb4d0-5ddc-9c05-587b-1bc84c75c1a0",
+          "driver_version": "595.58.03",
+          "vbios_version": "98.02.52.00.02",
+          "power_limit_w": 500.0,
+          "power_max_limit_w": 600.0,
+          "memory_total_mib": 97887,
+          "compute_cap": "12.0"
+        }
+      ]
+    }
+  },
+  "endpoint_map": {
+    "18101": {
+      "tunnel_host": "tower2",
+      "remote": "tower1:11434",
+      "verified_alias": "Qwen3.8-27B-UD-Q4_K_XL",
+      "verified_at_utc": "2026-08-16T19:12:17Z",
+      "verification": "GET /v1/models + 1-token /v1/completions probe, both OK"
+    },
+    "18103": {
+      "tunnel_host": "tower2",
+      "remote": "tower3:11434",
+      "verified_alias": "Qwen3.6-27B-UD-Q4_K_XL",
+      "verified_at_utc": "2026-08-16T19:12:17Z",
+      "verification": "GET /v1/models + 1-token /v1/completions probe, both OK"
+    }
+  },
+  "power_cap_note": "All GPUs on all three hosts report power.limit 500.00 W (max_limit 600.00 W), matching config power_cap_w=500."
+}

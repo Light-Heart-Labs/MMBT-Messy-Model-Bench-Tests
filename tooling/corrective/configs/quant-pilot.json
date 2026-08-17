@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "arm": "quant-pilot",
+  "role": "exploratory",
+  "protocol_ref": "PREREGISTRATION.md section 7 (quant crossover pilot, bounded Tower2 window) + section 2 arm table",
+  "_sampler_provenance": "official-nothink sampler, value-identical to configs/official-nothink.json: Qwen3.6-27B README @6a9e13bd L635-637; Qwen3.8-27B README @1d4bf0f2 L252-253. Thinking off for every cell.",
+  "_design": "Both models x {UD-Q4_K_XL, Q8_0}, seeds 101/211, 12 families = 96 cells on Tower2's two RTX PRO 6000s. GPU<->model assignment is CROSSED between the two seeds (host_plan: seed101 puts Qwen3.8 on GPU0 + Qwen3.6 on GPU1; seed211 swaps them). Within a seed the window runs two co-residency waves (serving.waves): wave 0 = both models at UD-Q4_K_XL, wave 1 = both models at Q8_0; one container per GPU per wave, containers torn down between waves. Family-major interleave with alternating model start, same parity rule as run_crossover.sh: first model = the q38-side container iff (seed_index + family_index) is even.",
+  "_decision_rule": "Preregistered (section 7): if Q4-vs-Q8 paired delivery difference within either model has |delta| >= 15 pp with McNemar p < 0.05, quantization is implicated and a BF16 arm is added for that model in a new bounded window; otherwise the quant-causal question is reported from this pilot alone. No quant claim of any kind from single-model evidence.",
+  "thinking": "off",
+  "sampler": {
+    "benchmark_temperature": 0.7,
+    "benchmark_top_p": 0.8,
+    "benchmark_top_k": 20,
+    "benchmark_min_p": 0.0,
+    "benchmark_presence_penalty": 1.5,
+    "benchmark_repeat_penalty": 1.0
+  },
+  "seeds": [101, 211],
+  "families": [
+    "p1_bugfix", "p1_testwrite", "p1_refactor",
+    "p2_extract", "p2_ci", "p2_hallucination", "p2_triage",
+    "p3_doc", "p3_business", "p3_market", "p3_writing", "p3_pm"
+  ],
+  "models": {
+    "q38_q4": {
+      "alias": "Qwen3.8-27B-UD-Q4_K_XL",
+      "label": "q38-quantpilot-udq4xl-nothink",
+      "quant": "UD-Q4_K_XL",
+      "preserve_thinking": true,
+      "reasoning_effort": null,
+      "reasoning_effort_location": null,
+      "base_repository": "Qwen/Qwen3.8-27B",
+      "base_revision": "1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0",
+      "quant_repository": "unsloth/Qwen3.8-27B-GGUF",
+      "quant_revision": "fe1e2a23d973adb629709749dc4f6756df66ef10",
+      "model_rel": "qwen3.8-27b-ud-q4-k-xl/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+      "model_size": 17923394624,
+      "model_sha256": "bee238bbeb3dc0a34bde4d0dedbaee1f98c009e8bb4226f03070054c12fb1372",
+      "container_base": "mmbt-quantpilot-q38-udq4xl",
+      "server_profile": "qwen38-27b-udq4xl-ctx262144-q8kv-np1-v1"
+    },
+    "q38_q8": {
+      "alias": "Qwen3.8-27B-Q8_0",
+      "label": "q38-quantpilot-q80-nothink",
+      "quant": "Q8_0",
+      "preserve_thinking": true,
+      "reasoning_effort": null,
+      "reasoning_effort_location": null,
+      "base_repository": "Qwen/Qwen3.8-27B",
+      "base_revision": "1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0",
+      "quant_repository": "unsloth/Qwen3.8-27B-GGUF",
+      "quant_revision": "fe1e2a23d973adb629709749dc4f6756df66ef10",
+      "model_rel": "qwen3.8-27b-q8_0/Qwen3.8-27B-Q8_0.gguf",
+      "model_size": 29047086048,
+      "model_sha256": "a680f44a06920e5d689774823782006aa3acc8db95750323373b24139b67e348",
+      "container_base": "mmbt-quantpilot-q38-q80",
+      "server_profile": "qwen38-27b-q80-ctx262144-q8kv-np1-v1",
+      "_provenance": "Local file at /mnt/bulk/models/qwen3.8-27b-q8_0/ hashed 2026-08-16 (sha256 above) and verified byte-identical to Qwen3.8-27B-Q8_0.gguf (HF LFS oid + size) at the already-pinned campaign revision fe1e2a23 of unsloth/Qwen3.8-27B-GGUF."
+    },
+    "q36_q4": {
+      "alias": "Qwen3.6-27B-UD-Q4_K_XL",
+      "label": "q36-quantpilot-udq4xl-nothink",
+      "quant": "UD-Q4_K_XL",
+      "preserve_thinking": null,
+      "reasoning_effort": null,
+      "reasoning_effort_location": null,
+      "base_repository": "Qwen/Qwen3.6-27B",
+      "base_revision": "6a9e13bd6fc8f0983b9b99948120bc37f49c13e9",
+      "quant_repository": "unsloth/Qwen3.6-27B-GGUF",
+      "quant_revision": "82d411acf4a06cfb8d9b073a5211bf410bfc29bf",
+      "model_rel": "unsloth-Qwen3.6-27B-GGUF/UD-Q4_K_XL/Qwen3.6-27B-UD-Q4_K_XL.gguf",
+      "model_size": 17612564704,
+      "model_sha256": "ff6941ded525b34eb159496762c29dd0ec6e71dc31b74d57e75d871a03eec259",
+      "container_base": "mmbt-quantpilot-q36-udq4xl",
+      "server_profile": "qwen36-27b-udq4xl-ctx262144-q8kv-np1-v1"
+    },
+    "q36_q8": {
+      "alias": "Qwen3.6-27B-Q8_0",
+      "label": "q36-quantpilot-q80-nothink",
+      "quant": "Q8_0",
+      "preserve_thinking": null,
+      "reasoning_effort": null,
+      "reasoning_effort_location": null,
+      "base_repository": "Qwen/Qwen3.6-27B",
+      "base_revision": "6a9e13bd6fc8f0983b9b99948120bc37f49c13e9",
+      "quant_repository": "unsloth/Qwen3.6-27B-GGUF",
+      "quant_revision": "82d411acf4a06cfb8d9b073a5211bf410bfc29bf",
+      "model_rel": "qwen3.6-27b-q8_0/Qwen3.6-27B-Q8_0.gguf",
+      "model_size": 28595763424,
+      "model_sha256": "f93f517f38e696d35a1a7df2c0e3155a64f4c4dcd662107a146ae263f7fb14ce",
+      "container_base": "mmbt-quantpilot-q36-q80",
+      "server_profile": "qwen36-27b-q80-ctx262144-q8kv-np1-v1",
+      "_provenance": "NOT YET ON DISK (verified absent from /mnt/bulk/models 2026-08-16). Size + sha256 above are the HF LFS metadata of Qwen3.6-27B-Q8_0.gguf at revision 82d411ac of unsloth/Qwen3.6-27B-GGUF, fetched via the HF API 2026-08-16. Stage it with tooling/corrective/download-qwen36-q8_0.sh BEFORE the window; run_quant_pilot.sh preflight refuses while the file is missing or mismatched."
+    }
+  },
+  "host_plan": {
+    "seed101": {
+      "seeds": [101],
+      "q38_q4": {"tower": "tower2", "port": 18201, "gpu_index": 0, "gpu_uuid": "GPU-ff71102f-22f8-52bb-da93-2076a6531329"},
+      "q38_q8": {"tower": "tower2", "port": 18202, "gpu_index": 0, "gpu_uuid": "GPU-ff71102f-22f8-52bb-da93-2076a6531329"},
+      "q36_q4": {"tower": "tower2", "port": 18203, "gpu_index": 1, "gpu_uuid": "GPU-fe3fb4d0-5ddc-9c05-587b-1bc84c75c1a0"},
+      "q36_q8": {"tower": "tower2", "port": 18204, "gpu_index": 1, "gpu_uuid": "GPU-fe3fb4d0-5ddc-9c05-587b-1bc84c75c1a0"}
+    },
+    "seed211": {
+      "seeds": [211],
+      "q38_q4": {"tower": "tower2", "port": 18201, "gpu_index": 1, "gpu_uuid": "GPU-fe3fb4d0-5ddc-9c05-587b-1bc84c75c1a0"},
+      "q38_q8": {"tower": "tower2", "port": 18202, "gpu_index": 1, "gpu_uuid": "GPU-fe3fb4d0-5ddc-9c05-587b-1bc84c75c1a0"},
+      "q36_q4": {"tower": "tower2", "port": 18203, "gpu_index": 0, "gpu_uuid": "GPU-ff71102f-22f8-52bb-da93-2076a6531329"},
+      "q36_q8": {"tower": "tower2", "port": 18204, "gpu_index": 0, "gpu_uuid": "GPU-ff71102f-22f8-52bb-da93-2076a6531329"}
+    }
+  },
+  "serving": {
+    "host": "tower2",
+    "expected_hostname": "Tower2",
+    "model_store": "/mnt/bulk/models",
+    "container_mount": "/models",
+    "expected_ctx": 262144,
+    "expected_slots": 1,
+    "gpus": {
+      "0": {"uuid": "GPU-ff71102f-22f8-52bb-da93-2076a6531329", "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"},
+      "1": {"uuid": "GPU-fe3fb4d0-5ddc-9c05-587b-1bc84c75c1a0", "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"}
+    },
+    "waves": [
+      {"quant": "UD-Q4_K_XL", "model_keys": ["q38_q4", "q36_q4"]},
+      {"quant": "Q8_0", "model_keys": ["q38_q8", "q36_q8"]}
+    ],
+    "drained_gpu_max_mem_mib": 4096,
+    "readiness_attempts": 120,
+    "readiness_interval_secs": 5,
+    "_docker_deltas_vs_historical_lanes": "llama-server argv is byte-identical to ensure-q38-tower1-only.sh / ensure-q36-tower3-only.sh except --model/--alias (values: --host 0.0.0.0 --port 8080 --n-gpu-layers 999 --ctx-size 262144 --batch-size 2048 --threads 4 --parallel 1 --flash-attn on --cache-type-k q8_0 --cache-type-v q8_0 --jinja --reasoning-format none --no-context-shift --metrics). Docker-level deltas, forced by the two-GPU Tower2 topology: --gpus device=<uuid> instead of --gpus all; -v /mnt/bulk/models:/models:ro instead of the tower-local ~/ods/data/models store; -p 127.0.0.1:<1820x>:8080 instead of :11434; per-cell container names + quant-pilot labels."
+  },
+  "drain": {
+    "tower": "tower2",
+    "forbidden_containers": ["deepseek-v4-flash-0731"],
+    "_restore": "DSV4 drain at window open and restore + baseline verification at window close are ORCHESTRATOR-OWNED (PREREGISTRATION.md section 7). run_quant_pilot.sh only (a) refuses to open the window while any forbidden container is running and (b) prints the restore reminder at close. It never stops or starts DSV4 itself."
+  },
+  "image_reference": "dream-fleet/llama.cpp@sha256:0c8dc7c0954fe5e1d75118a4f880f17252f62d1d01e24716b172afe9fafd85a1",
+  "image_id": "sha256:0c8dc7c0954fe5e1d75118a4f880f17252f62d1d01e24716b172afe9fafd85a1",
+  "llama_cpp_commit": "9d57ce456c94d241dde672b2db9cf18879766568",
+  "llama_server_sha256": "fc6a6a15230a2dd6c56aae913e6d0d1b4913015e0966d800c08da8dce57b376e",
+  "max_model_len": 262144,
+  "benchmark_max_output_tokens_cap": 262144,
+  "benchmark_sandbox_gpus": "none",
+  "wall_clock_ceiling_secs": 10800,
+  "loop_threshold": 30,
+  "power_cap_w": 500
+}

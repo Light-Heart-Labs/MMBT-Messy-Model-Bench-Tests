@@ -1,0 +1,443 @@
+{
+  "created_utc": "2026-08-16T18:13:23Z",
+  "description": "Frozen offline snapshot corpus for the p3_market task family. Served deterministically by tooling/fixtures/serve_fixtures.py; agents must cite the original url of each snapshot.",
+  "fetch_host": "tower2",
+  "fetch_tool": "curl -sS -L --compressed --max-time 75 --retry 2 -A <user_agent>",
+  "fixtures": [
+    {
+      "bytes": 954451,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:41Z",
+      "final_url": "https://1password.com/business-security",
+      "http_status": 200,
+      "path": "pages/1password.com_business.html",
+      "sha256": "34b19d3ba997c85f71ed996c8b9109fe2a493709a18bd9bbf827d7290fc34cdc",
+      "url": "https://1password.com/business/"
+    },
+    {
+      "bytes": 870935,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:41Z",
+      "final_url": "https://1password.com/pricing",
+      "http_status": 200,
+      "path": "pages/1password.com_pricing.html",
+      "sha256": "425aaa8d0249d1e6cabd6194e7fb555687a249152d3289b5ac3ac3c97302bbec",
+      "url": "https://1password.com/pricing/"
+    },
+    {
+      "bytes": 970312,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:41Z",
+      "final_url": "https://1password.com/pricing/business",
+      "http_status": 200,
+      "path": "pages/1password.com_pricing_business.html",
+      "sha256": "e38fc13b48c2d0b206aefe6b40da41da8b78e38aa80b92587297f8bbb42ff4da",
+      "url": "https://1password.com/pricing/business"
+    },
+    {
+      "bytes": 892284,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:41Z",
+      "final_url": "https://1password.com/security",
+      "http_status": 200,
+      "path": "pages/1password.com_security.html",
+      "sha256": "45feab7428b99098bbfb0589b66a80e1677dddbeb51510430eb218eb16569a7e",
+      "url": "https://1password.com/security/"
+    },
+    {
+      "bytes": 751869,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:42Z",
+      "final_url": "https://bitwarden.com/compliance/",
+      "http_status": 200,
+      "path": "pages/bitwarden.com_compliance.html",
+      "sha256": "c221b19b325e38b0411621154dc5f43e4a3f6549c52ad684a5c7e4758e6ee572",
+      "url": "https://bitwarden.com/compliance/"
+    },
+    {
+      "bytes": 472426,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:42Z",
+      "final_url": "https://bitwarden.com/help/about-sso/",
+      "http_status": 200,
+      "path": "pages/bitwarden.com_help_about-sso.html",
+      "sha256": "85df86fad8f8620514a6ac6fd98bc431084a4d2633e6ed6db2c80ac0f89ab664",
+      "url": "https://bitwarden.com/help/about-sso/"
+    },
+    {
+      "bytes": 690349,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:42Z",
+      "final_url": "https://bitwarden.com/help/event-logs/",
+      "http_status": 200,
+      "path": "pages/bitwarden.com_help_event-logs.html",
+      "sha256": "e6deb0bc7f8e71eef2f37b827abaf3da91fef5ff6d1424996d3bcd16f066903b",
+      "url": "https://bitwarden.com/help/event-logs/"
+    },
+    {
+      "bytes": 589170,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:42Z",
+      "final_url": "https://bitwarden.com/help/is-bitwarden-audited/",
+      "http_status": 200,
+      "path": "pages/bitwarden.com_help_is-bitwarden-audited.html",
+      "sha256": "e98ce520da76861082118ad826bd7c1ec6baa8e90abf4ac334e68e3fa208d5d3",
+      "url": "https://bitwarden.com/help/is-bitwarden-audited/"
+    },
+    {
+      "bytes": 544989,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:42Z",
+      "final_url": "https://bitwarden.com/pricing/",
+      "http_status": 200,
+      "path": "pages/bitwarden.com_pricing.html",
+      "sha256": "cf8e8e1144a231ff4cb08967e4df81b10654d9e62693ef061ca0a4f393d2fe91",
+      "url": "https://bitwarden.com/pricing/"
+    },
+    {
+      "bytes": 1479181,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:42Z",
+      "final_url": "https://bitwarden.com/pricing/business/",
+      "http_status": 200,
+      "path": "pages/bitwarden.com_pricing_business.html",
+      "sha256": "a770424ce8ccb8f6bd12c950326b54398ccf24ef6557ea3bf87ae780c28367b5",
+      "url": "https://bitwarden.com/pricing/business/"
+    },
+    {
+      "bytes": 512612,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:13:13Z",
+      "final_url": "https://bitwarden.com/products/business/",
+      "http_status": 200,
+      "path": "pages/bitwarden.com_products_business.html",
+      "sha256": "04e013049aecc98994819e74d221fb1764595756dd0f79074c9b44b6a14a37b0",
+      "url": "https://bitwarden.com/products/business/"
+    },
+    {
+      "bytes": 250306,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:48Z",
+      "final_url": "https://blog.lastpass.com/posts/notice-of-recent-security-incident",
+      "http_status": 200,
+      "path": "pages/blog.lastpass.com_2022_12_notice-of-recent-security-incident.html",
+      "sha256": "01e5abbcfccf9aec6a6ffeed299141025f74f77f007573227ff38e1685a1daab",
+      "url": "https://blog.lastpass.com/2022/12/notice-of-recent-security-incident/"
+    },
+    {
+      "bytes": 250306,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:48Z",
+      "final_url": "https://blog.lastpass.com/posts/notice-of-recent-security-incident",
+      "http_status": 200,
+      "path": "pages/blog.lastpass.com_posts_notice-of-recent-security-incident.html",
+      "sha256": "01e5abbcfccf9aec6a6ffeed299141025f74f77f007573227ff38e1685a1daab",
+      "url": "https://blog.lastpass.com/posts/notice-of-recent-security-incident"
+    },
+    {
+      "bytes": 92685,
+      "content_type": "text/html",
+      "fetch_time_utc": "2026-08-16T18:11:47Z",
+      "final_url": "https://compliance.lastpass.com/",
+      "http_status": 200,
+      "path": "pages/compliance.lastpass.com.html",
+      "sha256": "77ecd82890fd9029128042afeb6eb134e36ca5ee4a4207f38e9649cd561e8ad5",
+      "url": "https://compliance.lastpass.com/"
+    },
+    {
+      "bytes": 100874,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:13:21Z",
+      "final_url": "https://developer.hashicorp.com/vault",
+      "http_status": 200,
+      "path": "pages/developer.hashicorp.com_vault.html",
+      "sha256": "fddbc17e20ca0f2e1a0295da78855efe1dc6acc586b261fad593cf1a117dd452",
+      "url": "https://developer.hashicorp.com/vault"
+    },
+    {
+      "bytes": 245427,
+      "content_type": "text/html; charset=UTF-8",
+      "fetch_time_utc": "2026-08-16T18:12:00Z",
+      "final_url": "https://en.wikipedia.org/wiki/1Password",
+      "http_status": 200,
+      "path": "pages/en.wikipedia.org_wiki_1Password.html",
+      "sha256": "d74e12b7ff85a499ff49c33195a9b460666dfec07c98142073c9e61a8d753786",
+      "url": "https://en.wikipedia.org/wiki/1Password"
+    },
+    {
+      "bytes": 352773,
+      "content_type": "text/html; charset=UTF-8",
+      "fetch_time_utc": "2026-08-16T18:12:00Z",
+      "final_url": "https://en.wikipedia.org/wiki/Bitwarden",
+      "http_status": 200,
+      "path": "pages/en.wikipedia.org_wiki_Bitwarden.html",
+      "sha256": "aa5949b3a43d58434c1d03c8e89cd8d7172b5c95800f15ef919c8f704b78a622",
+      "url": "https://en.wikipedia.org/wiki/Bitwarden"
+    },
+    {
+      "bytes": 141558,
+      "content_type": "text/html; charset=UTF-8",
+      "fetch_time_utc": "2026-08-16T18:12:00Z",
+      "final_url": "https://en.wikipedia.org/wiki/Dashlane",
+      "http_status": 200,
+      "path": "pages/en.wikipedia.org_wiki_Dashlane.html",
+      "sha256": "ef249ab93df34d39eb160a94d59f498a264c0678c2d133eff0f6ab2d9fbf7267",
+      "url": "https://en.wikipedia.org/wiki/Dashlane"
+    },
+    {
+      "bytes": 239194,
+      "content_type": "text/html; charset=UTF-8",
+      "fetch_time_utc": "2026-08-16T18:12:00Z",
+      "final_url": "https://en.wikipedia.org/wiki/Keeper_(password_manager)",
+      "http_status": 200,
+      "path": "pages/en.wikipedia.org_wiki_Keeper__password_manager.html",
+      "sha256": "c4c0369ba061ce97bca4dbf4f682b30fe1092f16ebba856a0ce44918d2b80128",
+      "url": "https://en.wikipedia.org/wiki/Keeper_(password_manager)"
+    },
+    {
+      "bytes": 270454,
+      "content_type": "text/html; charset=UTF-8",
+      "fetch_time_utc": "2026-08-16T18:12:00Z",
+      "final_url": "https://en.wikipedia.org/wiki/LastPass",
+      "http_status": 200,
+      "path": "pages/en.wikipedia.org_wiki_LastPass.html",
+      "sha256": "2dd50aafb3154ee223fb0a103f8c26caf02c320e33b021dfbdebd5dceca61660",
+      "url": "https://en.wikipedia.org/wiki/LastPass"
+    },
+    {
+      "bytes": 187541,
+      "content_type": "text/html; charset=UTF-8",
+      "fetch_time_utc": "2026-08-16T18:12:00Z",
+      "final_url": "https://en.wikipedia.org/wiki/NordPass",
+      "http_status": 200,
+      "path": "pages/en.wikipedia.org_wiki_NordPass.html",
+      "sha256": "a0a514dc180fa274818e38ca90890973e5b218cedb8def5b0efe3d0b348eb302",
+      "url": "https://en.wikipedia.org/wiki/NordPass"
+    },
+    {
+      "bytes": 228710,
+      "content_type": "text/html; charset=UTF-8",
+      "fetch_time_utc": "2026-08-16T18:12:00Z",
+      "final_url": "https://en.wikipedia.org/wiki/Proton_Pass",
+      "http_status": 200,
+      "path": "pages/en.wikipedia.org_wiki_Proton_Pass.html",
+      "sha256": "6c411b157ab5b0665e283c70fc02188bfa8d1e5d234c163c99408e87754f4e23",
+      "url": "https://en.wikipedia.org/wiki/Proton_Pass"
+    },
+    {
+      "bytes": 864113,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:13:19Z",
+      "final_url": "https://nordpass.com/plans/",
+      "http_status": 200,
+      "path": "pages/nordpass.com_plans.html",
+      "sha256": "4945b4cedc75b83889a98ec7c9a28f5e46bb150072634303dd167951bcc3c50f",
+      "url": "https://nordpass.com/plans/"
+    },
+    {
+      "bytes": 377182,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:57Z",
+      "final_url": "https://proton.me/business/pass",
+      "http_status": 200,
+      "path": "pages/proton.me_business_pass.html",
+      "sha256": "1dbdcc32dafbbd916981edac7dd79fb148a6d3c1ad01301c44a22c2ed906d3f5",
+      "url": "https://proton.me/business/pass"
+    },
+    {
+      "bytes": 405327,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:58Z",
+      "final_url": "https://proton.me/business/trust",
+      "http_status": 200,
+      "path": "pages/proton.me_business_trust.html",
+      "sha256": "0f501a9c611ff5af197d590bb4da6f446dcd42b7bbef243e627358047c55f3d8",
+      "url": "https://proton.me/business/trust"
+    },
+    {
+      "bytes": 458466,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:58Z",
+      "final_url": "https://proton.me/pass/pricing",
+      "http_status": 200,
+      "path": "pages/proton.me_pass_pricing.html",
+      "sha256": "aca851ce93ed3bf0b8dafd5532bca21aaae8d22fc170c2213898a70668125090",
+      "url": "https://proton.me/pass/pricing"
+    },
+    {
+      "bytes": 43733,
+      "content_type": "text/html",
+      "fetch_time_utc": "2026-08-16T18:13:11Z",
+      "final_url": "https://support.1password.com/sso/",
+      "http_status": 200,
+      "path": "pages/support.1password.com_sso.html",
+      "sha256": "556d121aea975c667da316f3d310639f04af6d51d31a4e9340473e11b9434d74",
+      "url": "https://support.1password.com/sso/"
+    },
+    {
+      "bytes": 505186,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:43Z",
+      "final_url": "https://www.dashlane.com/business-password-manager",
+      "http_status": 200,
+      "path": "pages/www.dashlane.com_business-password-manager.html",
+      "sha256": "f392f8223d0fac95e266a5215f29ddaf4ab0a4c6646f25fd02c60fe3618875de",
+      "url": "https://www.dashlane.com/business-password-manager"
+    },
+    {
+      "bytes": 573998,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:42Z",
+      "final_url": "https://www.dashlane.com/pricing",
+      "http_status": 200,
+      "path": "pages/www.dashlane.com_pricing.html",
+      "sha256": "1e5fa5f54889c15e34b68b2e82a3072c7c4fc31082e0d63d2c2b7aa409470ff1",
+      "url": "https://www.dashlane.com/pricing"
+    },
+    {
+      "bytes": 380273,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:43Z",
+      "final_url": "https://www.dashlane.com/security",
+      "http_status": 200,
+      "path": "pages/www.dashlane.com_security.html",
+      "sha256": "a01b1fe0ded9fc09fa6b61f2e57d3a2cf858f8be1bf6c666e4cee735296ba17d",
+      "url": "https://www.dashlane.com/security"
+    },
+    {
+      "bytes": 76676,
+      "content_type": "text/html",
+      "fetch_time_utc": "2026-08-16T18:13:17Z",
+      "final_url": "https://www.keepersecurity.com/business.html",
+      "http_status": 200,
+      "path": "pages/www.keepersecurity.com_business.html",
+      "sha256": "b5160ccba57e00f7a3adc1baac08c610c3452f1978984783104e488caaba7b4d",
+      "url": "https://www.keepersecurity.com/business.html"
+    },
+    {
+      "bytes": 93114,
+      "content_type": "text/html",
+      "fetch_time_utc": "2026-08-16T18:11:53Z",
+      "final_url": "https://www.keepersecurity.com/pricing/business-and-enterprise.html",
+      "http_status": 200,
+      "path": "pages/www.keepersecurity.com_pricing.html",
+      "sha256": "e359bbf8cd3b4b369b60e7fb8fb96033e6379ffbdfa95421f04e5caba44dceab",
+      "url": "https://www.keepersecurity.com/pricing.html"
+    },
+    {
+      "bytes": 188806,
+      "content_type": "text/html",
+      "fetch_time_utc": "2026-08-16T18:13:15Z",
+      "final_url": "https://www.keepersecurity.com/security.html",
+      "http_status": 200,
+      "path": "pages/www.keepersecurity.com_security.html",
+      "sha256": "8133d1d716110453fdc02f35b5cd1d301557bfcdeb130c163f5e8c14abb307d2",
+      "url": "https://www.keepersecurity.com/security.html"
+    },
+    {
+      "bytes": 484947,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:43Z",
+      "final_url": "https://www.lastpass.com/pricing",
+      "http_status": 200,
+      "path": "pages/www.lastpass.com_pricing.html",
+      "sha256": "e3b958d8622fb0b8cd5e0d3b02da30ae612518ddf91a766fb1a0869e278f0e84",
+      "url": "https://www.lastpass.com/pricing"
+    },
+    {
+      "bytes": 185138,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:45Z",
+      "final_url": "https://www.lastpass.com/security",
+      "http_status": 200,
+      "path": "pages/www.lastpass.com_security.html",
+      "sha256": "99b0ba911da6396191568f0c5ab49fc1db20074b8b1ba714d6e1b82c001b0d9d",
+      "url": "https://www.lastpass.com/security"
+    },
+    {
+      "bytes": 180029,
+      "content_type": "text/html; charset=utf-8",
+      "fetch_time_utc": "2026-08-16T18:11:46Z",
+      "final_url": "https://www.lastpass.com/trust-center",
+      "http_status": 200,
+      "path": "pages/www.lastpass.com_trust-center_compliance.html",
+      "sha256": "c03b6a39f87633af81a6fe9f1cce655bac2d84f5d77477100b2ffa1f0e944ee7",
+      "url": "https://www.lastpass.com/trust-center/compliance"
+    }
+  ],
+  "schema_version": 1,
+  "task_family": "p3_market",
+  "unfetchable": [
+    {
+      "curl_exit": 0,
+      "error": "http 404",
+      "fetch_time_utc": "2026-08-16T18:11:41Z",
+      "http_status": 404,
+      "url": "https://1password.com/trust/"
+    },
+    {
+      "curl_exit": 0,
+      "error": "http 404",
+      "fetch_time_utc": "2026-08-16T18:11:42Z",
+      "http_status": 404,
+      "url": "https://bitwarden.com/business/"
+    },
+    {
+      "curl_exit": 0,
+      "error": "http 404",
+      "fetch_time_utc": "2026-08-16T18:11:42Z",
+      "http_status": 404,
+      "url": "https://bitwarden.com/security/"
+    },
+    {
+      "curl_exit": 0,
+      "error": "http 403",
+      "fetch_time_utc": "2026-08-16T18:11:42Z",
+      "http_status": 403,
+      "url": "https://support.1password.com/advanced-features/sso/"
+    },
+    {
+      "curl_exit": 0,
+      "error": "http 404",
+      "fetch_time_utc": "2026-08-16T18:11:43Z",
+      "http_status": 404,
+      "url": "https://www.dashlane.com/en-us/pricing/password-management"
+    },
+    {
+      "curl_exit": 0,
+      "error": "http 429",
+      "fetch_time_utc": "2026-08-16T18:12:00Z",
+      "http_status": 429,
+      "url": "https://www.hashicorp.com/products/vault"
+    },
+    {
+      "curl_exit": 6,
+      "error": "curl: (6) Could not resolve host: www.keeper.com\ncurl: (6) Could not resolve host: www.keeper.com\ncurl: (6) Could not resolve host: www.keeper.com",
+      "fetch_time_utc": "2026-08-16T18:11:49Z",
+      "http_status": 0,
+      "url": "https://www.keeper.com/pricing"
+    },
+    {
+      "curl_exit": 6,
+      "error": "curl: (6) Could not resolve host: www.keeper.com\ncurl: (6) Could not resolve host: www.keeper.com\ncurl: (6) Could not resolve host: www.keeper.com",
+      "fetch_time_utc": "2026-08-16T18:11:53Z",
+      "http_status": 0,
+      "url": "https://www.keeper.com/security"
+    },
+    {
+      "curl_exit": 0,
+      "error": "http 404",
+      "fetch_time_utc": "2026-08-16T18:11:59Z",
+      "http_status": 404,
+      "url": "https://www.nordpass.com/business"
+    },
+    {
+      "curl_exit": 0,
+      "error": "http 404",
+      "fetch_time_utc": "2026-08-16T18:11:59Z",
+      "http_status": 404,
+      "url": "https://www.nordpass.com/pricing"
+    }
+  ],
+  "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+}

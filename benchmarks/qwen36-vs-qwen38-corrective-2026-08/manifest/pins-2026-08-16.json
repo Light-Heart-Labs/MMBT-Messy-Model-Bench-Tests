@@ -1,0 +1,559 @@
+{
+  "schema_version": 1,
+  "study": "qwen36-vs-qwen38-corrective-2026-08",
+  "protocol_ref": "benchmarks/qwen36-vs-qwen38-corrective-2026-08/PREREGISTRATION.md section 5",
+  "purpose": "Completes the PREREGISTRATION section 5 pin set not already committed elsewhere. Every section carries a source field so each pin is traceable to a measurement or a cited document.",
+  "generated_at": "2026-08-16T19:34:04Z",
+  "repo_head": "d7518d1ff6d60a385e859c7f0260ccc1ec8d0be4",
+  "branch": "methodology/qwen-corrective-2026-08",
+  "hash_algorithm": "sha256",
+  "covered_elsewhere": {
+    "note": "Already committed pins referenced by path, not duplicated here.",
+    "serving_manifests": [
+      "tooling/deployments/qwen-corrective/phase_a.json",
+      "tooling/deployments/qwen-corrective/phase_b.json"
+    ],
+    "serving_manifests_scope": "model file sha256s + byte sizes (both UD-Q4_K_XL GGUFs), base revisions, llama.cpp image digest and binary sha, GPU identity, endpoint map, tunnel unit shas",
+    "host_inventory": "benchmarks/qwen36-vs-qwen38-corrective-2026-08/manifest/host-inventory-2026-08-16.json",
+    "card_evidence": "benchmarks/qwen36-vs-qwen38-corrective-2026-08/protocol/CARD-EVIDENCE.md"
+  },
+  "harness": {
+    "source": "measured: git show HEAD:tooling/harness.py hashed in memory, and the on-disk file hashed, on 2026-08-16T19:34:04Z",
+    "path": "tooling/harness.py",
+    "head_commit": "d7518d1ff6d60a385e859c7f0260ccc1ec8d0be4",
+    "as_committed_at_head": {
+      "sha256": "a5c95aaf1a928d80a284753453568ed4c19764d7f82995479d2b5da519d3aee8",
+      "bytes": 58403
+    },
+    "as_on_disk": {
+      "sha256": "a5c95aaf1a928d80a284753453568ed4c19764d7f82995479d2b5da519d3aee8",
+      "bytes": 58403
+    },
+    "head_matches_disk": true,
+    "anomaly": null
+  },
+  "graders_v2": {
+    "source": "measured on disk in this working tree (clean at HEAD d7518d1ff6d6) on 2026-08-16T19:34:04Z via sha256 over file bytes",
+    "scope": "every file under tooling/graders/v2/ including tests and v2 ground truth (pyc cache excluded)",
+    "files": [
+      {
+        "path": "tooling/graders/v2/CHANGES.md",
+        "sha256": "55e0aae2ca51a8d176690ed9c5b2fb40ab36f831d7136eabf13402aa794309c2",
+        "bytes": 5610
+      },
+      {
+        "path": "tooling/graders/v2/ground_truth/phase2_triage.json",
+        "sha256": "ebdc3a31b6b33e7c8190d8fcfe541a4fcfea200b7e5d0103d170921d24a8a364",
+        "bytes": 6578
+      },
+      {
+        "path": "tooling/graders/v2/phase2_triage_grade.py",
+        "sha256": "49b74bef8f635170479bf03fcf9d5d0d3af6b3b43f1d8832573f39bca3f12c37",
+        "bytes": 8566
+      },
+      {
+        "path": "tooling/graders/v2/phase3_business_memo_grade.py",
+        "sha256": "619fd6f259e26693cd021cc3e8a6af56bdb35a8ecc853bf006d3fcada378678e",
+        "bytes": 6653
+      },
+      {
+        "path": "tooling/graders/v2/phase3_doc_synthesis_grade.py",
+        "sha256": "ecf062ba33f96eb6a91669afdf26040d2505f8eff8ac437b6495fe1acaaf562b",
+        "bytes": 4680
+      },
+      {
+        "path": "tooling/graders/v2/phase3_project_mgmt_grade.py",
+        "sha256": "60ba213a04c5ec0d6f3beb3fe3dc7678df5e6cafbf13bfc9058824ccd4014d94",
+        "bytes": 8846
+      },
+      {
+        "path": "tooling/graders/v2/phase3_writing_editing_grade.py",
+        "sha256": "067fb78a4f224b1d95f6ecfe45823455443179e0a6749ac1713f563465b40483",
+        "bytes": 6150
+      },
+      {
+        "path": "tooling/graders/v2/tests/test_d1_length_gates.py",
+        "sha256": "03f50474b38aff71832922b64ed89fc0a3c6f75f467a691cae6ab6ba9ef7f8c3",
+        "bytes": 8614
+      },
+      {
+        "path": "tooling/graders/v2/tests/test_d2_pm_semantic_r3.py",
+        "sha256": "ff90b521e099a2085fdb7b965553deded4b11e1070964817d6fa2c24c695e210",
+        "bytes": 6600
+      },
+      {
+        "path": "tooling/graders/v2/tests/test_d3_triage_v2.py",
+        "sha256": "4450a7710a0cff0156df4f75bb63f7fa098ad092c446fd161c26112a412ab9f3",
+        "bytes": 7436
+      },
+      {
+        "path": "tooling/graders/v2/tests/test_wordcount_v2.py",
+        "sha256": "99df2ee2e540aa300f2fced8f75cf9849fef0857df104338039d1276495e6259",
+        "bytes": 3089
+      },
+      {
+        "path": "tooling/graders/v2/wordcount_v2.py",
+        "sha256": "88f1209be6e59c1d7aa0c7834743be018224b1a3cb545787bfdb9daa6fd43f60",
+        "bytes": 2443
+      }
+    ]
+  },
+  "graders_v1_exploratory_reference": {
+    "source": "measured on disk in this working tree (clean at HEAD d7518d1ff6d6) on 2026-08-16T19:34:04Z via sha256 over file bytes",
+    "scope": "top-level tooling/graders/*.py only; pinned as the exploratory-corpus reference graders",
+    "files": [
+      {
+        "path": "tooling/graders/code_task_grader.py",
+        "sha256": "82aeb55f87f123c7920458a5346412378cfd3f9db100d924f51ea2f4a91a1eb5",
+        "bytes": 9546
+      },
+      {
+        "path": "tooling/graders/phase1_grade.py",
+        "sha256": "cccf4967bccb7e013d5ea29a21cba0b274a8c81037d6bbe9d91e3428389875cb",
+        "bytes": 12036
+      },
+      {
+        "path": "tooling/graders/phase2_ci_failure_grade.py",
+        "sha256": "6ae717a937da8abc4aca74621f67445667ea34b06767d64a8310f0b5fae53ab4",
+        "bytes": 5242
+      },
+      {
+        "path": "tooling/graders/phase2_extraction_grade.py",
+        "sha256": "9e390ab2531e72aab64613382b01ce83e60ca6242e9abef87a0deefb502726d6",
+        "bytes": 4958
+      },
+      {
+        "path": "tooling/graders/phase2_hallucination_grade.py",
+        "sha256": "24e64182b04810bb3938ecdd9d3886d994e440716f4889952edb69786c7bb237",
+        "bytes": 4945
+      },
+      {
+        "path": "tooling/graders/phase2_triage_grade.py",
+        "sha256": "ea3eebcf6a2fc085276e555f2cb1a54239e1dc9286bac3cb2300f01929b855a1",
+        "bytes": 4493
+      },
+      {
+        "path": "tooling/graders/phase3_business_memo_grade.py",
+        "sha256": "691c5c6cec0f3bbf2fc86e80c47dd3fc2bde4873dc630297a0aea13edd548d7b",
+        "bytes": 5996
+      },
+      {
+        "path": "tooling/graders/phase3_doc_synthesis_grade.py",
+        "sha256": "8c117c0a3bfec94a91f94e49bb5b4281a458bcc4a650e9ae86e2450f0f5cac0a",
+        "bytes": 4068
+      },
+      {
+        "path": "tooling/graders/phase3_market_research_grade.py",
+        "sha256": "e87c20a55bb74e9be883a9b2628fd954a99aaebf937f1d1bd4fbbf111b836de6",
+        "bytes": 4585
+      },
+      {
+        "path": "tooling/graders/phase3_project_mgmt_grade.py",
+        "sha256": "e1c3a9190e6d19cffd76734c8c922450b22d674bd5fd2db052fef31f91777bca",
+        "bytes": 5706
+      },
+      {
+        "path": "tooling/graders/phase3_writing_editing_grade.py",
+        "sha256": "a3461f31be9d24cc1c5132fff4bff96a27af77af2457dad839ef5498afba8f56",
+        "bytes": 5520
+      }
+    ]
+  },
+  "task_briefs": {
+    "source": "measured on disk in this working tree (clean at HEAD d7518d1ff6d6) on 2026-08-16T19:34:04Z via sha256 over file bytes",
+    "scope": "tooling/tasks/*.md and tooling/tasks/v2/*.md",
+    "files": [
+      {
+        "path": "tooling/tasks/task_board_presentation.md",
+        "sha256": "b9f5e451d04bf7cad85eeb5fa98051b44b61028847b984048930437aadbbf4be",
+        "bytes": 7230
+      },
+      {
+        "path": "tooling/tasks/task_business_memo.md",
+        "sha256": "71f459a849c5bbb8e7d9209b85dc44848fe0171bf5530fc541c519673f45ea6c",
+        "bytes": 2362
+      },
+      {
+        "path": "tooling/tasks/task_ci_failure.md",
+        "sha256": "d9ce0e3536859afc5e0f295016e49a8df1e43e49c264afb3b76579ea33955667",
+        "bytes": 2558
+      },
+      {
+        "path": "tooling/tasks/task_code_adoption.md",
+        "sha256": "680b3476d5d61b2d1848bc28c7e02812e6f198422484bcdd134d3341bb371825",
+        "bytes": 7202
+      },
+      {
+        "path": "tooling/tasks/task_doc_synthesis.md",
+        "sha256": "acce4828275e9ca2226992d5d426f10d7463d2406ce4353847b1aea29876c95e",
+        "bytes": 3058
+      },
+      {
+        "path": "tooling/tasks/task_dreamserver_pr_audit.md",
+        "sha256": "d0eaf474dd33a4092da7d4656f761f91e50defd1ee0c1b47348026a679b7ebfa",
+        "bytes": 8811
+      },
+      {
+        "path": "tooling/tasks/task_dreamserver_pr_audit_frozen75.md",
+        "sha256": "0d426e15303b3f886a75db81165cdbe9d91534a474217f91f4e2baf41c0056a6",
+        "bytes": 10259
+      },
+      {
+        "path": "tooling/tasks/task_extraction.md",
+        "sha256": "5a9c3a566a9a0c167a8258671e9d317e207b52244c09264d4d30c86f69bcdbb9",
+        "bytes": 2635
+      },
+      {
+        "path": "tooling/tasks/task_hallucination.md",
+        "sha256": "52bb11d65ce63d023a167021aebfa592eeebb646e067c45374ce0aeda26ccd12",
+        "bytes": 3556
+      },
+      {
+        "path": "tooling/tasks/task_investment_memo.md",
+        "sha256": "02f48c90f5c951cff424ad0646dab2d00e7225194c9a64aefee1c6aa736c61a3",
+        "bytes": 4231
+      },
+      {
+        "path": "tooling/tasks/task_market_research.md",
+        "sha256": "6b2813c27ec2e9bef14d730d533b57a7c64aeb134a84bc429d5adc0d16b19194",
+        "bytes": 2748
+      },
+      {
+        "path": "tooling/tasks/task_pr_audit_n1.md",
+        "sha256": "18c722e23dc9b38ce2be015bd2f3ab912c678bda7b44e5089d20af8a2f3e61c1",
+        "bytes": 6162
+      },
+      {
+        "path": "tooling/tasks/task_project_mgmt.md",
+        "sha256": "405ec07ed797301177402f557e6a6d6a24f665420837a84ce00ced9bfddf88f2",
+        "bytes": 2610
+      },
+      {
+        "path": "tooling/tasks/task_refactoring.md",
+        "sha256": "6099c9cba52b6e449ac98fb2444341700cff7d26f52c39ee4ffc00b437552ed1",
+        "bytes": 4388
+      },
+      {
+        "path": "tooling/tasks/task_test_writing.md",
+        "sha256": "16a90037b08253cfd726820a83ae2385c44919d766d616238ed05aafdf273e51",
+        "bytes": 3925
+      },
+      {
+        "path": "tooling/tasks/task_triage.md",
+        "sha256": "d92feeb839dbb8850d6447c6c821fc4c74ae68cc53c4917438f8a10f9531292b",
+        "bytes": 4525
+      },
+      {
+        "path": "tooling/tasks/task_writing_editing.md",
+        "sha256": "8932f7c10ccc109cc3339e497a82ad2001c6d0cd74fb086600cf64ef5223dea8",
+        "bytes": 2579
+      },
+      {
+        "path": "tooling/tasks/v2/task_business_memo.md",
+        "sha256": "47fa19f95d188f8d57725aba17abc5ed01e394d401bb46d59933a9e338fee3d3",
+        "bytes": 2551
+      },
+      {
+        "path": "tooling/tasks/v2/task_doc_synthesis.md",
+        "sha256": "ad25173226dc59a31c2132586057782fea415816aa71c53142a06955a2068a8c",
+        "bytes": 3210
+      },
+      {
+        "path": "tooling/tasks/v2/task_market_research.md",
+        "sha256": "0a0ab98f55fb8e1cc034169e9ff55e82033362f4be0be01e0936549dadc7bd20",
+        "bytes": 3896
+      },
+      {
+        "path": "tooling/tasks/v2/task_project_mgmt.md",
+        "sha256": "cc21fa612dd348bf318aad18ed73efc488dd594835b06ca1616cc09b27bdc84c",
+        "bytes": 2814
+      },
+      {
+        "path": "tooling/tasks/v2/task_triage.md",
+        "sha256": "66a2d027d96f0e5b17797938004e4ee29dc8d4d28a7bc6fc3148db868ce7a3bb",
+        "bytes": 4575
+      },
+      {
+        "path": "tooling/tasks/v2/task_writing_editing.md",
+        "sha256": "e624ddbd3b074b6453d23878ea059f5bf38b454c32dde55c04dbeb1c989c639c",
+        "bytes": 2748
+      }
+    ]
+  },
+  "fixtures_p3_market": {
+    "source": "measured on disk in this working tree (clean at HEAD d7518d1ff6d6) on 2026-08-16T19:34:04Z via sha256 over file bytes",
+    "scope": "every file under tooling/fixtures/p3_market/ (index.json, pages, snapshot fetch scripts; pyc cache excluded) plus tooling/fixtures/serve_fixtures.py",
+    "files": [
+      {
+        "path": "tooling/fixtures/p3_market/index.json",
+        "sha256": "7715f4e7173e621e65f0d791cd8f7771b568f9946a04c2b5abfbc727fe36cd1c",
+        "bytes": 17783
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/1password.com_business.html",
+        "sha256": "34b19d3ba997c85f71ed996c8b9109fe2a493709a18bd9bbf827d7290fc34cdc",
+        "bytes": 954451
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/1password.com_pricing.html",
+        "sha256": "425aaa8d0249d1e6cabd6194e7fb555687a249152d3289b5ac3ac3c97302bbec",
+        "bytes": 870935
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/1password.com_pricing_business.html",
+        "sha256": "e38fc13b48c2d0b206aefe6b40da41da8b78e38aa80b92587297f8bbb42ff4da",
+        "bytes": 970312
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/1password.com_security.html",
+        "sha256": "45feab7428b99098bbfb0589b66a80e1677dddbeb51510430eb218eb16569a7e",
+        "bytes": 892284
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/bitwarden.com_compliance.html",
+        "sha256": "c221b19b325e38b0411621154dc5f43e4a3f6549c52ad684a5c7e4758e6ee572",
+        "bytes": 751869
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/bitwarden.com_help_about-sso.html",
+        "sha256": "85df86fad8f8620514a6ac6fd98bc431084a4d2633e6ed6db2c80ac0f89ab664",
+        "bytes": 472426
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/bitwarden.com_help_event-logs.html",
+        "sha256": "e6deb0bc7f8e71eef2f37b827abaf3da91fef5ff6d1424996d3bcd16f066903b",
+        "bytes": 690349
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/bitwarden.com_help_is-bitwarden-audited.html",
+        "sha256": "e98ce520da76861082118ad826bd7c1ec6baa8e90abf4ac334e68e3fa208d5d3",
+        "bytes": 589170
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/bitwarden.com_pricing.html",
+        "sha256": "cf8e8e1144a231ff4cb08967e4df81b10654d9e62693ef061ca0a4f393d2fe91",
+        "bytes": 544989
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/bitwarden.com_pricing_business.html",
+        "sha256": "a770424ce8ccb8f6bd12c950326b54398ccf24ef6557ea3bf87ae780c28367b5",
+        "bytes": 1479181
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/bitwarden.com_products_business.html",
+        "sha256": "04e013049aecc98994819e74d221fb1764595756dd0f79074c9b44b6a14a37b0",
+        "bytes": 512612
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/blog.lastpass.com_2022_12_notice-of-recent-security-incident.html",
+        "sha256": "01e5abbcfccf9aec6a6ffeed299141025f74f77f007573227ff38e1685a1daab",
+        "bytes": 250306
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/blog.lastpass.com_posts_notice-of-recent-security-incident.html",
+        "sha256": "01e5abbcfccf9aec6a6ffeed299141025f74f77f007573227ff38e1685a1daab",
+        "bytes": 250306
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/compliance.lastpass.com.html",
+        "sha256": "77ecd82890fd9029128042afeb6eb134e36ca5ee4a4207f38e9649cd561e8ad5",
+        "bytes": 92685
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/developer.hashicorp.com_vault.html",
+        "sha256": "fddbc17e20ca0f2e1a0295da78855efe1dc6acc586b261fad593cf1a117dd452",
+        "bytes": 100874
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/en.wikipedia.org_wiki_1Password.html",
+        "sha256": "d74e12b7ff85a499ff49c33195a9b460666dfec07c98142073c9e61a8d753786",
+        "bytes": 245427
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/en.wikipedia.org_wiki_Bitwarden.html",
+        "sha256": "aa5949b3a43d58434c1d03c8e89cd8d7172b5c95800f15ef919c8f704b78a622",
+        "bytes": 352773
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/en.wikipedia.org_wiki_Dashlane.html",
+        "sha256": "ef249ab93df34d39eb160a94d59f498a264c0678c2d133eff0f6ab2d9fbf7267",
+        "bytes": 141558
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/en.wikipedia.org_wiki_Keeper__password_manager.html",
+        "sha256": "c4c0369ba061ce97bca4dbf4f682b30fe1092f16ebba856a0ce44918d2b80128",
+        "bytes": 239194
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/en.wikipedia.org_wiki_LastPass.html",
+        "sha256": "2dd50aafb3154ee223fb0a103f8c26caf02c320e33b021dfbdebd5dceca61660",
+        "bytes": 270454
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/en.wikipedia.org_wiki_NordPass.html",
+        "sha256": "a0a514dc180fa274818e38ca90890973e5b218cedb8def5b0efe3d0b348eb302",
+        "bytes": 187541
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/en.wikipedia.org_wiki_Proton_Pass.html",
+        "sha256": "6c411b157ab5b0665e283c70fc02188bfa8d1e5d234c163c99408e87754f4e23",
+        "bytes": 228710
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/nordpass.com_plans.html",
+        "sha256": "4945b4cedc75b83889a98ec7c9a28f5e46bb150072634303dd167951bcc3c50f",
+        "bytes": 864113
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/proton.me_business_pass.html",
+        "sha256": "1dbdcc32dafbbd916981edac7dd79fb148a6d3c1ad01301c44a22c2ed906d3f5",
+        "bytes": 377182
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/proton.me_business_trust.html",
+        "sha256": "0f501a9c611ff5af197d590bb4da6f446dcd42b7bbef243e627358047c55f3d8",
+        "bytes": 405327
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/proton.me_pass_pricing.html",
+        "sha256": "aca851ce93ed3bf0b8dafd5532bca21aaae8d22fc170c2213898a70668125090",
+        "bytes": 458466
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/support.1password.com_sso.html",
+        "sha256": "556d121aea975c667da316f3d310639f04af6d51d31a4e9340473e11b9434d74",
+        "bytes": 43733
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/www.dashlane.com_business-password-manager.html",
+        "sha256": "f392f8223d0fac95e266a5215f29ddaf4ab0a4c6646f25fd02c60fe3618875de",
+        "bytes": 505186
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/www.dashlane.com_pricing.html",
+        "sha256": "1e5fa5f54889c15e34b68b2e82a3072c7c4fc31082e0d63d2c2b7aa409470ff1",
+        "bytes": 573998
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/www.dashlane.com_security.html",
+        "sha256": "a01b1fe0ded9fc09fa6b61f2e57d3a2cf858f8be1bf6c666e4cee735296ba17d",
+        "bytes": 380273
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/www.keepersecurity.com_business.html",
+        "sha256": "b5160ccba57e00f7a3adc1baac08c610c3452f1978984783104e488caaba7b4d",
+        "bytes": 76676
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/www.keepersecurity.com_pricing.html",
+        "sha256": "e359bbf8cd3b4b369b60e7fb8fb96033e6379ffbdfa95421f04e5caba44dceab",
+        "bytes": 93114
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/www.keepersecurity.com_security.html",
+        "sha256": "8133d1d716110453fdc02f35b5cd1d301557bfcdeb130c163f5e8c14abb307d2",
+        "bytes": 188806
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/www.lastpass.com_pricing.html",
+        "sha256": "e3b958d8622fb0b8cd5e0d3b02da30ae612518ddf91a766fb1a0869e278f0e84",
+        "bytes": 484947
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/www.lastpass.com_security.html",
+        "sha256": "99b0ba911da6396191568f0c5ab49fc1db20074b8b1ba714d6e1b82c001b0d9d",
+        "bytes": 185138
+      },
+      {
+        "path": "tooling/fixtures/p3_market/pages/www.lastpass.com_trust-center_compliance.html",
+        "sha256": "c03b6a39f87633af81a6fe9f1cce655bac2d84f5d77477100b2ffa1f0e944ee7",
+        "bytes": 180029
+      },
+      {
+        "path": "tooling/fixtures/p3_market/snapshot_fetch_pass1.py",
+        "sha256": "c59c85d509f1f8632d16d56655fe2a300dcdced19fcd13ef901fba5142a6c8c3",
+        "bytes": 6847
+      },
+      {
+        "path": "tooling/fixtures/p3_market/snapshot_fetch_pass2.py",
+        "sha256": "a5f6ae679a98dd29cb8355c7cc771a7fa39d5ec27c3d2debc1d88506511e75f1",
+        "bytes": 3790
+      },
+      {
+        "path": "tooling/fixtures/serve_fixtures.py",
+        "sha256": "377c0475e7333fe93e794078964c04f2c475abeec2c1c72caa1ebb4391946ae7",
+        "bytes": 6987
+      }
+    ]
+  },
+  "model_cards": {
+    "source": "copied from benchmarks/qwen36-vs-qwen38-corrective-2026-08/protocol/CARD-EVIDENCE.md (files fetched at the pinned revisions and hashed 2026-08-16; raw copies retained at /home/michael/card-evidence-fetch/ on tower2)",
+    "qwen36_readme": {
+      "repository": "Qwen/Qwen3.6-27B",
+      "revision": "6a9e13bd6fc8f0983b9b99948120bc37f49c13e9",
+      "file": "README.md",
+      "sha256": "bb936d6da51014f1edc9aa4cf9abf28d98695b7616ad56adfeeebfa752051d3d",
+      "bytes": 62593
+    },
+    "qwen38_readme": {
+      "repository": "Qwen/Qwen3.8-27B",
+      "revision": "1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0",
+      "file": "README.md",
+      "sha256": "57e4bdb258ee1a7d2635c5174ebd4e56abe392505cdb5f8bbb356b0dc4293641",
+      "bytes": 65012
+    },
+    "generation_config": {
+      "repositories": [
+        "Qwen/Qwen3.6-27B",
+        "Qwen/Qwen3.8-27B"
+      ],
+      "revisions": [
+        "6a9e13bd6fc8f0983b9b99948120bc37f49c13e9",
+        "1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0"
+      ],
+      "file": "generation_config.json",
+      "sha256": "e70c136c1b78ddc1fb0905bac8e733a4dc448d4f852a5dd75143fffc70be550e",
+      "bytes": 202,
+      "note": "byte-identical for both models at the pinned revisions"
+    }
+  },
+  "q8_0_pilot_models": {
+    "q38_q8_local": {
+      "source": "measured: sha256sum run directly against the local file on tower2 on 2026-08-16",
+      "path": "/mnt/bulk/models/qwen3.8-27b-q8_0/Qwen3.8-27B-Q8_0.gguf",
+      "filename": "Qwen3.8-27B-Q8_0.gguf",
+      "sha256": "a680f44a06920e5d689774823782006aa3acc8db95750323373b24139b67e348",
+      "bytes": 29047086048,
+      "quant_repository": "unsloth/Qwen3.8-27B-GGUF",
+      "quant_revision": "fe1e2a23d973adb629709749dc4f6756df66ef10",
+      "status": "on_disk_verified",
+      "matches_quant_pilot_config": true,
+      "note": "independent measurement agrees exactly with tooling/corrective/configs/quant-pilot.json models.q38_q8 (sha256 and byte size)"
+    },
+    "q36_q8_remote": {
+      "source": "copied from tooling/corrective/configs/quant-pilot.json models.q36_q8 (HF LFS oid + size of the file at the pinned quant revision, fetched via the HF API 2026-08-16)",
+      "filename": "Qwen3.6-27B-Q8_0.gguf",
+      "sha256": "f93f517f38e696d35a1a7df2c0e3155a64f4c4dcd662107a146ae263f7fb14ce",
+      "bytes": 28595763424,
+      "quant_repository": "unsloth/Qwen3.6-27B-GGUF",
+      "quant_revision": "82d411acf4a06cfb8d9b073a5211bf410bfc29bf",
+      "status": "not_yet_downloaded",
+      "note": "stage with tooling/corrective/download-qwen36-q8_0.sh before the pilot window; run_quant_pilot.sh preflight refuses while the file is missing or mismatched"
+    }
+  },
+  "llama_cpp_runtime": {
+    "source": "copied from tooling/deployments/qwen-corrective/phase_a.json runtime block (re-measured live on 2026-08-16 per its verification_note)",
+    "engine": "llama.cpp",
+    "image_tag": "dream-fleet/llama.cpp:server-cuda-9d57ce-sm120",
+    "image_reference": "dream-fleet/llama.cpp@sha256:0c8dc7c0954fe5e1d75118a4f880f17252f62d1d01e24716b172afe9fafd85a1",
+    "image_id": "sha256:0c8dc7c0954fe5e1d75118a4f880f17252f62d1d01e24716b172afe9fafd85a1",
+    "llama_cpp_commit": "9d57ce456c94d241dde672b2db9cf18879766568",
+    "llama_cpp_version": "b10435-dreamfleet",
+    "llama_server_sha256": "fc6a6a15230a2dd6c56aae913e6d0d1b4913015e0966d800c08da8dce57b376e"
+  },
+  "legacy_harness_exclusion": {
+    "source": "full sha256 read from prior-corpus receipts in this checkout (for example logs/p1_bugfix_qwen38-27b-udq4xl-nothink_v1/receipt.json, campaign-generated, gitignored); truncated form cited in benchmarks/qwen36-vs-qwen38-27b-2026-08/AUDIT.md",
+    "harness_sha256": "fdbc1584074f36d9500fd2e16d4e0953f4bb28d40e0cdd540a425eed485f4805",
+    "rule": "the two legacy cells recorded under this prior-corpus harness sha are excluded from every table of this study mechanically by harness-hash filter; stated once, applied everywhere (PREREGISTRATION.md section 5)"
+  }
+}
