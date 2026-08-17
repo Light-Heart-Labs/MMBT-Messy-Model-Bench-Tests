@@ -1,0 +1,1 @@
+Note: the exploratory results entry `benchmarks/qwen36-vs-qwen38-27b-2026-08/` that this entry references by relative path (PREREGISTRATION.md section 9; `manifest/pins-2026-08-16.json` `covered_elsewhere`, `graders_v1_exploratory_reference`) is NOT on this clean methodology branch — it lives on the held draft PR #46 branch `findings/qwen36-vs-qwen38-27b-2026-08`.
