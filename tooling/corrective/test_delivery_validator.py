@@ -36,7 +36,8 @@ def make_tar(path, files):
 
 
 def make_cell(d, run_name, finish_reason="done_signal", tar_files=None,
-              label=None, transcript_model_turns=3, with_summary=True):
+              label=None, transcript_model_turns=3, with_summary=True,
+              error_event=None):
     cell = Path(d) / run_name
     cell.mkdir(parents=True)
     if with_summary:
@@ -51,9 +52,22 @@ def make_cell(d, run_name, finish_reason="done_signal", tar_files=None,
         lines.append(json.dumps({"type": "model", "iter": i + 1}))
         lines.append(json.dumps({"type": "tool", "name": "bash",
                                  "args": {"cmd": f"step{i}"}}))
+    if error_event is not None:
+        lines.append(json.dumps({"type": "error", **error_event}))
     (cell / "transcript.jsonl").write_text("\n".join(lines) + ("\n" if lines else ""))
     (cell / "receipt.json").write_text(json.dumps({"schema_version": 1}))
     return cell
+
+
+# Verbatim llama-server HTTP 400 body from the real incident
+# (p3_market_q38-diag-t03-nothink-s101_v1 attempt 1, 2026-08-17T13:33:21Z).
+EXCEED_CTX_EVENT = {
+    "error": "HTTP Error 400: Bad Request",
+    "body": ('{"error":{"code":400,"message":"request (262339 tokens) exceeds '
+             'the available context size (262144 tokens), try increasing it",'
+             '"type":"exceed_context_size_error","n_prompt_tokens":262339,'
+             '"n_ctx":262144}}'),
+}
 
 
 GOOD_P2 = {
@@ -117,6 +131,66 @@ class TestDelivery(unittest.TestCase):
             self.assertEqual(out["classification"], "infra")
             self.assertTrue(out["infra_rerun_eligible"])
             self.assertFalse(out["delivery"])
+
+    def test_context_exhaustion_is_model_outcome_not_infra(self):
+        # HTTP 400 exceed_context_size_error after real model turns is a
+        # MODEL outcome (DEVIATIONS.md deviation 1): terminal, delivery
+        # false, never quarantined, never rerun.
+        with tempfile.TemporaryDirectory() as d:
+            cell = make_cell(d, "p2_extract_q38-diag-t03-nothink-s101_v1",
+                             finish_reason="api_error: HTTP Error 400: Bad Request",
+                             tar_files=None, transcript_model_turns=5,
+                             error_event=EXCEED_CTX_EVENT)
+            out = dv.validate_cell(cell, artifacts_spec=SPEC)
+            self.assertEqual(out["classification"], "context-exhausted")
+            self.assertFalse(out["delivery"])
+            self.assertFalse(out["infra_rerun_eligible"])
+            self.assertTrue(any("context" in r for r in out["reasons"]))
+
+    def test_context_exhaustion_token_pattern_alone_matches(self):
+        # Same outcome when only the token-count message survives (no
+        # exceed_context_size type string in the recorded body).
+        with tempfile.TemporaryDirectory() as d:
+            cell = make_cell(d, "p2_extract_q38-diag-t03-nothink-s101_v1",
+                             finish_reason="api_error: HTTP Error 400: Bad Request",
+                             tar_files=None, transcript_model_turns=2,
+                             error_event={"error": "HTTP Error 400: Bad Request",
+                                          "body": "request (262339 tokens) exceeds "
+                                                  "the available context size "
+                                                  "(262144 tokens), try increasing it"})
+            out = dv.validate_cell(cell, artifacts_spec=SPEC)
+            self.assertEqual(out["classification"], "context-exhausted")
+            self.assertFalse(out["infra_rerun_eligible"])
+
+    def test_context_exhaustion_with_zero_model_turns_stays_infra(self):
+        # A first-request overflow (no model turns) cannot be the model's own
+        # prompt growth: config/infra problem, stays quarantine-eligible.
+        with tempfile.TemporaryDirectory() as d:
+            cell = make_cell(d, "p2_extract_q38-diag-t03-nothink-s101_v1",
+                             finish_reason="api_error: HTTP Error 400: Bad Request",
+                             tar_files=None, transcript_model_turns=0,
+                             error_event=EXCEED_CTX_EVENT)
+            out = dv.validate_cell(cell, artifacts_spec=SPEC)
+            self.assertEqual(out["classification"], "infra")
+            self.assertTrue(out["infra_rerun_eligible"])
+
+    def test_non_context_api_errors_stay_infra(self):
+        # Connection refused / 5xx / timeout api_errors with model turns and
+        # a non-matching (or absent) error body remain infrastructure.
+        cases = [
+            ("api_error: <urlopen error [Errno 111] Connection refused>", None),
+            ("api_error: HTTP Error 503: Service Unavailable",
+             {"error": "HTTP Error 503: Service Unavailable", "body": "upstream down"}),
+            ("api_error: The read operation timed out", None),
+        ]
+        for finish, ev in cases:
+            with tempfile.TemporaryDirectory() as d:
+                cell = make_cell(d, "p2_extract_q38-diag-t03-nothink-s101_v1",
+                                 finish_reason=finish, tar_files=None,
+                                 transcript_model_turns=3, error_event=ev)
+                out = dv.validate_cell(cell, artifacts_spec=SPEC)
+                self.assertEqual(out["classification"], "infra", finish)
+                self.assertTrue(out["infra_rerun_eligible"], finish)
 
     def test_loop_label_classifies_loop_terminated(self):
         with tempfile.TemporaryDirectory() as d:

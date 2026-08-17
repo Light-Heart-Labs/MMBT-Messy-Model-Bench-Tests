@@ -1134,7 +1134,22 @@ def main():
     prepare_log_dir(log_dir, args.run_name)
     workspace_host = HARNESS_DIR / "workspace" / args.run_name
     if workspace_host.exists():
-        subprocess.run(["rm", "-rf", str(workspace_host)], check=True)
+        # The sandbox runs as root, so a prior attempt of the same run_name
+        # leaves root-owned files in the bind-mounted workspace that an
+        # unprivileged `rm -rf` cannot remove; with check=True that killed
+        # same-seed infra reruns at startup with zero model turns
+        # (corrective rerun attempts 2-4 of
+        # p3_market_q38-diag-t03-nothink-s101_v1, DEVIATIONS.md deviation 2).
+        # Scrub root-owned residue INSIDE a container mounting only the
+        # workspace parent (the audit A4b cleanup pattern — never sudo),
+        # then fall back to a plain rm for hosts without docker/alpine.
+        subprocess.run(
+            ["docker", "run", "--rm",
+             "-v", f"{workspace_host.parent}:/w",
+             "alpine", "rm", "-rf", f"/w/{args.run_name}"],
+            check=False, capture_output=True)
+        if workspace_host.exists():
+            subprocess.run(["rm", "-rf", str(workspace_host)], check=True)
     workspace_host.mkdir(parents=True, exist_ok=True)
 
     # Stop any prior sandbox, start a fresh one with the workspace mounted
