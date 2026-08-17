@@ -2,9 +2,14 @@
 # Argv-capture verification of the v2-brief + sandbox-network wiring through
 # the PATCHED run_microbench.sh, without any endpoint or model. Same
 # fake-python3/fake-curl technique as dryrun_argv_capture.sh.
+#
+# Hermetic (audit A4): operates on the checkout this script lives in (no
+# hardcoded campaign-host path), touches nothing outside mktemp space, needs
+# no docker, no endpoint, no fleet host. Exits 0 iff every check passed; the
+# final line on success is ALL_V2_WIRING_CHECKS_PASSED.
 set -euo pipefail
 
-REPO=/home/michael/mmbt-qwen38-eaaa8ca
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/bin"
@@ -76,5 +81,15 @@ for fam in "${!SIX[@]}"; do
   run_case "six-$fam" "$fam" v2 "" q38-official-nothink-s101
   expect_line "$TMP/argv-six-$fam.txt" "$REPO/tooling/tasks/v2/${SIX[$fam]}"
 done
+
+# Hermeticity regression assertion (audit A4c): the dry run must leave the
+# checkout byte-clean - nothing in the throwaway areas, ignored files included.
+# Empty leftover dirs are fine (git cannot track them); prune empties first.
+rmdir "$REPO/logs" "$REPO/tooling/workspace" 2>/dev/null || true
+residue=$(git -C "$REPO" status --porcelain --ignored=matching -- logs tooling/workspace)
+if [ -n "$residue" ]; then
+  echo "FAIL residue left in throwaway areas:"; printf '%s\n' "$residue"; exit 1
+fi
+echo "PASS post-run worktree clean (logs/ + tooling/workspace/ untouched)"
 
 echo ALL_V2_WIRING_CHECKS_PASSED

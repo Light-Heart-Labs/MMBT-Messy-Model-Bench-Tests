@@ -2,9 +2,14 @@
 # Dry-run 1: prove BENCH_SEED -> --seed and BENCH_TASK_ONLY -> single family
 # through the PATCHED run_microbench.sh, without any endpoint or model.
 # Same fake-python3/fake-curl technique as test_run_microbench_qwen38_transport.py.
+#
+# Hermetic (audit A4): operates on the checkout this script lives in (no
+# hardcoded campaign-host path), touches nothing outside mktemp space, needs
+# no docker, no endpoint, no fleet host. Exits 0 iff every check passed; the
+# final line on success is ALL_ARGV_CHECKS_PASSED.
 set -euo pipefail
 
-REPO=/home/michael/mmbt-qwen38-eaaa8ca
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/bin"
@@ -59,5 +64,15 @@ grep -qx -- "--gpus" "$BENCH_TEST_CAPTURE" && { echo "FAIL --gpus present"; exit
 total=$(grep -x -- "p2_extract_q38-official-nothink-s101_v1" "$BENCH_TEST_CAPTURE" | wc -l)
 echo "run-name args in capture: $total (want 1: only the filtered family ran)"
 [ "$total" = "1" ] || exit 1
+
+# Hermeticity regression assertion (audit A4c): the dry run must leave the
+# checkout byte-clean - nothing in the throwaway areas, ignored files included.
+# Empty leftover dirs are fine (git cannot track them); prune empties first.
+rmdir "$REPO/logs" "$REPO/tooling/workspace" 2>/dev/null || true
+residue=$(git -C "$REPO" status --porcelain --ignored=matching -- logs tooling/workspace)
+if [ -n "$residue" ]; then
+  echo "FAIL residue left in throwaway areas:"; printf '%s\n' "$residue"; exit 1
+fi
+echo "PASS post-run worktree clean (logs/ + tooling/workspace/ untouched)"
 
 echo ALL_ARGV_CHECKS_PASSED
